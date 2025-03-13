@@ -3,8 +3,11 @@ resolver = "2"
 members = [
     "mspm0-data-types",
     "mspm0-metapac-gen",
-    "mspm0-metapac",
+    # "mspm0-metapac",
     "mspm0-data-gen",
+]
+exclude = [
+    "build"
 ]
 
 [workspace.dependencies]

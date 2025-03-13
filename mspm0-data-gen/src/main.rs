@@ -45,7 +45,7 @@ impl Stopwatch {
 
 fn main() -> anyhow::Result<()> {
     // TODO: Don't use an absolute path
-    let data_sources = PathBuf::from("/home/i509vcb/Dev/msp-rs/mspm0-data-sources/");
+    let data_sources = PathBuf::from("./sources/");
 
     let mut stopwatch = Stopwatch::new();
     stopwatch.section("Parsing headers");

@@ -1,4 +1,3 @@
-use chiptool::ir;
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, fmt};
 

@@ -58,7 +58,7 @@ pub fn generate(
             int_groups,
         )?;
 
-        fs::create_dir_all("./data/chips/").unwrap();
+        fs::create_dir_all("./build/data/").unwrap();
 
         let chip = Chip {
             packages,
@@ -68,7 +68,7 @@ pub fn generate(
         };
 
         let _ = fs::write(
-            format!("./data/chips/{name}.json"),
+            format!("./build/data/{name}.json"),
             serde_json::to_string_pretty(&chip).unwrap(),
         );
     }
