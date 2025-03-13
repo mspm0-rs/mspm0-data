@@ -1,0 +1,602 @@
+# Transform using SYSCTL from C110x
+transforms:
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  # !DeleteUselessEnums explodes on FLBANK_SWAP so manually remove it.
+  #
+  # See https://github.com/embassy-rs/chiptool/issues/54
+  - !DeleteEnums
+    from: FLBANK_SWAP
+
+  - !DeleteUselessEnums
+
+  # Remove SYSCTL prefixes
+  - !RenameRegisters
+    block: .*
+    from: SYSCTL_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: SYSCTL_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: SYSCTL_(.+)
+    to: $1
+
+  # PINCM block does not exist in the datasheet
+  - !Delete
+    from: PINCM
+
+  # BEEPER is part of SYSCTL for C110x. For mspm0-data, the beeper is treated as a seperate peripheral
+  # and is removed here.
+  - !Delete
+    from: BEEPER
+
+  - !DeleteEnumsUsedIn
+    fieldsets: BEEPER
+
+  - !DeleteEnums
+    from: BEEPER(.*)
+
+  - !DeleteFieldsets
+    from: BEEPER(.*)
+
+  - !DeleteRegisters
+    block: .*
+    from: BEEPER(.*)
+
+  # IMASK, RIS, MIS, ISET, ICLR are the same type
+  - !MergeFieldsets
+    from: (IMASK|RIS|MIS|ISET|ICLR)
+    to: INT
+
+  # Remove fields from IIDX and INT which do not exist on C110x
+  - !DeleteFields
+    fieldset: INT
+    from:
+      include: .*
+      exclude: (LFOSCGOOD|ANACLKERR)
+
+  - !DeleteEnumVariants
+    enum: STAT
+    from:
+      include: .*
+      exclude: (NO_INTR|LFOSCGOOD|ANACLKERR)
+
+  # STAT used on C110x has a field size of 2 bits
+  - !ResizeEnums
+    enum: INT
+    bit_size: 2
+
+  # Add missing ANACLKERR to STAT and INT
+  - !AddEnumVariants
+    enum: STAT
+    variants:
+    - name: ANACLKERR
+      value: 2
+  
+  - !AddFields
+    fieldset: INT
+    fields:
+    - name: ANACLKERR
+      bit_offset: 1
+      bit_size: 1
+
+  # Add missing NMI fieldsets and registers
+  - !Add
+    ir:
+      enum/NMI_STAT:
+        bit_size: 2
+        variants:
+        - name: NO_INTR
+          description: No Interrupt.
+          value: 0
+        - name: BORLVL
+          value: 1
+        # Datasheet mistake, labels this as `2`, other NMI fields say this is WWDT0
+        - name: WWDT0
+          value: 2
+      fieldset/NMI_IIDX:
+        fields:
+        - name: STAT
+          bit_offset: 0
+          bit_size: 2
+          enum: NMI_STAT
+      fieldset/NMI:
+        fields:
+        - name: BORLVL
+          bit_offset: 0
+          bit_size: 1
+        - name: WWDT0
+          bit_offset: 1
+          bit_size: 1
+
+  - !AddRegisters
+    block: SYSCTL
+    registers:
+    - name: NMI_IIDX
+      byte_offset: 4176
+      fieldset: NMI_IIDX
+    - name: NMI_RIS
+      byte_offset: 4192
+      fieldset: NMI
+    - name: NMI_ISET
+      byte_offset: 4208
+      fieldset: NMI
+    - name: NMI_ICLR
+      byte_offset: 4216
+      fieldset: NMI
+
+  # SYSOSCCFG
+  # Remove SYSOSCTURBO variants, not defined on C110x
+  - !DeleteEnumVariants
+    enum: (SYSOSCCFG_FREQ|SYSOSCFREQ)
+    from: SYSOSCTURBO
+
+  # USE4MHZSTOP, FASTCLKONAREQ and BLOCKASYNCACOMP do not exist on C110x
+  - !DeleteFields
+    fieldset: SYSOSCCFG
+    from: (USE4MHZSTOP|FASTCLKONAREQ|BLOCKASYNCACOMP)
+  
+  # SYSOSCCFG does not have FASTCPUEVENT, but an existing field with the wrong name occupies the
+  # same bit.
+  - !RenameFields
+    fieldset: SYSOSCCFG
+    from: BLOCKASYNCUART
+    to: FASTCPUEVENT
+
+  # MCLKCFG has no UDIV, FLASHWAIT
+  - !DeleteFields
+    fieldset: MCLKCFG
+    from: (UDIV|FLASHWAIT)
+
+  # MCLKCFG is missing MCLKDEADCHK
+  - !AddFields
+    fieldset: MCLKCFG
+    fields:
+    - name: MCLKDEADCHK
+      bit_offset: 22
+      bit_size: 1
+
+  # HSCLKEN
+  # SYSPLLEN and HFXTEN do not exist
+  - !DeleteFields
+    fieldset: HSCLKEN
+    from: (HFXTEN|SYSPLLEN)
+
+  # GENCLKCFG
+  # CANCLKSRC does not exist on C110x
+  - !DeleteFields
+    fieldset: GENCLKCFG
+    from: CANCLKSRC
+  
+  # GENCLKCFG is missing FCCSELCLK, FCCTRIGSRC, FCCLVLTRIG, ANACPUMPCFG, FCCTRIGCNT
+  - !AddFields
+    fieldset: GENCLKCFG
+    fields:
+    - name: FCCSELCLK
+      bit_offset: 16
+      bit_size: 4
+      enum: FCCSELCLK
+    - name: FCCTRIGSRC
+      bit_offset: 20
+      bit_size: 1
+      enum: FCCTRIGSRC
+    - name: FCCLVLTRIG
+      bit_offset: 21
+      bit_size: 1
+      enum: FCCLVLTRIG
+    - name: ANACPUMPCFG
+      bit_offset: 22
+      bit_size: 2
+      enum: ANACPUMPCFG
+    - name: FCCTRIGCNT
+      bit_offset: 24
+      bit_size: 5
+
+  - !Add
+    ir:
+      enum/FCCSELCLK:
+        bit_size: 4
+        variants:
+        - name: MCLK
+          value: 0
+        - name: SYSOSC
+          value: 1
+        - name: HFCLK
+          value: 2
+        - name: CLK_OUT
+          value: 3
+        - name: FCCIN
+          value: 7
+      enum/FCCTRIGSRC:
+        bit_size: 1
+        variants:
+        - name: EXTERNAL
+          value: 0
+        - name: LFCLK
+          value: 1
+      enum/FCCLVLTRIG:
+        bit_size: 1
+        variants:
+        - name: RISING
+          value: 0
+        - name: LEVEL
+          value: 1
+      # Copied from L130x
+      enum/ANACPUMPCFG:
+        bit_size: 2
+        variants:
+        - name: ONDEMAND
+          description: VBOOST is enabled on request from a COMP, GPAMP, or OPA.
+          value: 0
+        - name: ONACTIVE
+          description: VBOOST is enabled when the device is in RUN or SLEEP mode, or when a COMP/GPAMP/OPA is enabled.
+          value: 1
+        - name: ONALWAYS
+          description: VBOOST is always enabled.
+          value: 2
+
+  # GENCLKEN: Rename MFCLKEN to MFPCLKEN for consistency with other parts
+  - !RenameFields
+    fieldset: GENCLKEN
+    from: MFCLKEN
+    to: MFPCLKEN
+  # GENCLKEN - MFCLKEN is MFPCLKEN per datasheet, but this is fine.
+  # TODO: Determine if rename is needed for consistency.
+
+  # FCC, entirely missing from SVDs
+  - !Add
+    ir:
+      fieldset/FCC:
+        fields:
+        - name: DATA
+          bit_offset: 0
+          bit_size: 22
+
+  - !AddRegisters
+    block: SYSCTL
+    registers:
+    - name: FCC
+      byte_offset: 4432
+      fieldset: FCC
+
+  # SRAMBOUNDARY, entirely missing from SVDs
+  - !Add
+    ir:
+      fieldset/SRAMBOUNDARY:
+        description: SRAM Write Boundary
+        fields:
+        - name: ADDR
+          bit_offset: 5
+          bit_size: 15
+
+  - !AddRegisters
+    block: SYSCTL
+    registers:
+    - name: SRAMBOUNDARY
+      byte_offset: 4472
+      fieldset: SRAMBOUNDARY
+
+  # SYSTEMCFG is entirely wrong
+  - !Add
+    ir:
+      fieldset/SYSTEMCFG:
+        description: System configuration
+        fields:
+        - name: WWDTLP0RSTDIS
+          bit_offset: 0
+          bit_size: 1
+        - name: KEY
+          bit_offset: 24
+          bit_size: 8
+          enum: SYSTEMCFG_KEY
+      enum/SYSTEMCFG_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 27
+
+  # BEEPCFG we skip, it does belong to SYSCTL but we treat it as a different peripheral.
+  # Either way it's missing from the SVDs.
+
+  # CLKSTATUS
+  # HFCLKGOOD, SYSPLLGOOD, LFXTGOOD, HSCLKSOFF, SYSPLLOFF, CURHSCLKSEL, HSCLKDEAD, HSCLKGOOD,
+  # LFCLKFAIL, HFCLKBLKUPD, SYSPLLBLKUPD, OPAMPCLKERR do not exist on C110x
+  - !DeleteFields
+    fieldset: CLKSTATUS
+    from: (HFCLKGOOD|SYSPLLGOOD|LFXTGOOD|HSCLKOFF|SYSPLLOFF|CURHSCLKSEL|HSCLKDEAD|HSCLKGOOD|LFCLKFAIL|HFCLKBLKUPD|SYSPLLBLKUPD|OPAMPCLKERR)
+
+  # CLKSTATUS: FCLDONE is missing
+  - !AddFields
+    fieldset: CLKSTATUS
+    fields:
+    - name: FCCDONE
+      bit_offset: 25
+      bit_size: 1
+
+  # CLKSTATUS: Rename ACOMPHSCLKERR to ANACLKERR
+  - !RenameFields
+    fieldset: CLKSTATUS
+    from: ACOMPHSCLKERR
+    to: ANACLKERR
+
+  # SYSSTATUS is entirely wrong
+  - !Add
+    ir:
+      fieldset/SYSSTATUS:
+        fields:
+        - name: BORCURTHRESHOLD
+          bit_offset: 2
+          bit_size: 2
+        - name: BORLVL
+          bit_offset: 4
+          bit_size: 1
+        - name: ANACPUMPGOOD
+          bit_offset: 5
+          bit_size: 1
+        - name: PMUIREFGOOD
+          bit_offset: 6
+          bit_size: 1
+        - name: EXTRSTPINDIS
+          bit_offset: 12
+          bit_size: 1
+        - name: SWDCFGDIS
+          bit_offset: 13
+          bit_size: 1
+        - name: SHDNIOLOCK
+          bit_offset: 14
+          bit_size: 1
+        - name: REBOOTATTEMPTS
+          bit_offset: 30
+          bit_size: 2
+
+  # RSTCAUSE, entirely missing from SVDs
+  - !Add
+    ir:
+      fieldset/RSTCAUSE:
+        fields:
+        - name: ID
+          bit_offset: 0
+          bit_size: 5
+
+  - !AddRegisters
+    block: SYSCTL
+    registers:
+    - name: RSTCAUSE
+      byte_offset: 4640
+      fieldset: RSTCAUSE
+
+  # RESETCMD: Add KEY
+  - !Add
+    ir:
+      enum/RESETCMD_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 228
+
+  - !AddFields
+    fieldset: RESETCMD
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: RESETCMD_KEY
+
+  # BORTHRESHOLD_LEVEL is useless
+  - !DeleteEnums
+    from: BORTHRESHOLD_LEVEL
+
+  # BORCLRCMD, entirely missing from SVDs
+  - !Add
+    ir:
+      enum/BORCLRCMD_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 199
+      fieldset/BORCLRCMD:
+        fields:
+        - name: GO
+          bit_offset: 0
+          bit_size: 1
+        - name: KEY
+          bit_offset: 24
+          bit_size: 8
+          enum: BORCLRCMD_KEY
+
+  - !AddRegisters
+    block: SYSCTL
+    registers:
+    - name: BORCLRCMD
+      byte_offset: 4876
+      fieldset: BORCLRCMD
+
+  # SYSOSCFCLCTL: Add key
+  - !Add
+    ir:
+      enum/SYSOSCFCLCTL_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 42
+
+  - !AddFields
+    fieldset: SYSOSCFCLCTL
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: SYSOSCFCLCTL_KEY
+
+  # EXLFCTL: Add key
+  - !Add
+    ir:
+      enum/EXLFCTL_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 54
+
+  - !AddFields
+    fieldset: EXLFCTL
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: EXLFCTL_KEY
+
+  # SHDNIOREL: Add key
+  - !Add
+    ir:
+      enum/SHDNIOREL_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 145
+
+  - !AddFields
+    fieldset: SHDNIOREL
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: SHDNIOREL_KEY
+
+  # EXRSTPIN: Add key
+  - !Add
+    ir:
+      enum/EXRSTPIN_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 30
+
+  - !AddFields
+    fieldset: EXRSTPIN
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: EXRSTPIN_KEY
+
+  # SYSSTATUSCLR: Add key
+  - !Add
+    ir:
+      enum/SYSSTATUSCLR_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 206
+
+  - !AddFields
+    fieldset: SYSSTATUSCLR
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: SYSSTATUSCLR_KEY
+
+  # SWDCFG: Add key
+  - !Add
+    ir:
+      enum/SWDCFG_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 98
+
+  - !AddFields
+    fieldset: SWDCFG
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: SWDCFG_KEY
+
+  # SWDCFG::DISABLE is at the wrong bit offset, so replace it 
+  - !DeleteFields
+    fieldset: SWDCFG
+    from: DISABLE
+
+  - !AddFields
+    fieldset: SWDCFG
+    fields:
+    - name: DISABLE
+      bit_offset: 0
+      bit_size: 1
+
+  # FCCCMD, entirely missing from SVDs
+  - !Add
+    ir:
+      enum/FCCCMD_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 14
+      fieldset/FCCCMD:
+        fields:
+        - name: GO
+          bit_offset: 0
+          bit_size: 1
+        - name: KEY
+          bit_offset: 24
+          bit_size: 8
+          enum: FCCCMD_KEY
+
+  - !AddRegisters
+    block: SYSCTL
+    registers:
+    - name: FCCCMD
+      byte_offset: 4908
+      fieldset: FCCCMD
+
+  # SHUTDNSTORE:
+  - !MergeFieldsets
+    from: SHUTDNSTORE(\d+)
+    to: SHUTDNSTORE
+
+  - !MakeRegisterArray
+    blocks: SYSCTL
+    from: SHUTDNSTORE(\d+)
+    to: SHUTDNSTORE
+
+  # The SVDs we are transforming have a lot of trim and testing registers that are not publicly documented.
+  #
+  # What is done here is to explicitly allow-list fields and enums that appear in SYSCTL_C1103_C1104 per SLAU893B.
+  # There are a lot of trim and testing registers.
+
+  # Allowlist specific fields to keep in the SYSCTL block.
+  - !DeleteEnumsUsedIn
+    fieldsets:
+      include: .*
+      exclude: (IIDX|INT|NMI|NMI_(IIDX|RIS|ISET|ICLR)|SYSOSCCFG|MCLKCFG|HSCLKEN|GENCLKCFG|GENCLKEN|PMODECFG|FCC|SRAMBOUNDARY|SYSTEMCFG|BEEPCFG|WRITELOCK|CLKSTATUS|SYSSTATUS|RSTCAUSE|RESET(LEVEL|CMD)|BOR(THRESHOLD|CLRCMD)|SYSOSCFCLCTL|EXLFCTL|SHDNIOREL|EXRSTPIN|SYSSTATUSCLR|SWDCFG|FCCCMD|SHUTDNSTORE)
+
+  - !DeleteFieldsets
+    from:
+      include: .*
+      exclude: (IIDX|INT|NMI|NMI_(IIDX|RIS|ISET|ICLR)|SYSOSCCFG|MCLKCFG|HSCLKEN|GENCLKCFG|GENCLKEN|PMODECFG|FCC|SRAMBOUNDARY|SYSTEMCFG|BEEPCFG|WRITELOCK|CLKSTATUS|SYSSTATUS|RSTCAUSE|RESET(LEVEL|CMD)|BOR(THRESHOLD|CLRCMD)|SYSOSCFCLCTL|EXLFCTL|SHDNIOREL|EXRSTPIN|SYSSTATUSCLR|SWDCFG|FCCCMD|SHUTDNSTORE)
+
+  - !DeleteRegisters
+    block: SYSCTL
+    from:
+      include: .*
+      exclude: (IIDX|IMASK|NMI|NMI_(IIDX|RIS|ISET|ICLR)|RIS|MIS|ISET|ICLR|SYSOSCCFG|MCLKCFG|HSCLKEN|GENCLKCFG|GENCLKEN|PMODECFG|FCC|SRAMBOUNDARY|SYSTEMCFG|BEEPCFG|WRITELOCK|CLKSTATUS|SYSSTATUS|RSTCAUSE|RESET(LEVEL|CMD)|BOR(THRESHOLD|CLRCMD)|SYSOSCFCLCTL|EXLFCTL|SHDNIOREL|EXRSTPIN|SYSSTATUSCLR|SWDCFG|FCCCMD|SHUTDNSTORE)
+
+  # Miscellaneous enums which don't belong to any of the above
+  - !DeleteEnums
+    from: (CANCLKSRC|CURHSCLKSEL|UDIV)
+
+  # EXCLKDIVEN (DeleteUselessEnums)
+  # TODO: Remove after https://github.com/embassy-rs/chiptool/pull/57
+  - !DeleteEnums
+    from: EXCLKDIVEN
+
+  ## Cleanup
+  - !Sort

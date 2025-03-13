@@ -1,0 +1,31 @@
+# Transform using IOMUX from G351x
+transforms:
+  - !DeleteUselessEnums
+
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  # Remove IOMUX prefixes
+  - !RenameRegisters
+    block: .*
+    from: IOMUX_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: IOMUX_(.+)
+    to: $1
+
+  - !Rename
+    type: Fieldset
+    from: IOMUX_(.+)
+    to: $1
+
+  # DRV and WCOMP enums are useless
+  - !DeleteEnums
+    from: (DRV|WCOMP)
+    bit_size: 1
+
+  ## Cleanup
+  - !Sort

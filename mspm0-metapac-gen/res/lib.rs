@@ -1,0 +1,17 @@
+#![no_std]
+#![allow(non_snake_case)]
+#![allow(unused)]
+#![allow(non_camel_case_types)]
+#![doc(html_no_source)]
+
+pub mod common;
+
+#[cfg(feature = "pac")]
+include!(env!("MSPM0_METAPAC_PAC_PATH"));
+
+#[cfg(feature = "metadata")]
+pub mod metadata {
+    include!("metadata.rs");
+    include!(env!("MSPM0_METAPAC_METADATA_PATH"));
+    // TODO: all_chips
+}

@@ -1,0 +1,984 @@
+block/SYSCTL:
+  description: mem_map.
+  items:
+  - name: IIDX
+    description: SYSCTL interrupt index.
+    byte_offset: 4128
+    access: Read
+    fieldset: IIDX
+  - name: IMASK
+    description: SYSCTL interrupt mask.
+    byte_offset: 4136
+    fieldset: INT
+  - name: RIS
+    description: SYSCTL raw interrupt status.
+    byte_offset: 4144
+    access: Read
+    fieldset: INT
+  - name: MIS
+    description: SYSCTL masked interrupt status.
+    byte_offset: 4152
+    access: Read
+    fieldset: INT
+  - name: ISET
+    description: SYSCTL interrupt set.
+    byte_offset: 4160
+    access: Write
+    fieldset: INT
+  - name: ICLR
+    description: SYSCTL interrupt clear.
+    byte_offset: 4168
+    access: Write
+    fieldset: INT
+  - name: NMIIIDX
+    description: NMI interrupt index.
+    byte_offset: 4176
+    access: Read
+    fieldset: NMIIIDX
+  - name: NMIRIS
+    description: NMI raw interrupt status.
+    byte_offset: 4192
+    access: Read
+    fieldset: NMI
+  - name: NMIISET
+    description: NMI interrupt set.
+    byte_offset: 4208
+    access: Write
+    fieldset: NMI
+  - name: NMIICLR
+    description: NMI interrupt clear.
+    byte_offset: 4216
+    access: Write
+    fieldset: NMI
+  - name: SYSOSCCFG
+    description: SYSOSC configuration.
+    byte_offset: 4352
+    fieldset: SYSOSCCFG
+  - name: MCLKCFG
+    description: Main clock (MCLK) configuration.
+    byte_offset: 4356
+    fieldset: MCLKCFG
+  - name: GENCLKCFG
+    description: General clock configuration.
+    byte_offset: 4408
+    fieldset: GENCLKCFG
+  - name: GENCLKEN
+    description: General clock enable control.
+    byte_offset: 4412
+    fieldset: GENCLKEN
+  - name: PMODECFG
+    description: Power mode configuration.
+    byte_offset: 4416
+    fieldset: PMODECFG
+  - name: FCC
+    description: Frequency clock counter (FCC) count.
+    byte_offset: 4432
+    access: Read
+    fieldset: FCC
+  - name: SYSOSCTRIMUSER
+    description: SYSOSC user-specified trim.
+    byte_offset: 4464
+    fieldset: SYSOSCTRIMUSER
+  - name: SRAMBOUNDARY
+    description: SRAM Write Boundary.
+    byte_offset: 4472
+    fieldset: SRAMBOUNDARY
+  - name: SYSTEMCFG
+    description: System configuration.
+    byte_offset: 4480
+    fieldset: SYSTEMCFG
+  - name: WRITELOCK
+    description: SYSCTL register write lockout.
+    byte_offset: 4608
+    fieldset: WRITELOCK
+  - name: CLKSTATUS
+    description: Clock module (CKM) status.
+    byte_offset: 4612
+    access: Read
+    fieldset: CLKSTATUS
+  - name: SYSSTATUS
+    description: System status information.
+    byte_offset: 4616
+    access: Read
+    fieldset: SYSSTATUS
+  - name: RSTCAUSE
+    description: Reset cause.
+    byte_offset: 4640
+    access: Read
+    fieldset: RSTCAUSE
+  - name: RESETLEVEL
+    description: Reset level for application-triggered reset command.
+    byte_offset: 4864
+    fieldset: RESETLEVEL
+  - name: RESETCMD
+    description: Execute an application-triggered reset command.
+    byte_offset: 4868
+    access: Write
+    fieldset: RESETCMD
+  - name: BORTHRESHOLD
+    description: BOR threshold selection.
+    byte_offset: 4872
+    fieldset: BORTHRESHOLD
+  - name: BORCLRCMD
+    description: Set the BOR threshold.
+    byte_offset: 4876
+    access: Write
+    fieldset: BORCLRCMD
+  - name: SYSOSCFCLCTL
+    description: SYSOSC frequency correction loop (FCL) ROSC enable.
+    byte_offset: 4880
+    access: Write
+    fieldset: SYSOSCFCLCTL
+  - name: SHDNIOREL
+    description: SHUTDOWN IO release control.
+    byte_offset: 4892
+    access: Write
+    fieldset: SHDNIOREL
+  - name: EXRSTPIN
+    description: Disable the reset function of the NRST pin.
+    byte_offset: 4896
+    access: Write
+    fieldset: EXRSTPIN
+  - name: SYSSTATUSCLR
+    description: Clear sticky bits of SYSSTATUS.
+    byte_offset: 4900
+    access: Write
+    fieldset: SYSSTATUSCLR
+  - name: SWDCFG
+    description: Disable the SWD function on the SWD pins.
+    byte_offset: 4904
+    access: Write
+    fieldset: SWDCFG
+  - name: FCCCMD
+    description: Frequency clock counter start capture.
+    byte_offset: 4908
+    access: Write
+    fieldset: FCCCMD
+  - name: PMUOPAMP
+    description: GPAMP control.
+    byte_offset: 4992
+    fieldset: PMUOPAMP
+  - name: SHUTDNSTORE
+    description: Shutdown storage memory (byte 0).
+    array:
+      len: 4
+      stride: 4
+    byte_offset: 5120
+    fieldset: SHUTDNSTORE
+fieldset/BORCLRCMD:
+  description: Set the BOR threshold.
+  fields:
+  - name: GO
+    description: GO clears any prior BOR violation status indications and attempts to change the active BOR mode to that specified in the LEVEL field of the BORTHRESHOLD register.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    bit_offset: 24
+    bit_size: 8
+    enum: BORCLRCMD_KEY
+fieldset/BORTHRESHOLD:
+  description: BOR threshold selection.
+  fields:
+  - name: LEVEL
+    description: LEVEL specifies the desired BOR threshold and BOR mode.
+    bit_offset: 0
+    bit_size: 2
+fieldset/CLKSTATUS:
+  description: Clock module (CKM) status.
+  fields:
+  - name: SYSOSCFREQ
+    description: SYSOSCFREQ indicates the current SYSOSC operating frequency.
+    bit_offset: 0
+    bit_size: 2
+    enum: SYSOSCFREQ
+  - name: LFCLKMUX
+    description: LFCLKMUX indicates if LFCLK is sourced from the internal LFOSC, the low frequency crystal (LFXT), or the LFCLK_IN digital clock input.
+    bit_offset: 6
+    bit_size: 2
+    enum: LFCLKMUX
+  - name: LFOSCGOOD
+    description: LFOSCGOOD indicates when the LFOSC startup has completed and the LFOSC is ready for use.
+    bit_offset: 11
+    bit_size: 1
+  - name: CURMCLKSEL
+    description: CURMCLKSEL indicates if MCLK is currently sourced from LFCLK.
+    bit_offset: 17
+    bit_size: 1
+  - name: FCLMODE
+    description: FCLMODE indicates if the SYSOSC frequency correction loop (FCL) is enabled.
+    bit_offset: 24
+    bit_size: 1
+  - name: FCCDONE
+    description: FCCDONE indicates when a frequency clock counter capture is complete.
+    bit_offset: 25
+    bit_size: 1
+  - name: OPAMPCLKERR
+    description: OPAMPCLKERR is set when the device clock configuration does not support an enabled OPA mode and the OPA may not be functioning as expected.
+    bit_offset: 30
+    bit_size: 1
+  - name: ANACLKERR
+    description: ANACLKERR is set when the device clock configuration does not support an enabled analog peripheral mode and the analog peripheral may not be functioning as expected.
+    bit_offset: 31
+    bit_size: 1
+fieldset/EXRSTPIN:
+  description: Disable the reset function of the NRST pin.
+  fields:
+  - name: DISABLE
+    description: Set DISABLE to disable the reset function of the NRST pin. Once set, this configuration is locked until the next POR.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    bit_offset: 24
+    bit_size: 8
+    enum: EXRSTPIN_KEY
+fieldset/FCC:
+  description: Frequency clock counter (FCC) count.
+  fields:
+  - name: DATA
+    description: Frequency clock counter (FCC) count value.
+    bit_offset: 0
+    bit_size: 22
+fieldset/FCCCMD:
+  description: Frequency clock counter start capture.
+  fields:
+  - name: GO
+    description: Set GO to start a capture with the frequency clock counter (FCC).
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    bit_offset: 24
+    bit_size: 8
+    enum: FCCCMD_KEY
+fieldset/GENCLKCFG:
+  description: General clock configuration.
+  fields:
+  - name: EXCLKSRC
+    description: EXCLKSRC selects the source for the CLK_OUT external clock output block. ULPCLK and MFPCLK require the CLK_OUT divider (EXCLKDIVEN) to be enabled.
+    bit_offset: 0
+    bit_size: 3
+    enum: EXCLKSRC
+  - name: EXCLKDIVVAL
+    description: EXCLKDIVVAL selects the divider value for the divider in the CLK_OUT external clock output block.
+    bit_offset: 4
+    bit_size: 3
+    enum: EXCLKDIVVAL
+  - name: EXCLKDIVEN
+    description: EXCLKDIVEN enables or disables the divider function of the CLK_OUT external clock output block.
+    bit_offset: 7
+    bit_size: 1
+  - name: FCCSELCLK
+    description: FCCSELCLK selectes the frequency clock counter (FCC) clock source.
+    bit_offset: 16
+    bit_size: 4
+    enum: FCCSELCLK
+  - name: FCCTRIGSRC
+    description: FCCTRIGSRC selects the frequency clock counter (FCC) trigger source.
+    bit_offset: 20
+    bit_size: 1
+    enum: FCCTRIGSRC
+  - name: FCCLVLTRIG
+    description: FCCLVLTRIG selects the frequency clock counter (FCC) trigger mode.
+    bit_offset: 21
+    bit_size: 1
+    enum: FCCLVLTRIG
+  - name: ANACPUMPCFG
+    description: ANACPUMPCFG selects the analog mux charge pump (VBOOST) enable method.
+    bit_offset: 22
+    bit_size: 2
+    enum: ANACPUMPCFG
+  - name: FCCTRIGCNT
+    description: FCCTRIGCNT specifies the number of trigger clock periods in the trigger window. FCCTRIGCNT=0h (one trigger clock period) up to 1Fh (32 trigger clock periods) may be specified.
+    bit_offset: 24
+    bit_size: 5
+fieldset/GENCLKEN:
+  description: General clock enable control.
+  fields:
+  - name: EXCLKEN
+    description: EXCLKEN enables the CLK_OUT external clock output block.
+    bit_offset: 0
+    bit_size: 1
+  - name: MFPCLKEN
+    description: MFPCLKEN enables the middle frequency precision clock (MFPCLK).
+    bit_offset: 4
+    bit_size: 1
+fieldset/IIDX:
+  description: SYSCTL interrupt index.
+  fields:
+  - name: STAT
+    description: The SYSCTL interrupt index (IIDX) register generates a value corresponding to the highest priority pending interrupt source. This value may be used as an address offset for fast, deterministic handling in the interrupt service routine. A read of the IIDX register will clear the corresponding interrupt status in the RIS and MIS registers.
+    bit_offset: 0
+    bit_size: 2
+    enum: IIDX_STAT
+fieldset/INT:
+  description: SYSCTL interrupt clear.
+  fields:
+  - name: LFOSCGOOD
+    description: Clear the LFOSCGOOD interrupt.
+    bit_offset: 0
+    bit_size: 1
+  - name: BORLVL
+    bit_offset: 1
+    bit_size: 1
+  - name: ANACLKERR
+    bit_offset: 2
+    bit_size: 1
+fieldset/MCLKCFG:
+  description: Main clock (MCLK) configuration.
+  fields:
+  - name: MDIV
+    description: MDIV may be used to divide the MCLK frequency when MCLK is sourced from SYSOSC. MDIV=0h corresponds to /1 (no divider). MDIV=1h corresponds to /2 (divide-by-2). MDIV=Fh corresponds to /16 (divide-by-16). MDIV may be set between /1 and /16 on an integer basis.
+    bit_offset: 0
+    bit_size: 4
+  - name: FLASHWAIT
+    description: FLASHWAIT specifies the number of flash wait states when MCLK is sourced from HSCLK. FLASHWAIT has no effect when MCLK is sourced from SYSOSC or LFCLK.
+    bit_offset: 8
+    bit_size: 4
+    enum: FLASHWAIT
+  - name: USEMFTICK
+    description: USEMFTICK specifies whether the 4MHz constant-rate clock (MFCLK) to peripherals is enabled or disabled. When enabled, MDIV must be disabled (set to 0h=/1).
+    bit_offset: 12
+    bit_size: 1
+  - name: USELFCLK
+    description: USELFCLK sets the MCLK source policy. Set USELFCLK to use LFCLK as the MCLK source. Note that setting USELFCLK does not disable SYSOSC, and SYSOSC remains available for direct use by analog modules.
+    bit_offset: 20
+    bit_size: 1
+  - name: STOPCLKSTBY
+    description: STOPCLKSTBY sets the STANDBY mode policy (STANDBY0 or STANDBY1). When set, ULPCLK and LFCLK are disabled to all peripherals in STANDBY mode, with the exception of TIMG0 and TIMG1 which continue to run. Wake-up is only possible via an asynchronous fast clock request.
+    bit_offset: 21
+    bit_size: 1
+  - name: MCLKDEADCHK
+    description: MCLKDEADCHK enables or disables the continuous MCLK dead check monitor. LFCLK must be running before MCLKDEADCHK is enabled.
+    bit_offset: 22
+    bit_size: 1
+fieldset/NMI:
+  description: NMI interrupt clear.
+  fields:
+  - name: BORLVL
+    description: Clr the BORLVL NMI.
+    bit_offset: 0
+    bit_size: 1
+  - name: WWDT0
+    description: Watch Dog 0 Fault.
+    bit_offset: 1
+    bit_size: 1
+fieldset/NMIIIDX:
+  description: NMI interrupt index.
+  fields:
+  - name: STAT
+    description: The NMI interrupt index (NMIIIDX) register generates a value corresponding to the highest priority pending NMI source. This value may be used as an address offset for fast, deterministic handling in the NMI service routine. A read of the NMIIIDX register will clear the corresponding interrupt status in the NMIRIS register.
+    bit_offset: 0
+    bit_size: 2
+    enum: NMIIIDX_STAT
+fieldset/PMODECFG:
+  description: Power mode configuration.
+  fields:
+  - name: DSLEEP
+    description: DSLEEP selects the operating mode to enter upon a DEEPSLEEP request from the CPU.
+    bit_offset: 0
+    bit_size: 2
+    enum: DSLEEP
+  - name: SYSSRAMONSTOP
+    description: SYSSRAMONSTOP selects whether the SRAM controller is enabled or disabled in STOP mode.
+    bit_offset: 5
+    bit_size: 1
+fieldset/PMUOPAMP:
+  description: GPAMP control.
+  fields:
+  - name: ENABLE
+    description: Set ENABLE to turn on the GPAMP.
+    bit_offset: 0
+    bit_size: 1
+  - name: PCHENABLE
+    description: Set PCHENABLE to enable the positive channel input.
+    bit_offset: 1
+    bit_size: 1
+  - name: NSEL
+    description: NSEL selects the GPAMP negative channel input.
+    bit_offset: 2
+    bit_size: 2
+    enum: NSEL
+  - name: RRI
+    description: RRI selects the rail-to-rail input mode.
+    bit_offset: 4
+    bit_size: 2
+    enum: RRI
+  - name: OUTENABLE
+    description: Set OUTENABLE to connect the GPAMP output signal to the GPAMP_OUT pin.
+    bit_offset: 6
+    bit_size: 1
+  - name: CHOPCLKFREQ
+    description: CHOPCLKFREQ selects the GPAMP chopping clock frequency.
+    bit_offset: 8
+    bit_size: 2
+    enum: CHOPCLKFREQ
+  - name: CHOPCLKMODE
+    description: CHOPCLKMODE selects the GPAMP chopping mode.
+    bit_offset: 10
+    bit_size: 2
+    enum: CHOPCLKMODE
+fieldset/RESETCMD:
+  description: Execute an application-triggered reset command.
+  fields:
+  - name: GO
+    description: Execute the reset specified in RESETLEVEL.LEVEL. Must be written together with the KEY.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    bit_offset: 24
+    bit_size: 8
+    enum: RESETCMD_KEY
+fieldset/RESETLEVEL:
+  description: Reset level for application-triggered reset command.
+  fields:
+  - name: LEVEL
+    description: LEVEL is used to specify the type of reset to be issued when RESETCMD is set to generate a software triggered reset.
+    bit_offset: 0
+    bit_size: 3
+    enum: RESETLEVEL_LEVEL
+fieldset/RSTCAUSE:
+  description: Reset cause.
+  fields:
+  - name: ID
+    description: ID is a read-to-clear field which indicates the lowest level reset cause since the last read.
+    bit_offset: 0
+    bit_size: 5
+    enum: ID
+fieldset/SHDNIOREL:
+  description: SHUTDOWN IO release control.
+  fields:
+  - name: RELEASE
+    description: Set RELEASE to release the IO after a SHUTDOWN mode exit.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    bit_offset: 24
+    bit_size: 8
+    enum: SHDNIOREL_KEY
+fieldset/SHUTDNSTORE:
+  description: Shutdown storage memory (byte 0).
+  fields:
+  - name: DATA
+    description: Shutdown storage byte 0.
+    bit_offset: 0
+    bit_size: 8
+  - name: PARITY
+    bit_offset: 8
+    bit_size: 1
+  - name: PARITYERR
+    bit_offset: 9
+    bit_size: 1
+fieldset/SRAMBOUNDARY:
+  description: SRAM Write Boundary.
+  fields:
+  - name: ADDR
+    description: 'SRAM boundary configuration. The value configured into this acts such that: SRAM accesses to addresses less than or equal value will be RW only. SRAM accesses to addresses greater than value will be RX only. Value of 0 is not valid (system will have no stack). If set to 0, the system acts as if the entire SRAM is RWX. Any non-zero value can be configured, including a value = SRAM size.'
+    bit_offset: 5
+    bit_size: 15
+fieldset/SWDCFG:
+  description: Disable the SWD function on the SWD pins.
+  fields:
+  - name: DISABLE
+    description: Set DISABLE to disable the SWD function on SWD pins, allowing the SWD pins to be used as GPIO.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    bit_offset: 24
+    bit_size: 8
+    enum: SWDCFG_KEY
+fieldset/SYSOSCCFG:
+  description: SYSOSC configuration.
+  fields:
+  - name: FREQ
+    description: Target operating frequency for the system oscillator (SYSOSC).
+    bit_offset: 0
+    bit_size: 2
+    enum: SYSOSCCFG_FREQ
+  - name: USE4MHZSTOP
+    description: USE4MHZSTOP sets the SYSOSC stop mode frequency policy. When entering STOP mode, the SYSOSC frequency may be automatically switched to 4MHz to reduce SYSOSC power consumption.
+    bit_offset: 8
+    bit_size: 1
+  - name: DISABLESTOP
+    description: DISABLESTOP sets the SYSOSC stop mode enable/disable policy. When operating in STOP mode, the SYSOSC may be automatically disabled. When set, ULPCLK will run from LFCLK in STOP mode and SYSOSC will be disabled to reduce power consumption.
+    bit_offset: 9
+    bit_size: 1
+  - name: DISABLE
+    description: DISABLE sets the SYSOSC enable/disable policy. SYSOSC may be powered off in RUN, SLEEP, and STOP modes to reduce power consumption. When SYSOSC is disabled, MCLK and ULPCLK are sourced from LFCLK.
+    bit_offset: 10
+    bit_size: 1
+  - name: BLOCKASYNCALL
+    description: BLOCKASYNCALL may be used to mask block all asynchronous fast clock requests, preventing hardware from dynamically changing the active clock configuration when operating in a given mode.
+    bit_offset: 16
+    bit_size: 1
+  - name: FASTCPUEVENT
+    description: FASTCPUEVENT may be used to assert a fast clock request when an interrupt is asserted to the CPU, reducing interrupt latency.
+    bit_offset: 17
+    bit_size: 1
+fieldset/SYSOSCFCLCTL:
+  description: SYSOSC frequency correction loop (FCL) ROSC enable.
+  fields:
+  - name: SETUSEFCL
+    description: Set SETUSEFCL to enable the frequency correction loop in SYSOSC. An appropriate resistor must be populated on the ROSC pin. Once enabled, this state is locked until the next BOOTRST.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    bit_offset: 24
+    bit_size: 8
+    enum: SYSOSCFCLCTL_KEY
+fieldset/SYSOSCTRIMUSER:
+  description: SYSOSC user-specified trim.
+  fields:
+  - name: FREQ
+    description: FREQ specifies the target user-trimmed frequency for SYSOSC.
+    bit_offset: 0
+    bit_size: 2
+    enum: SYSOSCTRIMUSER_FREQ
+  - name: CAP
+    description: CAP specifies the SYSOSC capacitor trim. This value changes with the target frequency.
+    bit_offset: 4
+    bit_size: 3
+  - name: RESCOARSE
+    description: RESCOARSE specifies the resister coarse trim. This value changes with the target frequency.
+    bit_offset: 8
+    bit_size: 6
+  - name: RESFINE
+    description: RESFINE specifies the resister fine trim. This value changes with the target frequency.
+    bit_offset: 16
+    bit_size: 4
+  - name: RDIV
+    description: RDIV specifies the frequency correction loop (FCL) resistor trim. This value changes with the target frequency.
+    bit_offset: 20
+    bit_size: 9
+fieldset/SYSSTATUS:
+  description: System status information.
+  fields:
+  - name: BORCURTHRESHOLD
+    description: BORCURTHRESHOLD indicates the active brown-out reset supply monitor configuration.
+    bit_offset: 2
+    bit_size: 2
+    enum: BORCURTHRESHOLD
+  - name: BORLVL
+    description: BORLVL indicates if a BOR event occured and the BOR threshold was switched to BOR0 by hardware.
+    bit_offset: 4
+    bit_size: 1
+  - name: ANACPUMPGOOD
+    description: ANACPUMPGOOD is set by hardware when the VBOOST analog mux charge pump is ready.
+    bit_offset: 5
+    bit_size: 1
+  - name: PMUIREFGOOD
+    description: PMUIREFGOOD is set by hardware when the PMU current reference is ready.
+    bit_offset: 6
+    bit_size: 1
+  - name: EXTRSTPINDIS
+    description: EXTRSTPINDIS indicates when user has disabled the use of external reset pin.
+    bit_offset: 12
+    bit_size: 1
+  - name: SWDCFGDIS
+    description: SWDCFGDIS indicates when user has disabled the use of SWD Port.
+    bit_offset: 13
+    bit_size: 1
+  - name: SHDNIOLOCK
+    description: SHDNIOLOCK indicates when IO is locked due to SHUTDOWN.
+    bit_offset: 14
+    bit_size: 1
+  - name: REBOOTATTEMPTS
+    description: REBOOTATTEMPTS indicates the number of boot attempts taken before the user application starts.
+    bit_offset: 30
+    bit_size: 2
+fieldset/SYSSTATUSCLR:
+  description: Clear sticky bits of SYSSTATUS.
+  fields:
+  - name: ALLECC
+    description: Set ALLECC to clear all ECC related SYSSTATUS indicators.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    bit_offset: 24
+    bit_size: 8
+    enum: SYSSTATUSCLR_KEY
+fieldset/SYSTEMCFG:
+  description: System configuration.
+  fields:
+  - name: WWDTLP0RSTDIS
+    description: WWDTLP0RSTDIS specifies whether a WWDT Error Event will trigger a BOOTRST or an NMI.
+    bit_offset: 0
+    bit_size: 1
+fieldset/WRITELOCK:
+  description: SYSCTL register write lockout.
+  fields:
+  - name: ACTIVE
+    description: ACTIVE controls whether critical SYSCTL registers are write protected or not.
+    bit_offset: 0
+    bit_size: 1
+enum/ANACPUMPCFG:
+  bit_size: 2
+  variants:
+  - name: ONDEMAND
+    description: VBOOST is enabled on request from a COMP, GPAMP, or OPA.
+    value: 0
+  - name: ONACTIVE
+    description: VBOOST is enabled when the device is in RUN or SLEEP mode, or when a COMP/GPAMP/OPA is enabled.
+    value: 1
+  - name: ONALWAYS
+    description: VBOOST is always enabled.
+    value: 2
+enum/BORCLRCMD_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 199
+enum/BORCURTHRESHOLD:
+  bit_size: 2
+  variants:
+  - name: BORMIN
+    description: Default minimum threshold; a BOR0- violation triggers a BOR.
+    value: 0
+  - name: BORLEVEL1
+    description: A BOR1- violation generates a BORLVL interrupt.
+    value: 1
+  - name: BORLEVEL2
+    description: A BOR2- violation generates a BORLVL interrupt.
+    value: 2
+  - name: BORLEVEL3
+    description: A BOR3- violation generates a BORLVL interrupt.
+    value: 3
+enum/CHOPCLKFREQ:
+  bit_size: 2
+  variants:
+  - name: CLK16KHZ
+    description: 16kHz.
+    value: 0
+  - name: CLK8KHZ
+    description: 8kHz.
+    value: 1
+  - name: CLK4KHZ
+    description: 4kHz.
+    value: 2
+  - name: CLK2KHZ
+    description: 2kHz.
+    value: 3
+enum/CHOPCLKMODE:
+  bit_size: 2
+  variants:
+  - name: CHOPDISABLED
+    description: Chopping disabled.
+    value: 0
+  - name: REGCHOP
+    description: Normal chopping.
+    value: 1
+  - name: ADCASSIST
+    description: ADC Assisted chopping.
+    value: 2
+enum/DSLEEP:
+  bit_size: 2
+  variants:
+  - name: STOP
+    description: STOP mode is entered.
+    value: 0
+  - name: STANDBY
+    description: STANDBY mode is entered.
+    value: 1
+  - name: SHUTDOWN
+    description: SHUTDOWN mode is entered.
+    value: 2
+enum/EXCLKDIVVAL:
+  bit_size: 3
+  variants:
+  - name: DIV2
+    description: CLK_OUT source is divided by 2.
+    value: 0
+  - name: DIV4
+    description: CLK_OUT source is divided by 4.
+    value: 1
+  - name: DIV6
+    description: CLK_OUT source is divided by 6.
+    value: 2
+  - name: DIV8
+    description: CLK_OUT source is divided by 8.
+    value: 3
+  - name: DIV10
+    description: CLK_OUT source is divided by 10.
+    value: 4
+  - name: DIV12
+    description: CLK_OUT source is divided by 12.
+    value: 5
+  - name: DIV14
+    description: CLK_OUT source is divided by 14.
+    value: 6
+  - name: DIV16
+    description: CLK_OUT source is divided by 16.
+    value: 7
+enum/EXCLKSRC:
+  bit_size: 3
+  variants:
+  - name: SYSOSC
+    description: CLK_OUT is SYSOSC.
+    value: 0
+  - name: ULPCLK
+    description: CLK_OUT is ULPCLK (EXCLKDIVEN must be enabled).
+    value: 1
+  - name: LFCLK
+    description: CLK_OUT is LFCLK.
+    value: 2
+  - name: MFPCLK
+    description: CLK_OUT is MFPCLK (EXCLKDIVEN must be enabled).
+    value: 3
+enum/EXRSTPIN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 30
+enum/FCCCMD_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 14
+enum/FCCLVLTRIG:
+  bit_size: 1
+  variants:
+  - name: RISE2RISE
+    description: Rising edge to rising edge triggered.
+    value: 0
+  - name: LEVEL
+    description: Level triggered.
+    value: 1
+enum/FCCSELCLK:
+  bit_size: 4
+  variants:
+  - name: MCLK
+    description: FCC clock is MCLK.
+    value: 0
+  - name: SYSOSC
+    description: FCC clock is SYSOSC.
+    value: 1
+  - name: EXTCLK
+    description: FCC clock is the CLK_OUT selection.
+    value: 3
+  - name: FCCIN
+    description: FCC clock is the FCCIN external input.
+    value: 7
+enum/FCCTRIGSRC:
+  bit_size: 1
+  variants:
+  - name: EXTPIN
+    description: FCC trigger is the external pin.
+    value: 0
+  - name: LFCLK
+    description: FCC trigger is the LFCLK.
+    value: 1
+enum/FLASHWAIT:
+  bit_size: 4
+  variants:
+  - name: WAIT0
+    description: No flash wait states are applied.
+    value: 0
+  - name: WAIT1
+    description: One flash wait state is applied.
+    value: 1
+  - name: WAIT2
+    description: 2 flash wait states are applied.
+    value: 2
+enum/ID:
+  bit_size: 5
+  variants:
+  - name: NORST
+    description: No reset since last read.
+    value: 0
+  - name: PORHWFAIL
+    description: POR- violation, SHUTDNSTOREx or PMU trim parity fault.
+    value: 1
+  - name: POREXNRST
+    description: NRST triggered POR (&gt;1s hold).
+    value: 2
+  - name: PORSW
+    description: Software triggered POR.
+    value: 3
+  - name: BORSUPPLY
+    description: BOR0- violation.
+    value: 4
+  - name: BORWAKESHUTDN
+    description: SHUTDOWN mode exit.
+    value: 5
+  - name: BOOTNONPMUPARITY
+    description: Non-PMU trim parity fault.
+    value: 8
+  - name: BOOTCLKFAIL
+    description: Fatal clock failure.
+    value: 9
+  - name: BOOTSW
+    description: Software triggered BOOTRST.
+    value: 10
+  - name: BOOTEXNRST
+    description: NRST triggered BOOTRST (&lt;1s hold).
+    value: 12
+  - name: SYSBSLEXIT
+    description: BSL exit.
+    value: 16
+  - name: SYSBSLENTRY
+    description: BSL entry.
+    value: 17
+  - name: SYSWWDT0
+    description: WWDT0 violation.
+    value: 18
+  - name: SYSWWDT1
+    description: WWDT1 violation.
+    value: 19
+  - name: SYSFLASHECC
+    description: Flash uncorrectable ECC error.
+    value: 20
+  - name: SYSCPULOCK
+    description: CPULOCK violation.
+    value: 21
+  - name: SYSDBG
+    description: Debug triggered SYSRST.
+    value: 26
+  - name: SYSSW
+    description: Software triggered SYSRST.
+    value: 27
+  - name: CPUDBG
+    description: Debug triggered CPURST.
+    value: 28
+  - name: CPUSW
+    description: Software triggered CPURST.
+    value: 29
+enum/IIDX_STAT:
+  bit_size: 2
+  variants:
+  - name: NO_INTR
+    description: No interrupt pending.
+    value: 0
+  - name: LFOSCGOOD
+    description: LFOSCGOOD interrupt pending.
+    value: 1
+  - name: BORLVL
+    value: 2
+  - name: ANACLKERR
+    value: 3
+enum/LFCLKMUX:
+  bit_size: 2
+  variants:
+  - name: LFOSC
+    description: LFCLK is sourced from the internal LFOSC.
+    value: 0
+  - name: LFXT
+    description: LFCLK is sourced from the LFXT (crystal).
+    value: 1
+  - name: EXLF
+    description: LFCLK is sourced from LFCLK_IN (external digital clock input).
+    value: 2
+enum/NMIIIDX_STAT:
+  bit_size: 2
+  variants:
+  - name: NO_INTR
+    description: No NMI pending.
+    value: 0
+  - name: BORLVL
+    description: BOR Threshold NMI pending.
+    value: 1
+  - name: WWDT0
+    value: 2
+enum/NSEL:
+  bit_size: 2
+  variants:
+  - name: SEL0
+    description: GPAMP_OUT pin connected to negative channel.
+    value: 0
+  - name: SEL1
+    description: GPAMP_IN- pin connected to negative channel.
+    value: 1
+  - name: SEL2
+    description: GPAMP_OUT signal connected to negative channel.
+    value: 2
+  - name: SEL3
+    description: No channel selected.
+    value: 3
+enum/RESETCMD_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 228
+enum/RESETLEVEL_LEVEL:
+  bit_size: 3
+  variants:
+  - name: CPU
+    description: Issue a SYSRST (CPU plus peripherals only).
+    value: 0
+  - name: BOOT
+    description: Issue a BOOTRST (CPU, peripherals, and boot configuration routine).
+    value: 1
+  - name: BOOTLOADERENTRY
+    description: Issue a SYSRST and enter the boot strap loader (BSL).
+    value: 2
+  - name: POR
+    description: Issue a power-on reset (POR).
+    value: 3
+  - name: BOOTLOADEREXIT
+    description: Issue a SYSRST and exit the boot strap loader (BSL).
+    value: 4
+enum/RRI:
+  bit_size: 2
+  variants:
+  - name: MODE0
+    description: PMOS input pairs.
+    value: 0
+  - name: MODE1
+    description: NMOS input pairs.
+    value: 1
+  - name: MODE2
+    description: Rail-to-rail mode.
+    value: 2
+  - name: MODE3
+    description: Sample channel 0.
+    value: 3
+enum/SHDNIOREL_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 145
+enum/SWDCFG_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 98
+enum/SYSOSCCFG_FREQ:
+  bit_size: 2
+  variants:
+  - name: SYSOSCBASE
+    description: Base frequency (32MHz).
+    value: 0
+  - name: SYSOSC4M
+    description: Low frequency (4MHz).
+    value: 1
+  - name: SYSOSCUSER
+    description: User-trimmed frequency (16 or 24 MHz).
+    value: 2
+enum/SYSOSCFCLCTL_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 42
+enum/SYSOSCFREQ:
+  bit_size: 2
+  variants:
+  - name: SYSOSC32M
+    description: SYSOSC is at base frequency (32MHz).
+    value: 0
+  - name: SYSOSC4M
+    description: SYSOSC is at low frequency (4MHz).
+    value: 1
+  - name: SYSOSCUSER
+    description: SYSOSC is at the user-trimmed frequency (16 or 24MHz).
+    value: 2
+enum/SYSOSCTRIMUSER_FREQ:
+  bit_size: 2
+  variants:
+  - name: SYSOSC16M
+    description: 16MHz user frequency.
+    value: 1
+  - name: SYSOSC24M
+    description: 24MHz user frequency.
+    value: 2
+enum/SYSSTATUSCLR_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 206

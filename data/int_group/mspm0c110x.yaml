@@ -1,0 +1,10 @@
+groups:
+  GROUP0:
+  - name: WWDT0
+    iidx: 0
+  - name: DEBUGSS
+    iidx: 2
+  - name: FLASHCTL # NVMNW
+    iidx: 3
+  - name: SYSCTL
+    iidx: 6

@@ -1,0 +1,292 @@
+# Transform using GPIOA from L222x
+transforms:
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  # TODO: Something better than a cursed rename as merge
+  - !MergeBlocks
+    from: GPIOA
+    main: GPIOA
+    to: GPIO
+
+  # Remove GPIOA prefixes
+  - !RenameRegisters
+    block: .*
+    from: GPIOA_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: GPIOA_(.+)
+    to: $1
+
+  - !Rename
+    from: GPIOA_(.+)
+    to: $1
+
+  ## Publisher/Subscriber ports
+  - !DeleteEnums
+    from: .*_CHANID
+    bit_size: 4
+
+  - !MergeFieldsets
+    from: (FPUB|FSUB)_\d+
+    to: FPORT
+
+  - !MakeRegisterArray
+    blocks: .*
+    from: (FSUB|FPUB)_[0-1]
+    to: $1
+
+  ## Subscriber configuration
+  - !DeleteEnums
+    from: SUB(\d+)CFG_INDEX
+    bit_size: 4
+
+  - !DeleteEnums
+    from: SUB(\d+)CFG_ENABLE
+    bit_size: 1
+
+  - !MergeEnums
+    from: SUB(\d+)CFG_OUTPOLICY
+    to: SUBCFG_OUTPOLICY
+
+  - !MergeFieldsets
+    from: SUB(\d+)CFG
+    to: SUBCFG
+
+  - !MakeRegisterArray
+    blocks: .*
+    from: SUB(\d+)CFG
+    to: SUBCFG
+
+  ## Reset
+  - !DeleteEnums
+    from: RESET(.*)
+    bit_size: 1
+
+  # Add replaces the original entry
+  - !Add
+    ir:
+      fieldset/RSTCTL:
+        description: Reset Control.
+        fields:
+          - name: RESETASSERT
+            description: Assert reset to the peripheral.
+            bit_offset: 0
+            bit_size: 1
+          - name: RESETSTKYCLR
+            description: Clear the RESETSTKY bit in the STAT register.
+            bit_offset: 1
+            bit_size: 1
+          - name: KEY
+            description: Unlock key B1h = KEY to allow write access to this register
+            bit_offset: 24
+            bit_size: 8
+            enum: RESET_KEY
+      enum/RESET_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 177
+
+  # Power
+  - !DeleteEnums
+    from: PWR(.*)
+    bit_size: 1
+
+  # Add replaces the original entry
+  - !Add
+    ir:
+      fieldset/PWREN:
+        fields:
+        - name: ENABLE
+          bit_offset: 0
+          bit_size: 1
+        - name: KEY
+          description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+          bit_offset: 24
+          bit_size: 8
+          enum: PWREN_KEY
+      enum/PWREN_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 38
+
+  ## CPU interrupts
+  - !RenameRegisters
+    block: CPU_INT
+    from: CPU_INT_(.*)
+    to: $1
+
+  - !DeleteEnums
+    from: .*(IMASK|ISET|MIS|RIS|ICLR)
+    bit_size: 1
+
+  - !DeleteEnums
+    from: .*(IMASK|ISET|MIS|RIS|ICLR)_DIO.*
+    bit_size: 1
+
+  - !MakeFieldArray
+    fieldsets: CPU_INT_(IMASK|ISET|MIS|RIS|ICLR)
+    from: DIO\d+
+    to: DIO
+
+  # These fields are all the same layout.
+  - !MergeFieldsets
+    from: CPU_INT_(IMASK|ISET|MIS|RIS|ICLR)
+    to: CPU_INT
+
+  ## Gen Events
+  - !RenameRegisters
+    block: GEN_EVENT(\d+)
+    from: GEN_EVENT(\d+)_(.*)
+    to: $2
+
+  - !MakeFieldArray
+    fieldsets: GEN_EVENT(\d+)_(IMASK|ISET|MIS|RIS|ICLR)
+    from: DIO\d+
+    to: DIO
+
+  - !MergeBlocks
+    from: GEN_EVENT(\d+)
+    main: GEN_EVENT0
+    to: GEN_EVENT
+
+  - !Rename
+    fieldset: .*
+    from: GEN_EVENT0_(.*)
+    to: GEN_EVENT_$1
+
+  - !RenameRegisters
+    block: GEN_EVENT
+    from: GEN_EVENT0_(.*)
+    to: GEN_EVENT_$1
+
+  # These fields are all the same layout.
+  - !MergeFieldsets
+    from: GEN_EVENT_(IMASK|ISET|MIS|RIS|ICLR)
+    to: GEN_EVENT
+
+  # Delete the unused GEN_EVENT1 types
+  - !DeleteEnums
+    from: GEN_EVENT1(.*)
+
+  - !DeleteFieldsets
+    from: GEN_EVENT1(.*)
+
+  - !MakeRegisterArray
+    blocks: .*
+    from: GEN_EVENT(\d+)
+    to: GEN_EVENT
+
+  ## 4-bit registers, i.e. 3:0, 7:4, etc
+  - !DeleteEnums
+    from: (DOUT|DIN)(3_0|7_4|11_8|15_12|19_16|23_20|27_24|31_28)(_DIO\d+)
+    bit_size: 1
+
+  - !MergeFieldsets
+    from: (DOUT)(3_0|7_4|11_8|15_12|19_16|23_20|27_24|31_28)
+    to: DOUT_X4
+    check: Layout
+
+  - !MergeFieldsets
+    from: (DIN)(3_0|7_4|11_8|15_12|19_16|23_20|27_24|31_28)
+    to: DIN_X4
+    check: Layout
+
+  - !MakeRegisterArray
+    blocks: .*
+    from: (DOUT)(3_0|7_4|11_8|15_12|19_16|23_20|27_24|31_28)
+    to: DOUT_Y_X4
+
+  - !MakeRegisterArray
+    blocks: .*
+    from: (DIN)(3_0|7_4|11_8|15_12|19_16|23_20|27_24|31_28)
+    to: DIN_Y_X4
+
+  - !MakeFieldArray
+    fieldsets: (DOUT|DIN)_X4
+    from: DIO\d+
+    to: DIO
+
+  ## 31:0 data registers
+  - !DeleteEnums
+    from: D.*31_0_DIO\d+
+    bit_size: 1
+
+  - !MakeFieldArray
+    fieldsets: D(.*)31_0
+    from: .*DIO\d+
+    to: $1
+
+  ## DMA Write Mask
+  - !DeleteEnums
+    from: DOUT\d+
+    bit_size: 1
+
+  - !MakeFieldArray
+    fieldsets: DMAMASK
+    from: .*DOUT\d+
+    to: DOUT
+
+  ## Fast Wake
+  - !DeleteEnums
+    from: FASTWAKE_DIN\d+
+    bit_size: 1
+
+  - !MakeFieldArray
+    fieldsets: FASTWAKE
+    from: DIN\d+
+    to: DIN
+
+  ## Filter Enable
+  - !MergeEnums
+    from: FILTEREN(.*)DIN\d+
+    to: FILTEREN
+
+  - !MakeFieldArray
+    fieldsets: FILTEREN.*
+    from: DIN\d+
+    to: DIN
+
+  - !MergeFieldsets
+    from: (FILTEREN)(15_0|31_16)
+    to: FILTEREN
+    check: Layout
+
+  ## Polarity
+  - !MergeEnums
+    from: POLARITY(.*)DIO\d+
+    to: POLARITY
+
+  - !MakeFieldArray
+    fieldsets: POLARITY(.*)
+    from: DIO\d+
+    to: DIO
+
+  ## Event config
+  - !MergeEnums
+    from: (EVT|INT)(\d+)_CFG
+    to: EVT_CFG
+
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT0_CFG
+    to: CPU_CFG
+
+  - !MakeFieldArray
+    fieldsets: EVT_MODE
+    from: EVT(\d+)_CFG
+    to: GEN_EVT_CFG
+
+  # Peripheral debug control
+  - !DeleteEnums
+    from: FREE
+    bit_size: 1
+
+  ## Cleanup
+  - !DeleteUselessEnums
+  - !Sort

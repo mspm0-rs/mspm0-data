@@ -1,0 +1,213 @@
+# Transform using SYSCTL from G350x, G310x, G150x and G110x
+transforms:
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  - !DeleteUselessEnums
+
+  # Remove SYSCTL prefixes
+  - !RenameRegisters
+    block: .*
+    from: SYSCTL_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: SYSCTL_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: SYSCTL_(.+)
+    to: $1
+
+  # IMASK, RIS, MIS, ISET, ICLR are the same type
+  - !MergeFieldsets
+    from: (IMASK|RIS|MIS|ISET|ICLR)
+    to: INT
+
+  # FIXME: Rename IIDX_STAT to INT_STAT in all chips
+
+  # NMIRIS, NMIISET and NMIICLR are the same type
+  - !MergeFieldsets
+    from: NMI(RIS|ISET|ICLR)
+    to: NMI
+
+  # FIXME: Rename NMIIIDX to be consistent across chips
+
+  # TODO SYSPLLCFG0: Flatten ENABLECLK[0..1], RDIVCLK[0..1]
+
+  # TODO SYSTEMCFG: Flatten WWDTLP[0..1]RSTDIS
+
+  # TODO RSTCAUSE: Match other chips?
+
+  # TODO RESETLEVEL: Match other chips?
+
+  # MGMT registers are TI internal and don't exist in the datasheet.
+  # Do not include these.
+  - !DeleteEnumsUsedIn
+    fieldsets: MGMT_(.*)
+
+  - !DeleteFieldsets
+    from: MGMT_(.*)
+
+  - !DeleteRegisters
+    block: SYSCTL
+    from: MGMT_(.*)
+
+  # RESETCMD: Add KEY
+  - !Add
+    ir:
+      enum/RESETCMD_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 228
+
+  - !AddFields
+    fieldset: RESETCMD
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: RESETCMD_KEY
+
+  # BORTHRESHOLD_LEVEL is useless
+  - !DeleteEnums
+    from: BORTHRESHOLD_LEVEL
+
+  # BORCLRCMD: Add key
+  - !Add
+    ir:
+      enum/BORCLRCMD_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 199
+
+  - !AddFields
+    fieldset: BORCLRCMD
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: BORCLRCMD_KEY
+
+  # SYSOSCFCLCTL: Add key
+  - !Add
+    ir:
+      enum/SYSOSCFCLCTL_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 42
+
+  - !AddFields
+    fieldset: SYSOSCFCLCTL
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: SYSOSCFCLCTL_KEY
+
+  # TODO: LFXTCTL: Add key
+  # TODO: EXLFCTL: Add key
+
+  # SHDNIOREL: Add key
+  - !Add
+    ir:
+      enum/SHDNIOREL_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 145
+
+  - !AddFields
+    fieldset: SHDNIOREL
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: SHDNIOREL_KEY
+
+  # EXRSTPIN: Add key
+  - !Add
+    ir:
+      enum/EXRSTPIN_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 30
+
+  - !AddFields
+    fieldset: EXRSTPIN
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: EXRSTPIN_KEY
+
+  # SYSSTATUSCLR: Add key
+  - !Add
+    ir:
+      enum/SYSSTATUSCLR_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 206
+
+  - !AddFields
+    fieldset: SYSSTATUSCLR
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: SYSSTATUSCLR_KEY
+
+  # SWDCFG: Add key
+  - !Add
+    ir:
+      enum/SWDCFG_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 98
+
+  - !AddFields
+    fieldset: SWDCFG
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: SWDCFG_KEY
+
+  # FCCCMD: Add key
+  - !Add
+    ir:
+      enum/FCCCMD_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 14
+
+  - !AddFields
+    fieldset: FCCCMD
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: FCCCMD_KEY
+
+  # SHUTDNSTORE: Flatten
+  - !MergeFieldsets
+    from: SHUTDNSTORE(\d+)
+    to: SHUTDNSTORE
+
+  - !MakeRegisterArray
+    blocks: SYSCTL
+    from: SHUTDNSTORE(\d+)
+    to: SHUTDNSTORE
+
+  ## Cleanup
+  - !Sort

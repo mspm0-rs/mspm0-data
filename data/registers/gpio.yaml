@@ -1,0 +1,748 @@
+block/CPU_INT:
+  items:
+  - name: IIDX
+    description: Interrupt index.
+    byte_offset: 0
+    access: Read
+    fieldset: CPU_INT_IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: CPU_INT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: CPU_INT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: CPU_INT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: CPU_INT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: CPU_INT
+block/GEN_EVENT:
+  items:
+  - name: IIDX
+    description: Interrupt index.
+    byte_offset: 0
+    access: Read
+    fieldset: GEN_EVENT_IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: GEN_EVENT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: GEN_EVENT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: GEN_EVENT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: GEN_EVENT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: GEN_EVENT
+block/GPIO:
+  description: PERIPHERALREGION.
+  items:
+  - name: FSUB
+    description: Subsciber Port 0.
+    array:
+      len: 2
+      stride: 4
+    byte_offset: 1024
+    fieldset: FPORT
+  - name: FPUB
+    description: Publisher Port 0.
+    array:
+      len: 2
+      stride: 4
+    byte_offset: 1092
+    fieldset: FPORT
+  - name: GPRCM
+    byte_offset: 2048
+    block: GPRCM
+  - name: CLKOVR
+    description: Clock Override.
+    byte_offset: 4112
+    fieldset: CLKOVR
+  - name: PDBGCTL
+    description: Peripheral Debug Control.
+    byte_offset: 4120
+    fieldset: PDBGCTL
+  - name: CPU_INT
+    byte_offset: 4128
+    block: CPU_INT
+  - name: GEN_EVENT
+    array:
+      len: 2
+      stride: 48
+    byte_offset: 4176
+    block: GEN_EVENT
+  - name: EVT_MODE
+    description: Event Mode.
+    byte_offset: 4320
+    fieldset: EVT_MODE
+  - name: DESC
+    description: Module Description.
+    byte_offset: 4348
+    access: Read
+    fieldset: DESC
+  - name: DOUT_Y_X4
+    description: Data output 3 to 0.
+    array:
+      len: 8
+      stride: 4
+    byte_offset: 4608
+    access: Write
+    fieldset: DOUT_X4
+  - name: DOUT31_0
+    description: Data output 31 to 0.
+    byte_offset: 4736
+    fieldset: DOUT31_0
+  - name: DOUTSET31_0
+    description: Data output set 31 to 0.
+    byte_offset: 4752
+    access: Write
+    fieldset: DOUTSET31_0
+  - name: DOUTCLR31_0
+    description: Data output clear 31 to 0.
+    byte_offset: 4768
+    access: Write
+    fieldset: DOUTCLR31_0
+  - name: DOUTTGL31_0
+    description: Data output toggle 31 to 0.
+    byte_offset: 4784
+    access: Write
+    fieldset: DOUTTGL31_0
+  - name: DOE31_0
+    description: Data output enable 31 to 0.
+    byte_offset: 4800
+    fieldset: DOE31_0
+  - name: DOESET31_0
+    description: Data output enable set 31 to 0.
+    byte_offset: 4816
+    access: Write
+    fieldset: DOESET31_0
+  - name: DOECLR31_0
+    description: Data output enable clear 31 to 0.
+    byte_offset: 4832
+    access: Write
+    fieldset: DOECLR31_0
+  - name: DIN_Y_X4
+    description: Data input 3 to 0.
+    array:
+      len: 8
+      stride: 4
+    byte_offset: 4864
+    access: Read
+    fieldset: DIN_X4
+  - name: DIN31_0
+    description: Data input 31 to 0.
+    byte_offset: 4992
+    access: Read
+    fieldset: DIN31_0
+  - name: POLARITY15_0
+    description: Polarity 15 to 0.
+    byte_offset: 5008
+    fieldset: POLARITY15_0
+  - name: POLARITY31_16
+    description: Polarity 31 to 16.
+    byte_offset: 5024
+    fieldset: POLARITY31_16
+  - name: CTL
+    description: FAST WAKE GLOBAL EN.
+    byte_offset: 5120
+    fieldset: CTL
+  - name: FASTWAKE
+    description: FAST WAKE ENABLE.
+    byte_offset: 5124
+    fieldset: FASTWAKE
+  - name: SUBCFG
+    description: Subscriber 0 configuration.
+    array:
+      len: 2
+      stride: 32
+    byte_offset: 5376
+    fieldset: SUBCFG
+  - name: FILTEREN15_0
+    description: Filter Enable 15 to 0.
+    byte_offset: 5384
+    fieldset: FILTEREN
+  - name: FILTEREN31_16
+    description: Filter Enable 31 to 16.
+    byte_offset: 5388
+    fieldset: FILTEREN
+  - name: DMAMASK
+    description: DMA Write MASK.
+    byte_offset: 5392
+    fieldset: DMAMASK
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: STAT
+    description: Status Register.
+    byte_offset: 20
+    access: Read
+    fieldset: STAT
+fieldset/CLKOVR:
+  description: Clock Override.
+  fields:
+  - name: OVERRIDE
+    description: Unlocks the functionality of [RUN_STOP] to override the automatic peripheral clock request.
+    bit_offset: 0
+    bit_size: 1
+  - name: RUN_STOP
+    description: If [OVERRIDE] is enabled, this register is used to manually control the peripheral's clock request to the system.
+    bit_offset: 1
+    bit_size: 1
+    enum: RUN_STOP
+fieldset/CPU_INT:
+  description: Interrupt clear.
+  fields:
+  - name: DIO
+    description: DIO0 event.
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 32
+      stride: 1
+fieldset/CPU_INT_IIDX:
+  description: Interrupt index.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 8
+    enum: CPU_INT_IIDX_STAT
+fieldset/CTL:
+  description: FAST WAKE GLOBAL EN.
+  fields:
+  - name: FASTWAKEONLY
+    description: FASTWAKEONLY for the global control of fastwake.
+    bit_offset: 0
+    bit_size: 1
+fieldset/DESC:
+  description: Module Description.
+  fields:
+  - name: MINREV
+    description: Minor rev of the IP.
+    bit_offset: 0
+    bit_size: 4
+  - name: MAJREV
+    description: Major rev of the IP.
+    bit_offset: 4
+    bit_size: 4
+  - name: FEATUREVER
+    description: Feature Set for the module *instance*.
+    bit_offset: 12
+    bit_size: 4
+  - name: MODULEID
+    description: Module identification contains a unique peripheral identification number. The assignments are maintained in a central database for all of the platform modules to ensure uniqueness.
+    bit_offset: 16
+    bit_size: 16
+fieldset/DIN31_0:
+  description: Data input 31 to 0.
+  fields:
+  - name: DIO
+    description: This bit reads the data input value of DIO0.
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 32
+      stride: 1
+fieldset/DIN_X4:
+  description: Data input 11 to 8.
+  fields:
+  - name: DIO
+    description: This bit reads the data input value of DIO8.
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 4
+      stride: 8
+fieldset/DMAMASK:
+  description: DMA Write MASK.
+  fields:
+  - name: DOUT
+    description: DMA is allowed to modify DOUT0.
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 32
+      stride: 1
+fieldset/DOE31_0:
+  description: Data output enable 31 to 0.
+  fields:
+  - name: DIO
+    description: Enables data output for DIO0.
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 32
+      stride: 1
+fieldset/DOECLR31_0:
+  description: Data output enable clear 31 to 0.
+  fields:
+  - name: DIO
+    description: Writing 1 to this bit clears the DIO0 bit in the DOE31_0 register. Writing 0 has no effect.
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 32
+      stride: 1
+fieldset/DOESET31_0:
+  description: Data output enable set 31 to 0.
+  fields:
+  - name: DIO
+    description: Writing 1 to this bit sets the DIO0 bit in the DOE31_0 register. Writing 0 has no effect.
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 32
+      stride: 1
+fieldset/DOUT31_0:
+  description: Data output 31 to 0.
+  fields:
+  - name: DIO
+    description: This bit sets the value of the pin configured as DIO0 when the output is enabled through DOE31_0 register.
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 32
+      stride: 1
+fieldset/DOUTCLR31_0:
+  description: Data output clear 31 to 0.
+  fields:
+  - name: DIO
+    description: Writing 1 to this bit clears the DIO0 bit in the DOUT31_0 register. Writing 0 has no effect.
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 32
+      stride: 1
+fieldset/DOUTSET31_0:
+  description: Data output set 31 to 0.
+  fields:
+  - name: DIO
+    description: Writing 1 to this bit sets the DIO0 bit in the DOUT31_0 register. Writing 0 has no effect.
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 32
+      stride: 1
+fieldset/DOUTTGL31_0:
+  description: Data output toggle 31 to 0.
+  fields:
+  - name: DIO
+    description: This bit is used to toggle DIO0 output.
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 32
+      stride: 1
+fieldset/DOUT_X4:
+  description: Data output 11 to 8.
+  fields:
+  - name: DIO
+    description: This bit sets the value of the pin configured as DIO8 when the output is enabled through DOE31_0 register.
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 4
+      stride: 8
+fieldset/EVT_MODE:
+  description: Event Mode.
+  fields:
+  - name: CPU_CFG
+    description: Event line mode select for event corresponding to [IPSTANDARD.CPU_INT].
+    bit_offset: 0
+    bit_size: 2
+    enum: EVT_CFG
+  - name: GEN_EVT_CFG
+    description: Event line mode select for event corresponding to [IPSTANDARD.GEN_EVENT0].
+    bit_offset: 2
+    bit_size: 2
+    array:
+      len: 2
+      stride: 2
+    enum: EVT_CFG
+fieldset/FASTWAKE:
+  description: FAST WAKE ENABLE.
+  fields:
+  - name: DIN
+    description: Enable fastwake feature for DIN0.
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 32
+      stride: 1
+fieldset/FILTEREN:
+  description: Filter Enable 15 to 0.
+  fields:
+  - name: DIN
+    description: Programmable counter length of digital glitch filter for DIN0.
+    bit_offset: 0
+    bit_size: 2
+    array:
+      len: 16
+      stride: 2
+    enum: FILTEREN
+fieldset/FPORT:
+  description: Publisher Port 0.
+  fields:
+  - name: CHANID
+    description: 0 = disconnected. 1-15 = connected to channelID = CHANID.
+    bit_offset: 0
+    bit_size: 4
+fieldset/GEN_EVENT:
+  description: Interrupt clear.
+  fields:
+  - name: DIO
+    description: DIO0 event.
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 16
+      stride: 1
+fieldset/GEN_EVENT_IIDX:
+  description: Interrupt index.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 8
+    enum: GEN_EVENT_IIDX_STAT
+fieldset/PDBGCTL:
+  description: Peripheral Debug Control.
+  fields:
+  - name: FREE
+    description: Free run control.
+    bit_offset: 0
+    bit_size: 1
+fieldset/POLARITY15_0:
+  description: Polarity 15 to 0.
+  fields:
+  - name: DIO
+    description: Enables and configures edge detection polarity for DIO0.
+    bit_offset: 0
+    bit_size: 2
+    array:
+      len: 16
+      stride: 2
+    enum: POLARITY
+fieldset/POLARITY31_16:
+  description: Polarity 31 to 16.
+  fields:
+  - name: DIO
+    description: Enables and configures edge detection polarity for DIO16.
+    bit_offset: 0
+    bit_size: 2
+    array:
+      len: 16
+      stride: 2
+    enum: POLARITY
+fieldset/PWREN:
+  fields:
+  - name: ENABLE
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral.
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register.
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key B1h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/STAT:
+  description: Status Register.
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+fieldset/SUBCFG:
+  description: Subscriber 0 configuration.
+  fields:
+  - name: ENABLE
+    description: This bit is used to enable subscriber 0 event.
+    bit_offset: 0
+    bit_size: 1
+  - name: OUTPOLICY
+    description: These bits configure the output policy for subscriber 0 event.
+    bit_offset: 8
+    bit_size: 2
+    enum: SUBCFG_OUTPOLICY
+  - name: INDEX
+    description: Indicates the specific bit among lower 16 bits that is targeted by the subscriber action.
+    bit_offset: 16
+    bit_size: 4
+enum/CPU_INT_IIDX_STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No bit is set means there is no pending interrupt request.
+    value: 0
+  - name: DIO0
+    description: DIO0 interrupt.
+    value: 1
+  - name: DIO1
+    description: DIO1 interrupt.
+    value: 2
+  - name: DIO2
+    description: DIO2 interrupt.
+    value: 3
+  - name: DIO3
+    description: DIO3 interrupt.
+    value: 4
+  - name: DIO4
+    description: DIO4 interrupt.
+    value: 5
+  - name: DIO5
+    description: DIO5 interrupt.
+    value: 6
+  - name: DIO6
+    description: DIO6 interrupt.
+    value: 7
+  - name: DIO7
+    description: DIO7 interrupt.
+    value: 8
+  - name: DIO8
+    description: DIO8 interrupt.
+    value: 9
+  - name: DIO9
+    description: DIO9 interrupt.
+    value: 10
+  - name: DIO10
+    description: DIO10 interrupt.
+    value: 11
+  - name: DIO11
+    description: DIO11 interrupt.
+    value: 12
+  - name: DIO12
+    description: DIO12 interrupt.
+    value: 13
+  - name: DIO13
+    description: DIO13 interrupt.
+    value: 14
+  - name: DIO14
+    description: DIO14 interrupt.
+    value: 15
+  - name: DIO15
+    description: DIO15 interrupt.
+    value: 16
+  - name: DIO16
+    description: DIO16 interrupt.
+    value: 17
+  - name: DIO17
+    description: DIO17 interrupt.
+    value: 18
+  - name: DIO18
+    description: DIO18 interrupt.
+    value: 19
+  - name: DIO19
+    description: DIO19 interrupt.
+    value: 20
+  - name: DIO20
+    description: DIO20 interrupt.
+    value: 21
+  - name: DIO21
+    description: DIO21 interrupt.
+    value: 22
+  - name: DIO22
+    description: DIO22 interrupt.
+    value: 23
+  - name: DIO23
+    description: DIO23 interrupt.
+    value: 24
+  - name: DIO24
+    description: DIO24 interrupt.
+    value: 25
+  - name: DIO25
+    description: DIO25 interrupt.
+    value: 26
+  - name: DIO26
+    description: DIO26 interrupt.
+    value: 27
+  - name: DIO27
+    description: DIO27 interrupt.
+    value: 28
+  - name: DIO28
+    description: DIO28 interrupt.
+    value: 29
+  - name: DIO29
+    description: DIO29 interrupt.
+    value: 30
+  - name: DIO30
+    description: DIO30 interrupt.
+    value: 31
+  - name: DIO31
+    description: DIO31 interrupt.
+    value: 32
+enum/EVT_CFG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: The interrupt or event line is disabled.
+    value: 0
+  - name: SOFTWARE
+    description: The interrupt or event line is in software mode. Software must clear the RIS.
+    value: 1
+  - name: HARDWARE
+    description: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.
+    value: 2
+enum/FILTEREN:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: No additional filter beyond the CDC synchronization sample.
+    value: 0
+  - name: ONE_CYCLE
+    description: 1 ULPCLK minimum sample.
+    value: 1
+  - name: THREE_CYCLE
+    description: 3 ULPCLK minimum sample.
+    value: 2
+  - name: EIGHT_CYCLE
+    description: 8 ULPCLK minimum sample.
+    value: 3
+enum/GEN_EVENT_IIDX_STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No bit is set means there is no pending interrupt request.
+    value: 0
+  - name: DIO0
+    description: DIO0 interrupt.
+    value: 1
+  - name: DIO1
+    description: DIO1 interrupt.
+    value: 2
+  - name: DIO2
+    description: DIO2 interrupt.
+    value: 3
+  - name: DIO3
+    description: DIO3 interrupt.
+    value: 4
+  - name: DIO4
+    description: DIO4 interrupt.
+    value: 5
+  - name: DIO5
+    description: DIO5 interrupt.
+    value: 6
+  - name: DIO6
+    description: DIO6 interrupt.
+    value: 7
+  - name: DIO7
+    description: DIO7 interrupt.
+    value: 8
+  - name: DIO8
+    description: DIO8 interrupt.
+    value: 9
+  - name: DIO9
+    description: DIO9 interrupt.
+    value: 10
+  - name: DIO10
+    description: DIO10 interrupt.
+    value: 11
+  - name: DIO11
+    description: DIO11 interrupt.
+    value: 12
+  - name: DIO12
+    description: DIO12 interrupt.
+    value: 13
+  - name: DIO13
+    description: DIO13 interrupt.
+    value: 14
+  - name: DIO14
+    description: DIO14 interrupt.
+    value: 15
+  - name: DIO15
+    description: DIO15 interrupt.
+    value: 16
+enum/POLARITY:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: Edge detection disabled.
+    value: 0
+  - name: RISE
+    description: Detects rising edge of input event.
+    value: 1
+  - name: FALL
+    description: Detects falling edge of input event.
+    value: 2
+  - name: RISE_FALL
+    description: Detects both rising and falling edge of input event.
+    value: 3
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177
+enum/RUN_STOP:
+  bit_size: 1
+  variants:
+  - name: RUN
+    description: Run/ungate functional clock.
+    value: 0
+  - name: STOP
+    description: Stop/gate functional clock.
+    value: 1
+enum/SUBCFG_OUTPOLICY:
+  bit_size: 2
+  variants:
+  - name: SET
+    description: Selected DIO pins are set.
+    value: 0
+  - name: CLR
+    description: Selected DIO pins are cleared.
+    value: 1
+  - name: TOGGLE
+    description: Selected DIO pins are toggled.
+    value: 2

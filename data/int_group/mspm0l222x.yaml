@@ -1,0 +1,26 @@
+groups:
+  GROUP0:
+  - name: WWDT0
+    iidx: 0
+  - name: DEBUGSS
+    iidx: 2
+  - name: FLASHCTL # NVMNW
+    iidx: 3
+  - name: EVENT_SUB_PORT0
+    iidx: 4
+  - name: EVENT_SUB_PORT1
+    iidx: 5
+  - name: SYSCTL
+    iidx: 6
+  GROUP1:
+  - name: GPIOA
+    iidx: 0
+  - name: GPIOB
+    iidx: 1
+  - name: COMP0
+    iidx: 2
+  - name: TRNG
+    iidx: 5
+  - name: GPIOC
+    iidx: 6
+

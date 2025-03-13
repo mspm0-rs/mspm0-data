@@ -1,0 +1,62 @@
+block/IOMUX:
+  description: PERIPHERALREGION.
+  items:
+  - name: PINCM
+    description: Pin Control Management Register in SECCFG region.
+    # Note: the HAL is responsible for checking entry in the PINCM array is valid to access.
+    array:
+      len: 251
+      stride: 4
+    byte_offset: 4
+    fieldset: PINCM
+fieldset/PINCM:
+  description: Pin Control Management Register in SECCFG region.
+  fields:
+  - name: PF
+    description: Peripheral Function selection bits.
+    bit_offset: 0
+    bit_size: 6
+  - name: PC
+    description: Peripheral is Connected.
+    bit_offset: 7
+    bit_size: 1
+  - name: WAKESTAT
+    description: This has the IOPAD WAKEUP signal as status bit.
+    bit_offset: 13
+    bit_size: 1
+  - name: PIPD
+    description: Pull Down control selection.
+    bit_offset: 16
+    bit_size: 1
+  - name: PIPU
+    description: Pull Up control selection.
+    bit_offset: 17
+    bit_size: 1
+  - name: INENA
+    description: Input Enable Control Selection.
+    bit_offset: 18
+    bit_size: 1
+  - name: HYSTEN
+    description: Hysteresis Enable Control Selection.
+    bit_offset: 19
+    bit_size: 1
+  - name: DRV
+    description: Drive strength control selection, for HS IOCELL only.
+    bit_offset: 20
+    bit_size: 1
+  - name: HIZ1
+    description: High output value will tri-state the output when this bit is enabled.
+    bit_offset: 25
+    bit_size: 1
+  - name: INV
+    description: Data inversion selection.
+    bit_offset: 26
+    bit_size: 1
+  - name: WUEN
+    description: Wakeup Enable bit.
+    bit_offset: 27
+    bit_size: 1
+  - name: WCOMP
+    description: Wakeup Compare Value bit.
+    bit_offset: 28
+    bit_size: 1

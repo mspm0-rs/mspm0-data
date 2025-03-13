@@ -1,0 +1,271 @@
+block/CPUSS:
+  description: CPU subsystem
+  items:
+  - name: EVT_MODE
+    description: Event Mode.
+    byte_offset: 4320
+    access: Read
+    fieldset: EVT_MODE
+  - name: DESC
+    description: Module Description.
+    byte_offset: 4348
+    access: Read
+    fieldset: DESC
+  - name: INT_GROUP
+    array:
+      len: 2
+      stride: 48
+    description: CPUSS Interrupt group (x = 0..2). Depending on the model, the later elements of this array may be undefined. For C110x only index 0 is valid. Meanwhile for L222x indices 0 and 1 are valid. 
+    byte_offset: 4352
+    block: INT_GROUP
+  - name: CTL
+    description: Prefetch/Cache control.
+    byte_offset: 4864
+    fieldset: CTL
+
+fieldset/EVT_MODE:
+  description: Event Mode.
+  fields:
+  - name: INT_CFG
+    description: Event line mode select.
+    bit_offset: 0
+    bit_size: 2
+    enum: INT_CFG
+fieldset/DESC:
+  description: Module Description.
+  fields:
+  - name: MINREV
+    description: Minor rev of the IP.
+    bit_offset: 0
+    bit_size: 4
+  - name: MAJREV
+    description: Major rev of the IP.
+    bit_offset: 4
+    bit_size: 4
+  - name: FEATUREVER
+    description: Feature Set for the module *instance*.
+    bit_offset: 12
+    bit_size: 4
+  - name: MODULEID
+    description: Module identification contains a unique peripheral identification number. The assignments are maintained in a central database for all of the platform modules to ensure uniqueness.
+    bit_offset: 16
+    bit_size: 16
+enum/INT_CFG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: The interrupt or event line is disabled.
+    value: 0
+  - name: SOFTWARE
+    description: Event handled by software. Software must clear the associated RIS flag.
+    value: 1
+  - name: HARDWARE
+    description: Event handled by hardware. The hardware (another module) clears automatically the associated RIS flag.
+    value: 2
+
+# The interrupt group is shared across all CPUSS variants.
+block/INT_GROUP:
+  description: Interrupt group.
+  items:
+  - name: IIDX
+    description: Interrupt index
+    byte_offset: 0
+    access: Read
+    fieldset: IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    access: Read
+    fieldset: IMASK
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: RIS
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: MIS
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: ISET
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: ICLR
+
+fieldset/IIDX:
+  description: Interrupt index.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 8
+    enum: IIDX
+fieldset/IMASK:
+  description: Interrupt mask.
+  fields:
+  - name: INT
+    description: Masks the corresponding interrupt.
+    bit_offset: 0
+    bit_size: 8
+    enum: IMASK
+fieldset/RIS:
+  description: Raw interrupt status.
+  fields:
+  - name: INT
+    description: Raw interrupt status for INT.
+    bit_offset: 0
+    bit_size: 8
+    enum: RIS
+fieldset/MIS:
+  description: Masked interrupt status.
+  fields:
+  - name: INT
+    description: Masked interrupt status for INT.
+    bit_offset: 0
+    bit_size: 1
+    enum: MIS
+fieldset/ISET:
+  description: Interrupt set.
+  fields:
+  - name: INT
+    description: Sets INT in RIS register.
+    bit_offset: 0
+    bit_size: 1
+    enum: ISET
+fieldset/ICLR:
+  description: Interrupt clear.
+  fields:
+  - name: INT
+    description: Clears INT in RIS register.
+    bit_offset: 0
+    bit_size: 1
+    enum: ICLR
+
+enum/IIDX:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No pending interrupt.
+    value: 0
+  - name: INT0
+    description: Interrupt 0.
+    value: 1
+  - name: INT1
+    description: Interrupt 1.
+    value: 2
+  - name: INT2
+    description: Interrupt 2.
+    value: 3
+  - name: INT3
+    description: Interrupt 3.
+    value: 4
+  - name: INT4
+    description: Interrupt 4.
+    value: 5
+  - name: INT5
+    description: Interrupt 5.
+    value: 6
+  - name: INT6
+    description: Interrupt 6.
+    value: 7
+  - name: INT7
+    description: Interrupt 7.
+    value: 8
+enum/IMASK:
+  bit_size: 8
+  variants:
+  - name: CLR
+    description: Interrupt is masked out.
+    value: 0
+  - name: SET
+    description: Interrupt will request an interrupt service routine and corresponding bit in MIS will be set.
+    value: 1
+enum/RIS:
+  bit_size: 8
+  variants:
+  - name: CLR
+    description: INT did not occur.
+    value: 0
+  - name: SET
+    description: INT occurred.
+    value: 1
+enum/MIS:
+  bit_size: 1
+  variants:
+  - name: CLR
+    description: INT does not request an interrupt service routine.
+    value: 0
+  - name: SET
+    description: INT requests an interrupt service routine.
+    value: 1
+enum/ISET:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: Writing a 0 has no effect.
+    value: 0
+  - name: SET
+    description: RIS bit corresponding to INT is set.
+    value: 1
+enum/ICLR:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: Writing a 0 has no effect.
+    value: 0
+  - name: CLR
+    description: RIS bit corresponding to INT is cleared.
+    value: 1
+
+fieldset/CTL:
+  description: Prefetch/Cache control.
+  fields:
+  - name: PREFETCH
+    description: Used to enable/disable instruction prefetch to Flash.
+    bit_offset: 0
+    bit_size: 1
+    enum: PREFETCH
+  - name: ICACHE
+    description: Used to enable/disable Instruction caching on flash access.
+    bit_offset: 1
+    bit_size: 1
+    enum: ICACHE
+  - name: LITEN
+    description: Literal caching and prefetch enable. This bit is a subset of ICACHE/PREFETCH bit i.e. literal caching or literal prefetching will only happen if ICACHE or PREFETCH bits have been set respectively When enabled, the cache and prefetcher structures inside CPUSS will cache and prefetch literals When disabled, the cache and prefetcher structures inside CPUSS will not cache and prefetch literals.
+    bit_offset: 2
+    bit_size: 1
+    enum: LITEN
+
+enum/ICACHE:
+  bit_size: 1
+  variants:
+  - name: DISABLE
+    description: Disable instruction caching.
+    value: 0
+  - name: ENABLE
+    description: Enable instruction caching.
+    value: 1
+enum/LITEN:
+  bit_size: 1
+  variants:
+  - name: DISABLE
+    description: Literal caching disabled.
+    value: 0
+  - name: ENABLE
+    description: Literal caching enabled.
+    value: 1
+enum/PREFETCH:
+  bit_size: 1
+  variants:
+  - name: DISABLE
+    description: Disable instruction prefetch.
+    value: 0
+  - name: ENABLE
+    description: Enable instruction prefetch.
+    value: 1

@@ -1,0 +1,1490 @@
+block/COMMONREGS:
+  items:
+  - name: CCPD
+    description: CCP Direction
+    byte_offset: 0
+    fieldset: CCPD
+  - name: ODIS
+    description: Output Disable
+    byte_offset: 4
+    fieldset: ODIS
+  - name: CCLKCTL
+    description: Counter Clock Control Register
+    byte_offset: 8
+    fieldset: CCLKCTL
+  - name: CPS
+    description: Clock Prescale Register
+    byte_offset: 12
+    fieldset: CPS
+  - name: CPSV
+    description: Clock prescale count status register
+    byte_offset: 16
+    access: Read
+    fieldset: CPSV
+  - name: CTTRIGCTL
+    description: Timer Cross Trigger Control Register
+    byte_offset: 20
+    fieldset: CTTRIGCTL
+  - name: CTTRIG
+    description: Timer Cross Trigger Register
+    byte_offset: 28
+    access: Write
+    fieldset: CTTRIG
+  - name: FSCTL
+    description: Fault Source Control
+    byte_offset: 32
+    fieldset: FSCTL
+  - name: GCTL
+    description: Shadow to active load mask
+    byte_offset: 36
+    fieldset: GCTL
+block/COUNTERREGS:
+  items:
+  - name: CTRCTL
+    description: Counter Control Register
+    byte_offset: 4
+    fieldset: CTRCTL
+  - name: CCCTL
+    description: Capture or Compare Control Registers
+    array:
+      len: 3
+      stride: 8
+    byte_offset: 48
+    fieldset: CCCTL
+  - name: OCTL
+    description: CCP Output Control Registers
+    array:
+      len: 2
+      stride: 8
+    byte_offset: 80
+    fieldset: OCTL
+  - name: CCACT
+    description: Capture or Compare Action Registers
+    array:
+      len: 2
+      stride: 8
+    byte_offset: 112
+    fieldset: CCACT
+  - name: IFCTL
+    description: Input Filter Control Register
+    array:
+      len: 2
+      stride: 8
+    byte_offset: 128
+    fieldset: IFCTL
+  - name: PL
+    description: Counter Register
+    byte_offset: 160
+    fieldset: PL
+  - name: DBCTL
+    description: Dead Band insertion control register
+    byte_offset: 164
+    fieldset: DBCTL
+  - name: TSEL
+    description: Trigger Select
+    byte_offset: 176
+    fieldset: TSEL
+  - name: RC
+    description: Repeat counter
+    byte_offset: 180
+    access: Read
+    fieldset: RC
+  - name: RCLD
+    description: Repeat counter
+    byte_offset: 184
+    fieldset: RCLD
+  - name: FCTL
+    description: Fault Control Register
+    byte_offset: 208
+    fieldset: FCTL
+  - name: FIFCTL
+    description: Fault input Filter control register
+    byte_offset: 212
+    fieldset: FIFCTL
+block/COUNTERREGS16:
+  extends: COUNTERREGS
+  items:
+  - name: CTR
+    description: Counter Register
+    byte_offset: 0
+    fieldset: CTR16
+  - name: LOAD
+    description: Load Register
+    byte_offset: 8
+    fieldset: LOAD16
+  - name: CC
+    description: Capture or Compare Register (x)
+    array:
+      len: 6
+      stride: 4
+    byte_offset: 16
+    fieldset: CC16
+block/COUNTERREGS32:
+  extends: COUNTERREGS
+  items:
+  - name: CTR
+    description: Counter Register
+    byte_offset: 0
+    fieldset: CTR32
+  - name: LOAD
+    description: Load Register
+    byte_offset: 8
+    fieldset: LOAD32
+  - name: CC
+    description: Capture or Compare Register (x)
+    array:
+      len: 6
+      stride: 4
+    byte_offset: 16
+    fieldset: CC32
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: STAT
+    description: Status Register
+    byte_offset: 20
+    access: Read
+    fieldset: STAT
+block/INT_EVENT:
+  items:
+  - name: IIDX
+    description: Interrupt index
+    byte_offset: 0
+    access: Read
+    fieldset: IIDX
+  - name: IMASK
+    description: Interrupt mask
+    byte_offset: 8
+    fieldset: INT
+  - name: RIS
+    description: Raw interrupt status
+    byte_offset: 16
+    access: Read
+    fieldset: INT
+  - name: MIS
+    description: Masked interrupt status
+    byte_offset: 24
+    access: Read
+    fieldset: INT
+  - name: ISET
+    description: Interrupt set
+    byte_offset: 32
+    access: Write
+    fieldset: INT
+  - name: ICLR
+    description: Interrupt clear
+    byte_offset: 40
+    access: Write
+    fieldset: INT
+block/TIM:
+  description: PERIPHERALREGION
+  items:
+  - name: FSUB
+    description: Subsciber Port 0
+    array:
+      len: 2
+      stride: 4
+    byte_offset: 1024
+    fieldset: FPORT
+  - name: FPUB
+    description: Publisher Port 0
+    array:
+      len: 2
+      stride: 4
+    byte_offset: 1092
+    fieldset: FPORT
+  - name: GPRCM
+    array:
+      len: 1
+      stride: 24
+    byte_offset: 2048
+    block: GPRCM
+  - name: CLKDIV
+    description: Clock Divider
+    byte_offset: 4096
+    fieldset: CLKDIV
+  - name: CLKSEL
+    description: Clock Select for Ultra Low Power peripherals
+    byte_offset: 4104
+    fieldset: CLKSEL
+  - name: PDBGCTL
+    description: Peripheral Debug Control
+    byte_offset: 4120
+    fieldset: PDBGCTL
+  - name: INT_EVENT
+    array:
+      len: 3
+      stride: 44
+    byte_offset: 4128
+    block: INT_EVENT
+  - name: EVT_MODE
+    description: Event Mode
+    byte_offset: 4320
+    fieldset: EVT_MODE
+  - name: DESC
+    description: Module Description
+    byte_offset: 4348
+    access: Read
+    fieldset: DESC
+  - name: COMMONREGS
+    array:
+      len: 1
+      stride: 40
+    byte_offset: 4352
+    block: COMMONREGS
+  - name: COUNTERREGS
+    array:
+      len: 1
+      stride: 216
+    byte_offset: 6144
+    block: COUNTERREGS
+  - name: QDIR
+    byte_offset: 6332
+    fieldset: QDIR
+fieldset/CC16:
+  description: Capture or Compare Register 0 to Capture or Compare Register (x)
+  fields:
+  - name: CCVAL
+    description: Capture or compare value
+    bit_offset: 0
+    bit_size: 16
+fieldset/CC32:
+  description: Capture or Compare Register 0 to Capture or Compare Register (x)
+  fields:
+  - name: CCVAL
+    description: Capture or compare value
+    bit_offset: 0
+    bit_size: 32
+fieldset/CCACT:
+  description: Capture or Compare Action Registers
+  fields:
+  - name: ZACT
+    description: CCP Output Action on Zero Specifies what changes occur to CCP output as the result of a zero event.
+    bit_offset: 0
+    bit_size: 2
+    enum: CCACT
+  - name: LACT
+    description: CCP Output Action on Load Specifies what changes occur to CCP output as the result of a load event.
+    bit_offset: 3
+    bit_size: 2
+    enum: CCACT
+  - name: CDACT
+    description: CCP Output Action on Compare (Down) This field describes the resulting action of the signal generator upon detecting a compare event while counting down.
+    bit_offset: 6
+    bit_size: 2
+    enum: CCACT
+  - name: CUACT
+    description: CCP Output Action on Compare (Up) This field describes the resulting action of the signal generator upon detecting a compare event while counting up.
+    bit_offset: 9
+    bit_size: 2
+    enum: CCACT
+  - name: CC2DACT
+    description: CCP Output Action on CC2D event.
+    bit_offset: 12
+    bit_size: 2
+    enum: CCACT
+  - name: CC2UACT
+    description: CCP Output Action on CC2U event.
+    bit_offset: 15
+    bit_size: 2
+    enum: CCACT
+  - name: FENACT
+    description: CCP Output Action on Fault Entry This field describes the resulting action of the signal generator upon detecting a fault.
+    bit_offset: 22
+    bit_size: 3
+    enum: CCACT_F
+  - name: FEXACT
+    description: CCP Output Action on Fault Exit This field describes the resulting action of the signal generator upon exiting the fault condition.
+    bit_offset: 25
+    bit_size: 3
+    enum: CCACT_F
+  - name: SWFRCACT
+    description: CCP Output Action on Software Force Output This field describes the resulting action of software force. This action has a shadow register, which will be updated under specific condition. So that this register cannot take into effect immediately.
+    bit_offset: 28
+    bit_size: 2
+    enum: CCACT_SWFRCACT
+  - name: SWFRCACT_CMPL
+    description: CCP_CMPL Output Action on Software Force Output This field describes the resulting action of software force. This action has a shadow register, which will be updated under specific condition. So that this register cannot take into effect immediately.
+    bit_offset: 30
+    bit_size: 2
+    enum: CCACT_SWFRCACT
+fieldset/CCCTL:
+  description: Capture or Compare Control Registers
+  fields:
+  - name: CCOND
+    description: 'Capture Condition. #br# Specifies the condition that generates a capture pulse. 4h-Fh = Reserved'
+    bit_offset: 0
+    bit_size: 3
+    enum: CCTL_CCOND
+  - name: ACOND
+    description: 'Advance Condition. #br# Specifies the condition that generates an advance pulse. 6h-Fh = Reserved'
+    bit_offset: 4
+    bit_size: 3
+    enum: CCTL_ACOND
+  - name: LCOND
+    description: 'Load Condition. #br# Specifies the condition that generates a load pulse. 4h-Fh = Reserved'
+    bit_offset: 8
+    bit_size: 3
+    enum: CCTL_LCOND
+  - name: ZCOND
+    description: 'Zero Condition. #br# This field specifies the condition that generates a zero pulse. 4h-Fh = Reserved'
+    bit_offset: 12
+    bit_size: 3
+    enum: CCTL_ZCOND
+  - name: COC
+    description: 'Capture or Compare. #br# Specifies whether the corresponding CC register is used as a capture register or a compare register (never both).'
+    bit_offset: 17
+    bit_size: 1
+    enum: CCTL_COC
+  - name: CCUPD
+    description: Capture and Compare Update Method This field controls how updates to the pipelined capture and compare register are performed (when operating in compare mode, COC=0).
+    bit_offset: 18
+    bit_size: 3
+    enum: CCTL_CCUPD
+  - name: CC2SELU
+    description: Selects the source second CCU event.
+    bit_offset: 22
+    bit_size: 3
+    enum: CCTL_CC2SEL
+  - name: SCERCNEZ
+    description: Suppress Compare Event if Repeat Counter is Not Equal to Zero This bit suppresses the generation of the compare (CCD, CCU and RC) events from the counter when the repeat counter (RC) value is not 0.
+    bit_offset: 25
+    bit_size: 1
+  - name: CCACTUPD
+    description: CCACT shadow register Update Method This field controls how updates to the CCCACT shadow register are performed
+    bit_offset: 26
+    bit_size: 3
+    enum: CCTL_CCUPD
+  - name: CC2SELD
+    description: Selects the source second CCD event.
+    bit_offset: 29
+    bit_size: 3
+    enum: CCTL_CC2SEL
+fieldset/CCLKCTL:
+  description: Counter Clock Control Register
+  fields:
+  - name: CLKEN
+    description: Clock Enable Disables the clock gating to the module. SW has to explicitly program the value to 0 to gate the clock.
+    bit_offset: 0
+    bit_size: 1
+fieldset/CCPD:
+  description: CCP Direction
+  fields:
+  - name: C0CCP
+    description: Counter CCP0
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 4
+      stride: 1
+fieldset/CLKDIV:
+  description: Clock Divider
+  fields:
+  - name: RATIO
+    description: Selects divide ratio of module clock
+    bit_offset: 0
+    bit_size: 3
+    enum: RATIO
+fieldset/CLKSEL:
+  description: Clock Select for Ultra Low Power peripherals
+  fields:
+  - name: LFCLK_SEL
+    description: Selects LFCLK as clock source if enabled
+    bit_offset: 1
+    bit_size: 1
+  - name: MFCLK_SEL
+    description: Selects MFCLK as clock source if enabled
+    bit_offset: 2
+    bit_size: 1
+  - name: BUSCLK_SEL
+    description: Selects BUSCLK as clock source if enabled
+    bit_offset: 3
+    bit_size: 1
+fieldset/CPS:
+  description: Clock Prescale Register
+  fields:
+  - name: PCNT
+    description: Pre-Scale Count This field specifies the pre-scale count value. The selected TIMCLK source is divided by a value of (PCNT+1). A PCNT value of 0 divides TIMCLK by 1, effectively bypassing the divider. A PCNT value of greater than 0 divides the TIMCLK source generating a slower clock
+    bit_offset: 0
+    bit_size: 8
+fieldset/CPSV:
+  description: Clock prescale count status register
+  fields:
+  - name: CPSVAL
+    description: Current Prescale Count Value
+    bit_offset: 0
+    bit_size: 8
+fieldset/CTR16:
+  description: Counter Register
+  fields:
+  - name: CCTR
+    description: Current Counter value
+    bit_offset: 0
+    bit_size: 16
+fieldset/CTR32:
+  description: Counter Register
+  fields:
+  - name: CCTR
+    description: Current Counter value
+    bit_offset: 0
+    bit_size: 32
+fieldset/CTRCTL:
+  description: Counter Control Register
+  fields:
+  - name: EN
+    description: 'Counter Enable. This bit allows the timer to advance This bit is automatically cleared if REPEAT=0 (do not automatically reload) and the counter value equals zero. CPU Write: A register write that sets the EN bit, the counter value is set per the CVAE value. Hardware: This bit may also be set as the result of an LCOND or ZCOND condition being met and the counter value changed to the load value or zero value, respectively.'
+    bit_offset: 0
+    bit_size: 1
+  - name: REPEAT
+    description: Repeat. The repeat bit controls whether the counter continues to advance following a zero event, or the exiting of a debug or fault condition. If counting down, a zero event is followed by a load at the next advance condition. If counting up-down, a zero event is followed by an advance event (+1). The intent of encoding 3 is that if the debug condition is in effect, the generation of the load pulse is deferred until the debug condition is over. This allows the counter to reach zero before counting is suspended.
+    bit_offset: 1
+    bit_size: 3
+    enum: REPEAT
+  - name: CM
+    description: Count Mode
+    bit_offset: 4
+    bit_size: 2
+    enum: CM
+  - name: CLC
+    description: Counter Load Control. This field specifies what controls the counter operation with respect to setting the counter to the LD register value. Encodings 1-3 are present based on the CCPC parameter value. Bits 4-5 are present based on the HQEI parameter value. Any encodings not provided are documented as reserved.
+    bit_offset: 7
+    bit_size: 3
+    enum: CxC
+  - name: CAC
+    description: Counter Advance Control. This field specifies what controls the counter operation with respect to advancing (incrementing or decrementing) the counter value. Encodings 1-3 are present based on the CCPC parameter value. Bits 4-5 are present based on the HQEI parameter value. Any encodings not provided are documented as reserved.
+    bit_offset: 10
+    bit_size: 3
+    enum: CxC
+  - name: CZC
+    description: Counter Zero Control This field specifies what controls the counter operation with respect to zeroing the counter value. Encodings 1-3 are present based on the CCPC parameter value. Bits 4-5 are present based on the HQEI parameter value. Any encodings not provided are documented as reserved.
+    bit_offset: 13
+    bit_size: 3
+    enum: CxC
+  - name: DRB
+    description: Debug Resume Behavior This bit specifies what the device does following the release/exit of debug mode.
+    bit_offset: 17
+    bit_size: 1
+    enum: DRB
+  - name: FB
+    description: Fault Behavior This bit specifies whether the counter continues running or suspends during a fault mode. There is a separate control under REPEAT to indicate whether counting is to suspend at next Counter==0
+    bit_offset: 18
+    bit_size: 1
+    enum: FB
+  - name: FRB
+    description: Fault Resume Behavior This bit specifies what the device does following the release/exit of fault condition.
+    bit_offset: 19
+    bit_size: 1
+    enum: FRB
+  - name: SLZERCNEZ
+    description: Suppress Load and Zero Events if Repeat Counter is Not Equal to Zero. This bit suppresses the generation of the Z (zero) and L (load) events from the counter when the repeat counter (RC) value is not 0.
+    bit_offset: 23
+    bit_size: 1
+  - name: PLEN
+    description: Phase Load Enable. This bit allows the timer to have phase load feature.
+    bit_offset: 24
+    bit_size: 1
+  - name: CVAE
+    description: Counter Value After Enable. This field specifies the initialization condition of the counter when the EN bit is changed from 0 to 1 by a write to the CTRCTL register. Note that an external event can also cause the EN bit to go active.
+    bit_offset: 28
+    bit_size: 2
+    enum: CVAE
+fieldset/CTTRIG:
+  description: Timer Cross Trigger Register
+  fields:
+  - name: TRIG
+    description: Generate Cross Trigger This bit when programmed will generate a synchronized trigger condition all the cross trigger enabled Timer instances including current timer instance.
+    bit_offset: 0
+    bit_size: 1
+fieldset/CTTRIGCTL:
+  description: Timer Cross Trigger Control Register
+  fields:
+  - name: CTEN
+    description: Timer Cross trigger enable. This field is used to enable whether the SW or HW logic can generate a timer cross trigger event in the system. These cross triggers are connected to the respective timer trigger in of the other timer IPs in the SOC power domain. The timer cross trigger is essentially the combined logic of the HW and SW conditions controlling EN bit in the CTRCTL register.
+    bit_offset: 0
+    bit_size: 1
+  - name: EVTCTEN
+    description: Enable the Input Trigger Conditions to the Timer module as a condition for Cross Triggers. Refer Figure 8 Cross Trigger Generation Path
+    bit_offset: 1
+    bit_size: 1
+  - name: EVTCTTRIGSEL
+    description: Used to Select the subscriber port that should be used for input cross trigger. Refer Figure 8 Cross Trigger Generation Path
+    bit_offset: 16
+    bit_size: 4
+    enum: EVTCTTRIGSEL
+fieldset/DBCTL:
+  description: Dead Band insertion control register
+  fields:
+  - name: RISEDELAY
+    description: Rise Delay The number of TIMCLK periods inserted between the fall of CCPi and the rise of CCPAo.
+    bit_offset: 0
+    bit_size: 12
+  - name: M1_ENABLE
+    description: Dead Band Mode 1 Enable.
+    bit_offset: 12
+    bit_size: 1
+  - name: FALLDELAY
+    description: Fall Delay The number of TIMCLK periods inserted between the fall of CCPi and the rise of CCPBo
+    bit_offset: 16
+    bit_size: 12
+fieldset/DESC:
+  description: Module Description
+  fields:
+  - name: MINREV
+    description: Minor rev of the IP
+    bit_offset: 0
+    bit_size: 4
+  - name: MAJREV
+    description: Major rev of the IP
+    bit_offset: 4
+    bit_size: 4
+  - name: INSTNUM
+    description: Instance Number within the device. This will be a parameter to the RTL for modules that can have multiple instances
+    bit_offset: 8
+    bit_size: 4
+  - name: FEATUREVER
+    description: Feature Set for the module *instance*
+    bit_offset: 12
+    bit_size: 4
+  - name: MODULEID
+    description: Module identification contains a unique peripheral identification number. The assignments are maintained in a central database for all of the platform modules to ensure uniqueness.
+    bit_offset: 16
+    bit_size: 16
+fieldset/EVT_MODE:
+  description: Event Mode
+  fields:
+  - name: EVT_CFG
+    description: Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT][0]
+    bit_offset: 0
+    bit_size: 2
+    array:
+      len: 3
+      stride: 2
+    enum: EVT_CFG
+fieldset/FCTL:
+  description: Fault Control Register
+  fields:
+  - name: FIEN
+    description: Fault Input Enable This bit enables the input for fault detection.
+    bit_offset: 0
+    bit_size: 1
+  - name: FI
+    description: Fault Input Specifies whether the overall fault condition is dependent on the sensed fault pin.
+    bit_offset: 2
+    bit_size: 1
+  - name: FL
+    description: Fault Latch mode Specifies whether the fault condition is latched and configures the latch clear conditions.
+    bit_offset: 3
+    bit_size: 2
+    enum: FL
+  - name: TFIM
+    description: Trigger Fault Input Mask Specifies whether the selected trigger participates as a fault input. If enabled and the trigger asserts, the trigger is treated as a fault.
+    bit_offset: 7
+    bit_size: 1
+  - name: FSENAC
+    description: Specifies whether the analog comparator0 fault sense is high or low active
+    bit_offset: 8
+    bit_size: 1
+    array:
+      len: 3
+      stride: 1
+  - name: FSENEXT
+    description: Specifies whether the external fault pin0 sense is high or low active
+    bit_offset: 11
+    bit_size: 1
+    array:
+      len: 3
+      stride: 1
+fieldset/FIFCTL:
+  description: Fault input Filter control register
+  fields:
+  - name: FP
+    description: Filter Period This field specifies the sample period for the input filter. I.e. The input is sampled for FP timer clocks during filtering.
+    bit_offset: 0
+    bit_size: 2
+    enum: FIFCTL_FP
+  - name: CPV
+    description: Consecutive Period/Voting Select This bit controls whether the input filter uses a stricter consecutive period count or majority voting.
+    bit_offset: 3
+    bit_size: 1
+    enum: FIFCTL_CPV
+  - name: FILTEN
+    description: Filter Enable This bit controls whether the input is filtered by the input filter or bypasses to go directly to the optional pre-scale filter and then to the edge detect.
+    bit_offset: 4
+    bit_size: 1
+fieldset/FPORT:
+  description: Publisher Port 0
+  fields:
+  - name: CHANID
+    description: 0 = disconnected. 1-15 = connected to channelID = CHANID.
+    bit_offset: 0
+    bit_size: 4
+fieldset/FSCTL:
+  description: Fault Source Control
+  fields:
+  - name: FCEN
+    description: 'This field controls whether the fault caused by the system clock fault is enable. 0: DISABLE 1: ENABLE'
+    bit_offset: 0
+    bit_size: 1
+  - name: FAC
+    description: 'This field controls whether the fault signal detected by the analog comparator0 is enable 0: DISABLE 1: ENABLE'
+    bit_offset: 1
+    bit_size: 1
+    array:
+      len: 3
+      stride: 1
+  - name: FEX
+    description: 'This field controls whether the fault caused by external fault pin0 is enable. 0: DISABLE 1: ENABLE'
+    bit_offset: 4
+    bit_size: 1
+    array:
+      len: 3
+      stride: 1
+fieldset/GCTL:
+  description: Shadow to active load mask
+  fields:
+  - name: SHDWLDEN
+    description: Enables shadow to active load of bufferred registers and register fields.
+    bit_offset: 0
+    bit_size: 1
+fieldset/IFCTL:
+  description: Input Filter Control Register
+  fields:
+  - name: ISEL
+    description: Input Select (CCP0) This field selects the input source to the filter input. 4h-7h = Reserved
+    bit_offset: 0
+    bit_size: 4
+    enum: IFCTL_ISEL
+  - name: INV
+    description: Input Inversion This bit controls whether the selected input is inverted.
+    bit_offset: 7
+    bit_size: 1
+  - name: FP
+    description: Filter Period. This field specifies the sample period for the input filter. I.e. The input is sampled for FP timer clocks during filtering.
+    bit_offset: 8
+    bit_size: 2
+    enum: IFCTL_FP
+  - name: CPV
+    description: Consecutive Period/Voting Select This bit controls whether the input filter uses a stricter consecutive period count or majority voting.
+    bit_offset: 11
+    bit_size: 1
+    enum: IFCTL_CPV
+  - name: FE
+    description: Filter Enable This bit controls whether the input is filtered by the input filter or bypasses to the edge detect.
+    bit_offset: 12
+    bit_size: 1
+fieldset/IIDX:
+  description: Interrupt index
+  fields:
+  - name: STAT
+    description: Interrupt index status
+    bit_offset: 0
+    bit_size: 8
+    enum: STAT
+fieldset/INT:
+  description: Interrupt clear
+  fields:
+  - name: Z
+    description: Zero event CLEAR
+    bit_offset: 0
+    bit_size: 1
+  - name: L
+    description: Load event CLEAR
+    bit_offset: 1
+    bit_size: 1
+  - name: CCD0
+    description: Capture or compare down event CLEAR
+    bit_offset: 4
+    bit_size: 1
+  - name: CCD1
+    description: Capture or compare down event CLEAR
+    bit_offset: 5
+    bit_size: 1
+  - name: CCD2
+    description: Capture or compare down event CLEAR
+    bit_offset: 6
+    bit_size: 1
+  - name: CCD3
+    description: Capture or compare down event CLEAR
+    bit_offset: 7
+    bit_size: 1
+  - name: CCU0
+    description: Capture or compare up event CLEAR
+    bit_offset: 8
+    bit_size: 1
+  - name: CCU1
+    description: Capture or compare up event CLEAR
+    bit_offset: 9
+    bit_size: 1
+  - name: CCU2
+    description: Capture or compare up event CLEAR
+    bit_offset: 10
+    bit_size: 1
+  - name: CCU3
+    description: Capture or compare up event CLEAR
+    bit_offset: 11
+    bit_size: 1
+  - name: CCD4
+    description: Compare down event 4 CLEAR
+    bit_offset: 12
+    bit_size: 1
+  - name: CCD5
+    description: Compare down event 5 CLEAR
+    bit_offset: 13
+    bit_size: 1
+  - name: CCU4
+    description: Compare up event 4 CLEAR
+    bit_offset: 14
+    bit_size: 1
+  - name: CCU5
+    description: Compare up event 5 CLEAR
+    bit_offset: 15
+    bit_size: 1
+  - name: F
+    description: Fault event CLEAR
+    bit_offset: 24
+    bit_size: 1
+  - name: TOV
+    description: Trigger Overflow event CLEAR
+    bit_offset: 25
+    bit_size: 1
+  - name: REPC
+    description: Repeat Counter Zero event CLEAR
+    bit_offset: 26
+    bit_size: 1
+  - name: DC
+    description: Direction change event
+    bit_offset: 27
+    bit_size: 1
+  - name: QEIERR
+    description: QEIERR event
+    bit_offset: 28
+    bit_size: 1
+fieldset/LOAD16:
+  description: Load Register
+  fields:
+  - name: LD
+    description: Load Value
+    bit_offset: 0
+    bit_size: 16
+fieldset/LOAD32:
+  description: Load Register
+  fields:
+  - name: LD
+    description: Load Value
+    bit_offset: 0
+    bit_size: 32
+fieldset/OCTL:
+  description: CCP Output Control Registers
+  fields:
+  - name: CCPO
+    description: CCP Output Source
+    bit_offset: 0
+    bit_size: 4
+    enum: OCTL_CCPO
+  - name: CCPOINV
+    description: CCP Output Invert The output as selected by CCPO is conditionally inverted.
+    bit_offset: 4
+    bit_size: 1
+  - name: CCPIV
+    description: CCP Initial Value This bit specifies the logical value put on the signal generator state while the counter is disabled (CTRCTL.EN == 0).
+    bit_offset: 5
+    bit_size: 1
+fieldset/ODIS:
+  description: Output Disable
+  fields:
+  - name: C0CCP
+    description: Counter CCP0 Disable Mask Defines whether CCP0 of Counter n is forced low or not
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 4
+      stride: 1
+    enum: ODIS_C0CCP
+fieldset/PDBGCTL:
+  description: Peripheral Debug Control
+  fields:
+  - name: FREE
+    description: Free run control
+    bit_offset: 0
+    bit_size: 1
+  - name: SOFT
+    description: Soft halt boundary control. This function is only available, if [FREE] is set to 'STOP'
+    bit_offset: 1
+    bit_size: 1
+    enum: SOFT
+fieldset/PL:
+  description: Counter Register
+  fields:
+  - name: PHASE
+    description: Phase Load value
+    bit_offset: 0
+    bit_size: 16
+fieldset/PWREN:
+  description: Power enable
+  fields:
+  - name: ENABLE
+    description: Enable the power
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/QDIR:
+  fields:
+  - name: DIR
+    bit_offset: 0
+    bit_size: 1
+fieldset/RC:
+  description: Repeat counter
+  fields:
+  - name: RC
+    description: Repeat Counter Value
+    bit_offset: 0
+    bit_size: 8
+fieldset/RCLD:
+  description: Repeat counter
+  fields:
+  - name: RCLD
+    description: Repeat Counter Load Value This field provides the value loaded into the repeat counter at a load event following the repeat counter value equaling 0.
+    bit_offset: 0
+    bit_size: 8
+fieldset/RSTCTL:
+  description: Reset Control
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key B1h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/STAT:
+  description: Status Register
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register
+    bit_offset: 16
+    bit_size: 1
+fieldset/TSEL:
+  description: Trigger Select
+  fields:
+  - name: ETSEL
+    description: 'External Trigger Select. #br# This selects which System Event is used if the input filter selects trigger. Triggers 0-15 are used to connect triggers generated by other timer modules in the same power domain. Refer to the SoC datasheet to get details. Triggers 16 and 17 are connected to event manager subscriber ports. Event lines 18-31 are reserved for future use.'
+    bit_offset: 0
+    bit_size: 5
+    enum: ETSEL
+  - name: TE
+    description: Trigger Enable. This selects whether a trigger is enabled or not for this counter 0x0 = Triggers are not used 0x1 = Triggers are used as selected by the ETSEL field
+    bit_offset: 9
+    bit_size: 1
+enum/CCACT:
+  bit_size: 2
+  variants:
+  - name: DISABLED
+    description: This event is disabled and a lower priority event is selected if asserting. The CCP output value is unaffected by the event.
+    value: 0
+  - name: CCP_HIGH
+    description: CCP output value is set high
+    value: 1
+  - name: CCP_LOW
+    description: CCP output value is set low
+    value: 2
+  - name: CCP_TOGGLE
+    description: CCP output value is toggled
+    value: 3
+enum/CCACT_F:
+  bit_size: 3
+  variants:
+  - name: DISABLED
+    description: This event is disabled and a lower priority event is selected if asserting. The CCP output value is unaffected by the event.
+    value: 0
+  - name: CCP_HIGH
+    description: CCP output value is set high
+    value: 1
+  - name: CCP_LOW
+    description: CCP output value is set low
+    value: 2
+  - name: CCP_TOGGLE
+    description: CCP output value is toggled
+    value: 3
+  - name: CCP_HIGHZ
+    description: CCP output value is tristated
+    value: 4
+enum/CCACT_SWFRCACT:
+  bit_size: 2
+  variants:
+  - name: DISABLED
+    description: This event is disabled and a lower priority event is selected if asserting. The CCP output value is unaffected by the event.
+    value: 0
+  - name: CCP_HIGH
+    description: CCP output value is set high
+    value: 1
+  - name: CCP_LOW
+    description: CCP output value is set low
+    value: 2
+enum/CCTL_ACOND:
+  bit_size: 3
+  variants:
+  - name: TIMCLK
+    description: Each TIMCLK
+    value: 0
+  - name: CC_TRIG_RISE
+    description: Rising edge of CCP or trigger assertion edge
+    value: 1
+  - name: CC_TRIG_FALL
+    description: Falling edge of CCP or trigger de-assertion edge
+    value: 2
+  - name: CC_TRIG_EDGE
+    description: Either edge of CCP or trigger change (assertion/de-assertion edge)
+    value: 3
+  - name: CC_TRIG_HIGH
+    description: CCP High or Trigger assertion (level)
+    value: 5
+enum/CCTL_CC2SEL:
+  bit_size: 3
+  variants:
+  - name: SEL_CC0
+    description: Selects CCD from CC0.
+    value: 0
+  - name: SEL_CC1
+    description: Selects CCD from CC1.
+    value: 1
+  - name: SEL_CC2
+    description: Selects CCD from CC2.
+    value: 2
+  - name: SEL_CC3
+    description: Selects CCD from CC3.
+    value: 3
+  - name: SEL_CC4
+    description: Selects CCD from CC4.
+    value: 4
+  - name: SEL_CC5
+    description: Selects CCD from CC5.
+    value: 5
+enum/CCTL_CCOND:
+  bit_size: 3
+  variants:
+  - name: NOCAPTURE
+    description: None (never captures)
+    value: 0
+  - name: CC_TRIG_RISE
+    description: Rising edge of CCP or trigger assertion edge
+    value: 1
+  - name: CC_TRIG_FALL
+    description: Falling edge of CCP or trigger de-assertion edge
+    value: 2
+  - name: CC_TRIG_EDGE
+    description: Either edge of CCP or trigger change (assertion/de-assertion edge)
+    value: 3
+enum/CCTL_CCUPD:
+  bit_size: 3
+  variants:
+  - name: Immediately
+    description: Value written to the CCACT register has immediate effect.
+    value: 0
+  - name: Zero_EVT
+    description: Following a zero event Writes to the CCACTx_y register are stored in shadow register and transferred to CCACTx_y in the TIMCLK cycle following CTR equals 0.
+    value: 1
+  - name: Compare_Down_EVT
+    description: Following a compare (down) event Writes to the CCACTx_y register are stored in shadow register and transferred to CCACTx_y in the TIMCLK cycle following CTR equals the CCx_y register value.
+    value: 2
+  - name: Compare_UP_EVT
+    description: Following a compare (up) event Writes to the CCACTx_y register are stored in shadow register and transferred to CCACTx_y in the TIMCLK cycle following CTR equals the CCx_y register value.
+    value: 3
+  - name: ZERO_LOAD_EVT
+    description: Following a zero or load event Writes to the CCACTx_y register are stored in shadow register and transferred to CCACTx_y in the TIMCLK cycle following CTR equals 0 or CTR. Equals LDn. Note this update mechanism is defined for use only in configurations using up/down counting. This mode is not intended for use in down count configurations.
+    value: 4
+  - name: ZERO_RC_ZERO_EVT
+    description: Following a zero event with repeat count also zero. Writes to the CCACTx_y register are stored in shadow register and transferred to CCACTx_y in the TIMCLK cycle following CTR equals 0 and if RC equal 0.
+    value: 5
+  - name: TRIG
+    description: On a TRIG pulse, the value stored in CCACTx_y shadow register is loaded into CCACTx_y active register.
+    value: 6
+enum/CCTL_COC:
+  bit_size: 1
+  variants:
+  - name: COMPARE
+    description: Compare
+    value: 0
+  - name: CAPTURE
+    description: Capture
+    value: 1
+enum/CCTL_LCOND:
+  bit_size: 3
+  variants:
+  - name: CC_TRIG_RISE
+    description: Rising edge of CCP or trigger assertion edge
+    value: 1
+  - name: CC_TRIG_FALL
+    description: Falling edge of CCP or trigger de-assertion edge
+    value: 2
+  - name: CC_TRIG_EDGE
+    description: Either edge of CCP or trigger change (assertion/de-assertion edge)
+    value: 3
+enum/CCTL_ZCOND:
+  bit_size: 3
+  variants:
+  - name: CC_TRIG_RISE
+    description: Rising edge of CCP or trigger assertion edge
+    value: 1
+  - name: CC_TRIG_FALL
+    description: Falling edge of CCP or trigger de-assertion edge
+    value: 2
+  - name: CC_TRIG_EDGE
+    description: Either edge of CCP or trigger change (assertion/de-assertion edge)
+    value: 3
+enum/CM:
+  bit_size: 2
+  variants:
+  - name: DOWN
+    description: Down
+    value: 0
+  - name: UP_DOWN
+    description: Up/Down
+    value: 1
+  - name: UP
+    description: Counter counts up.
+    value: 2
+enum/CVAE:
+  bit_size: 2
+  variants:
+  - name: LDVAL
+    description: The counter is set to the LOAD register value
+    value: 0
+  - name: NOCHANGE
+    description: The counter value is unchanged from its current value which could have been initialized by software
+    value: 1
+  - name: ZEROVAL
+    description: The counter is set to zero
+    value: 2
+enum/CxC:
+  bit_size: 3
+  variants:
+  - name: CCTL0
+    description: CCCTL_0 ACOND
+    value: 0
+  - name: CCTL1
+    description: CCCTL_1 ACOND
+    value: 1
+  - name: CCTL2
+    description: CCCTL_2 ACOND This value exists when there are 4 channels.
+    value: 2
+  - name: CCTL3
+    description: CCCTL_3 ACOND This value exists when there are 4 channels.
+    value: 3
+  - name: QEI_2INP
+    description: Controlled by 2-input QEI mode This value exists when gptimer support QEI feature.
+    value: 4
+  - name: QEI_3INP
+    description: Controlled by 3-input QEI mode This value exists when gptimer support QEI feature.
+    value: 5
+enum/DRB:
+  bit_size: 1
+  variants:
+  - name: RESUME
+    description: Resume counting
+    value: 0
+  - name: CVAE_ACTION
+    description: Perform the action as specified by the CVAE field.
+    value: 1
+enum/ETSEL:
+  bit_size: 5
+  variants:
+  - name: TRIG0
+    description: TRIGx = External trigger input from timer x (if available) in the same power domain as the current timer.
+    value: 0
+  - name: TRIG1
+    description: TRIGx = External trigger input from timer x (if available) in the same power domain as the current timer.
+    value: 1
+  - name: TRIG2
+    description: TRIGx = External trigger input from timer x (if available) in the same power domain as the current timer.
+    value: 2
+  - name: TRIG3
+    description: TRIGx = External trigger input from timer x (if available) in the same power domain as the current timer.
+    value: 3
+  - name: TRIG4
+    description: TRIGx = External trigger input from timer x (if available) in the same power domain as the current timer.
+    value: 4
+  - name: TRIG5
+    description: TRIGx = External trigger input from timer x (if available) in the same power domain as the current timer.
+    value: 5
+  - name: TRIG6
+    description: TRIGx = External trigger input from timer x (if available) in the same power domain as the current timer.
+    value: 6
+  - name: TRIG7
+    description: TRIGx = External trigger input from timer x (if available) in the same power domain as the current timer.
+    value: 7
+  - name: TRIG8
+    description: TRIGx = External trigger input from timer x (if available) in the same power domain as the current timer.
+    value: 8
+  - name: TRIG9
+    description: TRIGx = External trigger input from timer x (if available) in the same power domain as the current timer.
+    value: 9
+  - name: TRIG10
+    description: TRIGx = External trigger input from timer x (if available) in the same power domain as the current timer.
+    value: 10
+  - name: TRIG11
+    description: TRIGx = External trigger input from timer x (if available) in the same power domain as the current timer.
+    value: 11
+  - name: TRIG12
+    description: TRIGx = External trigger input from timer x (if available) in the same power domain as the current timer.
+    value: 12
+  - name: TRIG13
+    description: TRIGx = External trigger input from timer x (if available) in the same power domain as the current timer.
+    value: 13
+  - name: TRIG14
+    description: TRIGx = External trigger input from timer x (if available) in the same power domain as the current timer.
+    value: 14
+  - name: TRIG15
+    description: TRIGx = External trigger input from timer x (if available) in the same power domain as the current timer.
+    value: 15
+  - name: TRIG_SUB0
+    description: TRIG_SUBx = External trigger input from subscriber port x.
+    value: 16
+  - name: TRIG_SUB1
+    description: TRIG_SUBx = External trigger input from subscriber port x.
+    value: 17
+enum/EVTCTTRIGSEL:
+  bit_size: 4
+  variants:
+  - name: FSUB0
+    description: Use FSUB0 as cross trigger source.
+    value: 0
+  - name: FSUB1
+    description: Use FSUB1 as cross trigger source.
+    value: 1
+  - name: Z
+    description: Use Zero event as cross trigger source.
+    value: 2
+  - name: L
+    description: Use Load event as cross trigger source.
+    value: 3
+  - name: CCD0
+    description: Use CCD0 event as cross trigger source.
+    value: 4
+  - name: CCD1
+    description: Use CCD1 event as cross trigger source.
+    value: 5
+  - name: CCD2
+    description: Use CCD2 event as cross trigger source.
+    value: 6
+  - name: CCD3
+    description: Use CCD3 event as cross trigger source.
+    value: 7
+  - name: CCU0
+    description: Use CCU0 event as cross trigger source.
+    value: 8
+  - name: CCU1
+    description: Use CCU1 event as cross trigger source.
+    value: 9
+  - name: CCU2
+    description: Use CCU2 event as cross trigger source.
+    value: 10
+  - name: CCU3
+    description: Use CCU3 event as cross trigger source.
+    value: 11
+enum/EVT_CFG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: The interrupt or event line is disabled.
+    value: 0
+  - name: SOFTWARE
+    description: The interrupt or event line is in software mode. Software must clear the RIS.
+    value: 1
+  - name: HARDWARE
+    description: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.
+    value: 2
+enum/FB:
+  bit_size: 1
+  variants:
+  - name: CONT_COUNT
+    description: Continues counting
+    value: 0
+  - name: SUSP_COUNT
+    description: Suspends counting
+    value: 1
+enum/FIFCTL_CPV:
+  bit_size: 1
+  variants:
+  - name: CONSEC_PER
+    description: Consecutive Periods. The input must be at a specific logic level for the period defined by FP before it is passed to the filter output.
+    value: 0
+  - name: VOTING
+    description: Voting. The filter ignores one clock of opposite logic over the filter period. I.e. Over FP samples of the input, up to 1 sample may be of an opposite logic value (glitch) without affecting the output
+    value: 1
+enum/FIFCTL_FP:
+  bit_size: 2
+  variants:
+  - name: PER_3
+    description: Filter Period 3
+    value: 0
+  - name: PER_5
+    description: Filter Period 5
+    value: 1
+  - name: PER_8
+    description: Filter Period 8
+    value: 2
+enum/FL:
+  bit_size: 2
+  variants:
+  - name: NO_LATCH
+    description: Overall fault condition is not dependent on the F bit in RIS
+    value: 0
+  - name: LATCH_SW_CLR
+    description: Overall fault condition is dependent on the F bit in RIS
+    value: 1
+  - name: LATCH_Z_CLR
+    description: Fault condition is latched. Fault condition is cleared on a zero event if the fault input is 0.
+    value: 2
+  - name: LATCH_LD_CLR
+    description: Fault condition is latched. Fault condition is cleared on a load event if the fault input is 0.
+    value: 3
+enum/FRB:
+  bit_size: 1
+  variants:
+  - name: RESUME
+    description: Resume counting
+    value: 0
+  - name: CVAE_ACTION
+    description: Perform the action as specified by the CVAE field.
+    value: 1
+enum/IFCTL_CPV:
+  bit_size: 1
+  variants:
+  - name: Consecutive
+    description: Consecutive Periods The input must be at a specific logic level for the period defined by FP before it is passed to the filter output.
+    value: 0
+  - name: Voting
+    description: Voting The filter ignores one clock of opposite logic over the filter period. I.e. Over FP samples of the input, up to 1 sample may be of an opposite logic value (glitch) without affecting the output.
+    value: 1
+enum/IFCTL_FP:
+  bit_size: 2
+  variants:
+  - name: _3
+    description: The division factor is 3
+    value: 0
+  - name: _5
+    description: The division factor is 5
+    value: 1
+  - name: _8
+    description: The division factor is 8
+    value: 2
+enum/IFCTL_ISEL:
+  bit_size: 4
+  variants:
+  - name: CCPX_INPUT
+    description: CCP of the corresponding capture compare unit
+    value: 0
+  - name: CCPX_INPUT_PAIR
+    description: Input pair CCPX of the capture compare unit. For CCP0 input pair is CCP1 and for CCP1 input pair is CCP0.
+    value: 1
+  - name: CCP0_INPUT
+    description: CCP0 of the counter
+    value: 2
+  - name: TRIG_INPUT
+    description: Trigger
+    value: 3
+  - name: CCP_XOR
+    description: XOR of CCP inputs as input source.
+    value: 4
+  - name: FSUB0
+    description: subscriber 0 event as input source.
+    value: 5
+  - name: FSUB1
+    description: subscriber 1 event as input source.
+    value: 6
+  - name: COMP0
+    description: Comparator 0 output.
+    value: 7
+  - name: COMP1
+    description: Comparator 1 output.
+    value: 8
+  - name: COMP2
+    description: Comparator 2 output.
+    value: 9
+enum/OCTL_CCPO:
+  bit_size: 4
+  variants:
+  - name: FUNCVAL
+    description: Signal generator value (for example, PWM, triggered PWM)
+    value: 0
+  - name: LOAD
+    description: Load condition
+    value: 1
+  - name: CMPVAL
+    description: Compare value = counter condition
+    value: 2
+  - name: ZERO
+    description: Zero condition
+    value: 4
+  - name: CAPCOND
+    description: Capture condition
+    value: 5
+  - name: FAULTCOND
+    description: Fault Condition
+    value: 6
+  - name: CC0_MIRROR_ALL
+    description: Mirror CCP of first capture and compare register in counter group
+    value: 8
+  - name: CC1_MIRROR_ALL
+    description: Mirror CCP of second capture and compare register in counter group
+    value: 9
+  - name: DEADBAND
+    description: Deadband Inserted Output
+    value: 12
+  - name: CNTDIR
+    description: Counter direction
+    value: 13
+enum/ODIS_C0CCP:
+  bit_size: 1
+  variants:
+  - name: CCP_OUTPUT_OCTL
+    description: Output function as selected by the OCTL register CCPO field are provided to occpout[0].
+    value: 0
+  - name: CCP_OUTPUT_LOW
+    description: CCP output occpout[0] is forced low.
+    value: 1
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/RATIO:
+  bit_size: 3
+  variants:
+  - name: DIV_BY_1
+    description: Do not divide clock source
+    value: 0
+  - name: DIV_BY_2
+    description: Divide clock source by 2
+    value: 1
+  - name: DIV_BY_3
+    description: Divide clock source by 3
+    value: 2
+  - name: DIV_BY_4
+    description: Divide clock source by 4
+    value: 3
+  - name: DIV_BY_5
+    description: Divide clock source by 5
+    value: 4
+  - name: DIV_BY_6
+    description: Divide clock source by 6
+    value: 5
+  - name: DIV_BY_7
+    description: Divide clock source by 7
+    value: 6
+  - name: DIV_BY_8
+    description: Divide clock source by 8
+    value: 7
+enum/REPEAT:
+  bit_size: 3
+  variants:
+  - name: REPEAT_0
+    description: Does not automatically advance following a zero event.
+    value: 0
+  - name: REPEAT_1
+    description: Continues to advance following a zero event.
+    value: 1
+  - name: REPEAT_2
+    description: Reserved
+    value: 2
+  - name: REPEAT_3
+    description: Continues to advance following a zero event if the debug mode is not in effect, or following the release of the debug mode.
+    value: 3
+  - name: REPEAT_4
+    description: Reserved
+    value: 4
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177
+enum/SOFT:
+  bit_size: 1
+  variants:
+  - name: IMMEDIATE
+    description: The peripheral will halt immediately, even if the resultant state will result in corruption if the system is restarted
+    value: 0
+  - name: DELAYED
+    description: The peripheral blocks the debug freeze until it has reached a boundary where it can resume without corruption
+    value: 1
+enum/STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No interrupt pending
+    value: 0
+  - name: Z
+    description: 'Interrupt Source: Zero event'
+    value: 1
+  - name: L
+    description: REPLACE THIS WITH AN ACTUAL IRQ NAME
+    value: 2
+  - name: CCD0
+    description: 'Interrupt Source: Capture or compare down event (CCD0)'
+    value: 5
+  - name: CCD1
+    description: 'Interrupt Source: Capture or compare down event (CCD1)'
+    value: 6
+  - name: CCD2
+    description: 'Interrupt Source: Capture or compare down event (CCD2)'
+    value: 7
+  - name: CCD3
+    description: 'Interrupt Source: Capture or compare down event (CCD3)'
+    value: 8
+  - name: CCU0
+    description: 'Interrupt Source: Capture or compare up event (CCU0)'
+    value: 9
+  - name: CCU1
+    description: 'Interrupt Source: Capture or compare up event (CCU1)'
+    value: 10
+  - name: CCU2
+    description: 'Interrupt Source: Capture or compare up event (CCU2)'
+    value: 11
+  - name: CCU3
+    description: 'Interrupt Source: Capture or compare up event (CCU3)'
+    value: 12
+  - name: CCD4
+    description: 'Interrupt Source: Compare down event (CCD4)'
+    value: 13
+  - name: CCD5
+    description: 'Interrupt Source: Compare down event (CCD5)'
+    value: 14
+  - name: CCU4
+    description: 'Interrupt Source: Compare down event (CCU4)'
+    value: 15
+  - name: CCU5
+    description: 'Interrupt Source: Compare down event (CCU5)'
+    value: 16
+  - name: F
+    description: 'Interrupt Source: Fault Event generated an interrupt.'
+    value: 25
+  - name: TOV
+    description: 'Interrupt Source: Trigger overflow'
+    value: 26
+  - name: REPC
+    description: Repeat Counter Zero
+    value: 27
+  - name: DC
+    description: 'Interrupt Source: Direction Change'
+    value: 28
+  - name: QEIERR
+    description: QEI Incorrect state transition error
+    value: 29

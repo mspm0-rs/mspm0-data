@@ -1,0 +1,23 @@
+[package]
+name = "mspm0-metapac"
+version = "0.0.1"
+edition = "2021"
+
+include = [
+    "../*.rs",
+    "Cargo.toml"
+]
+
+[dependencies]
+cortex-m = "0.7.7"
+
+[dependencies.cortex-m-rt]
+version = "0.7.3"
+optional = true
+
+[features]
+default = []
+pac = []
+metadata = []
+memory-x = []
+rt = ["cortex-m-rt/device"]

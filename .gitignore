@@ -1,0 +1,10 @@
+/build
+/files
+/sources
+/tmp
+.idea/
+.DS_Store
+__pycache__
+
+target/
+mspm0-metapac/
