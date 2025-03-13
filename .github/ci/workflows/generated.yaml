@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Checkout generated repo
+      uses: actions/checkout@v4
+      with:
+        repository: mspm0-rs/mspm0-data-generated
+        token: ${{ secrets.ACTIONS_GITHUB_TOKEN }}
+        ref: master
+        path: mspm0-data-generated
+        fetch-depth: 0
+
+    - name: Generate
+      run: |
+        ./d ci
+
+    - name: Copy generated code
+      run: |
+        cp -fr ./build/data ./mspm0-data-generated/data
+        cp -fr ./build/mspm0-metapac ./mspm0-data-generated/mspm0-metapac
+
+    - name: Add and commit new code
+      run: |
+        cd ./mspm0-data-generated
+        git config user.name "mspm0-ci"
+        git config user.email ""
+        git add data mspm0-metapac
+        git commit -m "Generated from mspm0-data $COMMIT" --allow-empty
+        git tag -a stm32-data-$COMMIT -m "Generated from mspm0-data $COMMIT"
+        git push --follow-tags
