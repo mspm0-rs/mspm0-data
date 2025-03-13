@@ -27,9 +27,9 @@ case "$CMD" in
         cargo run --release --bin mspm0-metapac-gen
     ;;
     ci)
-        [ -d sources ] || ./d download-all
-        [ -d sources ] || ./d gen
-        [ -d sources ] || ./d build-metapac
+        ./d download-all
+        ./d gen
+        ./d build-metapac
     ;;
     check)
         cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0c110x
