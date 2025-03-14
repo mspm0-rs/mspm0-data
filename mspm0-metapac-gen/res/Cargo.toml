@@ -16,7 +16,7 @@ version = "0.7.3"
 optional = true
 
 [features]
-default = []
+default = ["pac"]
 pac = []
 metadata = []
 memory-x = []
