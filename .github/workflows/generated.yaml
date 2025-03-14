@@ -32,6 +32,8 @@ jobs:
     - name: Add and commit new code
       run: |
         cd ./mspm0-data-generated
+        rm -rf data
+        rm -rf mspm0-metapac
         git config user.name "mspm0-ci"
         git config user.email ""
         git add data mspm0-metapac
