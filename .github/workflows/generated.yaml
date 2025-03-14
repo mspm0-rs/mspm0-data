@@ -36,5 +36,5 @@ jobs:
         git config user.email ""
         git add data mspm0-metapac
         git commit -m "Generated from mspm0-data $COMMIT" --allow-empty
-        git tag -a stm32-data-$COMMIT -m "Generated from mspm0-data $COMMIT"
+        git tag -a mspm0-data-$COMMIT -m "Generated from mspm0-data $COMMIT"
         git push --follow-tags
