@@ -26,14 +26,14 @@ jobs:
 
     - name: Copy generated code
       run: |
+        rm -rf ./mspm0-data-generated/data
+        rm -rf ./mspm0-data-generated/mspm0-metapac
         cp -fr ./build/data ./mspm0-data-generated/data
         cp -fr ./build/mspm0-metapac ./mspm0-data-generated/mspm0-metapac
 
     - name: Add and commit new code
       run: |
         cd ./mspm0-data-generated
-        rm -rf data
-        rm -rf mspm0-metapac
         git config user.name "mspm0-ci"
         git config user.email ""
         git add data mspm0-metapac
