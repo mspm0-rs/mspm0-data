@@ -43,12 +43,27 @@ pub fn generate(name: &str, chip: &Chip) -> TokenStream {
         });
     }
 
+    let mut dma_channels = Vec::new();
+
+    for (&num, channel) in chip.dma_channels.iter() {
+        let number = Literal::u32_unsuffixed(num);
+        let full = channel.full;
+
+        dma_channels.push(quote! {
+            DmaChannel {
+                number: #number,
+                full: #full,
+            }
+        });
+    }
+
     quote! {
         pub static METADATA: Metadata = Metadata {
             name: #name,
             peripherals: &[#(#peripherals),*],
             pincm_mappings: &[#(#pincm_mappings),*],
             interrupts: &[#(#interrupts),*],
+            dma_channels: &[#(#dma_channels),*],
         };
     }
 }

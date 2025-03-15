@@ -6,7 +6,7 @@ pub struct Metadata {
     pub pincm_mappings: &'static [PinCmMapping],
     // pub nvic_priority_bits: Option<u8>,
     pub interrupts: &'static [Interrupt],
-    // pub dma_channels: &'static [DmaChannel],
+    pub dma_channels: &'static [DmaChannel],
 }
 
 #[derive(Debug, Eq, PartialEq, Clone)]
@@ -34,4 +34,13 @@ pub struct PeripheralPin {
 pub struct Interrupt {
     pub name: &'static str,
     pub number: u32,
+}
+
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct DmaChannel {
+    /// The number of the dma channel.
+    pub number: u8,
+
+    /// Whether this is a full or basic dma channel.
+    pub full: bool,
 }
