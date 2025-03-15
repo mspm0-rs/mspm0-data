@@ -8,6 +8,7 @@ use quote::quote;
 /// By name, then version (if any)
 const GENERATE_PERIPHERALS: &[PeripheralType] = &[
     PeripheralType::Cpuss,
+    PeripheralType::Dma,
     PeripheralType::Gpio,
     PeripheralType::Iomux,
     PeripheralType::Sysctl,

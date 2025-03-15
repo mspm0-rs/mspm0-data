@@ -376,6 +376,19 @@ fn generate_peripherals(
         },
     );
 
+    // DMA exists at a constant address on every part, but is not defined in any data source.
+    // The channels are however defined by sysconfig but handled elsewhere
+    peripherals.insert(
+        String::from("DMA"),
+        Peripheral {
+            name: String::from("DMA"),
+            ty: PeripheralType::Dma,
+            version: None,
+            address: 0x4042A000,
+            pins: vec![],
+        },
+    );
+
     // Sort pins
     peripherals
         .values_mut()

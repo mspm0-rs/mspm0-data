@@ -1,0 +1,166 @@
+# Transform for DMA registers based on DMA from G350x
+transforms:
+  - !DeleteUselessEnums
+
+  # Missing from chiptool
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  # REQ is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: IDLE
+      1: REQUEST
+
+  # FREE is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STOP
+      1: RUN
+
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  # Remove prefixes
+  - !RenameRegisters
+    block: .*
+    from: DMA(_)?(.+)
+    to: $2
+
+  - !RenameFields
+    fieldset: .*
+    from: DMA(_)?(.+)
+    to: $2
+
+  - !Rename
+    type: All
+    from: DMA(_)?(.+)
+    to: $2
+
+  # And then more redundant prefixes for PRIO, TRIG, CHAN, CTL, SA, DA, SZ, TCTL
+  - !RenameRegisters
+    block: .*
+    from: DMA(PRIO|TRIG|CHAN|CTL|SA|DA|SZ|TCTL)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: DMA(PRIO|TRIG|CHAN|CTL|SA|DA|SZ|TCTL)
+    to: $1
+
+  - !Rename
+    type: All
+    from: DMA(PRIO|TRIG|CHAN|CTL|SA|DA|SZ|TCTL)
+    to: $1
+
+  ## Publisher/Subscriber ports
+  # CHANID enums do not work since the channel id is an integer
+  - !DeleteEnums
+    from: (.*)_CHANID
+    bit_size: 4
+
+  - !MergeFieldsets
+    from: (FPUB|FSUB)_\d+
+    to: FPORT
+
+  - !MakeRegisterArray
+    blocks: .*
+    from: (FSUB|FPUB)_[0-1]
+    to: $1
+
+  ## Interrupts
+  # These fields are all the same layout.
+  - !MergeFieldsets
+    from: (IMASK|ISET|MIS|RIS|ICLR)
+    to: INT
+    check: Layout
+
+  # The SVDs for this part do not contain CH[7..15] and PREIRQCH[3..7]
+  - !AddFields
+    fieldset: INT
+    fields:
+    - name: CH7
+      bit_offset: 7
+      bit_size: 1
+    - name: CH8
+      bit_offset: 8
+      bit_size: 1
+    - name: CH9
+      bit_offset: 9
+      bit_size: 1
+    - name: CH10
+      bit_offset: 10
+      bit_size: 1
+    - name: CH11
+      bit_offset: 11
+      bit_size: 1
+    - name: CH12
+      bit_offset: 12
+      bit_size: 1
+    - name: CH13
+      bit_offset: 13
+      bit_size: 1
+    - name: CH14
+      bit_offset: 14
+      bit_size: 1
+    - name: CH15
+      bit_offset: 15
+      bit_size: 1
+    - name: PREIRQCH3
+      bit_offset: 19
+      bit_size: 1
+    - name: PREIRQCH4
+      bit_offset: 20
+      bit_size: 1
+    - name: PREIRQCH5
+      bit_offset: 21
+      bit_size: 1
+    - name: PREIRQCH6
+      bit_offset: 22
+      bit_size: 1
+    - name: PREIRQCH7
+      bit_offset: 23
+      bit_size: 1
+
+  # Remove DMA prefixes for enum variants
+  - !RenameEnumVariants
+    enum: STAT
+    from: DMA(.+)
+    to: $1
+
+  ## TSEL is not valid since the value is an integer
+  - !DeleteEnums
+    from: TSEL
+    bit_size: 6
+
+  ## EVT_MODE
+  # Merge INT/EVTx_CFG enums
+  - !MergeEnums
+    from: (EVT|INT)(\d+)_CFG
+    to: EVT_CFG
+
+  # Rename fields to match interrupt names
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT0_CFG
+    to: CPU
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: EVT1_CFG
+    to: EVENT
+
+  ## SRCINCR and DSTINCR are the same enum
+  - !MergeEnums
+    from: (SRC|DST)INCR
+    to: INCR
+
+  ## SRCWDTH and DSTWDTH are the same enum
+  - !MergeEnums
+    from: (SRC|DST)WDTH
+    to: WDTH
+
+  ## Cleanup
+  - !Sort

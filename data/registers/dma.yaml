@@ -1,0 +1,568 @@
+block/CHAN:
+  items:
+  - name: CTL
+    description: DMA Channel Control.
+    byte_offset: 0
+    fieldset: CTL
+  - name: SA
+    description: DMA Channel Source Address.
+    byte_offset: 4
+  - name: DA
+    description: DMA Channel Destination Address.
+    byte_offset: 8
+  - name: SZ
+    description: DMA Channel Size.
+    byte_offset: 12
+    fieldset: SZ
+block/DMA:
+  description: PERIPHERALREGION.
+  items:
+  - name: FSUB
+    description: Subscriber Port 0.
+    array:
+      len: 2
+      stride: 4
+    byte_offset: 1024
+    fieldset: FPORT
+  - name: FPUB
+    description: Publisher Port 0.
+    array:
+      len: 1
+      stride: 0
+    byte_offset: 1092
+    fieldset: FPORT
+  - name: PDBGCTL
+    description: Peripheral Debug Control.
+    byte_offset: 4120
+    fieldset: PDBGCTL
+  - name: INT_EVENT
+    array:
+      len: 2
+      stride: 44
+    byte_offset: 4128
+    block: INT_EVENT
+  - name: EVT_MODE
+    description: Event Mode.
+    byte_offset: 4320
+    fieldset: EVT_MODE
+  - name: DESC
+    description: Module Description.
+    byte_offset: 4348
+    access: Read
+    fieldset: DESC
+  - name: PRIO
+    description: DMA Channel Priority Control.
+    byte_offset: 4352
+    fieldset: PRIO
+  - name: TRIG
+    array:
+      len: 7
+      stride: 4
+    byte_offset: 4368
+    block: TRIG
+  - name: CHAN
+    array:
+      len: 7
+      stride: 16
+    byte_offset: 4608
+    block: CHAN
+block/INT_EVENT:
+  items:
+  - name: IIDX
+    description: Interrupt index.
+    byte_offset: 0
+    access: Read
+    fieldset: IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: INT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: INT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: INT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: INT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: INT
+block/TRIG:
+  items:
+  - name: TCTL
+    description: DMA Trigger Select.
+    byte_offset: 0
+    fieldset: TCTL
+fieldset/CTL:
+  description: DMA Channel Control.
+  fields:
+  - name: REQ
+    description: DMA request. Software-controlled DMA start. DMAREQ is reset automatically.
+    bit_offset: 0
+    bit_size: 1
+  - name: EN
+    description: DMA enable.
+    bit_offset: 1
+    bit_size: 1
+  - name: PREIRQ
+    description: 'Enable an early IRQ event. This can help software to react quicker to and DMA done event or allows some additional configuration before the channel is complete. Note: This register is only available in a FULL-channel configuration. Please consult the datasheet of the specific device to map which channel number has FULL or BASIC capability. In a BASIC configuration this register is a read only value and always reads as 0x0.'
+    bit_offset: 4
+    bit_size: 3
+    enum: PREIRQ
+  - name: SRCWDTH
+    description: DMA source width. This bit selects the source data width as a byte, half word, word or long word.
+    bit_offset: 8
+    bit_size: 2
+    enum: WDTH
+  - name: DSTWDTH
+    description: DMA destination width. This bit selects the destination as a byte, half word, word or long word.
+    bit_offset: 12
+    bit_size: 2
+    enum: WDTH
+  - name: SRCINCR
+    description: DMA source increment. This bit selects automatic incrementing or decrementing of the source address DMASA for each transfer. The amount of change to the DMASA is based on the definitin in the DMASRCWDTH. For example an increment of 1 (+1) on a WORD transfer will increment the DMASA by 4.
+    bit_offset: 16
+    bit_size: 4
+    enum: INCR
+  - name: DSTINCR
+    description: DMA destination increment. This bit selects automatic incrementing or decrementing of the destination address DMADA for each transfer. The amount of change to the DMADA is based on the definitin in the DMADSTWDTH. For example an increment of 1 (+1) on a WORD transfer will increment the DMADA by 4.
+    bit_offset: 20
+    bit_size: 4
+    enum: INCR
+  - name: EM
+    description: 'DMA extended mode Note: The extended transfer modes are only available in a FULL-channel configuration. Please consult the datasheet of the specific device to map which channel number has FULL or BASIC capability. In a BASIC channel configuration this register is a read-only register and reads 0x0.'
+    bit_offset: 24
+    bit_size: 2
+    enum: EM
+  - name: TM
+    description: 'DMA transfer mode register Note: The repeat-single (2h) and repeat-block (3h) transfer are only available in a FULL-channel configuration. Please consult the datasheet of the specific device to map which channel number has FULL or BASIC capability. In a BASIC channel configuration only the values for single (0h) and block (1h) transfer can be set.'
+    bit_offset: 28
+    bit_size: 2
+    enum: TM
+fieldset/DESC:
+  description: Module Description.
+  fields:
+  - name: MINREV
+    description: Minor rev of the IP.
+    bit_offset: 0
+    bit_size: 4
+  - name: MAJREV
+    description: Major rev of the IP.
+    bit_offset: 4
+    bit_size: 4
+  - name: FEATUREVER
+    description: 'Feature Set for the DMA: number of DMA channel minus one (e.g. 0->1ch, 2->3ch, 15->16ch).'
+    bit_offset: 12
+    bit_size: 4
+  - name: MODULEID
+    description: Module identification contains a unique peripheral identification number. The assignments are maintained in a central database for all of the platform modules to ensure uniqueness.
+    bit_offset: 16
+    bit_size: 16
+fieldset/EVT_MODE:
+  description: Event Mode.
+  fields:
+  - name: CPU
+    description: Event line mode select for event corresponding to interrupt event INT_EVENT[0].
+    bit_offset: 0
+    bit_size: 2
+    enum: EVT_CFG
+  - name: EVENT
+    description: Event line mode select for event corresponding to generic event INT_EVENT[1].
+    bit_offset: 2
+    bit_size: 2
+    enum: EVT_CFG
+fieldset/FPORT:
+  description: Publisher Port 0.
+  fields:
+  - name: CHANID
+    description: 0 = disconnected. 1-255 = connected to channelID = CHANID.
+    bit_offset: 0
+    bit_size: 4
+fieldset/IIDX:
+  description: Interrupt index.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 8
+    enum: STAT
+fieldset/INT:
+  description: Interrupt clear.
+  fields:
+  - name: CH0
+    description: DMA Channel 0 interrupt signals that size counter reached zero (DMASZ=0).
+    bit_offset: 0
+    bit_size: 1
+  - name: CH1
+    description: DMA Channel 1 interrupt signals that size counter reached zero (DMASZ=0).
+    bit_offset: 1
+    bit_size: 1
+  - name: CH2
+    description: DMA Channel 2 interrupt signals that size counter reached zero (DMASZ=0).
+    bit_offset: 2
+    bit_size: 1
+  - name: CH3
+    description: DMA Channel 3 interrupt signals that size counter reached zero (DMASZ=0).
+    bit_offset: 3
+    bit_size: 1
+  - name: CH4
+    description: DMA Channel 4 interrupt signals that size counter reached zero (DMASZ=0).
+    bit_offset: 4
+    bit_size: 1
+  - name: CH5
+    description: DMA Channel 5 interrupt signals that size counter reached zero (DMASZ=0).
+    bit_offset: 5
+    bit_size: 1
+  - name: CH6
+    description: DMA Channel 6 interrupt signals that size counter reached zero (DMASZ=0).
+    bit_offset: 6
+    bit_size: 1
+  - name: CH7
+    bit_offset: 7
+    bit_size: 1
+  - name: CH8
+    bit_offset: 8
+    bit_size: 1
+  - name: CH9
+    bit_offset: 9
+    bit_size: 1
+  - name: CH10
+    bit_offset: 10
+    bit_size: 1
+  - name: CH11
+    bit_offset: 11
+    bit_size: 1
+  - name: CH12
+    bit_offset: 12
+    bit_size: 1
+  - name: CH13
+    bit_offset: 13
+    bit_size: 1
+  - name: CH14
+    bit_offset: 14
+    bit_size: 1
+  - name: CH15
+    bit_offset: 15
+    bit_size: 1
+  - name: PREIRQCH0
+    description: Pre-IRQ for Channel 0. Size counter reached Pre-IRQ threshold.
+    bit_offset: 16
+    bit_size: 1
+  - name: PREIRQCH1
+    description: Pre-IRQ for Channel 1. Size counter reached Pre-IRQ threshold.
+    bit_offset: 17
+    bit_size: 1
+  - name: PREIRQCH2
+    description: Pre-IRQ for Channel 2. Size counter reached Pre-IRQ threshold.
+    bit_offset: 18
+    bit_size: 1
+  - name: PREIRQCH3
+    bit_offset: 19
+    bit_size: 1
+  - name: PREIRQCH4
+    bit_offset: 20
+    bit_size: 1
+  - name: PREIRQCH5
+    bit_offset: 21
+    bit_size: 1
+  - name: PREIRQCH6
+    bit_offset: 22
+    bit_size: 1
+  - name: PREIRQCH7
+    bit_offset: 23
+    bit_size: 1
+  - name: ADDRERR
+    description: DMA address error, SRC address not reachable.
+    bit_offset: 24
+    bit_size: 1
+  - name: DATAERR
+    description: DMA data error, SRC data might be corrupted (PAR or ECC error).
+    bit_offset: 25
+    bit_size: 1
+fieldset/PDBGCTL:
+  description: Peripheral Debug Control.
+  fields:
+  - name: FREE
+    description: Free run control.
+    bit_offset: 0
+    bit_size: 1
+  - name: SOFT
+    description: Soft halt boundary control. This function is only available, if [FREE] is set to 'STOP'.
+    bit_offset: 1
+    bit_size: 1
+    enum: SOFT
+fieldset/PRIO:
+  description: DMA Channel Priority Control.
+  fields:
+  - name: ROUNDROBIN
+    description: Round robin. This bit enables the round-robin DMA channel priorities.
+    bit_offset: 0
+    bit_size: 1
+  - name: BURSTSZ
+    description: Define the burst size of a block transfer, before the priority is re-evaluated.
+    bit_offset: 16
+    bit_size: 2
+    enum: BURSTSZ
+fieldset/SZ:
+  description: DMA Channel Size.
+  fields:
+  - name: SIZE
+    description: DMA Channel Size in number of transfers.
+    bit_offset: 0
+    bit_size: 16
+fieldset/TCTL:
+  description: DMA Trigger Select.
+  fields:
+  - name: TSEL
+    description: 'DMA Trigger Select Note: Reference the datasheet of the device to see the specific trigger mapping.'
+    bit_offset: 0
+    bit_size: 6
+  - name: TINT
+    description: DMA Trigger by Internal Channel.
+    bit_offset: 7
+    bit_size: 1
+    enum: TINT
+enum/BURSTSZ:
+  bit_size: 2
+  variants:
+  - name: INFINITI
+    description: There is no burst size, the whole block transfer is completed on one transfer without interruption.
+    value: 0
+  - name: BURST_8
+    description: The burst size is 8, after 8 transfers the block transfer is interrupted and the priority is reevaluated.
+    value: 1
+  - name: BUSRT_16
+    description: The burst size is 16, after 16 transfers the block transfer is interrupted and the priority is reevaluated.
+    value: 2
+  - name: BURST_32
+    description: The burst size is 32, after 32 transfers the block transfer is interrupted and the priority is reevaluated.
+    value: 3
+enum/EM:
+  bit_size: 2
+  variants:
+  - name: NORMAL
+    description: Normal mode is related to transfers from SRC to DST.
+    value: 0
+  - name: FILLMODE
+    description: Fill mode will copy the SA register content as data to DA.
+    value: 2
+  - name: TABLEMODE
+    description: Table mode will read an address and data value from SA and write the data to address.
+    value: 3
+enum/EVT_CFG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: The interrupt or event line is disabled.
+    value: 0
+  - name: SOFTWARE
+    description: The interrupt or event line is in software mode. Software must clear the RIS.
+    value: 1
+  - name: HARDWARE
+    description: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.
+    value: 2
+enum/INCR:
+  bit_size: 4
+  variants:
+  - name: UNCHANGED
+    description: Address is unchanged (+0).
+    value: 0
+  - name: DECREMENT
+    description: Decremented by 1 (-1 * DMADSTWDTH).
+    value: 2
+  - name: INCREMENT
+    description: Incremented by 1 (+1 * DMADSTWDTH).
+    value: 3
+  - name: STRIDE_2
+    description: Stride size 2 (+2 * DMADSTWDTH).
+    value: 8
+  - name: STRIDE_3
+    description: Stride size 3 (+3 * DMADSTWDTH).
+    value: 9
+  - name: STRIDE_4
+    description: Stride size 4 (+4 * DMADSTWDTH).
+    value: 10
+  - name: STRIDE_5
+    description: Stride size 5 (+5 * DMADSTWDTH).
+    value: 11
+  - name: STRIDE_6
+    description: Stride size 6 (+6 * DMADSTWDTH).
+    value: 12
+  - name: STRIDE_7
+    description: Stride size 7 (+7 * DMADSTWDTH).
+    value: 13
+  - name: STRIDE_8
+    description: Stride size 8 (+8 * DMADSTWDTH).
+    value: 14
+  - name: STRIDE_9
+    description: Stride size 9 (+9 * DMADSTWDTH).
+    value: 15
+enum/PREIRQ:
+  bit_size: 3
+  variants:
+  - name: PREIRQ_DISABLE
+    description: Pre-IRQ event disabled.
+    value: 0
+  - name: PREIRQ_1
+    description: Issure Pre-IRQ event when DMASZ=1.
+    value: 1
+  - name: PREIRQ_2
+    description: Issure Pre-IRQ event when DMASZ=2.
+    value: 2
+  - name: PREIRQ_4
+    description: Issure Pre-IRQ event when DMASZ=4.
+    value: 3
+  - name: PREIRQ_8
+    description: Issure Pre-IRQ event when DMASZ=8.
+    value: 4
+  - name: PREIRQ_32
+    description: Issure Pre-IRQ event when DMASZ=32.
+    value: 5
+  - name: PREIRQ_64
+    description: Issure Pre-IRQ event when DMASZ=64.
+    value: 6
+  - name: PREIRQ_HALF
+    description: Issure Pre-IRQ event when DMASZ reached the half size point of the original transfer size.
+    value: 7
+enum/SOFT:
+  bit_size: 1
+  variants:
+  - name: IMMEDIATE
+    description: The peripheral will halt immediately, even if the resultant state will result in corruption if the system is restarted.
+    value: 0
+  - name: DELAYED
+    description: The peripheral blocks the debug freeze until it has reached a boundary where it can resume without corruption.
+    value: 1
+enum/STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No bit is set means there is no pending interrupt request.
+    value: 0
+  - name: CH0
+    description: DMA Channel 0 size counter reached zero (DMASZ=0).
+    value: 1
+  - name: CH1
+    description: DMA Channel 2 size counter reached zero (DMASZ=0).
+    value: 2
+  - name: CH2
+    description: DMA Channel 2 size counter reached zero (DMASZ=0).
+    value: 3
+  - name: CH3
+    description: DMA Channel 3 size counter reached zero (DMASZ=0).
+    value: 4
+  - name: CH4
+    description: DMA Channel 4 size counter reached zero (DMASZ=0).
+    value: 5
+  - name: CH5
+    description: DMA Channel 5 size counter reached zero (DMASZ=0).
+    value: 6
+  - name: CH6
+    description: DMA Channel 6 size counter reached zero (DMASZ=0).
+    value: 7
+  - name: CH7
+    description: DMA Channel 7 size counter reached zero (DMASZ=0).
+    value: 8
+  - name: CH8
+    description: DMA Channel 8 size counter reached zero (DMASZ=0).
+    value: 9
+  - name: CH9
+    description: DMA Channel 9 size counter reached zero (DMASZ=0).
+    value: 10
+  - name: CH10
+    description: DMA Channel 10 size counter reached zero (DMASZ=0).
+    value: 11
+  - name: CH11
+    description: DMA Channel 11 size counter reached zero (DMASZ=0).
+    value: 12
+  - name: CH12
+    description: DMA Channel 12 size counter reached zero (DMASZ=0).
+    value: 13
+  - name: CH13
+    description: DMA Channel 13 size counter reached zero (DMASZ=0).
+    value: 14
+  - name: CH14
+    description: DMA Channel 14 size counter reached zero (DMASZ=0).
+    value: 15
+  - name: CH15
+    description: DMA Channel 15 size counter reached zero (DMASZ=0).
+    value: 16
+  - name: PREIRQCH0
+    description: PRE-IRQ event for DMA Channel 0.
+    value: 17
+  - name: PREIRQCH1
+    description: PRE-IRQ event for DMA Channel 1.
+    value: 18
+  - name: PREIRQCH2
+    description: PRE-IRQ event for DMA Channel 2.
+    value: 19
+  - name: PREIRQCH3
+    description: PRE-IRQ event for DMA Channel 3.
+    value: 20
+  - name: PREIRQCH4
+    description: PRE-IRQ event for DMA Channel 4.
+    value: 21
+  - name: PREIRQCH5
+    description: PRE-IRQ event for DMA Channel 5.
+    value: 22
+  - name: PREIRQCH6
+    description: PRE-IRQ event for DMA Channel 6.
+    value: 23
+  - name: PREIRQCH7
+    description: PRE-IRQ event for DMA Channel 7.
+    value: 24
+  - name: ADDRERR
+    description: DMA address error, SRC address not reachable.
+    value: 25
+  - name: DATAERR
+    description: DMA data error, SRC data might be corrupted (PAR or ECC error).
+    value: 26
+enum/TINT:
+  bit_size: 1
+  variants:
+  - name: EXTERNAL
+    description: DMATSEL will define external trigger select as transfer trigger.
+    value: 0
+  - name: INTERNAL
+    description: DMATSEL will define internal channel as transfer trigger select. 0-> Channel0-done, 1-> Channel1-done, ...
+    value: 1
+enum/TM:
+  bit_size: 2
+  variants:
+  - name: SINGLE
+    description: Single transfer. Each transfers requires a new trigger. When the DMASZ counts down to zero an event can be generated and the DMAEN is cleared.
+    value: 0
+  - name: BLOCK
+    description: Block transfer. Each trigger transfers the complete block defined in DMASZ. After the transfer is complete an event can be generated and the DMAEN is cleared.
+    value: 1
+  - name: RPTSNGL
+    description: Repeated single transfer. Each transfers requires a new trigger. When the DMASZ counts down to zero an event can be generated. After the last transfer the DMASA, DMADA, DAMSZ registers are restored to its initial value and the DMAEN stays enabled.
+    value: 2
+  - name: RPTBLCK
+    description: Repeated block transfer. Each trigger transfers the complete block defined in DMASZ. After the last transfer the DMASA, DMADA, DAMSZ registers are restored to its initial value and the DMAEN stays enabled.
+    value: 3
+enum/WDTH:
+  bit_size: 2
+  variants:
+  - name: BYTE
+    description: Destination data width is BYTE (8-bit).
+    value: 0
+  - name: HALF
+    description: Destination data width is HALF-WORD (16-bit).
+    value: 1
+  - name: WORD
+    description: Destination data width is WORD (32-bit).
+    value: 2
+  - name: LONG
+    description: Destination data width is LONG-WORD (64-bit).
+    value: 3

@@ -73,6 +73,8 @@ pub enum PeripheralType {
 
     Cpuss,
 
+    Dma,
+
     Gpio,
 
     Iomux,
@@ -95,6 +97,7 @@ impl fmt::Display for PeripheralType {
             Self::Unknown => "",
             Self::Adc => "adc",
             Self::Cpuss => "cpuss",
+            Self::Dma => "dma",
             Self::Gpio => "gpio",
             Self::Iomux => "iomux",
             Self::Sysctl => "sysctl",
