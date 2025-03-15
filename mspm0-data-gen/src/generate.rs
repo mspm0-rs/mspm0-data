@@ -1,13 +1,14 @@
 use std::{
     collections::{BTreeMap, HashSet},
+    fmt::format,
     fs,
     sync::LazyLock,
 };
 
 use anyhow::{anyhow, Context};
 use mspm0_data_types::{
-    Chip, Interrupt, Package, PackagePin, Peripheral, PeripheralPin, PeripheralType, PinCm,
-    PinFunction,
+    Chip, DmaChannel, Interrupt, Package, PackagePin, Peripheral, PeripheralPin, PeripheralType,
+    PinCm, PinFunction,
 };
 use regex::Regex;
 
@@ -20,10 +21,8 @@ use crate::{
 const SKIP_CHIPS: &[&str] = &[
     // FIXME: This is not a duplicate of C110x due to pinout differences
     "MSPS003FX",
-
     // Likely a duplicate of C110x
     "MSPM0C1105_C1106",
-
     // Unreleased
     "MSPM0L111X",
     "MSPM0H321X",
@@ -59,6 +58,8 @@ pub fn generate(
             int_groups,
         )?;
 
+        let dma_channels = generate_dma_channels(&name, &sysconfig_entry)?;
+
         fs::create_dir_all("./build/data/").unwrap();
 
         let chip = Chip {
@@ -66,6 +67,7 @@ pub fn generate(
             pin_cm,
             peripherals,
             interrupts,
+            dma_channels,
         };
 
         let _ = fs::write(
@@ -481,4 +483,36 @@ fn generate_irqs(
     }
 
     Ok(interrupts)
+}
+
+fn generate_dma_channels(
+    chip_name: &str,
+    sysconfig: &SysconfigFile,
+) -> anyhow::Result<BTreeMap<u32, DmaChannel>> {
+    static PATTERN: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"DMA_CH(?<channel>\d+)").unwrap());
+
+    let mut channels = BTreeMap::new();
+
+    for channel in sysconfig
+        .peripherals
+        .values()
+        .filter(|p| p.name.starts_with("DMA_CH"))
+    {
+        let name = &channel.name;
+        let captures = PATTERN.captures(name).unwrap();
+        let channel_number = captures["channel"]
+            .parse::<u32>()
+            .context("Could not parse DMA channel number")?;
+        let full = channel
+            .attributes
+            .get("full_channel")
+            .context(format!("{name} does not have a full_channel attribute"))?
+            .as_bool()
+            .context(format!("{name} full_channel attribute is not a bool"))?;
+
+        channels.insert(channel_number, DmaChannel { full });
+    }
+
+    Ok(channels)
 }

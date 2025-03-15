@@ -27,11 +27,11 @@ fn interrupt_enum(chip: &Chip) -> TokenStream {
         // Ignore Cortex-M interrupts for enum
         .filter(|(_, interrupt)| interrupt.num >= 0)
         .map(|(_, interrupt)| {
-        let name = Ident::new(&interrupt.name, Span::call_site());
-        let value = Literal::u8_unsuffixed(interrupt.num as _);
+            let name = Ident::new(&interrupt.name, Span::call_site());
+            let value = Literal::u8_unsuffixed(interrupt.num as _);
 
-        quote! { #name = #value }
-    });
+            quote! { #name = #value }
+        });
 
     quote! {
         #[derive(Copy, Clone, Debug, PartialEq, Eq)]

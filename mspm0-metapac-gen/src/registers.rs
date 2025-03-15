@@ -95,7 +95,12 @@ pub fn generate(out_dir: &Path) -> anyhow::Result<()> {
         file.flush().unwrap();
         drop(file);
 
-        Command::new("rustfmt").arg(&path).spawn().unwrap().wait().unwrap();
+        Command::new("rustfmt")
+            .arg(&path)
+            .spawn()
+            .unwrap()
+            .wait()
+            .unwrap();
     }
 
     Ok(())

@@ -7,7 +7,7 @@ pub struct Chip {
     pub pin_cm: BTreeMap<String, PinCm>,
     pub peripherals: BTreeMap<String, Peripheral>,
     pub interrupts: BTreeMap<i32, Interrupt>,
-    // TODO: Interrupts
+    pub dma_channels: BTreeMap<u32, DmaChannel>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -141,4 +141,10 @@ pub struct Interrupt {
     pub name: String,
     pub num: i32,
     pub group: BTreeMap<u32, String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DmaChannel {
+    /// Whether this is a full channel or basic channel.
+    pub full: bool,
 }
