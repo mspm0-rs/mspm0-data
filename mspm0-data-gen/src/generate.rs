@@ -24,8 +24,9 @@ const SKIP_CHIPS: &[&str] = &[
     // Likely a duplicate of C110x
     "MSPM0C1105_C1106",
 
-    // Unreleased, need to verify if 
+    // Unreleased
     "MSPM0L111X",
+    "MSPM0H321X",
 ];
 
 pub fn generate(

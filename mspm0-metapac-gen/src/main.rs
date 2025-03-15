@@ -46,6 +46,9 @@ fn main() -> anyhow::Result<()> {
         chips.insert(name, chip);
     }
 
+    // Must generate registers before the PAC to ensure that rustfmt can resolve imports. 
+    registers::generate(&out_dir)?;
+
     for (name, chip) in &mut chips {
         generate_chip_pac(name, chip, &out_dir);
         generate_chip_metadata(name, chip, &out_dir);
@@ -53,8 +56,6 @@ fn main() -> anyhow::Result<()> {
 
         // TODO: Generate memory.x
     }
-
-    registers::generate(&out_dir)?;
 
     krate::generate(&out_dir, &chips)?;
 
@@ -76,7 +77,7 @@ fn generate_chip_pac(name: &str, chip: &Chip, out_dir: &Path) {
 
     drop(file);
 
-    Command::new("rustfmt").arg(&path).output().unwrap();
+    Command::new("rustfmt").arg(&path).spawn().unwrap().wait().unwrap();
 }
 
 fn generate_chip_metadata(name: &str, chip: &Chip, out_dir: &Path) {
@@ -91,5 +92,5 @@ fn generate_chip_metadata(name: &str, chip: &Chip, out_dir: &Path) {
 
     drop(file);
 
-    Command::new("rustfmt").arg(&path).output().unwrap();
+    Command::new("rustfmt").arg(&path).spawn().unwrap().wait().unwrap();
 }
