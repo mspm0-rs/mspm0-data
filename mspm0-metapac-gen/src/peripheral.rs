@@ -12,6 +12,7 @@ const GENERATE_PERIPHERALS: &[PeripheralType] = &[
     PeripheralType::Iomux,
     PeripheralType::Sysctl,
     PeripheralType::Tim,
+    PeripheralType::Uart,
 ];
 
 pub fn generate(chip: &Chip) -> TokenStream {

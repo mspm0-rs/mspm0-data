@@ -1,0 +1,319 @@
+# Transform for UART registers based on UART0 on G350x
+transforms:
+  - !DeleteUselessEnums
+
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
+  #
+  # TODO: Add this to chiptool
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  # BUSY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLEARED
+      1: SET
+
+  # FREE is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STOP
+      1: RUN
+
+  # RESETASSERT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  # RESETSTKY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  # RESETSTKYCLR is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  # TXD_OUT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: LOW
+      1: HIGH
+
+  # INTEVAL is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: DISABLE
+      1: EVAL
+
+  # TODO: Something better than a cursed rename as merge
+  - !MergeBlocks
+    from: UART0
+    main: UART0
+    to: UART
+
+  # Remove prefixes
+  - !RenameRegisters
+    block: .*
+    from: UART0_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: UART0_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: UART0_(.+)
+    to: $1
+
+  ## Interrupts
+  ## INT_EVENT0 -> CPU_INT
+  - !MergeBlocks
+    from: INT_EVENT0
+    main: INT_EVENT0
+    to: CPU_INT
+
+  - !RenameRegisters
+    block: .*
+    from: INT_EVENT0(.*)
+    to: CPU_INT$1
+
+  - !RenameFields
+    fieldset: .*
+    from: INT_EVENT0(.+)
+    to: CPU_INT$1
+
+  - !Rename
+    type: All
+    from: INT_EVENT0(.+)
+    to: CPU_INT$1
+
+  # These interrupt fields are all the same layout.
+  - !MergeFieldsets
+    from: CPU_INT_(IMASK|ISET|MIS|RIS|ICLR)
+    to: CPU_INT
+    check: NoCheck
+
+  # Remove redundant prefixes in the CPU_INT block
+  - !RenameRegisters
+    block: .*
+    from: CPU_INT_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: CPU_INT_(.+)
+    to: $1
+
+  ## INT_EVENT1 -> DMA_TRIG_RX
+  - !MergeBlocks
+    from: INT_EVENT1
+    main: INT_EVENT1
+    to: DMA_TRIG_RX
+
+  - !RenameRegisters
+    block: .*
+    from: INT_EVENT1(.*)
+    to: DMA_TRIG_RX$1
+
+  - !RenameFields
+    fieldset: .*
+    from: INT_EVENT1(.+)
+    to: DMA_TRIG_RX$1
+
+  - !Rename
+    type: All
+    from: INT_EVENT1(.+)
+    to: DMA_TRIG_RX$1
+
+  # These interrupt fields are all the same layout.
+  - !MergeFieldsets
+    from: DMA_TRIG_RX_(IMASK|ISET|MIS|RIS|ICLR)
+    to: DMA_TRIG_RX
+    check: NoCheck
+
+  # Remove redundant prefixes in the DMA_TRIG_RX block
+  - !RenameRegisters
+    block: .*
+    from: DMA_TRIG_RX_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: DMA_TRIG_RX_(.+)
+    to: $1
+
+  ## INT_EVENT2 -> DMA_TRIG_TX
+  - !MergeBlocks
+    from: INT_EVENT2
+    main: INT_EVENT2
+    to: DMA_TRIG_TX
+
+  - !RenameRegisters
+    block: .*
+    from: INT_EVENT2(.*)
+    to: DMA_TRIG_TX$1
+
+  - !RenameFields
+    fieldset: .*
+    from: INT_EVENT2(.+)
+    to: DMA_TRIG_TX$1
+
+  - !Rename
+    type: All
+    from: INT_EVENT2(.+)
+    to: DMA_TRIG_TX$1
+
+  # These interrupt fields are all the same layout.
+  - !MergeFieldsets
+    from: DMA_TRIG_TX_(IMASK|ISET|MIS|RIS|ICLR)
+    to: DMA_TRIG_TX
+    check: NoCheck
+
+  # Remove redundant prefixes in the DMA_TRIG_TX block
+  - !RenameRegisters
+    block: .*
+    from: DMA_TRIG_TX_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: DMA_TRIG_TX_(.+)
+    to: $1
+
+  ## Add missing keys
+  - !AddFields
+    fieldset: RSTCTL
+    fields:
+    - name: KEY
+      description: Unlock key B1h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: RESET_KEY
+
+  - !AddFields
+    fieldset: PWREN
+    fields:
+    - name: KEY
+      description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: PWREN_KEY
+
+  - !AddFields
+    fieldset: CLKCFG
+    fields:
+    - name: KEY
+      description: KEY to Allow State Change A9h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: CLKCFG_KEY
+
+  - !Add
+    ir:
+      enum/RESET_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 177
+      enum/PWREN_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 38
+      enum/CLKCFG_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 0xA9
+
+  ## DGFSEL is an integer value, so the enum is useless
+  - !DeleteEnums
+    from: DGFSEL
+
+  ## EVT_MODE
+  # Merge INTx_CFG enums
+  - !MergeEnums
+    from: INT(\d+)_CFG
+    to: INT_CFG
+
+  # Rename fields to match interrupt names
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT0_CFG
+    to: CPU
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT1_CFG
+    to: DMA_TRIG_RX
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT2_CFG
+    to: DMA_TRIG_TX
+
+  ## Combine LINCx fields, these are the same
+  - !MergeFieldsets
+    from: LINC(\d+)
+    to: LINC
+
+  - !MakeRegisterArray
+    blocks: UART
+    from: LINC(\d+)
+    to: LINC
+
+  ### Set RXIFLSEL and TXIFLSEL to enum to IFLSSEL 
+  - !Add
+    ir:
+      enum/IFLSSEL:
+        bit_size: 3
+        variants:
+          - name: ONE_FOURTH_ULP
+            description: RX FIFO >= 1/4 full, for ULP domain
+            value: 0
+          - name: ONE_FOURTH
+            description: RX FIFO >= 1/4 full or TX FIFO <= 1/4 full
+            value: 1
+          - name: HALF
+            description: RX FIFO >= 1/2 full or TX FIFO <= 1/2 full
+            value: 2
+          - name: THREE_FOURTH
+            description: RX FIFO >= 3/4 full or TX FIFO <= 3/4 full
+            value: 3
+          - name: FULL_ULP
+            description: RX FIFO is full, for ULP domain
+            value: 4
+          - name: FULL
+            description: RX or TX FIFO is full
+            value: 5
+          - name: AT_LEAST_ONE
+            description: RX or TX FIFO >= 1 entry available/free
+            value: 7
+
+  - !ModifyFieldsEnum
+    fieldset: IFLS
+    field: (RX|TX)IFLSEL
+    enum: IFLSSEL
+
+  ## CLKDIV[2] is same enum and fieldset
+  - !MergeEnums
+    from: CLKDIV(.*)
+    to: CLKDIV
+
+  - !MergeFieldsets
+    from: CLKDIV(.*)
+    to: CLKDIV
+
+  ## Cleanup
+  - !Sort

@@ -1,0 +1,1009 @@
+block/CPU_INT:
+  items:
+  - name: IIDX
+    description: Interrupt index.
+    byte_offset: 0
+    access: Read
+    fieldset: CPU_INT_IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: CPU_INT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: CPU_INT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: CPU_INT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: CPU_INT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: CPU_INT
+block/DMA_TRIG_RX:
+  items:
+  - name: IIDX
+    description: Interrupt index.
+    byte_offset: 0
+    access: Read
+    fieldset: DMA_TRIG_RX_IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: DMA_TRIG_RX
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: DMA_TRIG_RX
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: DMA_TRIG_RX
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: DMA_TRIG_RX
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: DMA_TRIG_RX
+block/DMA_TRIG_TX:
+  items:
+  - name: IIDX
+    description: Interrupt index.
+    byte_offset: 0
+    access: Read
+    fieldset: DMA_TRIG_TX_IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: DMA_TRIG_TX
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: DMA_TRIG_TX
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: DMA_TRIG_TX
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: DMA_TRIG_TX
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: DMA_TRIG_TX
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: CLKCFG
+    description: Peripheral Clock Configuration Register.
+    byte_offset: 8
+    fieldset: CLKCFG
+  - name: GPRCM_STAT
+    description: Status Register.
+    byte_offset: 20
+    access: Read
+    fieldset: GPRCM_STAT
+block/UART:
+  description: PERIPHERALREGION.
+  items:
+  - name: GPRCM
+    array:
+      len: 1
+      stride: 24
+    byte_offset: 2048
+    block: GPRCM
+  - name: CLKDIV
+    description: Clock Divider.
+    byte_offset: 4096
+    fieldset: CLKDIV
+  - name: CLKSEL
+    description: Clock Select for Ultra Low Power peripherals.
+    byte_offset: 4104
+    fieldset: CLKSEL
+  - name: PDBGCTL
+    description: Peripheral Debug Control.
+    byte_offset: 4120
+    fieldset: PDBGCTL
+  - name: CPU_INT
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4128
+    block: CPU_INT
+  - name: DMA_TRIG_RX
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4176
+    block: DMA_TRIG_RX
+  - name: DMA_TRIG_TX
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4224
+    block: DMA_TRIG_TX
+  - name: EVT_MODE
+    description: Event Mode.
+    byte_offset: 4320
+    fieldset: EVT_MODE
+  - name: INTCTL
+    description: Interrupt control register.
+    byte_offset: 4324
+    fieldset: INTCTL
+  - name: CTL0
+    description: UART Control Register 0.
+    byte_offset: 4352
+    fieldset: CTL0
+  - name: LCRH
+    description: UART Line Control Register.
+    byte_offset: 4356
+    fieldset: LCRH
+  - name: STAT
+    description: UART Status Register.
+    byte_offset: 4360
+    access: Read
+    fieldset: STAT
+  - name: IFLS
+    description: UART Interrupt FIFO Level Select Register.
+    byte_offset: 4364
+    fieldset: IFLS
+  - name: IBRD
+    description: UART Integer Baud-Rate Divisor Register.
+    byte_offset: 4368
+    fieldset: IBRD
+  - name: FBRD
+    description: UART Fractional Baud-Rate Divisor Register.
+    byte_offset: 4372
+    fieldset: FBRD
+  - name: GFCTL
+    description: Glitch Filter Control.
+    byte_offset: 4376
+    fieldset: GFCTL
+  - name: TXDATA
+    description: UART Transmit Data Register.
+    byte_offset: 4384
+    fieldset: TXDATA
+  - name: RXDATA
+    description: UART Receive Data Register.
+    byte_offset: 4388
+    access: Read
+    fieldset: RXDATA
+  - name: LINCNT
+    description: UART LIN Mode Counter Register.
+    byte_offset: 4400
+    fieldset: LINCNT
+  - name: LINCTL
+    description: UART LIN Mode Control Register.
+    byte_offset: 4404
+    fieldset: LINCTL
+  - name: LINC
+    description: UART LIN Mode Capture 0 Register.
+    array:
+      len: 2
+      stride: 4
+    byte_offset: 4408
+    fieldset: LINC
+  - name: IRCTL
+    description: eUSCI_Ax IrDA Control Word Register.
+    byte_offset: 4416
+    fieldset: IRCTL
+  - name: AMASK
+    description: Self Address Mask Register.
+    byte_offset: 4424
+    fieldset: AMASK
+  - name: ADDR
+    description: Self Address Register.
+    byte_offset: 4428
+    fieldset: ADDR
+  - name: CLKDIV2
+    description: Clock Divider.
+    byte_offset: 4448
+    fieldset: CLKDIV
+fieldset/ADDR:
+  description: Self Address Register.
+  fields:
+  - name: ADDR
+    description: Self Address for 9-Bit Mode This field contains the address that should be matched when UARTxAMASK is FFh.
+    bit_offset: 0
+    bit_size: 8
+fieldset/AMASK:
+  description: Self Address Mask Register.
+  fields:
+  - name: MSK
+    description: Self Address Mask for 9-Bit Mode This field contains the address mask that creates a set of addresses that should be matched. A 0 bit in the MSK bitfield configures, that the corresponding bit in the ADDR bitfield of the UARTxADDR register is don't care. A 1 bit in the MSK bitfield configures, that the corresponding bit in the ADDR bitfield of the UARTxADDR register must match.
+    bit_offset: 0
+    bit_size: 8
+fieldset/CLKCFG:
+  description: Peripheral Clock Configuration Register.
+  fields:
+  - name: BLOCKASYNC
+    description: Async Clock Request is blocked from starting SYSOSC or forcing bus clock to 32MHz.
+    bit_offset: 8
+    bit_size: 1
+  - name: KEY
+    description: KEY to Allow State Change A9h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: CLKCFG_KEY
+fieldset/CLKDIV:
+  description: Clock Divider.
+  fields:
+  - name: RATIO
+    description: Selects divide ratio of module clock.
+    bit_offset: 0
+    bit_size: 3
+    enum: CLKDIV
+fieldset/CLKSEL:
+  description: Clock Select for Ultra Low Power peripherals.
+  fields:
+  - name: LFCLK_SEL
+    description: Selects LFCLK as clock source if enabled.
+    bit_offset: 1
+    bit_size: 1
+  - name: MFCLK_SEL
+    description: Selects MFCLK as clock source if enabled.
+    bit_offset: 2
+    bit_size: 1
+  - name: BUSCLK_SEL
+    description: Selects BUS CLK as clock source if enabled.
+    bit_offset: 3
+    bit_size: 1
+fieldset/CPU_INT:
+  description: Interrupt clear.
+  fields:
+  - name: RTOUT
+    description: Clear UARTOUT Receive Time-Out Interrupt.
+    bit_offset: 0
+    bit_size: 1
+  - name: FRMERR
+    description: Clear UART Framing Error Interrupt.
+    bit_offset: 1
+    bit_size: 1
+  - name: PARERR
+    description: Clear UART Parity Error Interrupt.
+    bit_offset: 2
+    bit_size: 1
+  - name: BRKERR
+    description: Clear UART Break Error Interrupt.
+    bit_offset: 3
+    bit_size: 1
+  - name: OVRERR
+    description: Clear UART Receive Overrun Error Interrupt.
+    bit_offset: 4
+    bit_size: 1
+  - name: RXNE
+    description: Clear Negative Edge on UARTxRXD Interrupt.
+    bit_offset: 5
+    bit_size: 1
+  - name: RXPE
+    description: Clear Positive Edge on UARTxRXD Interrupt.
+    bit_offset: 6
+    bit_size: 1
+  - name: LINC0
+    description: Clear LIN Capture 0 / Match Interrupt.
+    bit_offset: 7
+    bit_size: 1
+  - name: LINC1
+    description: Clear LIN Capture 1 Interrupt.
+    bit_offset: 8
+    bit_size: 1
+  - name: LINOVF
+    description: Clear LIN Hardware Counter Overflow Interrupt.
+    bit_offset: 9
+    bit_size: 1
+  - name: RXINT
+    description: Clear UART Receive Interrupt.
+    bit_offset: 10
+    bit_size: 1
+  - name: TXINT
+    description: Clear UART Transmit Interrupt.
+    bit_offset: 11
+    bit_size: 1
+  - name: EOT
+    description: Clear UART End of Transmission Interrupt Indicates that the last bit of all transmitted data and flags has left the serializer and without any further Data in the TX Fifo or Buffer.
+    bit_offset: 12
+    bit_size: 1
+  - name: ADDR_MATCH
+    description: Clear Address Match Interrupt.
+    bit_offset: 13
+    bit_size: 1
+  - name: CTS
+    description: Clear UART Clear to Send Modem Interrupt.
+    bit_offset: 14
+    bit_size: 1
+  - name: DMA_DONE_RX
+    description: Clear DMA Done on RX Event Channel Interrupt.
+    bit_offset: 15
+    bit_size: 1
+  - name: DMA_DONE_TX
+    description: Clear DMA Done on TX Event Channel Interrupt.
+    bit_offset: 16
+    bit_size: 1
+  - name: NERR
+    description: Noise Error on triple voting. Asserted when the 3 samples of majority voting are not equal.
+    bit_offset: 17
+    bit_size: 1
+fieldset/CPU_INT_IIDX:
+  description: Interrupt index.
+  fields:
+  - name: STAT
+    description: UART Module Interrupt Vector Value. This register provides the highes priority interrupt index. A read clears the corresponding interrupt flag in RIS and MIS registers. 15h-1Fh = Reserved.
+    bit_offset: 0
+    bit_size: 8
+    enum: CPU_INT_IIDX_STAT
+fieldset/CTL0:
+  description: UART Control Register 0.
+  fields:
+  - name: ENABLE
+    description: UART Module Enable. If the UART is disabled in the middle of transmission or reception, it completes the current character before stopping. If the ENABLE bit is not set, all registers can still be accessed and updated. It is recommended to setup and change the UART operation mode with having the ENABLE bit cleared to avoid unpredictable behavior during the setup or update. If disabled the UART module will not send or receive any data and the logic is held in reset state.
+    bit_offset: 0
+    bit_size: 1
+  - name: LBE
+    description: UART Loop Back Enable.
+    bit_offset: 2
+    bit_size: 1
+  - name: RXE
+    description: 'UART Receive Enable If the UART is disabled in the middle of a receive, it completes the current character before stopping. #b#NOTE:#/b# To enable reception, the UARTEN bit must be set.'
+    bit_offset: 3
+    bit_size: 1
+  - name: TXE
+    description: 'UART Transmit Enable If the UART is disabled in the middle of a transmission, it completes the current character before stopping. #b#NOTE:#/b# To enable transmission, the UARTEN bit must be set.'
+    bit_offset: 4
+    bit_size: 1
+  - name: TXD_OUT_EN
+    description: TXD Pin Control Enable. When the transmit section of the UART is disabled (TXE = 0), the TXD pin can be controlled by the TXD_OUT bit.
+    bit_offset: 5
+    bit_size: 1
+  - name: TXD_OUT
+    description: TXD Pin Control Controls the TXD pin when TXD_OUT_EN = 1 and TXE = 0.
+    bit_offset: 6
+    bit_size: 1
+  - name: MENC
+    description: Manchester Encode enable.
+    bit_offset: 7
+    bit_size: 1
+  - name: MODE
+    description: 'Set the communication mode and protocol used. (Not defined settings uses the default setting: 0).'
+    bit_offset: 8
+    bit_size: 3
+    enum: MODE
+  - name: RTS
+    description: Request to Send If RTSEN is set the RTS output signals is controlled by the hardware logic using the FIFO fill level or TXDATA buffer. If RTSEN is cleared the RTS output is controlled by the RTS bit. The bit is the complement of the UART request to send, RTS modem status output.
+    bit_offset: 12
+    bit_size: 1
+  - name: RTSEN
+    description: Enable hardware controlled Request to Send.
+    bit_offset: 13
+    bit_size: 1
+  - name: CTSEN
+    description: Enable Clear To Send.
+    bit_offset: 14
+    bit_size: 1
+  - name: HSE
+    description: 'High-Speed Bit Oversampling Enable #b#NOTE:#/b# The bit oversampling influences the UART baud-rate configuration. The state of this bit has no effect on clock generation in ISO7816 smart card mode (the SMART bit is set).'
+    bit_offset: 15
+    bit_size: 2
+    enum: HSE
+  - name: FEN
+    description: UART Enable FIFOs.
+    bit_offset: 17
+    bit_size: 1
+  - name: MAJVOTE
+    description: When enabled with oversmapling of 16, samples samples 7, 8, and 9 are majority voted to decide the sampled bit value. The value correspond to al least 2 of the 3 samples is considered to be the received value. In case the 3 values do not match, RIS.NERR bit is set along with RDR.NERR When enabled with oversmapling of 8, samples samples 3, 4, and 5 are majority voted to decide the sampled bit value. The value correspond to al least 2 of the 3 samples is considered to be the received value. In case the 3 values donot match, RIS.NERR bit is set along with RDR.NERR When disabled, only a single sample of received bit is taken.
+    bit_offset: 18
+    bit_size: 1
+  - name: MSBFIRST
+    description: 'Most Significant Bit First This bit has effect both on the way protocol byte is transmitted and received. Notes: User needs to match the protocol to the correct value of this bit to send MSb or LSb first. The hardware engine will send the byte entirely based on this bit.'
+    bit_offset: 19
+    bit_size: 1
+fieldset/DMA_TRIG_RX:
+  description: Interrupt clear.
+  fields:
+  - name: RTOUT
+    description: Clear UARTOUT Receive Time-Out Interrupt.
+    bit_offset: 0
+    bit_size: 1
+  - name: RXINT
+    description: Clear UART Receive Interrupt.
+    bit_offset: 10
+    bit_size: 1
+fieldset/DMA_TRIG_RX_IIDX:
+  description: Interrupt index.
+  fields:
+  - name: STAT
+    description: UART Module Interrupt Vector Value. This register provides the highes priority interrupt index. A read clears the corresponding interrupt flag in UARTRIS and UARTMISC. 15h-1Fh = Reserved.
+    bit_offset: 0
+    bit_size: 8
+    enum: DMA_TRIG_RX_IIDX_STAT
+fieldset/DMA_TRIG_TX:
+  description: Interrupt clear.
+  fields:
+  - name: TXINT
+    description: Clear UART Transmit Interrupt.
+    bit_offset: 11
+    bit_size: 1
+fieldset/DMA_TRIG_TX_IIDX:
+  description: Interrupt index.
+  fields:
+  - name: STAT
+    description: UART Module Interrupt Vector Value. This register provides the highes priority interrupt index. A read clears the corresponding interrupt flag in UARTRIS and UARTMISC. 15h-1Fh = Reserved.
+    bit_offset: 0
+    bit_size: 8
+    enum: DMA_TRIG_TX_IIDX_STAT
+fieldset/EVT_MODE:
+  description: Event Mode.
+  fields:
+  - name: CPU
+    description: Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT0].
+    bit_offset: 0
+    bit_size: 2
+    enum: INT_CFG
+  - name: DMA_TRIG_RX
+    description: Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT1].
+    bit_offset: 2
+    bit_size: 2
+    enum: INT_CFG
+  - name: DMA_TRIG_TX
+    description: Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT2].
+    bit_offset: 4
+    bit_size: 2
+    enum: INT_CFG
+fieldset/FBRD:
+  description: UART Fractional Baud-Rate Divisor Register.
+  fields:
+  - name: DIVFRAC
+    description: Fractional Baud-Rate Divisor.
+    bit_offset: 0
+    bit_size: 6
+fieldset/GFCTL:
+  description: Glitch Filter Control.
+  fields:
+  - name: DGFSEL
+    description: 'Glitch Suppression Pulse Width This field controls the pulse width select for glitch suppression on the RX line. The value programmed in this field gives the number of cycles of fuctional clock up to which the glitch has to be suppressed on the RX line. In IRDA mode: The minimum pulse length for receive is given by: t(MIN) = (DGFSEL) / f(IRTXCLK).'
+    bit_offset: 0
+    bit_size: 6
+  - name: AGFEN
+    description: Analog Glitch Suppression Enable.
+    bit_offset: 8
+    bit_size: 1
+  - name: AGFSEL
+    description: Analog Glitch Suppression Pulse Width This field controls the pulse width select for the analog glitch suppression on the RX line. See device datasheet for exact values.
+    bit_offset: 9
+    bit_size: 2
+    enum: AGFSEL
+  - name: CHAIN
+    description: 'Analog and digital noise filters chaining enable. 0 DISABLE: When 0, chaining is disabled and only digital filter output is available to IP logic for sampling 1 ENABLE: When 1, analog and digital glitch filters are chained and the output of the combination is made available to IP logic for sampling.'
+    bit_offset: 11
+    bit_size: 1
+fieldset/GPRCM_STAT:
+  description: Status Register.
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+fieldset/IBRD:
+  description: UART Integer Baud-Rate Divisor Register.
+  fields:
+  - name: DIVINT
+    description: Integer Baud-Rate Divisor.
+    bit_offset: 0
+    bit_size: 16
+fieldset/IFLS:
+  description: UART Interrupt FIFO Level Select Register.
+  fields:
+  - name: TXIFLSEL
+    description: 'UART Transmit Interrupt FIFO Level Select The trigger points for the transmit interrupt are as follows: Note: for undefined settings the default configuration is used.'
+    bit_offset: 0
+    bit_size: 3
+    enum: IFLSSEL
+  - name: RXIFLSEL
+    description: 'UART Receive Interrupt FIFO Level Select The trigger points for the receive interrupt are as follows: Note: In ULP domain the trigger levels are used for: 0: LVL_1_4 4: LVL_FULL For undefined settings the default configuration is used.'
+    bit_offset: 4
+    bit_size: 3
+    enum: IFLSSEL
+  - name: RXTOSEL
+    description: UART Receive Interrupt Timeout Select. When receiving no start edge for an additional character within the set bittimes a RX interrupt is set even if the FIFO level is not reached. A value of 0 disables this function.
+    bit_offset: 8
+    bit_size: 4
+fieldset/INTCTL:
+  description: Interrupt control register.
+  fields:
+  - name: INTEVAL
+    description: Writing a 1 to this field re-evaluates the interrupt sources.
+    bit_offset: 0
+    bit_size: 1
+fieldset/IRCTL:
+  description: eUSCI_Ax IrDA Control Word Register.
+  fields:
+  - name: IREN
+    description: IrDA encoder/decoder enable.
+    bit_offset: 0
+    bit_size: 1
+  - name: IRTXCLK
+    description: IrDA transmit pulse clock select.
+    bit_offset: 1
+    bit_size: 1
+    enum: IRTXCLK
+  - name: IRTXPL
+    description: Transmit pulse length. Pulse length t(PULSE) = (IRTXPLx + 1) / [2 * f(IRTXCLK)] (IRTXCLK = functional clock of the UART).
+    bit_offset: 2
+    bit_size: 6
+  - name: IRRXPL
+    description: IrDA receive input UCAxRXD polarity.
+    bit_offset: 9
+    bit_size: 1
+    enum: IRRXPL
+fieldset/LCRH:
+  description: UART Line Control Register.
+  fields:
+  - name: BRK
+    description: UART Send Break (for LIN Protocol).
+    bit_offset: 0
+    bit_size: 1
+  - name: PEN
+    description: UART Parity Enable.
+    bit_offset: 1
+    bit_size: 1
+  - name: EPS
+    description: UART Even Parity Select This bit has no effect when parity is disabled by the PEN bit. For 9-Bit UART Mode transmissions, this bit controls the address byte and data byte indication (9th bit). 0 = The transferred byte is a data byte 1 = The transferred byte is an address byte.
+    bit_offset: 2
+    bit_size: 1
+    enum: EPS
+  - name: STP2
+    description: UART Two Stop Bits Select When in 7816 smart card mode (the SMART bit is set in the UARTCTL register), the number of stop bits is forced to 2.
+    bit_offset: 3
+    bit_size: 1
+  - name: WLEN
+    description: UART Word Length The bits indicate the number of data bits transmitted or received in a frame as follows:.
+    bit_offset: 4
+    bit_size: 2
+    enum: WLEN
+  - name: SPS
+    description: UART Stick Parity Select The Stick Parity Select (SPS) bit is used to set either a permanent '1' or a permanent '0' as parity when transmitting or receiving data. Its purpose is to typically indicate the first byte of a package or to mark an address byte, for example in a multi-drop RS-485 network. When bits PEN, EPS, and SPS of UARTLCRH are set, the parity bit is transmitted and checked as a 0. When bits PEN and SPS are set and EPS is cleared, the parity bit is transmitted and checked as a 1.
+    bit_offset: 6
+    bit_size: 1
+  - name: SENDIDLE
+    description: UART send IDLE pattern. When this bit is set an SENDIDLE period of 11 bit times will be sent on the TX line. The bit is cleared by hardware afterwards.
+    bit_offset: 7
+    bit_size: 1
+  - name: EXTDIR_SETUP
+    description: Defines the number of UARTclk ticks the signal to control the external driver for the RS485 will be set before the START bit is send.
+    bit_offset: 16
+    bit_size: 5
+  - name: EXTDIR_HOLD
+    description: Defines the number of UARTclk ticks the signal to control the external driver for the RS485 will be reset after the beginning of the stop bit. (If 2 STOP bits are enabled the beginning of the 2nd STOP bit.).
+    bit_offset: 21
+    bit_size: 5
+fieldset/LINC:
+  description: UART LIN Mode Capture 0 Register.
+  fields:
+  - name: DATA
+    description: 16 Bit Capture / Compare Register Captures current LINCTR value on RXD falling edge and can generate a LINC0 interrupt when capture is enabled (LINC0CAP = 1). If compare mode is enabled (LINC0_MATCH = 1), a counter match can generate a LINC0 interrupt.
+    bit_offset: 0
+    bit_size: 16
+fieldset/LINCNT:
+  description: UART LIN Mode Counter Register.
+  fields:
+  - name: LINCNT
+    description: 16 bit up counter clocked by the functional clock of the UART.
+    bit_offset: 0
+    bit_size: 16
+fieldset/LINCTL:
+  description: UART LIN Mode Control Register.
+  fields:
+  - name: CTRENA
+    description: LIN Counter Enable. LIN counter will only count when enabled.
+    bit_offset: 0
+    bit_size: 1
+  - name: ZERONE
+    description: Zero on negative Edge of RXD. When enabled the counter is set to 0 and starts counting on a negative edge of RXD.
+    bit_offset: 1
+    bit_size: 1
+  - name: CNTRXLOW
+    description: Count while low Signal on RXD When counter is enabled and the signal on RXD is low, the counter increments.
+    bit_offset: 2
+    bit_size: 1
+  - name: LINC0CAP
+    description: Capture Counter on negative RXD Edge. When enabled the counter value is captured to LINC0 register on each negative RXD edge. A LINC0 interrupt is triggered when enabled.
+    bit_offset: 4
+    bit_size: 1
+  - name: LINC1CAP
+    description: Capture Counter on positive RXD Edge. When enabled the counter value is captured to LINC1 register on each positive RXD edge. A LINC1 interrupt is triggered when enabled.
+    bit_offset: 5
+    bit_size: 1
+  - name: LINC0_MATCH
+    description: Counter Compare Match Mode When this bit is set to 1 a counter compare match with LINC0 register triggers an LINC0 interrupt when enabled.
+    bit_offset: 6
+    bit_size: 1
+fieldset/PDBGCTL:
+  description: Peripheral Debug Control.
+  fields:
+  - name: FREE
+    description: Free run control.
+    bit_offset: 0
+    bit_size: 1
+  - name: SOFT
+    description: Soft halt boundary control. This function is only available, if [FREE] is set to 'STOP'.
+    bit_offset: 1
+    bit_size: 1
+    enum: SOFT
+fieldset/PWREN:
+  description: Power enable.
+  fields:
+  - name: ENABLE
+    description: Enable the power.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral.
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register.
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key B1h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/RXDATA:
+  description: UART Receive Data Register.
+  fields:
+  - name: DATA
+    description: Received Data. When read, this field contains the data that was received by the UART.
+    bit_offset: 0
+    bit_size: 8
+  - name: FRMERR
+    description: UART Framing Error Writing to this bit has no effect. The flag is cleared by writing 1 to the FRMERR bit in the UART EVENT ICLR register. This error is associated with the character at the top of the FIFO.
+    bit_offset: 8
+    bit_size: 1
+  - name: PARERR
+    description: UART Parity Error Writing to this bit has no effect. The flag is cleared by writing 1 to the PARERR bit in the UART EVENT ICLR register.
+    bit_offset: 9
+    bit_size: 1
+  - name: BRKERR
+    description: UART Break Error Writing to this bit has no effect. The flag is cleared by writing 1 to the BRKERR bit in the UART EVENT ICLR register. This error is associated with the character at the top of the FIFO. When a break occurs, only one 0 character is loaded into the FIFO. The next character is only enabled after the receive data input goes to a 1 (marking state) and the next valid start bit is received.
+    bit_offset: 10
+    bit_size: 1
+  - name: OVRERR
+    description: UART Receive Overrun Error Writing to this bit has no effect. The flag is cleared by writing 1 to the OVRERR bit in the UART EVENT ICLR register. In case of a receive FIFO overflow, the FIFO contents remain valid because no further data is written when the FIFO is full. Only the contents of the shift register are overwritten. The CPU must read the data in order to empty the FIFO.
+    bit_offset: 11
+    bit_size: 1
+  - name: NERR
+    description: Noise Error. Writing to this bit has no effect. The flag is cleared by writing 1 to the NERR bit in the UART EVENT ICLR register.
+    bit_offset: 12
+    bit_size: 1
+fieldset/STAT:
+  description: UART Status Register.
+  fields:
+  - name: BUSY
+    description: UART Busy This bit is set as soon as the transmit FIFO or TXDATA register becomes non-empty (regardless of whether UART is enabled) or if a receive data is currently ongoing (after the start edge have been detected until a complete byte, including all stop bits, has been received by the shift register). In IDLE_Line mode the Busy signal also stays set during the idle time generation.
+    bit_offset: 0
+    bit_size: 1
+  - name: RXFE
+    description: UART Receive FIFO Empty The meaning of this bit depends on the state of the FEN bit in the CTL0 register.
+    bit_offset: 2
+    bit_size: 1
+  - name: RXFF
+    description: UART Receive FIFO Full The meaning of this bit depends on the state of the FEN bit in the CTL0 register.
+    bit_offset: 3
+    bit_size: 1
+  - name: TXFE
+    description: UART Transmit FIFO Empty The meaning of this bit depends on the state of the FEN bit in the CTL0 register.
+    bit_offset: 6
+    bit_size: 1
+  - name: TXFF
+    description: UART Transmit FIFO Full The meaning of this bit depends on the state of the FEN bit in the CTL0 register.
+    bit_offset: 7
+    bit_size: 1
+  - name: CTS
+    description: Clear To Send.
+    bit_offset: 8
+    bit_size: 1
+  - name: IDLE
+    description: IDLE mode has been detected in Idleline-Mulitprocessor-Mode. The IDLE bit is used as an address tag for each block of characters. In idle-line multiprocessor format, this bit is set when a received character is an address.
+    bit_offset: 9
+    bit_size: 1
+fieldset/TXDATA:
+  description: UART Transmit Data Register.
+  fields:
+  - name: DATA
+    description: Data Transmitted or Received Data that is to be transmitted via the UART is written to this field. When read, this field contains the data that was received by the UART.
+    bit_offset: 0
+    bit_size: 8
+enum/AGFSEL:
+  bit_size: 2
+  variants:
+  - name: AGLIT_5
+    description: Pulses shorter then 5ns length are filtered.
+    value: 0
+  - name: AGLIT_10
+    description: Pulses shorter then 10ns length are filtered.
+    value: 1
+  - name: AGLIT_25
+    description: Pulses shorter then 25ns length are filtered.
+    value: 2
+  - name: AGLIT_50
+    description: Pulses shorter then 50ns length are filtered.
+    value: 3
+enum/CLKCFG_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 169
+enum/CLKDIV:
+  bit_size: 3
+  variants:
+  - name: DIV_BY_1
+    description: Do not divide clock source.
+    value: 0
+  - name: DIV_BY_2
+    description: Divide clock source by 2.
+    value: 1
+  - name: DIV_BY_3
+    description: Divide clock source by 3.
+    value: 2
+  - name: DIV_BY_4
+    description: Divide clock source by 4.
+    value: 3
+  - name: DIV_BY_5
+    description: Divide clock source by 5.
+    value: 4
+  - name: DIV_BY_6
+    description: Divide clock source by 6.
+    value: 5
+  - name: DIV_BY_7
+    description: Divide clock source by 7.
+    value: 6
+  - name: DIV_BY_8
+    description: Divide clock source by 8.
+    value: 7
+enum/CPU_INT_IIDX_STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No interrupt pending.
+    value: 0
+  - name: RTFG
+    description: 'UART receive time-out interrupt; Interrupt Flag: RT; Interrupt Priority: Highest.'
+    value: 1
+  - name: FEFG
+    description: 'UART framing error interrupt; Interrupt Flag: FE.'
+    value: 2
+  - name: PEFG
+    description: 'UART parity error interrupt; Interrupt Flag: PE.'
+    value: 3
+  - name: BEFG
+    description: 'UART break error interrupt; Interrupt Flag: BE.'
+    value: 4
+  - name: OEFG
+    description: 'UART receive overrun error interrupt; Interrupt Flag: OE.'
+    value: 5
+  - name: RXNE
+    description: 'Negative edge on UARTxRXD interrupt; Interrupt Flag: RXNE.'
+    value: 6
+  - name: RXPE
+    description: 'Positive edge on UARTxRXD interrupt; Interrupt Flag: RXPE.'
+    value: 7
+  - name: LINC0
+    description: 'LIN capture 0 / match interrupt; Interrupt Flag: LINC0.'
+    value: 8
+  - name: LINC1
+    description: 'LIN capture 1 interrupt; Interrupt Flag: LINC1.'
+    value: 9
+  - name: LINOVF
+    description: 'LIN hardware counter overflow interrupt; Interrupt Flag: LINOVF.'
+    value: 10
+  - name: RXIFG
+    description: 'UART receive interrupt; Interrupt Flag: RX.'
+    value: 11
+  - name: TXIFG
+    description: 'UART transmit interrupt; Interrupt Flag: TX.'
+    value: 12
+  - name: EOT
+    description: 'UART end of transmission interrupt (transmit serializer empty); Interrupt Flag: EOT.'
+    value: 13
+  - name: MODE_9B
+    description: '9-bit mode address match interrupt; Interrupt Flag: MODE_9B.'
+    value: 14
+  - name: CTS
+    description: 'UART Clear to Send Modem interrupt; Interrupt Flag: CTS.'
+    value: 15
+  - name: DMA_DONE_RX
+    description: DMA DONE on RX.
+    value: 16
+  - name: DMA_DONE_TX
+    description: DMA DONE on TX.
+    value: 17
+  - name: NERR_EVT
+    description: Noise Error Event.
+    value: 18
+enum/DMA_TRIG_RX_IIDX_STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No interrupt pending.
+    value: 0
+  - name: RTFG
+    description: 'UART receive time-out interrupt; Interrupt Flag: RT; Interrupt Priority: Highest.'
+    value: 1
+  - name: RXIFG
+    description: 'UART receive interrupt; Interrupt Flag: RX.'
+    value: 11
+enum/DMA_TRIG_TX_IIDX_STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No interrupt pending.
+    value: 0
+  - name: TXIFG
+    description: 'UART transmit interrupt; Interrupt Flag: TX.'
+    value: 12
+enum/EPS:
+  bit_size: 1
+  variants:
+  - name: ODD
+    description: Odd parity is performed, which checks for an odd number of 1s.
+    value: 0
+  - name: EVEN
+    description: Even parity generation and checking is performed during transmission and reception, which checks for an even number of 1s in data and parity bits.
+    value: 1
+enum/HSE:
+  bit_size: 2
+  variants:
+  - name: OVS16
+    description: 16x oversampling.
+    value: 0
+  - name: OVS8
+    description: 8x oversampling.
+    value: 1
+  - name: OVS3
+    description: 3x oversampling. It is intended to support 9600 Baud Rate when clock is 32K. IrDA, Manchester and DALI couldnt support when 3x oversampling is enabled.
+    value: 2
+enum/IFLSSEL:
+  bit_size: 3
+  variants:
+  - name: ONE_FOURTH_ULP
+    description: RX FIFO >= 1/4 full, for ULP domain
+    value: 0
+  - name: ONE_FOURTH
+    description: RX FIFO >= 1/4 full or TX FIFO <= 1/4 full
+    value: 1
+  - name: HALF
+    description: RX FIFO >= 1/2 full or TX FIFO <= 1/2 full
+    value: 2
+  - name: THREE_FOURTH
+    description: RX FIFO >= 3/4 full or TX FIFO <= 3/4 full
+    value: 3
+  - name: FULL_ULP
+    description: RX FIFO is full, for ULP domain
+    value: 4
+  - name: FULL
+    description: RX or TX FIFO is full
+    value: 5
+  - name: AT_LEAST_ONE
+    description: RX or TX FIFO >= 1 entry available/free
+    value: 7
+enum/INT_CFG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: The interrupt or event line is disabled.
+    value: 0
+  - name: SOFTWARE
+    description: The interrupt or event line is in software mode. Software must clear the RIS.
+    value: 1
+  - name: HARDWARE
+    description: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.
+    value: 2
+enum/IRRXPL:
+  bit_size: 1
+  variants:
+  - name: HIGH
+    description: IrDA transceiver delivers a high pulse when a light pulse is seen.
+    value: 0
+  - name: LOW
+    description: IrDA transceiver delivers a low pulse when a light pulse is seen.
+    value: 1
+enum/IRTXCLK:
+  bit_size: 1
+  variants:
+  - name: BITCLK
+    description: IrDA encode data is based on the functional clock.
+    value: 0
+  - name: BRCLK
+    description: IrDA encode data is based on the Baud Rate clock< when select 8x oversampling, the IRTXPL cycle should less 8; when select 16x oversampling, the IRTXPL cycle should less 16.
+    value: 1
+enum/MODE:
+  bit_size: 3
+  variants:
+  - name: UART
+    description: Normal operation.
+    value: 0
+  - name: RS485
+    description: 'RS485 mode: UART needs to be IDLE with receiving data for the in EXTDIR_HOLD set time. EXTDIR_SETUP defines the time the RTS line is set to high before sending. When the buffer is empty the RTS line is set low again. A transmit will be delayed as long the UART is receiving data.'
+    value: 1
+  - name: IDLELINE
+    description: The UART operates in IDLE Line Mode.
+    value: 2
+  - name: ADDR9BIT
+    description: The UART operates in 9 Bit Address mode.
+    value: 3
+  - name: SMART
+    description: ISO7816 Smart Card Support The application must ensure that it sets 8-bit word length (WLEN set to 3h) and even parity (PEN set to 1, EPS set to 1, SPS set to 0) in UARTLCRH when using ISO7816 mode. The value of the STP2 bit in UARTLCRH is ignored and the number of stop bits is forced to 2.
+    value: 4
+  - name: DALI
+    description: DALI Mode:.
+    value: 5
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177
+enum/SOFT:
+  bit_size: 1
+  variants:
+  - name: IMMEDIATE
+    description: The peripheral will halt immediately, even if the resultant state will result in corruption if the system is restarted.
+    value: 0
+  - name: DELAYED
+    description: The peripheral blocks the debug freeze until it has reached a boundary where it can resume without corruption.
+    value: 1
+enum/WLEN:
+  bit_size: 2
+  variants:
+  - name: DATABIT5
+    description: 5 bits (default).
+    value: 0
+  - name: DATABIT6
+    description: 6 bits.
+    value: 1
+  - name: DATABIT7
+    description: 7 bits.
+    value: 2
+  - name: DATABIT8
+    description: 8 bits.
+    value: 3
