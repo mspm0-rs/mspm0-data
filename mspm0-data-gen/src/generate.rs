@@ -274,7 +274,27 @@ fn generate_peripherals2(
         }
     }
 
+    generate_missing(chip_name, &mut peripherals)?;
+
     Ok(peripherals)
+}
+
+fn generate_missing(
+    _chip_name: &str,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) -> anyhow::Result<()> {
+    peripherals.insert(
+        "DMA".to_string(),
+        Peripheral {
+            name: "DMA".to_string(),
+            ty: PeripheralType::Dma,
+            version: None,
+            address: Some(0x4042A000),
+            pins: vec![],
+        },
+    );
+
+    Ok(())
 }
 
 fn maybe_rename(name: &str) -> String {
