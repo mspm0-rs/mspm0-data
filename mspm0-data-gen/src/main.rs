@@ -3,6 +3,7 @@ mod generate;
 mod header;
 mod int_group;
 mod sysconfig;
+mod verify;
 
 use std::{path::PathBuf, time::Instant};
 

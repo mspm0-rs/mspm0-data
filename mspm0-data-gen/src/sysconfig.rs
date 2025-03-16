@@ -37,6 +37,7 @@ impl Sysconfig {
 //
 // Related: clocktree.json
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct SysconfigFile {
     // Ignore `rowColumnInverted` and `rotation`. Not needed.
@@ -47,6 +48,7 @@ pub struct SysconfigFile {
     pub interfaces: BTreeMap<String, Interface>,
 
     // TODO: useCases: maybe relevant?
+
     // Ignore `powerDomains`. Not used for MSPM0. Power domains exist at the peripheral level.
     #[serde(rename(deserialize = "devicePins"))]
     pub device_pins: BTreeMap<String, DevicePin>,
@@ -57,14 +59,18 @@ pub struct SysconfigFile {
     /// It's called peripherals but also contains each pin.
     pub peripherals: BTreeMap<String, Peripheral>,
 
-    // TODO: `parts` doesn't seem relevant yet.
+    pub parts: BTreeMap<String, Part>,
+
     pub packages: BTreeMap<String, Package>,
 
-    // Ignore `reverseMuxes`. Already have `muxes`
+    #[serde(rename(deserialize = "reverseMuxes"))]
+    pub reverse_muxes: BTreeMap<String, ReverseMux>,
+
     // Ignore `pinCommonInfos`. Always `DUMMY` for MSPM0
     pub muxes: Vec<Muxes>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct InterfacePin {
     pub id: String,
@@ -72,6 +78,7 @@ pub struct InterfacePin {
     pub description: String,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct Interface {
     pub id: String,
@@ -83,12 +90,14 @@ pub struct Interface {
     pub interface_pin_wrapper: Option<Vec<InterfacePinWrapper>>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct InterfacePinWrapper {
     #[serde(rename(deserialize = "interfacePinID"))]
     pub id: String,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct DevicePin {
     pub id: String,
@@ -100,6 +109,7 @@ pub struct DevicePin {
     pub attributes: PinAttributes,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct PinAttributes {
     pub pad_name: String,
@@ -107,6 +117,7 @@ pub struct PinAttributes {
     pub iomux_pincm: String,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct PeripheralPin {
     pub id: String,
@@ -116,6 +127,7 @@ pub struct PeripheralPin {
     pub interface_pin_id: String,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct Peripheral {
     pub id: String,
@@ -129,18 +141,40 @@ pub struct Peripheral {
     pub interface_wrapper: Vec<PeripheralInterfaceWrapper>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct PeripheralPinWrapper {
     #[serde(rename(deserialize = "peripheralPinID"))]
     pub peripheral_pin_id: String,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct PeripheralInterfaceWrapper {
     #[serde(rename(deserialize = "interfaceID"))]
     pub interface_id: String,
 }
 
+#[allow(dead_code)]
+#[derive(Debug, Deserialize)]
+pub struct Part {
+    pub id: String,
+
+    pub name: String,
+
+    pub description: String,
+
+    #[serde(rename(deserialize = "peripheralWrapper"))]
+    pub peripheral_wrapper: Vec<PartPeripheralWrapper>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PartPeripheralWrapper {
+    #[serde(rename(deserialize = "peripheralID"))]
+    pub peripheral_id: String,
+}
+
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct Package {
     pub id: String,
@@ -150,6 +184,7 @@ pub struct Package {
     pub package_pins: Vec<PackagePin>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct PackagePin {
     #[serde(rename(deserialize = "devicePinID"))]
@@ -158,6 +193,7 @@ pub struct PackagePin {
     pub description: Option<PackageDescription>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct PackageDescription {
     #[serde(rename(deserialize = "type"))]
@@ -168,6 +204,24 @@ pub struct PackageDescription {
 
     #[serde(rename(deserialize = "numColumns"))]
     pub columns: u32,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, Deserialize)]
+pub struct ReverseMux {
+    pub id: String,
+
+    #[serde(rename(deserialize = "muxSetting"))]
+    pub mux_setting: Vec<MuxSettingReverse>,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, Deserialize)]
+pub struct MuxSettingReverse {
+    #[serde(rename(deserialize = "devicePinID"))]
+    pub device_pin_id: String,
+
+    pub mode: String,
 }
 
 #[derive(Debug, Deserialize)]

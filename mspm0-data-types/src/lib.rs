@@ -124,16 +124,27 @@ pub struct Peripheral {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<String>,
 
-    // address
-    pub address: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub address: Option<u32>,
 
-    // TODO: irq (and group if applicable)
     pub pins: Vec<PeripheralPin>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct PeripheralPin {
-    pub name: String,
+    /// The name of the pin that this peripheral can be bound to.
+    ///
+    /// e.g. `PA0`, `PC8`
+    pub pin: String,
+
+    /// The signal provided by the peripheral.
+    ///
+    /// e.g. `SCL`, `TX`
+    pub signal: String,
+
+    /// The pin function value for this pin that selects the signal
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pf: Option<u8>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

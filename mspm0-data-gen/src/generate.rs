@@ -1,11 +1,6 @@
-use std::{
-    collections::{BTreeMap, HashSet},
-    fmt::format,
-    fs,
-    sync::LazyLock,
-};
+use std::{borrow::Cow, cmp::Ordering, collections::BTreeMap, fs, sync::LazyLock};
 
-use anyhow::{anyhow, Context};
+use anyhow::Context;
 use mspm0_data_types::{
     Chip, DmaChannel, Interrupt, Package, PackagePin, Peripheral, PeripheralPin, PeripheralType,
     PinCm, PinFunction,
@@ -15,7 +10,7 @@ use regex::Regex;
 use crate::{
     header::{Header, Headers},
     int_group::Groups,
-    sysconfig::{Sysconfig, SysconfigFile},
+    sysconfig::{PartPeripheralWrapper, Sysconfig, SysconfigFile},
 };
 
 const SKIP_CHIPS: &[&str] = &[
@@ -43,7 +38,7 @@ pub fn generate(
         // TODO: Remove _POCIx suffix from e.x. CS1_POCI1
         let pin_cm = generate_pincm(&name, &sysconfig_entry)?;
 
-        let peripherals = generate_peripherals(
+        let peripherals = generate_peripherals2(
             &name,
             headers
                 .headers
@@ -130,6 +125,7 @@ fn generate_pincm(
 ) -> anyhow::Result<BTreeMap<String, PinCm>> {
     let mut pins = BTreeMap::new();
 
+    // TODO: Remove this hack as we have replaced it.
     for device_pin in sysconfig.device_pins.values() {
         // FIXME: PA10/PA14 - split pins?
         let name = device_pin
@@ -191,212 +187,196 @@ fn generate_pincm(
     Ok(pins)
 }
 
-#[derive(Debug, Default, Clone)]
-struct PeripheralRaw {
-    pins: HashSet<String>,
-}
-
-fn generate_peripherals(
+fn generate_peripherals2(
     chip_name: &str,
     header: &Header,
     sysconfig: &SysconfigFile,
 ) -> anyhow::Result<BTreeMap<String, Peripheral>> {
-    let mut raw_peripherals = BTreeMap::<String, PeripheralRaw>::new();
-
-    // Peripheral pins are described in one of two ways:
-    // Either it is the `<peripheral>`.`<pin>` or a single name.
-    for peripheral_pin in sysconfig.peripheral_pins.values() {
-        let parts = peripheral_pin.name.split('.').collect::<Vec<&str>>();
-        let (peri, pin) = match parts.len() {
-            1 => (parts[0], None),
-            2 => (parts[0], Some(parts[1])),
-            _ => {
-                return Err(anyhow!(
-                    "{chip_name}: Peripheral \"{}\" has {} number of parts",
-                    peripheral_pin.name,
-                    parts.len()
-                ))
-            }
-        };
-
-        // Filter nonsense peripherals
-        if peri == "VREF" || peri == "SYSMEM" {
-            continue;
-        }
-
-        let entry = raw_peripherals.entry(peri.to_string()).or_default();
-
-        // Rewrite pin names since the POCIx suffix doesn't do anything
-        if let Some(pin) = pin {
-            let pin = match pin {
-                "CS1_POCI1" if peri.starts_with("SPI") => "CS1".to_string(),
-                "CS2_POCI2" if peri.starts_with("SPI") => "CS2".to_string(),
-                "CS3_CD_POCI3" if peri.starts_with("SPI") => "CS3_CD".to_string(),
-                pin => pin.to_string(),
-            };
-
-            entry.pins.insert(pin);
-        }
-    }
-
-    // TODO: DMA channels do not exist within peripheral pins, so resolve these from peripherals
-    // for peri in sysconfig.peripherals.values() {}
-
-    // TODO: Rename or mark ADC channels which are VREF, TEMP and VBAT (if applicable)
-    // TODO: Attributes
-    // - TEMP channel nums
-    // - is a dma channel full?
-    // - I2C fifo size
-    // - ADC SVT
-
     static GPIO_PIN: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"(?m)^P(?<bank>[A-Z])\d+").unwrap());
+    static DMA_CHANNEL: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"DMA_CH(?<channel>\d+)").unwrap());
 
-    let mut peripherals = BTreeMap::<String, Peripheral>::new();
+    let mut peripherals = BTreeMap::new();
 
-    // Now we have every peripheral, resolve the addresses of each.
-    for (name, raw) in raw_peripherals.iter() {
-        // Defer GPIO to later, as PA1 is a nonsense peripheral name.
-        // What we do instead is later go back and add PA1 to GPIOA
-        if GPIO_PIN.is_match(name) {
-            continue;
-        }
+    assert_eq!(
+        sysconfig.parts.len(),
+        1,
+        "Assumption that a single part is present was broken"
+    );
 
-        // TODO: GPAMP (available via SYSCTL, but is dynamically configurable?)
-        if name == "GPAMP" {
-            continue;
-        }
+    // We rely on the part definition to pick out the true peripherals (except for missing)
+    // since the metadata has multiple instances of some peripherals which have missing addresses.
+    for part in sysconfig.parts.values() {
+        for PartPeripheralWrapper { peripheral_id } in part.peripheral_wrapper.iter() {
+            let peripheral = sysconfig.peripherals.get(peripheral_id).unwrap();
 
-        let address = header
-            .peripheral_addresses
-            .get(name)
-            .context(format!("{chip_name}: Could not resolve address for {name}"))?;
+            let name = &peripheral.name;
+            // make names consistent sometimes
+            let name = maybe_rename(name);
+            let id = &peripheral.id;
 
-        let irq_n = header
-            .irq_numbers
-            .iter()
-            .find(|(_, peripherals)| peripherals.iter().any(|peri| peri == name));
-
-        // OPA has no IRQs
-        if !name.starts_with("OPA") && irq_n.is_none() {
-            return Err(anyhow!("{name} has no IRQs"));
-        }
-
-        let mut pins = raw
-            .pins
-            .iter()
-            .map(|name| PeripheralPin { name: name.clone() })
-            .collect::<Vec<_>>();
-        pins.sort_by(|a, b| a.name.cmp(&b.name));
-
-        let ty = if name.starts_with("TIMA") {
-            PeripheralType::Tim
-        } else if name.starts_with("TIMG") {
-            PeripheralType::Tim
-        } else if name.starts_with("UART") {
-            PeripheralType::Uart
-        } else if name.starts_with("SYSCTL") {
-            PeripheralType::Sysctl
-        } else {
-            PeripheralType::Unknown
-        };
-
-        let _peripheral = peripherals.entry(name.to_string()).or_insert_with(|| {
-            let mut version = None;
-
-            if name.starts_with("SYSCTL") {
-                version = Some(get_sysctl_version(chip_name));
+            // GPIO pins are handled later by manually being added to their parent GPIO peripherals.
+            if GPIO_PIN.is_match(&name) {
+                continue;
             }
 
-            Peripheral {
+            // DMA channels have additional metadata that we need to declare separately.
+            // The DMA peripheral itself is handled here.
+            if DMA_CHANNEL.is_match(&name) {
+                continue;
+            }
+
+            // SYSMEM in sysconfig metadata is not entirely clear. Either way we have better ways to get this info.
+            if name == "SYSMEM" {
+                continue;
+            }
+
+            // Already have FLASHCTL, but FLASH still has some useful data.
+            if name == "FLASH" {
+                continue;
+            }
+
+            let (ty, version) = get_peripheral_type_version(chip_name, &name);
+            let address = get_peripheral_addresses(chip_name, &name, header, sysconfig)?;
+
+            let mut peri = Peripheral {
                 name: name.clone(),
                 ty,
                 version,
-                address: *address,
-                pins,
+                address,
+                pins: vec![],
+            };
+
+            // Lookup the pins
+            for peri_pin in peripheral.peripheral_pin_wrapper.iter() {
+                let pin_id = &peri_pin.peripheral_pin_id;
+                let pin = sysconfig.peripheral_pins.get(pin_id).context(format!(
+                    "Failed to lookup peripheral pin with id, `{pin_id}`, from {name} (id: {id}"
+                ))?;
+
+                // The name is `<peripheral>.<signal>`
+                let pin_name_and_signal = &pin.name;
+                let signal = pin_name_and_signal
+                    .split_once('.')
+                    .context(format!(
+                        "Pin {pin_name_and_signal} from {name} did not match pattern `<peripheral>.<signal>`"
+                    ))?
+                    .1;
+
+                // It makes more sense to use `reverseMuxes` from the sysconfig metadata.
+                //
+                // However it seems that TI forgot some pin ids in the reverse muxes. So we get to do O(n^2)
+                // search using the forward mux.
+                for mux in sysconfig.muxes.iter() {
+                    for setting in mux.mux_setting.iter() {
+                        if &setting.peripheral_pin_id == pin_id {
+                            let device_pin_id = &mux.device_pin_id;
+                            let device_pin = sysconfig
+                                .device_pins
+                                .get(device_pin_id)
+                                .context(format!("Device pin with id {device_pin_id}, used by {pin_name_and_signal} (id: {pin_id}) is not present"))?;
+                            let device_pin_name = &device_pin.name;
+
+                            // Remove pin entries with a `/` as these represent multi-bonded pins.
+                            //
+                            // TODO: Does this cause any problems?
+                            if device_pin_name.contains('/') {
+                                continue;
+                            }
+
+                            let pf = setting.mode.parse::<u8>().context(format!(
+                                "PF was not valid integer for {device_pin_name}, {pin_name_and_signal}"
+                            ))?;
+
+                            peri.pins.push(PeripheralPin {
+                                pin: device_pin_name.clone(),
+                                signal: String::from(signal),
+                                pf: Some(pf),
+                            });
+                        }
+                    }
+                }
+
+                // dedup pins as the metadata contains some duplicate pins.
+                peri.pins.dedup();
+                peri.pins.sort_by(|a, b| {
+                    let signal = a.signal.cmp(&b.signal);
+
+                    if signal == Ordering::Equal {
+                        let pf = a.pf.cmp(&b.pf);
+
+                        if pf == Ordering::Equal {
+                            return a.pin.cmp(&b.pin);
+                        }
+
+                        return pf;
+                    }
+
+                    signal
+                });
             }
-        });
-    }
 
-    // Assign GPIOs to peripherals
-    for (name, _) in raw_peripherals.iter() {
-        let Some(captures) = GPIO_PIN.captures(name) else {
-            continue;
-        };
-
-        let bank = captures
-            .name("bank")
-            .context("Could not match bank in gpio pin name")?
-            .as_str();
-
-        if bank.len() != 1 {
-            return Err(anyhow!("GPIO bank was more or less than 1 character"));
+            peripherals.insert(name.to_string(), peri);
         }
-
-        let bank = format!("GPIO{bank}");
-
-        let address = header.peripheral_addresses.get(&bank).context(format!(
-            "{chip_name}: Could not resolve address for GPIO bank {bank}"
-        ))?;
-
-        let peripheral = peripherals
-            .entry(bank.clone())
-            .or_insert_with(|| Peripheral {
-                name: bank,
-                ty: PeripheralType::Gpio,
-                version: None,
-                address: *address,
-                pins: Vec::new(),
-            });
-
-        peripheral.pins.push(PeripheralPin { name: name.clone() });
     }
-
-    // TODO: Define fake "GPAMP" peripheral if present
-
-    // IOMUX exists at a constant address on every part, but it is not defined in any data source.
-    peripherals.insert(
-        String::from("IOMUX"),
-        Peripheral {
-            name: String::from("IOMUX"),
-            ty: PeripheralType::Iomux,
-            version: None,
-            address: 0x40428000,
-            pins: vec![],
-        },
-    );
-
-    // CPUSS exists at a constant address on every part, but is not defined in any data source.
-    peripherals.insert(
-        String::from("CPUSS"),
-        Peripheral {
-            name: String::from("CPUSS"),
-            ty: PeripheralType::Cpuss,
-            version: None,
-            address: 0x40400000,
-            pins: vec![],
-        },
-    );
-
-    // DMA exists at a constant address on every part, but is not defined in any data source.
-    // The channels are however defined by sysconfig but handled elsewhere
-    peripherals.insert(
-        String::from("DMA"),
-        Peripheral {
-            name: String::from("DMA"),
-            ty: PeripheralType::Dma,
-            version: None,
-            address: 0x4042A000,
-            pins: vec![],
-        },
-    );
-
-    // Sort pins
-    peripherals
-        .values_mut()
-        .for_each(|peripheral| peripheral.pins.sort_by(|a, b| a.name.cmp(&b.name)));
 
     Ok(peripherals)
+}
+
+fn maybe_rename(name: &str) -> String {
+    if name == "EVENTLP" {
+        return "EVENT".to_string();
+    }
+
+    name.to_string()
+}
+
+fn get_peripheral_type_version(chip_name: &str, name: &str) -> (PeripheralType, Option<String>) {
+    if name.starts_with("SYSCTL") {
+        return (PeripheralType::Sysctl, Some(get_sysctl_version(chip_name)));
+    }
+
+    let ty = if name.starts_with("TIMA") {
+        PeripheralType::Tim
+    } else if name.starts_with("TIMG") {
+        PeripheralType::Tim
+    } else if name.starts_with("UART") {
+        PeripheralType::Uart
+    } else {
+        PeripheralType::Unknown
+    };
+
+    (ty, None)
+}
+
+fn get_peripheral_addresses(
+    chip_name: &str,
+    name: &str,
+    header: &Header,
+    _sysconfig: &SysconfigFile,
+) -> anyhow::Result<Option<u32>> {
+    let mut name = Cow::from(name);
+
+    // GPAMP lives in sysctl.
+    if name == "GPAMP" {
+        return Ok(None);
+    }
+
+    if name == "EVENT" {
+        // Constant address
+        return Ok(Some(0x400C9000));
+    }
+
+    let address = header
+        .peripheral_addresses
+        .get(name.as_ref())
+        .copied()
+        .context(format!(
+            "{chip_name}: Could not resolve address for peripheral: {name}"
+        ))?;
+
+    Ok(Some(address))
 }
 
 fn get_sysctl_version(chip_name: &str) -> String {

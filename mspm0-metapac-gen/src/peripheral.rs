@@ -70,15 +70,22 @@ fn generate_peripheral_consts(chip: &Chip) -> TokenStream {
 fn generate_const(peripheral: &Peripheral) -> TokenStream {
     let name = Ident::new(&peripheral.name, Span::call_site());
 
+    // Some peripherals live in other peripherals. Like GPAMP living in SYSCTL.
+    //
+    // For now the HAL determines the actual address of these special peripherals.
+    let Some(address) = peripheral.address else {
+        return TokenStream::new();
+    };
+
     if !GENERATE_PERIPHERALS.iter().any(|ty| ty == &peripheral.ty) {
-        let comment = format!("Address: {}", peripheral.address);
+        let comment = format!("Address: {}", address);
         return quote! {
             #[doc = #comment]
             pub const #name: () = ();
         };
     }
 
-    let address = Literal::u32_unsuffixed(peripheral.address);
+    let address = Literal::u32_unsuffixed(address);
     let module = Ident::new(&format!("{}", peripheral.ty), Span::call_site());
     let ty = Ident::new(
         &format!("{}", peripheral.ty).to_pascal_case(),
