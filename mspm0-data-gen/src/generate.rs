@@ -467,8 +467,13 @@ fn generate_irqs(
     let mut interrupts = BTreeMap::new();
 
     for (&num, entries) in header.irq_numbers.iter() {
+        // If LFSS is present, then RTC belongs to LFSS interrupts.
+        let is_lfss = num == 30 && entries.iter().any(|p| p == "LFSS");
+
         // Generate static entry
-        if entries.len() == 1 {
+        //
+        // But RTC and LFSS
+        if entries.len() == 1 || is_lfss {
             let entry = &entries[0];
             interrupts.insert(
                 num,
