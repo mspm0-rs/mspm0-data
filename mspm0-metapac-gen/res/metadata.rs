@@ -22,12 +22,11 @@ pub struct PinCmMapping {
     pub pincm: u8,
 }
 
-// This feels wrong here...
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct PeripheralPin {
     pub pin: &'static str,
     pub signal: &'static str,
-    pub pincm: Option<u8>,
+    pub pf: Option<u8>,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone)]

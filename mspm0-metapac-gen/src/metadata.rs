@@ -81,19 +81,25 @@ fn generate_peripheral(peripheral: &Peripheral) -> Option<TokenStream> {
     let name = &peripheral.name;
     let kind = &peripheral.ty.to_string();
 
-    let pins = Vec::<TokenStream>::new();
+    let mut pins = Vec::<TokenStream>::new();
 
-    // for pin in peripheral.pins.iter() {
-    //     let name = &pin.name;
+    for pin in peripheral.pins.iter() {
+        let name = &pin.pin;
+        let signal = &pin.signal;
+        let pf = match pin.pf {
+            Some(pf) => quote! { Some(#pf) },
+            None => quote! { None },
+        };
 
-    //     pins.push(quote! {
-    //         PeripheralPin {
-    //             pin: #name
-    //         }
-    //     });
-    // }
+        pins.push(quote! {
+            PeripheralPin {
+                pin: #name,
+                signal: #signal,
+                pf: #pf,
+            }
+        });
+    }
 
-    // TODO: Maybe this is the wrong spot?
     Some(quote! {
         Peripheral {
             name: #name,
