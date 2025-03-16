@@ -253,36 +253,44 @@ fn generate_peripherals2(
 
                 // dedup pins as the metadata contains some duplicate pins.
                 peri.pins.dedup();
-                peri.pins.sort_by(|a, b| {
-                    let signal = a.signal.cmp(&b.signal);
-
-                    if signal == Ordering::Equal {
-                        let pf = a.pf.cmp(&b.pf);
-
-                        if pf == Ordering::Equal {
-                            return a.pin.cmp(&b.pin);
-                        }
-
-                        return pf;
-                    }
-
-                    signal
-                });
             }
 
             peripherals.insert(name.to_string(), peri);
         }
     }
 
-    generate_missing(chip_name, &mut peripherals)?;
+    generate_missing(chip_name, header, sysconfig, &mut peripherals)?;
+
+    peripherals.iter_mut().for_each(|(_, p)| {
+        p.pins.sort_by(|a, b| {
+            let signal = a.signal.cmp(&b.signal);
+
+            if signal == Ordering::Equal {
+                let pf = a.pf.cmp(&b.pf);
+
+                if pf == Ordering::Equal {
+                    return a.pin.cmp(&b.pin);
+                }
+
+                return pf;
+            }
+
+            signal
+        });
+    });
 
     Ok(peripherals)
 }
 
 fn generate_missing(
-    _chip_name: &str,
+    chip_name: &str,
+    header: &Header,
+    sysconfig: &SysconfigFile,
     peripherals: &mut BTreeMap<String, Peripheral>,
 ) -> anyhow::Result<()> {
+    static GPIO_PIN: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"(?m)^P(?<bank>[A-Z])\d+").unwrap());
+
     peripherals.insert(
         "DMA".to_string(),
         Peripheral {
@@ -293,6 +301,36 @@ fn generate_missing(
             pins: vec![],
         },
     );
+
+    // GPIO peripherals are not described in sysconfig.
+    for device_pin in sysconfig.device_pins.values() {
+        if let Some(captures) = GPIO_PIN.captures(&device_pin.name) {
+            let bank = &captures["bank"];
+
+            // Resolving the address always is unfortunately required because or_insert_with_key cannot handle
+            // fallible closures.
+            let bank = format!("GPIO{bank}");
+            let address = get_peripheral_addresses(chip_name, &bank, header, sysconfig)?
+                .context(format!("{bank} must have address"))?;
+
+            let gpio = peripherals
+                .entry(bank)
+                .or_insert_with_key(|name| Peripheral {
+                    name: name.clone(),
+                    ty: PeripheralType::Gpio,
+                    version: None,
+                    address: Some(address),
+                    pins: vec![],
+                });
+
+            gpio.pins.push(PeripheralPin {
+                pin: device_pin.name.clone(),
+                signal: device_pin.name.clone(),
+                // GPIO always has a PF of 1
+                pf: Some(1),
+            });
+        }
+    }
 
     Ok(())
 }
