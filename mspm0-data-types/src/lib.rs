@@ -59,13 +59,49 @@ pub enum PeripheralType {
 
     Adc,
 
+    AesAdv,
+
+    Aes,
+
+    Canfd,
+
+    Comp,
+
     Cpuss,
+
+    Crc,
+
+    Dac,
+
+    Debugss,
 
     Dma,
 
+    Event,
+
+    FlashCtl,
+
+    GpAmp,
+
     Gpio,
 
+    I2c,
+
     Iomux,
+
+    KeystoreCtl,
+
+    Lcd,
+
+    Lfss,
+
+    Mathacl,
+
+    Opa,
+
+    Rtc,
+
+    Spi,
 
     /// System Controller
     ///
@@ -76,26 +112,51 @@ pub enum PeripheralType {
     // TODO: Timer types and attributes
     Tim,
 
+    Trng,
+
     Uart,
+
+    Vref,
+
+    Wuc,
+
+    Wwdt,
 }
 
 impl fmt::Display for PeripheralType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let content = match self {
-            Self::Unknown => "",
-            Self::Adc => "adc",
-            Self::Cpuss => "cpuss",
-            Self::Dma => "dma",
-            Self::Gpio => "gpio",
-            Self::Iomux => "iomux",
-            Self::Sysctl => "sysctl",
-            // Self::SysctlC110x => "sysctl_c110x",
-            // Self::SysctlL110xL130xL134x => "sysctl_l110x_l130x_l134x",
-            // Self::SysctlL122xL222x => "sysctl_l122x_l222x",
-            // Self::SysctlG350xG310xG150xG110x => "sysctl_g350x_g310x_g150x_g110x",
-            // Self::SysctlG351xG151x => "sysctl_g351x_g151x",
-            Self::Tim => "tim",
-            Self::Uart => "uart",
+            PeripheralType::Unknown => "",
+            PeripheralType::Adc => "adc",
+            PeripheralType::Aes => "aes",
+            PeripheralType::AesAdv => "aesadv",
+            PeripheralType::Canfd => "canfd",
+            PeripheralType::Comp => "comp",
+            PeripheralType::Cpuss => "cpuss",
+            PeripheralType::Crc => "crc",
+            PeripheralType::Dac => "dac",
+            PeripheralType::Debugss => "debugss",
+            PeripheralType::Dma => "dma",
+            PeripheralType::Event => "event",
+            PeripheralType::FlashCtl => "flashctl",
+            PeripheralType::GpAmp => "gpamp",
+            PeripheralType::Gpio => "gpio",
+            PeripheralType::I2c => "i2c",
+            PeripheralType::Iomux => "iomux",
+            PeripheralType::KeystoreCtl => "keystorectl",
+            PeripheralType::Lcd => "lcd",
+            PeripheralType::Lfss => "lfss",
+            PeripheralType::Mathacl => "mathacl",
+            PeripheralType::Opa => "opa",
+            PeripheralType::Rtc => "rtc",
+            PeripheralType::Spi => "spi",
+            PeripheralType::Sysctl => "sysctl",
+            PeripheralType::Tim => "tim",
+            PeripheralType::Trng => "trng",
+            PeripheralType::Uart => "uart",
+            PeripheralType::Vref => "vref",
+            PeripheralType::Wuc => "wuc",
+            PeripheralType::Wwdt => "wwdt",
         };
 
         write!(f, "{content}")

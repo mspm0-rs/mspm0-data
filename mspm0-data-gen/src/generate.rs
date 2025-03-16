@@ -290,12 +290,66 @@ fn get_peripheral_type_version(chip_name: &str, name: &str) -> (PeripheralType, 
         return (PeripheralType::Sysctl, Some(get_sysctl_version(chip_name)));
     }
 
-    let ty = if name.starts_with("TIMA") {
+    let ty = if name.starts_with("ADC") {
+        PeripheralType::Adc
+    } else if name.starts_with("AESADV") {
+        PeripheralType::AesAdv
+    } else if name.starts_with("AES") {
+        PeripheralType::Aes
+    } else if name.starts_with("CANFD") {
+        PeripheralType::Canfd
+    } else if name.starts_with("COMP") {
+        PeripheralType::Comp
+    } else if name.starts_with("CPUSS") {
+        PeripheralType::Cpuss
+    } else if name.starts_with("CRC") {
+        PeripheralType::Crc
+    } else if name.starts_with("DAC") {
+        PeripheralType::Dac
+    } else if name.starts_with("DEBUGSS") {
+        PeripheralType::Debugss
+    } else if name.starts_with("DMA") {
+        PeripheralType::Dma
+    } else if name.starts_with("EVENT") {
+        PeripheralType::Event
+    } else if name.starts_with("FLASHCTL") {
+        PeripheralType::FlashCtl
+    } else if name.starts_with("GPAMP") {
+        PeripheralType::GpAmp
+    } else if name.starts_with("GPIO") {
+        PeripheralType::Gpio
+    } else if name.starts_with("I2C") {
+        PeripheralType::I2c
+    } else if name.starts_with("IOMUX") {
+        PeripheralType::Iomux
+    } else if name.starts_with("KEYSTORECTL") {
+        PeripheralType::KeystoreCtl
+    } else if name.starts_with("LCD") {
+        PeripheralType::Lcd
+    } else if name.starts_with("LFSS") {
+        PeripheralType::Lfss
+    } else if name.starts_with("MATHACL") {
+        PeripheralType::Mathacl
+    } else if name.starts_with("OPA") {
+        PeripheralType::Opa
+    } else if name.starts_with("RTC") {
+        PeripheralType::Rtc
+    } else if name.starts_with("SPI") {
+        PeripheralType::Spi
+    } else if name.starts_with("TIMA") {
         PeripheralType::Tim
     } else if name.starts_with("TIMG") {
         PeripheralType::Tim
+    } else if name.starts_with("TRNG") {
+        PeripheralType::Trng
     } else if name.starts_with("UART") {
         PeripheralType::Uart
+    } else if name.starts_with("VREF") {
+        PeripheralType::Vref
+    } else if name.starts_with("WUC") {
+        PeripheralType::Wuc
+    } else if name.starts_with("WWDT") {
+        PeripheralType::Wwdt
     } else {
         PeripheralType::Unknown
     };
