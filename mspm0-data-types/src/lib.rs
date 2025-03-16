@@ -4,7 +4,8 @@ use std::{collections::BTreeMap, fmt};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Chip {
     pub packages: Vec<Package>,
-    pub pin_cm: BTreeMap<String, PinCm>,
+    /// Mapping from device pin to IOMUX register index.
+    pub iomux: BTreeMap<String, u32>,
     pub peripherals: BTreeMap<String, Peripheral>,
     pub interrupts: BTreeMap<i32, Interrupt>,
     pub dma_channels: BTreeMap<u32, DmaChannel>,
@@ -46,19 +47,6 @@ pub struct PackagePin {
     /// - `PA0`
     /// - `NRST`
     pub signals: Vec<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct PinCm {
-    /// The number of the IOMUX CM used used for this pin.
-    pub iomux_cm: u32,
-
-    pub pfs: BTreeMap<u32, Vec<PinFunction>>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct PinFunction {
-    pub name: String,
 }
 
 // TODO: The rest

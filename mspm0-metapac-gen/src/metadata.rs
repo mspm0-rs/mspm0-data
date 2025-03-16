@@ -13,8 +13,8 @@ pub fn generate(name: &str, chip: &Chip) -> TokenStream {
 
     let mut pincm_mappings = Vec::new();
 
-    for (pin, cm) in chip.pin_cm.iter() {
-        let pincm = Literal::u8_unsuffixed(cm.iomux_cm as _);
+    for (pin, cm) in chip.iomux.iter() {
+        let pincm = Literal::u8_unsuffixed(*cm as _);
 
         pincm_mappings.push(quote! {
             PinCmMapping {

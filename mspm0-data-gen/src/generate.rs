@@ -3,7 +3,6 @@ use std::{borrow::Cow, cmp::Ordering, collections::BTreeMap, fs, sync::LazyLock}
 use anyhow::Context;
 use mspm0_data_types::{
     Chip, DmaChannel, Interrupt, Package, PackagePin, Peripheral, PeripheralPin, PeripheralType,
-    PinCm, PinFunction,
 };
 use regex::Regex;
 
@@ -36,7 +35,7 @@ pub fn generate(
         }
 
         // TODO: Remove _POCIx suffix from e.x. CS1_POCI1
-        let pin_cm = generate_pincm(&name, &sysconfig_entry)?;
+        let iomux = generate_pincm(&name, &sysconfig_entry)?;
 
         let peripherals = generate_peripherals2(
             &name,
@@ -59,7 +58,7 @@ pub fn generate(
 
         let chip = Chip {
             packages,
-            pin_cm,
+            iomux,
             peripherals,
             interrupts,
             dma_channels,
@@ -122,66 +121,20 @@ fn generate_packages(chip_name: &str, sysconfig: &SysconfigFile) -> anyhow::Resu
 fn generate_pincm(
     chip_name: &str,
     sysconfig: &SysconfigFile,
-) -> anyhow::Result<BTreeMap<String, PinCm>> {
+) -> anyhow::Result<BTreeMap<String, u32>> {
     let mut pins = BTreeMap::new();
 
     // TODO: Remove this hack as we have replaced it.
     for device_pin in sysconfig.device_pins.values() {
-        // FIXME: PA10/PA14 - split pins?
-        let name = device_pin
-            .name
-            .split("/")
-            .next()
-            .unwrap_or(&device_pin.name);
-
-        // "None" if the pin is not usable as I/O.
-        if let Ok(iomux_cm) = device_pin.attributes.iomux_pincm.parse::<u32>() {
-            pins.insert(
-                name.to_string(),
-                PinCm {
-                    iomux_cm,
-                    pfs: BTreeMap::new(),
-                },
-            );
-        };
-    }
-
-    // Visit the muxes and get the pf for each CM.
-    for mux in sysconfig.muxes.iter() {
-        // Lookup the device pin name.
-        let device_pin = sysconfig
-            .device_pins
-            .get(&mux.device_pin_id)
-            .context(format!(
-                "{chip_name}: looked up non-existent pin with id: {}",
-                &mux.device_pin_id
-            ))?;
-
-        let pin_name = device_pin
-            .name
-            .split("/")
-            .next()
-            .unwrap_or(&device_pin.name);
-
-        if let Some(pincm) = pins.get_mut(pin_name) {
-            for setting in mux.mux_setting.iter() {
-                let pf_num = setting.mode.parse::<u32>().context("Invalid pf")?;
-
-                let peripheral_pin = sysconfig
-                    .peripheral_pins
-                    .get(&setting.peripheral_pin_id)
-                    .context(format!(
-                        "{chip_name}: looked up non-existent pin peripheral pin id: {}",
-                        &setting.peripheral_pin_id
-                    ))?;
-
-                let pf = pincm.pfs.entry(pf_num).or_default();
-
-                pf.push(PinFunction {
-                    name: peripheral_pin.name.clone(),
-                });
-            }
+        // TODO: Does this cause any problems?
+        if device_pin.name.contains('/') {
+            continue;
         }
+
+        // "None" if the pin is not usable as I/O (GND or VCC for example).
+        if let Ok(iomux_cm) = device_pin.attributes.iomux_pincm.parse::<u32>() {
+            pins.insert(device_pin.name.to_string(), iomux_cm);
+        };
     }
 
     Ok(pins)
