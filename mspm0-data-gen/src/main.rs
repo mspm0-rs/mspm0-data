@@ -45,7 +45,6 @@ impl Stopwatch {
 }
 
 fn main() -> anyhow::Result<()> {
-    // TODO: Don't use an absolute path
     let data_sources = PathBuf::from("./sources/");
 
     let mut stopwatch = Stopwatch::new();

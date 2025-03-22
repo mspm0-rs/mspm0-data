@@ -109,7 +109,6 @@ pub enum PeripheralType {
     Sysctl,
 
     /// A timer.
-    // TODO: Timer types and attributes
     Tim,
 
     Trng,
@@ -163,6 +162,18 @@ impl fmt::Display for PeripheralType {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PowerDomain {
+    /// "low speed" power domain. This power domain is powered in RUN, SLEEP, STOP and STANDBY modes.
+    Pd0,
+
+    /// "high performance" power domain. This power domain is powered in RUN and SLEEP modes.
+    Pd1,
+
+    /// PDB backup power domain. This is usually powered by VBAT.
+    Backup,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Peripheral {
     pub name: String,
@@ -175,6 +186,8 @@ pub struct Peripheral {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub address: Option<u32>,
+
+    pub power_domain: PowerDomain,
 
     pub pins: Vec<PeripheralPin>,
 }

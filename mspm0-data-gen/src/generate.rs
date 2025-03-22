@@ -1,15 +1,17 @@
 use std::{borrow::Cow, cmp::Ordering, collections::BTreeMap, fs, sync::LazyLock};
 
-use anyhow::Context;
+use anyhow::{bail, Context};
 use mspm0_data_types::{
     Chip, DmaChannel, Interrupt, Package, PackagePin, Peripheral, PeripheralPin, PeripheralType,
+    PowerDomain,
 };
 use regex::Regex;
 
 use crate::{
     header::{Header, Headers},
     int_group::Groups,
-    sysconfig::{PartPeripheralWrapper, Sysconfig, SysconfigFile},
+    sysconfig::{self, PartPeripheralWrapper, Sysconfig, SysconfigFile},
+    verify,
 };
 
 const SKIP_CHIPS: &[&str] = &[
@@ -63,6 +65,8 @@ pub fn generate(
             interrupts,
             dma_channels,
         };
+
+        verify::verify(&chip, &name)?;
 
         let _ = fs::write(
             format!("./build/data/{name}.json"),
@@ -119,7 +123,7 @@ fn generate_packages(chip_name: &str, sysconfig: &SysconfigFile) -> anyhow::Resu
 }
 
 fn generate_pincm(
-    chip_name: &str,
+    _chip_name: &str,
     sysconfig: &SysconfigFile,
 ) -> anyhow::Result<BTreeMap<String, u32>> {
     let mut pins = BTreeMap::new();
@@ -190,14 +194,21 @@ fn generate_peripherals2(
                 continue;
             }
 
+            // GPAMP does not exist on these parts.
+            if name == "GPAMP" && (chip_name == "MSPM0C110X" || chip_name == "MSPM0G151X") {
+                continue;
+            }
+
             let (ty, version) = get_peripheral_type_version(chip_name, &name);
             let address = get_peripheral_addresses(chip_name, &name, header, sysconfig)?;
+            let power_domain = get_power_domain(peripheral, ty, chip_name)?;
 
             let mut peri = Peripheral {
                 name: name.clone(),
                 ty,
                 version,
                 address,
+                power_domain,
                 pins: vec![],
             };
 
@@ -282,6 +293,94 @@ fn generate_peripherals2(
     Ok(peripherals)
 }
 
+fn get_power_domain(
+    peripheral: &sysconfig::Peripheral,
+    ty: PeripheralType,
+    chip_name: &str,
+) -> anyhow::Result<PowerDomain> {
+    let Some(power_domain) = peripheral.attributes.get("power_domain") else {
+        // GPAMP does not have a specified power domain from sysconfig. It is always in PD0.
+        if peripheral.name == "GPAMP" {
+            return Ok(PowerDomain::Pd0);
+        }
+
+        bail!("{chip_name}: {} has no power domain", peripheral.name)
+    };
+
+    let Some(power_domain) = power_domain.as_str() else {
+        bail!(
+            "{chip_name}: {} power domain is not a string value",
+            peripheral.name
+        )
+    };
+
+    // A few notes on exceptions:
+    // - ADCx:
+    //   The ADCs technically are in both PD0 and PD1 power domains. We pick PD0 since the
+    //   ADC is in the more permissive power.
+    //
+    // - GPIOx:
+    //   Same rationale as ADCs
+    let domain = match power_domain {
+        // Fix mistakes in SYSCTL
+        "PD_ULP_AON"
+            if (chip_name == "MSPM0C110X"
+                || chip_name == "MSPM0L110X"
+                || chip_name == "MSPM0L122X"
+                || chip_name == "MSPM0L130X"
+                || chip_name == "MSPM0L134X"
+                || chip_name == "MSPM0L222X")
+                && ty == PeripheralType::Cpuss =>
+        {
+            PowerDomain::Pd1
+        }
+        "PD_ULP_AON"
+            if (chip_name == "MSPM0L122X" || chip_name == "MSPM0L222X")
+                && ty == PeripheralType::AesAdv =>
+        {
+            PowerDomain::Pd1
+        }
+        "PD_ULP_AON"
+            if (chip_name == "MSPM0C110X"
+                || chip_name == "MSPM0L110X"
+                || chip_name == "MSPM0L122X"
+                || chip_name == "MSPM0L130X"
+                || chip_name == "MSPM0L134X"
+                || chip_name == "MSPM0L222X")
+                && ty == PeripheralType::Crc =>
+        {
+            PowerDomain::Pd1
+        }
+        "PD_ULP_AON"
+            if (chip_name == "MSPM0C110X"
+                || chip_name == "MSPM0L110X"
+                || chip_name == "MSPM0L122X"
+                || chip_name == "MSPM0L130X"
+                || chip_name == "MSPM0L134X"
+                || chip_name == "MSPM0L222X")
+                && ty == PeripheralType::Spi =>
+        {
+            PowerDomain::Pd1
+        }
+        "PD_ULP_AON"
+            if (chip_name == "MSPM0L122X" || chip_name == "MSPM0L222X")
+                && ty == PeripheralType::Trng =>
+        {
+            PowerDomain::Pd1
+        }
+
+        // Q: GPAMP appears to be in PD0 but is None in most chips.
+
+        // Normal
+        "PD_ULP_AON" => PowerDomain::Pd0,
+        "PD_ULP_AAON" => PowerDomain::Pd1,
+        "PD_VRTC_AON" => PowerDomain::Backup,
+        _ => anyhow::bail!("{chip_name}: Unknown power domain value: {}", power_domain),
+    };
+
+    Ok(domain)
+}
+
 fn generate_missing(
     chip_name: &str,
     header: &Header,
@@ -298,6 +397,8 @@ fn generate_missing(
             ty: PeripheralType::Dma,
             version: None,
             address: Some(0x4042A000),
+            // DMA always lives in PD1
+            power_domain: PowerDomain::Pd1,
             pins: vec![],
         },
     );
@@ -320,6 +421,8 @@ fn generate_missing(
                     ty: PeripheralType::Gpio,
                     version: None,
                     address: Some(address),
+                    // GPIO always lives in PD0
+                    power_domain: PowerDomain::Pd0,
                     pins: vec![],
                 });
 
@@ -421,7 +524,7 @@ fn get_peripheral_addresses(
     header: &Header,
     _sysconfig: &SysconfigFile,
 ) -> anyhow::Result<Option<u32>> {
-    let mut name = Cow::from(name);
+    let name = Cow::from(name);
 
     // GPAMP lives in sysctl.
     if name == "GPAMP" {
@@ -536,7 +639,7 @@ fn generate_irqs(
 }
 
 fn generate_dma_channels(
-    chip_name: &str,
+    _chip_name: &str,
     sysconfig: &SysconfigFile,
 ) -> anyhow::Result<BTreeMap<u32, DmaChannel>> {
     static PATTERN: LazyLock<Regex> =
