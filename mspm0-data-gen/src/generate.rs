@@ -15,8 +15,6 @@ use crate::{
 };
 
 const SKIP_CHIPS: &[&str] = &[
-    // FIXME: This is not a duplicate of C110x due to pinout differences
-    "MSPS003FX",
     // Likely a duplicate of C110x
     "MSPM0C1105_C1106",
     // Unreleased
@@ -39,20 +37,21 @@ pub fn generate(
         // TODO: Remove _POCIx suffix from e.x. CS1_POCI1
         let iomux = generate_pincm(&name, &sysconfig_entry)?;
 
-        let peripherals = generate_peripherals2(
-            &name,
-            headers
-                .headers
-                .get(&name.to_lowercase())
-                .context(format!("Could not lookup header for {}", name))?,
-            &sysconfig_entry,
-        )?;
+        // MSPS003FX is the same as C110X except for package options and some pins.
+        let header_name = if name == "MSPS003FX" {
+            "mspm0c110x"
+        } else {
+            name
+        };
 
-        let interrupts = generate_irqs(
-            &name,
-            headers.headers.get(&name.to_lowercase()).unwrap(),
-            int_groups,
-        )?;
+        let header = headers
+            .headers
+            .get(&header_name.to_lowercase())
+            .context(format!("Could not lookup header for {}", header_name))?;
+
+        let peripherals = generate_peripherals2(&name, header, &sysconfig_entry)?;
+
+        let interrupts = generate_irqs(&name, header, int_groups)?;
 
         let dma_channels = generate_dma_channels(&name, &sysconfig_entry)?;
 
@@ -324,7 +323,8 @@ fn get_power_domain(
     let domain = match power_domain {
         // Fix mistakes in SYSCTL
         "PD_ULP_AON"
-            if (chip_name == "MSPM0C110X"
+            if (chip_name == "MSPS003FX"
+                || chip_name == "MSPM0C110X"
                 || chip_name == "MSPM0L110X"
                 || chip_name == "MSPM0L122X"
                 || chip_name == "MSPM0L130X"
@@ -341,7 +341,8 @@ fn get_power_domain(
             PowerDomain::Pd1
         }
         "PD_ULP_AON"
-            if (chip_name == "MSPM0C110X"
+            if (chip_name == "MSPS003FX"
+                || chip_name == "MSPM0C110X"
                 || chip_name == "MSPM0L110X"
                 || chip_name == "MSPM0L122X"
                 || chip_name == "MSPM0L130X"
@@ -352,7 +353,8 @@ fn get_power_domain(
             PowerDomain::Pd1
         }
         "PD_ULP_AON"
-            if (chip_name == "MSPM0C110X"
+            if (chip_name == "MSPS003FX"
+                || chip_name == "MSPM0C110X"
                 || chip_name == "MSPM0L110X"
                 || chip_name == "MSPM0L122X"
                 || chip_name == "MSPM0L130X"
@@ -549,7 +551,7 @@ fn get_peripheral_addresses(
 
 fn get_sysctl_version(chip_name: &str) -> String {
     let s = match chip_name {
-        "MSPM0C110X" => "c110x",
+        "MSPS003FX" | "MSPM0C110X" => "c110x",
         "MSPM0L110X" | "MSPM0L130X" | "MSPM0L134X" => "l110x_l130x_l134x",
         "MSPM0L122X" | "MSPM0L222X" => "l122x_l222x",
         "MSPM0G110X" | "MSPM0G150X" | "MSPM0G310X" | "MSPM0G350X" => "g350x_g310x_g150x_g110x",
