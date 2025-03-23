@@ -70,11 +70,21 @@ fn core_peripherals(chip: &Chip, name: &str) -> anyhow::Result<()> {
 fn pin_names(chip: &Chip, name: &str) -> anyhow::Result<()> {
     for peripheral in chip.peripherals.values() {
         for pin in peripheral.pins.iter() {
+            // `+` and `-` are allowed
+            //
+            // `/` and `.` are not allowed, as these are likely bugs in generation.
             if pin.pin.contains('/') {
                 let peripheral_name = &peripheral.name;
                 let pin = &pin.pin;
 
                 bail!("{name}, {peripheral_name}: pin {pin} contains a '/'");
+            }
+
+            if pin.pin.contains('.') {
+                let peripheral_name = &peripheral.name;
+                let pin = &pin.pin;
+
+                bail!("{name}, {peripheral_name}: pin {pin} contains invalid characters");
             }
         }
     }

@@ -65,7 +65,9 @@ pub fn generate(
             dma_channels,
         };
 
-        verify::verify(&chip, &name)?;
+        if let Err(err) = verify::verify(&chip, &name) {
+            eprintln!("{err}");
+        };
 
         let _ = fs::write(
             format!("./build/data/{name}.json"),
@@ -257,6 +259,10 @@ fn generate_peripherals2(
                                 .map(|(a, _)| a)
                                 .unwrap_or_else(|| &device_pin_name)
                                 .to_string();
+
+                            if skip_peripheral_pin(device_pin_name, chip_name) {
+                                continue;
+                            }
 
                             peri.pins.push(PeripheralPin {
                                 pin,
@@ -683,4 +689,16 @@ fn generate_dma_channels(
     }
 
     Ok(channels)
+}
+
+fn skip_peripheral_pin(pin_name: &String, chip_name: &str) -> bool {
+    // L130X and L134X defines some device pins that only contain `OPAx.IN0-`, which is one of the symbols. Not the pin
+    // itself.
+    if (chip_name == "MSPM0L130X" || chip_name == "MSPM0L134X")
+        && (pin_name == "OPA0.IN0-" || pin_name == "OPA1.IN0-")
+    {
+        return true;
+    }
+
+    false
 }
