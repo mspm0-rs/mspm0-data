@@ -252,8 +252,14 @@ fn generate_peripherals2(
                                 "PF was not valid integer for {device_pin_name}, {pin_name_and_signal}"
                             ))?;
 
+                            let pin = device_pin_name
+                                .split_once('/')
+                                .map(|(a, _)| a)
+                                .unwrap_or_else(|| &device_pin_name)
+                                .to_string();
+
                             peri.pins.push(PeripheralPin {
-                                pin: device_pin_name.clone(),
+                                pin,
                                 signal: String::from(signal),
                                 pf: Some(pf),
                             });
@@ -428,9 +434,16 @@ fn generate_missing(
                     pins: vec![],
                 });
 
+            let pin = device_pin
+                .name
+                .split_once('/')
+                .map(|(a, _)| a)
+                .unwrap_or_else(|| &device_pin.name)
+                .to_string();
+
             gpio.pins.push(PeripheralPin {
-                pin: device_pin.name.clone(),
-                signal: device_pin.name.clone(),
+                pin: pin.clone(),
+                signal: pin,
                 // GPIO always has a PF of 1
                 pf: Some(1),
             });

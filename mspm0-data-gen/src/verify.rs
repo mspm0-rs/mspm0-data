@@ -7,6 +7,8 @@ use regex::Regex;
 pub fn verify(chip: &Chip, name: &str) -> anyhow::Result<()> {
     core_peripherals(chip, name)?;
 
+    pin_names(chip, name)?;
+
     // Peripherals which don't actually exist
     no_gpamp_c110x_l151x(chip, name)?;
 
@@ -60,6 +62,21 @@ fn core_peripherals(chip: &Chip, name: &str) -> anyhow::Result<()> {
 
     if !chip.peripherals.contains_key("WWDT0") {
         bail!("{name}: does not have WWDT0");
+    }
+
+    Ok(())
+}
+
+fn pin_names(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    for peripheral in chip.peripherals.values() {
+        for pin in peripheral.pins.iter() {
+            if pin.pin.contains('/') {
+                let peripheral_name = &peripheral.name;
+                let pin = &pin.pin;
+
+                bail!("{name}, {peripheral_name}: pin {pin} contains a '/'");
+            }
+        }
     }
 
     Ok(())
