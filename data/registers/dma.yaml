@@ -114,6 +114,11 @@ fieldset/CTL:
     description: DMA enable.
     bit_offset: 1
     bit_size: 1
+  - name: AUTOEN
+    description: 'Automatic DMA channel enable on SA, DA, SZ register write. If channel is configured as SW trigger (TCTL=0), the AUTOEN will set the EN and REQ. If channel is configured as HW trigger (CTL!=0), the AUTOEN will only set the EN. Note: This feature is not present in all devices. Consult the device specific datasheet.'
+    bit_offset: 2
+    bit_size: 2
+    enum: AUTOEN
   - name: PREIRQ
     description: 'Enable an early IRQ event. This can help software to react quicker to and DMA done event or allows some additional configuration before the channel is complete. Note: This register is only available in a FULL-channel configuration. Please consult the datasheet of the specific device to map which channel number has FULL or BASIC capability. In a BASIC configuration this register is a read only value and always reads as 0x0.'
     bit_offset: 4
@@ -565,4 +570,19 @@ enum/WDTH:
     value: 2
   - name: LONG
     description: Destination data width is LONG-WORD (64-bit).
+    value: 3
+enum/AUTOEN:
+  bit_size: 2
+  variants:
+  - name: NONE
+    description: No automatic DMA enable
+    value: 0
+  - name: SA
+    description: Automatic DMA channel enable on SA register write.
+    value: 1
+  - name: DA
+    description: Automatic DMA channel enable on DA register write.
+    value: 2
+  - name: SZ
+    description: Automatic DMA channel enable on SZ register write.
     value: 3
