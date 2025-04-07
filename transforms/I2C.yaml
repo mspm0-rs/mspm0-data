@@ -1,0 +1,189 @@
+# Transform for UART registers based on I2C0 on G350x
+transforms:
+  - !DeleteUselessEnums
+
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
+  #
+  # TODO: Add this to chiptool
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLEARED
+      1: SET
+
+  # FREE is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STOP
+      1: RUN
+
+  # RESETASSERT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  # RESETSTKY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  # RESETSTKYCLR is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  # INTEVAL is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: DISABLE
+      1: EVAL
+
+  # TODO: Something better than a cursed rename as merge
+  - !MergeBlocks
+    from: I2C0
+    main: I2C0
+    to: I2C
+
+  # Remove prefixes
+  - !RenameRegisters
+    block: .*
+    from: I2C0_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: I2C0_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: I2C0_(.+)
+    to: $1
+
+  ## Interrupts
+  # CPU_INT interrupt fields are all the same layout.
+  - !MergeFieldsets
+    from: CPU_INT_(IMASK|ISET|MIS|RIS|ICLR)
+    to: CPU_INT
+
+  # Remove redundant prefixes in the CPU_INT block
+  - !RenameRegisters
+    block: .*
+    from: CPU_INT_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: CPU_INT_(.+)
+    to: $1
+
+  ## DMA Triggers
+  # Merge DMA_TRIG types
+  - !MergeBlocks
+    from: DMA_TRIG(\d+)
+    main: DMA_TRIG1
+    to: DMA_TRIG
+
+  - !MergeEnums
+    from: DMA_TRIG(\d+)_(.*)
+    to: DMA_TRIG_$2
+
+  - !MergeFieldsets
+    from: DMA_TRIG(\d+)_(.*)
+    to: DMA_TRIG_$2
+
+  # Remove redundant prefixes in the DMA_TRIG block
+  - !RenameRegisters
+    block: DMA_TRIG
+    from: DMA_TRIG(\d+)_(.+)
+    to: $2
+
+  # DMA_TRIG interrupt fields are all the same layout.
+  - !MergeFieldsets
+    from: DMA_TRIG_(IMASK|ISET|MIS|RIS|ICLR)
+    to: DMA_TRIG
+
+  ## TODO: Can DMA_TRIG0 and DMA_TRIG1 fields in I2C block be arrayized due to flipped order?
+
+  ## TODO: EVT_MODE
+  # Merge enums. Same is used for events or interrupts
+  - !MergeEnums
+    from: (INT|EVT)(\d+)_CFG
+    to: EVT_CFG
+
+  # Rename fields to match hardware
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT0_CFG
+    to: CPU_INT
+
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT1_CFG
+    to: DMA_TRIG1
+
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: EVT2_CFG
+    to: DMA_TRIG0
+
+  ## CMODE/TMODE: same enum
+  - !MergeEnums
+    from: (C|T)MODE
+    to: MODE
+
+  ## Add missing keys
+  - !AddFields
+    fieldset: RSTCTL
+    fields:
+    - name: KEY
+      description: Unlock key B1h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: RESET_KEY
+
+  - !AddFields
+    fieldset: PWREN
+    fields:
+    - name: KEY
+      description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: PWREN_KEY
+
+  - !AddFields
+    fieldset: CLKCFG
+    fields:
+    - name: KEY
+      description: KEY to Allow State Change A9h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: CLKCFG_KEY
+
+  - !Add
+    ir:
+      enum/RESET_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 177
+      enum/PWREN_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 38
+      enum/CLKCFG_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 0xA9
+
+  ## Cleanup
+  - !Sort
