@@ -1,0 +1,1351 @@
+block/CONTROLLER:
+  items:
+  - name: CSA
+    description: I2C Controller Target Address Register.
+    byte_offset: 0
+    fieldset: CSA
+  - name: CCTR
+    description: I2C Controller Control Register.
+    byte_offset: 4
+    fieldset: CCTR
+  - name: CSR
+    description: I2C Controller Status Register.
+    byte_offset: 8
+    access: Read
+    fieldset: CSR
+  - name: CRXDATA
+    description: I2C Controller RXData.
+    byte_offset: 12
+    access: Read
+    fieldset: CRXDATA
+  - name: CTXDATA
+    description: I2C Controller TXData.
+    byte_offset: 16
+    fieldset: CTXDATA
+  - name: CTPR
+    description: I2C Controller Timer Period.
+    byte_offset: 20
+    fieldset: CTPR
+  - name: CCR
+    description: I2C Controller Configuration.
+    byte_offset: 24
+    fieldset: CCR
+  - name: CBMON
+    description: I2C Controller Bus Monitor.
+    byte_offset: 36
+    access: Read
+    fieldset: CBMON
+  - name: CFIFOCTL
+    description: I2C Controller FIFO Control.
+    byte_offset: 40
+    fieldset: CFIFOCTL
+  - name: CFIFOSR
+    description: I2C Controller FIFO Status Register.
+    byte_offset: 44
+    access: Read
+    fieldset: CFIFOSR
+  - name: CONTROLLER_I2CPECCTL
+    description: I2C Controller PEC control register.
+    byte_offset: 48
+    fieldset: CONTROLLER_I2CPECCTL
+  - name: CONTROLLER_PECSR
+    description: I2C Controller PEC status register.
+    byte_offset: 52
+    access: Read
+    fieldset: CONTROLLER_PECSR
+block/CPU_INT:
+  items:
+  - name: IIDX
+    description: Interrupt index.
+    byte_offset: 0
+    access: Read
+    fieldset: CPU_INT_IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: CPU_INT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: CPU_INT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: CPU_INT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: CPU_INT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: CPU_INT
+block/DMA_TRIG:
+  items:
+  - name: IIDX
+    description: Interrupt index.
+    byte_offset: 0
+    access: Read
+    fieldset: DMA_TRIG_IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: DMA_TRIG
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: DMA_TRIG
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: DMA_TRIG
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: DMA_TRIG
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: DMA_TRIG
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: CLKCFG
+    description: Peripheral Clock Configuration Register.
+    byte_offset: 8
+    fieldset: CLKCFG
+  - name: STAT
+    description: Status Register.
+    byte_offset: 20
+    access: Read
+    fieldset: STAT
+block/I2C:
+  description: PERIPHERALREGION.
+  items:
+  - name: GPRCM
+    array:
+      len: 1
+      stride: 24
+    byte_offset: 2048
+    block: GPRCM
+  - name: CLKDIV
+    description: Clock Divider.
+    byte_offset: 4096
+    fieldset: CLKDIV
+  - name: CLKSEL
+    description: Clock Select for Ultra Low Power peripherals.
+    byte_offset: 4100
+    fieldset: CLKSEL
+  - name: PDBGCTL
+    description: Peripheral Debug Control.
+    byte_offset: 4120
+    fieldset: PDBGCTL
+  - name: CPU_INT
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4128
+    block: CPU_INT
+  - name: DMA_TRIG1
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4176
+    block: DMA_TRIG
+  - name: DMA_TRIG0
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4224
+    block: DMA_TRIG
+  - name: EVT_MODE
+    description: Event Mode.
+    byte_offset: 4320
+    fieldset: EVT_MODE
+  - name: INTCTL
+    description: Interrupt control register.
+    byte_offset: 4324
+    fieldset: INTCTL
+  - name: DESC
+    description: Module Description.
+    byte_offset: 4348
+    access: Read
+    fieldset: DESC
+  - name: GFCTL
+    description: I2C Glitch Filter Control.
+    byte_offset: 4608
+    fieldset: GFCTL
+  - name: TIMEOUT_CTL
+    description: I2C Timeout Count Control Register.
+    byte_offset: 4612
+    fieldset: TIMEOUT_CTL
+  - name: TIMEOUT_CNT
+    description: I2C Timeout Count Register.
+    byte_offset: 4616
+    access: Read
+    fieldset: TIMEOUT_CNT
+  - name: CONTROLLER
+    array:
+      len: 1
+      stride: 56
+    byte_offset: 4624
+    block: CONTROLLER
+  - name: TARGET
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4688
+    block: TARGET
+block/TARGET:
+  items:
+  - name: TOAR
+    description: I2C Target Own Address.
+    byte_offset: 0
+    fieldset: TOAR
+  - name: TOAR2
+    description: I2C Target Own Address 2.
+    byte_offset: 4
+    fieldset: TOAR2
+  - name: TCTR
+    description: I2C Target Control Register.
+    byte_offset: 8
+    fieldset: TCTR
+  - name: TSR
+    description: I2C Target Status Register.
+    byte_offset: 12
+    access: Read
+    fieldset: TSR
+  - name: TRXDATA
+    description: I2C Target RXData.
+    byte_offset: 16
+    access: Read
+    fieldset: TRXDATA
+  - name: TTXDATA
+    description: I2C Target TXData.
+    byte_offset: 20
+    fieldset: TTXDATA
+  - name: TACKCTL
+    description: I2C Target ACK Control.
+    byte_offset: 24
+    fieldset: TACKCTL
+  - name: TFIFOCTL
+    description: I2C Target FIFO Control.
+    byte_offset: 28
+    fieldset: TFIFOCTL
+  - name: TFIFOSR
+    description: I2C Target FIFO Status Register.
+    byte_offset: 32
+    access: Read
+    fieldset: TFIFOSR
+  - name: TARGET_PECCTL
+    description: I2C Target PEC control register.
+    byte_offset: 36
+    fieldset: TARGET_PECCTL
+  - name: TARGET_PECSR
+    description: I2C Target PEC status register.
+    byte_offset: 40
+    access: Read
+    fieldset: TARGET_PECSR
+fieldset/CBMON:
+  description: I2C Controller Bus Monitor.
+  fields:
+  - name: SCL
+    description: I2C SCL Status.
+    bit_offset: 0
+    bit_size: 1
+  - name: SDA
+    description: I2C SDA Status.
+    bit_offset: 1
+    bit_size: 1
+fieldset/CCR:
+  description: I2C Controller Configuration.
+  fields:
+  - name: ACTIVE
+    description: Device Active After this bit has been set, it should not be set again unless it has been cleared by writing a 0 or by a reset, otherwise transfer failures may occur.
+    bit_offset: 0
+    bit_size: 1
+  - name: MCTL
+    description: MultiController mode. In MultiController mode the SCL high time counts once the SCL line has been detected high. If this is not enabled the high time counts as soon as the SCL line has been set high by the I2C controller.
+    bit_offset: 1
+    bit_size: 1
+  - name: CLKSTRETCH
+    description: Clock Stretching. This bit controls the support for clock stretching of the I2C bus.
+    bit_offset: 2
+    bit_size: 1
+  - name: LPBK
+    description: I2C Loopback.
+    bit_offset: 8
+    bit_size: 1
+fieldset/CCTR:
+  description: I2C Controller Control Register.
+  fields:
+  - name: BURSTRUN
+    description: I2C Controller Enable and start transaction.
+    bit_offset: 0
+    bit_size: 1
+  - name: START
+    description: Generate START.
+    bit_offset: 1
+    bit_size: 1
+  - name: STOP
+    description: Generate STOP.
+    bit_offset: 2
+    bit_size: 1
+  - name: ACK
+    description: Data Acknowledge Enable. Software needs to configure this bit to send the ACK or NACK.
+    bit_offset: 3
+    bit_size: 1
+  - name: CACKOEN
+    description: Controller ACK overrride Enable.
+    bit_offset: 4
+    bit_size: 1
+  - name: RD_ON_TXEMPTY
+    description: Read on TX Empty.
+    bit_offset: 5
+    bit_size: 1
+  - name: CBLEN
+    description: I2C transaction length This field contains the programmed length of bytes of the Transaction.
+    bit_offset: 16
+    bit_size: 12
+fieldset/CFIFOCTL:
+  description: I2C Controller FIFO Control.
+  fields:
+  - name: TXTRIG
+    description: TX FIFO Trigger Indicates at what fill level in the TX FIFO a trigger will be generated.
+    bit_offset: 0
+    bit_size: 3
+    enum: CFIFOCTL_TXTRIG
+  - name: TXFLUSH
+    description: TX FIFO Flush Setting this bit will Flush the TX FIFO. Before clearing this bit to stop Flush the TXFIFOCNT should be checked to be 8 and indicating that the Flush has completed.
+    bit_offset: 7
+    bit_size: 1
+  - name: RXTRIG
+    description: 'RX FIFO Trigger Indicates at what fill level in the RX FIFO a trigger will be generated. Note: Programming RXTRIG to 0x0 has no effect since no data is present to transfer out of RX FIFO.'
+    bit_offset: 8
+    bit_size: 3
+    enum: CFIFOCTL_RXTRIG
+  - name: RXFLUSH
+    description: RX FIFO Flush Setting this bit will Flush the RX FIFO. Before clearing this bit to stop Flush the RXFIFOCNT should be checked to be 0 and indicating that the Flush has completed.
+    bit_offset: 15
+    bit_size: 1
+fieldset/CFIFOSR:
+  description: I2C Controller FIFO Status Register.
+  fields:
+  - name: RXFIFOCNT
+    description: Number of Bytes which could be read from the RX FIFO.
+    bit_offset: 0
+    bit_size: 4
+  - name: RXFLUSH
+    description: RX FIFO Flush When this bit is set a Flush operation for the RX FIFO is active. Clear the RXFLUSH bit in the control register to stop.
+    bit_offset: 7
+    bit_size: 1
+  - name: TXFIFOCNT
+    description: Number of Bytes which could be put into the TX FIFO.
+    bit_offset: 8
+    bit_size: 4
+  - name: TXFLUSH
+    description: TX FIFO Flush When this bit is set a Flush operation for the TX FIFO is active. Clear the TXFLUSH bit in the control register to stop.
+    bit_offset: 15
+    bit_size: 1
+fieldset/CLKCFG:
+  description: Peripheral Clock Configuration Register.
+  fields:
+  - name: BLOCKASYNC
+    description: Async Clock Request is blocked from starting SYSOSC or forcing bus clock to 32MHz.
+    bit_offset: 8
+    bit_size: 1
+  - name: KEY
+    description: KEY to Allow State Change A9h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: CLKCFG_KEY
+fieldset/CLKDIV:
+  description: Clock Divider.
+  fields:
+  - name: RATIO
+    description: Selects divide ratio of module clock.
+    bit_offset: 0
+    bit_size: 3
+    enum: RATIO
+fieldset/CLKSEL:
+  description: Clock Select for Ultra Low Power peripherals.
+  fields:
+  - name: MFCLK_SEL
+    description: Selects MFCLK as clock source if enabled.
+    bit_offset: 2
+    bit_size: 1
+  - name: BUSCLK_SEL
+    description: Selects BUSCLK as clock source if enabled.
+    bit_offset: 3
+    bit_size: 1
+fieldset/CONTROLLER_I2CPECCTL:
+  description: I2C Controller PEC control register.
+  fields:
+  - name: PECCNT
+    description: PEC Count When this field is non zero, the number of I2C bytes are counted (Note that although the PEC is calculated on the I2C address it is not counted at a byte). When the byte count = PECCNT and the state machine is transmitting, the contents of the LSFR is loaded into the shift register instead of the byte received from the Tx FIFO. When the state machine is receiving, after the last bit of this byte is received the LSFR is checked and if it is non-zero, a PEC RX Error interrupt is generated. The I2C packet must be padded to include the PEC byte for both transmit and receive. In transmit mode the FIFO must be loaded with a dummy PEC byte. In receive mode the PEC byte will be passed to the Rx FIFO. In the normal Controller use case, FW would set PECEN=1 and PECCNT=SMB packet length (Not including Target Address byte, but including the PEC byte). FW would then configure DMA to allow the packet to complete unassisted and write MCTR to initiate the transaction. Note that when the byte count = PEC CNT, the byte count is reset to 0 and multiple PEC calculation can automatically occur within a single I2C transaction. Note that any write to the Controller_I2CPECCTL Register will clear the current PEC Byte Count in the Controller State Machine.
+    bit_offset: 0
+    bit_size: 9
+  - name: PECEN
+    description: PEC Enable This bit enables the SMB Packet Error Checking (PEC). When enabled the PEC is calculated on all bits except the Start, Stop, Ack and Nack. The PEC LSFR and the Byte Counter is set to 0 when the State Machine is in the IDLE state, which occur following a Stop or when a timeout occurs. The Counter is also set to 0 after the PEC byte is sent or received. Note that the NACK is automatically send following a PEC byte that results in a PEC error. The PEC Polynomial is x^8 + x^2 + x^1 + 1.
+    bit_offset: 12
+    bit_size: 1
+fieldset/CONTROLLER_PECSR:
+  description: I2C Controller PEC status register.
+  fields:
+  - name: PECBYTECNT
+    description: PEC Byte Count. This is the current PEC Byte Count of the Controller State Machine.
+    bit_offset: 0
+    bit_size: 9
+  - name: PECSTS_CHECK
+    description: This status bit indicates if the PEC was checked in the transaction that occurred before the last Stop. Latched on Stop.
+    bit_offset: 16
+    bit_size: 1
+  - name: PECSTS_ERROR
+    description: This status bit indicates if a PEC check error occurred in the transaction that occurred before the last Stop. Latched on Stop.
+    bit_offset: 17
+    bit_size: 1
+fieldset/CPU_INT:
+  description: Interrupt clear.
+  fields:
+  - name: CRXDONE
+    description: Controller Receive Data Interrupt Signals that a byte has been received.
+    bit_offset: 0
+    bit_size: 1
+  - name: CTXDONE
+    description: Controller Transmit Transaction completed Interrupt.
+    bit_offset: 1
+    bit_size: 1
+  - name: CRXFIFOTRG
+    description: Controller Receive FIFO Trigger Trigger when RX FIFO contains >= defined bytes.
+    bit_offset: 2
+    bit_size: 1
+  - name: CTXFIFOTRG
+    description: Controller Transmit FIFO Trigger Trigger when Transmit FIFO contains <= defined bytes.
+    bit_offset: 3
+    bit_size: 1
+  - name: CRXFIFOFULL
+    description: RXFIFO full event.
+    bit_offset: 4
+    bit_size: 1
+  - name: CTXEMPTY
+    description: Transmit FIFO Empty interrupt mask. This interrupt is set if all data in the Transmit FIFO have been shifted out and the transmit goes into idle mode.
+    bit_offset: 5
+    bit_size: 1
+  - name: CNACK
+    description: Address/Data NACK Interrupt.
+    bit_offset: 7
+    bit_size: 1
+  - name: CSTART
+    description: START Detection Interrupt.
+    bit_offset: 8
+    bit_size: 1
+  - name: CSTOP
+    description: STOP Detection Interrupt.
+    bit_offset: 9
+    bit_size: 1
+  - name: CARBLOST
+    description: Arbitration Lost Interrupt.
+    bit_offset: 10
+    bit_size: 1
+  - name: CDMA_DONE_TX
+    description: DMA Done on Event Channel TX.
+    bit_offset: 11
+    bit_size: 1
+  - name: CDMA_DONE_RX
+    description: DMA Done on Event Channel RX.
+    bit_offset: 12
+    bit_size: 1
+  - name: CPEC_RX_ERR
+    description: Controller RX Pec Error Interrupt.
+    bit_offset: 13
+    bit_size: 1
+  - name: TIMEOUTA
+    description: Timeout A interrupt.
+    bit_offset: 14
+    bit_size: 1
+  - name: TIMEOUTB
+    description: Timeout B Interrupt.
+    bit_offset: 15
+    bit_size: 1
+  - name: TRXDONE
+    description: Target Receive Data Interrupt Signals that a byte has been received.
+    bit_offset: 16
+    bit_size: 1
+  - name: TTXDONE
+    description: Target Transmit Transaction completed Interrupt.
+    bit_offset: 17
+    bit_size: 1
+  - name: TRXFIFOTRG
+    description: Target Receive FIFO Trigger.
+    bit_offset: 18
+    bit_size: 1
+  - name: TTXFIFOTRG
+    description: Target Transmit FIFO Trigger.
+    bit_offset: 19
+    bit_size: 1
+  - name: TRXFIFOFULL
+    description: RXFIFO full event. This interrupt is set if an RX FIFO is full.
+    bit_offset: 20
+    bit_size: 1
+  - name: TTXEMPTY
+    description: Transmit FIFO Empty interrupt mask. This interrupt is set if all data in the Transmit FIFO have been shifted out and the transmit goes into idle mode.
+    bit_offset: 21
+    bit_size: 1
+  - name: TSTART
+    description: Target START Detection Interrupt.
+    bit_offset: 22
+    bit_size: 1
+  - name: TSTOP
+    description: Target STOP Detection Interrupt.
+    bit_offset: 23
+    bit_size: 1
+  - name: TGENCALL
+    description: General Call Interrupt.
+    bit_offset: 24
+    bit_size: 1
+  - name: TDMA_DONE_TX
+    description: DMA Done on Event Channel TX.
+    bit_offset: 25
+    bit_size: 1
+  - name: TDMA_DONE_RX
+    description: DMA Done on Event Channel RX.
+    bit_offset: 26
+    bit_size: 1
+  - name: TPEC_RX_ERR
+    description: Target RX Pec Error Interrupt.
+    bit_offset: 27
+    bit_size: 1
+  - name: TTX_UNFL
+    description: Target TX FIFO underflow.
+    bit_offset: 28
+    bit_size: 1
+  - name: TRX_OVFL
+    description: Target RX FIFO overflow.
+    bit_offset: 29
+    bit_size: 1
+  - name: TARBLOST
+    description: Target Arbitration Lost.
+    bit_offset: 30
+    bit_size: 1
+  - name: INTR_OVFL
+    description: Interrupt overflow.
+    bit_offset: 31
+    bit_size: 1
+fieldset/CPU_INT_IIDX:
+  description: Interrupt index.
+  fields:
+  - name: STAT
+    description: I2C Module Interrupt Vector Value. This register provides the highes priority interrupt index. A read clears the corresponding interrupt flag in RIS and MISC. 15h-1Fh = Reserved.
+    bit_offset: 0
+    bit_size: 8
+    enum: CPU_INT_IIDX_STAT
+fieldset/CRXDATA:
+  description: I2C Controller RXData.
+  fields:
+  - name: VALUE
+    description: Received Data. This field contains the last received data.
+    bit_offset: 0
+    bit_size: 8
+fieldset/CSA:
+  description: I2C Controller Target Address Register.
+  fields:
+  - name: DIR
+    description: Receive/Send The DIR bit specifies if the next Controller operation is a Receive (High) or Transmit (Low). 0h = Transmit 1h = Receive.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIR
+  - name: TADDR
+    description: I2C Target Address This field specifies bits A9 through A0 of the Target address. In 7-bit addressing mode as selected by MSA.MODE bit, the top 3 bits are don't care.
+    bit_offset: 1
+    bit_size: 10
+  - name: CMODE
+    description: This bit selects the adressing mode to be used in Controller mode When 0, 7-bit addressing is used. When 1, 10-bit addressing is used.
+    bit_offset: 15
+    bit_size: 1
+    enum: MODE
+fieldset/CSR:
+  description: I2C Controller Status Register.
+  fields:
+  - name: BUSY
+    description: I2C Controller FSM Busy The BUSY bit is set during an ongoing transaction, so is set during the transmit/receive of the amount of data set in MBLEN including START, RESTART, Address and STOP signal generation when required for the current transaction.
+    bit_offset: 0
+    bit_size: 1
+  - name: ERR
+    description: Error The error can be from the Target address not being acknowledged or the transmit data not being acknowledged.
+    bit_offset: 1
+    bit_size: 1
+  - name: ADRACK
+    description: Acknowledge Address.
+    bit_offset: 2
+    bit_size: 1
+  - name: DATACK
+    description: Acknowledge Data.
+    bit_offset: 3
+    bit_size: 1
+  - name: ARBLST
+    description: Arbitration Lost.
+    bit_offset: 4
+    bit_size: 1
+  - name: IDLE
+    description: I2C Idle.
+    bit_offset: 5
+    bit_size: 1
+  - name: BUSBSY
+    description: I2C Bus is Busy Controller State Machine will wait until this bit is cleared before starting a transaction. When first enabling the Controller in multi Controller environments, FW should wait for one I2C clock period after setting ACTIVE high before writing to the MTCR register to start the transaction so that if SCL goes low it will trigger the BUSBSY.
+    bit_offset: 6
+    bit_size: 1
+  - name: CBCNT
+    description: I2C Controller Transaction Count This field contains the current count-down value of the transaction.
+    bit_offset: 16
+    bit_size: 12
+fieldset/CTPR:
+  description: I2C Controller Timer Period.
+  fields:
+  - name: TPR
+    description: 'Timer Period This field is used in the equation to configure SCL_PERIOD : SCL_PERIOD = (1 + TPR ) * (SCL_LP + SCL_HP ) * INT_CLK_PRD where: SCL_PRD is the SCL line period (I2C clock). TPR is the Timer Period register value (range of 1 to 127). SCL_LP is the SCL Low period (fixed at 6). SCL_HP is the SCL High period (fixed at 4). CLK_PRD is the functional clock period in ns.'
+    bit_offset: 0
+    bit_size: 7
+fieldset/CTXDATA:
+  description: I2C Controller TXData.
+  fields:
+  - name: VALUE
+    description: Transmit Data This byte contains the data to be transferred during the next transaction.
+    bit_offset: 0
+    bit_size: 8
+fieldset/DESC:
+  description: Module Description.
+  fields:
+  - name: MINREV
+    description: Minor rev of the IP.
+    bit_offset: 0
+    bit_size: 4
+  - name: MAJREV
+    description: Major rev of the IP.
+    bit_offset: 4
+    bit_size: 4
+  - name: INSTNUM
+    description: Instance Number within the device. This will be a parameter to the RTL for modules that can have multiple instances.
+    bit_offset: 8
+    bit_size: 4
+  - name: FEATUREVER
+    description: Feature Set for the module *instance*.
+    bit_offset: 12
+    bit_size: 4
+  - name: MODULEID
+    description: Module identification contains a unique peripheral identification number. The assignments are maintained in a central database for all of the platform modules to ensure uniqueness.
+    bit_offset: 16
+    bit_size: 16
+fieldset/DMA_TRIG:
+  description: Interrupt clear.
+  fields:
+  - name: CRXFIFOTRG
+    description: Controller Receive FIFO Trigger Trigger when RX FIFO contains >= defined bytes.
+    bit_offset: 0
+    bit_size: 1
+  - name: CTXFIFOTRG
+    description: Controller Transmit FIFO Trigger Trigger when Transmit FIFO contains <= defined bytes.
+    bit_offset: 1
+    bit_size: 1
+  - name: TRXFIFOTRG
+    description: Target Receive FIFO Trigger.
+    bit_offset: 2
+    bit_size: 1
+  - name: TTXFIFOTRG
+    description: Target Transmit FIFO Trigger.
+    bit_offset: 3
+    bit_size: 1
+fieldset/DMA_TRIG_IIDX:
+  description: Interrupt index.
+  fields:
+  - name: STAT
+    description: I2C Module Interrupt Vector Value. This register provides the highes priority interrupt index. A read clears the corresponding interrupt flag in RIS and MISC. 15h-1Fh = Reserved.
+    bit_offset: 0
+    bit_size: 8
+    enum: DMA_TRIG_IIDX_STAT
+fieldset/EVT_MODE:
+  description: Event Mode.
+  fields:
+  - name: CPU_INT
+    description: Event line mode select for event corresponding to [IPSTANDARD.CPU_INT].
+    bit_offset: 0
+    bit_size: 2
+    enum: EVT_CFG
+  - name: DMA_TRIG1
+    description: Event line mode select for event corresponding to [IPSTANDARD.DMA_TRIG1].
+    bit_offset: 2
+    bit_size: 2
+    enum: EVT_CFG
+  - name: DMA_TRIG0
+    description: Event line mode select for event corresponding to [IPSTANDARD.DMA_TRIG0].
+    bit_offset: 4
+    bit_size: 2
+    enum: EVT_CFG
+fieldset/GFCTL:
+  description: I2C Glitch Filter Control.
+  fields:
+  - name: DGFSEL
+    description: Glitch Suppression Pulse Width This field controls the pulse width select for glitch suppression on the SCL and SDA lines. The following values are the glitch suppression values in terms of functional clocks. (Core Domain only).
+    bit_offset: 0
+    bit_size: 3
+    enum: DGFSEL
+  - name: AGFEN
+    description: Analog Glitch Suppression Enable.
+    bit_offset: 8
+    bit_size: 1
+  - name: AGFSEL
+    description: Analog Glitch Suppression Pulse Width This field controls the pulse width select for the analog glitch suppression on SCL and SDA lines. See device datasheet for exact values. (ULP I2C only).
+    bit_offset: 9
+    bit_size: 2
+    enum: AGFSEL
+  - name: CHAIN
+    description: Analog and digital noise filters chaining enable.
+    bit_offset: 11
+    bit_size: 1
+fieldset/INTCTL:
+  description: Interrupt control register.
+  fields:
+  - name: INTEVAL
+    description: Writing a 1 to this field re-evaluates the interrupt sources.
+    bit_offset: 0
+    bit_size: 1
+fieldset/PDBGCTL:
+  description: Peripheral Debug Control.
+  fields:
+  - name: FREE
+    description: Free run control.
+    bit_offset: 0
+    bit_size: 1
+  - name: SOFT
+    description: Soft halt boundary control. This function is only available, if [FREE] is set to 'STOP'.
+    bit_offset: 1
+    bit_size: 1
+    enum: SOFT
+fieldset/PWREN:
+  description: Power enable.
+  fields:
+  - name: ENABLE
+    description: Enable the power.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral.
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register.
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key B1h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/STAT:
+  description: Status Register.
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+fieldset/TACKCTL:
+  description: I2C Target ACK Control.
+  fields:
+  - name: ACKOEN
+    description: I2C Target ACK Override Enable.
+    bit_offset: 0
+    bit_size: 1
+  - name: ACKOVAL
+    description: 'I2C Target ACK Override Value Note: for General Call this bit will be ignored if set to NACK and Target continues to receive data.'
+    bit_offset: 1
+    bit_size: 1
+  - name: ACKOEN_ON_START
+    description: When set this bit will automatically turn on the Target ACKOEN field following a Start Condition.
+    bit_offset: 2
+    bit_size: 1
+  - name: ACKOEN_ON_PECNEXT
+    description: When set this bit will automatically turn on the Target ACKOEN field following the ACK/NACK of the byte received just prior to the PEC byte. Note that when ACKOEN is set the PEC byte will not automatically be ACKed/NACKed by the State Machine and FW must perform this function by writing Target_SACKCTL.
+    bit_offset: 3
+    bit_size: 1
+  - name: ACKOEN_ON_PECDONE
+    description: When set this bit will automatically turn on the Target ACKOEN field following the ACK/NACK of the received PEC byte.
+    bit_offset: 4
+    bit_size: 1
+fieldset/TARGET_PECCTL:
+  description: I2C Target PEC control register.
+  fields:
+  - name: PECCNT
+    description: When this field is non zero, the number of I2C data bytes are counted. When the byte count = PECCNT and the state machine is transmitting, the contents of the LSFR is loaded into the shift register instead of the byte received from the Tx FIFO. When the state machine is receiving, after the last bit of this byte is received the LSFR is checked and if it is non-zero, a PEC RX Error interrupt is generated. The I2C packet must be padded to include the PEC byte for both transmit and receive. In transmit mode the FIFO must be loaded with a dummy PEC byte. In receive mode the PEC byte will be passed to the Rx FIFO. In the normal Target use case, FW would set PECEN=1 and PECCNT=0 and use the ACKOEN until the remaining SMB packet length is known. FW would then set the PECCNT to the remaining packet length (Including PEC bye). FW would then configure DMA to allow the packet to complete unassisted and exit NoAck mode. Note that when the byte count = PEC CNT, the byte count is reset to 0 and multiple PEC calculation can automatically occur within a single I2C transaction.
+    bit_offset: 0
+    bit_size: 9
+  - name: PECEN
+    description: PEC Enable This bit enables the SMB Packet Error Checking (PEC). When enabled the PEC is calculated on all bits except the Start, Stop, Ack and Nack. The PEC LSFR and the Byte Counter is set to 0 when the State Machine is in the IDLE state, which occur following a Stop or when a timeout occurs. The Counter is also set to 0 after the PEC byte is sent or received. Note that the NACK is automatically send following a PEC byte that results in a PEC error. The PEC Polynomial is x^8 + x^2 + x^1 + 1.
+    bit_offset: 12
+    bit_size: 1
+fieldset/TARGET_PECSR:
+  description: I2C Target PEC status register.
+  fields:
+  - name: PECBYTECNT
+    description: This is the current PEC Byte Count of the Target State Machine.
+    bit_offset: 0
+    bit_size: 9
+  - name: PECSTS_CHECK
+    description: This status bit indicates if the PEC was checked in the transaction that occurred before the last Stop. Latched on Stop.
+    bit_offset: 16
+    bit_size: 1
+  - name: PECSTS_ERROR
+    description: This status bit indicates if a PEC check error occurred in the transaction that occurred before the last Stop. Latched on Stop.
+    bit_offset: 17
+    bit_size: 1
+fieldset/TCTR:
+  description: I2C Target Control Register.
+  fields:
+  - name: ACTIVE
+    description: Device Active. Setting this bit enables the Target functionality.
+    bit_offset: 0
+    bit_size: 1
+  - name: GENCALL
+    description: General call response enable Modify only when UCSWRST = 1. 0b = Do not respond to a general call 1b = Respond to a general call.
+    bit_offset: 1
+    bit_size: 1
+  - name: TCLKSTRETCH
+    description: Target Clock Stretch Enable.
+    bit_offset: 2
+    bit_size: 1
+  - name: TXEMPTY_ON_TREQ
+    description: Tx Empty Interrupt on TREQ.
+    bit_offset: 3
+    bit_size: 1
+  - name: TXTRIG_TXMODE
+    description: Tx Trigger when Target FSM is in Tx Mode.
+    bit_offset: 4
+    bit_size: 1
+  - name: TXWAIT_STALE_TXFIFO
+    description: 'Tx transfer waits when stale data in Tx FIFO. This prevents stale bytes left in the TX FIFO from automatically being sent on the next I2C packet. Note: this should be used with TXEMPTY_ON_TREQ set to prevent the Target State Machine from waiting for TX FIFO data without an interrupt notification when the FIFO data is stale.'
+    bit_offset: 5
+    bit_size: 1
+  - name: RXFULL_ON_RREQ
+    description: Rx full interrupt generated on RREQ condition as indicated in SSR.
+    bit_offset: 6
+    bit_size: 1
+  - name: EN_DEFHOSTADR
+    description: Enable Default Host Address.
+    bit_offset: 7
+    bit_size: 1
+  - name: EN_ALRESPADR
+    description: Enable Alert Response Address.
+    bit_offset: 8
+    bit_size: 1
+  - name: EN_DEFDEVADR
+    description: Enable Deault device address.
+    bit_offset: 9
+    bit_size: 1
+  - name: TWUEN
+    description: Target Wakeup Enable.
+    bit_offset: 10
+    bit_size: 1
+fieldset/TFIFOCTL:
+  description: I2C Target FIFO Control.
+  fields:
+  - name: TXTRIG
+    description: TX FIFO Trigger Indicates at what fill level in the TX FIFO a trigger will be generated.
+    bit_offset: 0
+    bit_size: 3
+    enum: TFIFOCTL_TXTRIG
+  - name: TXFLUSH
+    description: TX FIFO Flush Setting this bit will Flush the TX FIFO. Before clearing this bit to stop Flush the TXFIFOCNT should be checked to be 8 and indicating that the Flush has completed.
+    bit_offset: 7
+    bit_size: 1
+  - name: RXTRIG
+    description: 'RX FIFO Trigger Indicates at what fill level in the RX FIFO a trigger will be generated. Note: Programming RXTRIG to 0x0 has no effect since no data is present to transfer out of RX FIFO.'
+    bit_offset: 8
+    bit_size: 3
+    enum: TFIFOCTL_RXTRIG
+  - name: RXFLUSH
+    description: RX FIFO Flush Setting this bit will Flush the RX FIFO. Before clearing this bit to stop Flush the RXFIFOCNT should be checked to be 0 and indicating that the Flush has completed.
+    bit_offset: 15
+    bit_size: 1
+fieldset/TFIFOSR:
+  description: I2C Target FIFO Status Register.
+  fields:
+  - name: RXFIFOCNT
+    description: Number of Bytes which could be read from the RX FIFO.
+    bit_offset: 0
+    bit_size: 4
+  - name: RXFLUSH
+    description: RX FIFO Flush When this bit is set a Flush operation for the RX FIFO is active. Clear the RXFLUSH bit in the control register to stop.
+    bit_offset: 7
+    bit_size: 1
+  - name: TXFIFOCNT
+    description: Number of Bytes which could be put into the TX FIFO.
+    bit_offset: 8
+    bit_size: 4
+  - name: TXFLUSH
+    description: TX FIFO Flush When this bit is set a Flush operation for the TX FIFO is active. Clear the TXFLUSH bit in the control register to stop.
+    bit_offset: 15
+    bit_size: 1
+fieldset/TIMEOUT_CNT:
+  description: I2C Timeout Count Register.
+  fields:
+  - name: TCNTA
+    description: 'Timeout Count A Current Count: This field contains the upper 8 bits of a 12-bit current counter for timeout counter A.'
+    bit_offset: 0
+    bit_size: 8
+  - name: TCNTB
+    description: 'Timeout Count B Current Count: This field contains the upper 8 bits of a 12-bit current counter for timeout counter B.'
+    bit_offset: 16
+    bit_size: 8
+fieldset/TIMEOUT_CTL:
+  description: I2C Timeout Count Control Register.
+  fields:
+  - name: TCNTLA
+    description: 'Timeout counter A load value Counter A is used for SCL low detection. This field contains the upper 8 bits of a 12-bit pre-load value for the Timeout A count. NOTE: The value of CNTLA must be greater than 1h. Each count is equal to 520 times the timeout period of functional clock. For example, with 8MHz functional clock and a 100KHz operating I2C clock, one timeout period will be equal to (1 / 8MHz) * 520 or 65 us.'
+    bit_offset: 0
+    bit_size: 8
+  - name: TCNTAEN
+    description: Timeout Counter A Enable.
+    bit_offset: 15
+    bit_size: 1
+  - name: TCNTLB
+    description: 'Timeout Count B Load: Counter B is used for SCL High Detection. This field contains the upper 8 bits of a 12-bit pre-load value for the Timeout B count. NOTE: The value of CNTLB must be greater than 1h. Each count is equal to 1* clock period. For example, with 10MHz functional clock one timeout period will be equal to1*100ns.'
+    bit_offset: 16
+    bit_size: 8
+  - name: TCNTBEN
+    description: Timeout Counter B Enable.
+    bit_offset: 31
+    bit_size: 1
+fieldset/TOAR:
+  description: I2C Target Own Address.
+  fields:
+  - name: OAR
+    description: 'I2C Target Own Address: This field specifies bits A9 through A0 of the Target address. In 7-bit addressing mode as selected by I2CSOAR.MODE bit, the top 3 bits are don''t care.'
+    bit_offset: 0
+    bit_size: 10
+  - name: OAREN
+    description: I2C Target Own Address Enable.
+    bit_offset: 14
+    bit_size: 1
+  - name: TMODE
+    description: This bit selects the adressing mode to be used in Target mode. When 0, 7-bit addressing is used. When 1, 10-bit addressing is used.
+    bit_offset: 15
+    bit_size: 1
+    enum: MODE
+fieldset/TOAR2:
+  description: I2C Target Own Address 2.
+  fields:
+  - name: OAR2
+    description: I2C Target Own Address 2 This field specifies the alternate OAR2 address.
+    bit_offset: 0
+    bit_size: 7
+  - name: OAR2EN
+    description: I2C Target Own Address 2 Enable.
+    bit_offset: 7
+    bit_size: 1
+  - name: OAR2_MASK
+    description: 'I2C Target Own Address 2 Mask: This field specifies bits A6 through A0 of the Target address. The bits with value 1 in SOAR2.OAR2_MASK field will make the corresponding incoming address bits to match by default regardless of the value inside SOAR2.OAR2 i.e. corresponding SOAR2.OAR2 bit is a dont care.'
+    bit_offset: 16
+    bit_size: 7
+fieldset/TRXDATA:
+  description: I2C Target RXData.
+  fields:
+  - name: VALUE
+    description: Received Data. This field contains the last received data.
+    bit_offset: 0
+    bit_size: 8
+fieldset/TSR:
+  description: I2C Target Status Register.
+  fields:
+  - name: RREQ
+    description: Receive Request.
+    bit_offset: 0
+    bit_size: 1
+  - name: TREQ
+    description: Transmit Request.
+    bit_offset: 1
+    bit_size: 1
+  - name: RXMODE
+    description: Target FSM is in Rx MODE.
+    bit_offset: 2
+    bit_size: 1
+  - name: OAR2SEL
+    description: OAR2 Address Matched This bit gets reevaluated after every address comparison.
+    bit_offset: 3
+    bit_size: 1
+  - name: QCMDST
+    description: 'Quick Command Status Value Description: 0: The last transaction was a normal transaction or a transaction has not occurred. 1: The last transaction was a Quick Command transaction.'
+    bit_offset: 4
+    bit_size: 1
+  - name: QCMDRW
+    description: 'Quick Command Read / Write This bit only has meaning when the QCMDST bit is set. Value Description: 0: Quick command was a write 1: Quick command was a read.'
+    bit_offset: 5
+    bit_size: 1
+  - name: BUSBSY
+    description: I2C bus is busy.
+    bit_offset: 6
+    bit_size: 1
+  - name: TXMODE
+    description: Target FSM is in TX MODE.
+    bit_offset: 7
+    bit_size: 1
+  - name: STALE_TXFIFO
+    description: Stale Tx FIFO.
+    bit_offset: 8
+    bit_size: 1
+  - name: ADDRMATCH
+    description: Indicates the address for which Target address match happened.
+    bit_offset: 9
+    bit_size: 10
+fieldset/TTXDATA:
+  description: I2C Target TXData.
+  fields:
+  - name: VALUE
+    description: Transmit Data This byte contains the data to be transferred during the next transaction.
+    bit_offset: 0
+    bit_size: 8
+enum/AGFSEL:
+  bit_size: 2
+  variants:
+  - name: AGLIT_5
+    description: Pulses shorter then 5ns length are filtered.
+    value: 0
+  - name: AGLIT_10
+    description: Pulses shorter then 10ns length are filtered.
+    value: 1
+  - name: AGLIT_25
+    description: Pulses shorter then 25ns length are filtered.
+    value: 2
+  - name: AGLIT_50
+    description: Pulses shorter then 50ns length are filtered.
+    value: 3
+enum/CFIFOCTL_RXTRIG:
+  bit_size: 3
+  variants:
+  - name: LEVEL_1
+    description: Trigger when RX FIFO contains >= 1 byte.
+    value: 0
+  - name: LEVEL_2
+    description: Trigger when RX FIFO contains >= 2 byte.
+    value: 1
+  - name: LEVEL_3
+    description: Trigger when RX FIFO contains >= 3 byte.
+    value: 2
+  - name: LEVEL_4
+    description: Trigger when RX FIFO contains >= 4 byte.
+    value: 3
+  - name: LEVEL_5
+    description: Trigger when RX FIFO contains >= 5 byte.
+    value: 4
+  - name: LEVEL_6
+    description: Trigger when RX FIFO contains >= 6 byte.
+    value: 5
+  - name: LEVEL_7
+    description: Trigger when RX FIFO contains >= 7 byte.
+    value: 6
+  - name: LEVEL_8
+    description: Trigger when RX FIFO contains >= 8 byte.
+    value: 7
+enum/CFIFOCTL_TXTRIG:
+  bit_size: 3
+  variants:
+  - name: EMPTY
+    description: Trigger when the TX FIFO is empty.
+    value: 0
+  - name: LEVEL_1
+    description: Trigger when TX FIFO contains 1 byte.
+    value: 1
+  - name: LEVEL_2
+    description: Trigger when TX FIFO contains 2 byte.
+    value: 2
+  - name: LEVEL_3
+    description: Trigger when TX FIFO contains 3 byte.
+    value: 3
+  - name: LEVEL_4
+    description: Trigger when TX FIFO contains 4 byte.
+    value: 4
+  - name: LEVEL_5
+    description: Trigger when TX FIFO contains 5 byte.
+    value: 5
+  - name: LEVEL_6
+    description: Trigger when TX FIFO contains 6 byte.
+    value: 6
+  - name: LEVEL_7
+    description: Trigger when TX FIFO contains 7 byte.
+    value: 7
+enum/CLKCFG_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 169
+enum/CPU_INT_IIDX_STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No interrupt pending.
+    value: 0
+  - name: CRXDONEFG
+    description: Controller data received.
+    value: 1
+  - name: CTXDONEFG
+    description: Controller data transmitted.
+    value: 2
+  - name: CRXFIFOTRG
+    description: Controller receive FIFO Trigger Level.
+    value: 3
+  - name: CTXFIFOTRG
+    description: Controller transmit FIFO Trigger level.
+    value: 4
+  - name: CRXFIFOFULL
+    description: RX FIFO FULL Event/interrupt pending.
+    value: 5
+  - name: CTX_EMPTY
+    description: Transmit FIFO/Buffer Empty Event/interrupt pending.
+    value: 6
+  - name: CNACKFG
+    description: Address/Data NACK.
+    value: 8
+  - name: CSTARTFG
+    description: Start Event.
+    value: 9
+  - name: CSTOPFG
+    description: Stop Event.
+    value: 10
+  - name: CARBLOSTFG
+    description: Arbitration Lost.
+    value: 11
+  - name: CDMA_DONE_TX
+    description: DMA DONE on Channel TX.
+    value: 12
+  - name: CDMA_DONE_RX
+    description: DMA DONE on Channel RX.
+    value: 13
+  - name: CPEC_RX_ERR
+    description: Controller PEC Receive Error Event.
+    value: 14
+  - name: TIMEOUTA
+    description: Timeout A Event.
+    value: 15
+  - name: TIMEOUTB
+    description: Timeout B Event.
+    value: 16
+  - name: TRXDONEFG
+    description: Target Data Event.
+    value: 17
+  - name: TTXDONEFG
+    description: Target Data Event.
+    value: 18
+  - name: TRXFIFOTRG
+    description: Target receive FIFO Trigger Level.
+    value: 19
+  - name: TTXFIFOTRG
+    description: Target transmit FIFO Trigger level.
+    value: 20
+  - name: TRXFIFOFULL
+    description: RX FIFO FULL Event/interrupt pending.
+    value: 21
+  - name: TTXEMPTY
+    description: Transmit FIFO/Buffer Empty Event/interrupt pending.
+    value: 22
+  - name: TSTARTFG
+    description: Start Event.
+    value: 23
+  - name: TSTOPFG
+    description: Stop Event.
+    value: 24
+  - name: TGENCALL
+    description: General Call Event.
+    value: 25
+  - name: TDMA_DONE_TX
+    description: DMA DONE on Channel TX.
+    value: 26
+  - name: TDMA_DONE_RX
+    description: DMA DONE on Channel RX.
+    value: 27
+  - name: TPEC_RX_ERR
+    description: Target PEC receive error event.
+    value: 28
+  - name: TTX_UNFL
+    description: Target TX FIFO underflow.
+    value: 29
+  - name: TRX_OVFL
+    description: Target RX FIFO overflow event.
+    value: 30
+  - name: TARBLOST
+    description: Target arbitration lost event.
+    value: 31
+  - name: INTR_OVFL
+    description: Interrupt overflow event.
+    value: 32
+enum/DGFSEL:
+  bit_size: 3
+  variants:
+  - name: DISABLED
+    description: Bypass.
+    value: 0
+  - name: CLK_1
+    description: 1 clock.
+    value: 1
+  - name: CLK_2
+    description: 2 clocks.
+    value: 2
+  - name: CLK_3
+    description: 3 clocks.
+    value: 3
+  - name: CLK_4
+    description: 4 clocks.
+    value: 4
+  - name: CLK_8
+    description: 8 clocks.
+    value: 5
+  - name: CLK_16
+    description: 16 clocks.
+    value: 6
+  - name: CLK_31
+    description: 31 clocks.
+    value: 7
+enum/DIR:
+  bit_size: 1
+  variants:
+  - name: TRANSMIT
+    description: The Controller is in transmit mode.
+    value: 0
+  - name: RECEIVE
+    description: The Controller is in receive mode.
+    value: 1
+enum/DMA_TRIG_IIDX_STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No interrupt pending.
+    value: 0
+  - name: CRXFIFOTRG
+    description: Controller receive FIFO Trigger Level.
+    value: 1
+  - name: CTXFIFOTRG
+    description: Controller transmit FIFO Trigger level.
+    value: 2
+  - name: TRXFIFOTRG
+    description: Target receive FIFO Trigger Level.
+    value: 3
+  - name: TTXFIFOTRG
+    description: Target transmit FIFO Trigger level.
+    value: 4
+enum/EVT_CFG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: The interrupt or event line is disabled.
+    value: 0
+  - name: SOFTWARE
+    description: The interrupt or event line is in software mode. Software must clear the RIS.
+    value: 1
+  - name: HARDWARE
+    description: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.
+    value: 2
+enum/MODE:
+  bit_size: 1
+  variants:
+  - name: MODE7
+    description: 7-bit addressing mode.
+    value: 0
+  - name: MODE10
+    description: 10-bit addressing mode.
+    value: 1
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/RATIO:
+  bit_size: 3
+  variants:
+  - name: DIV_BY_1
+    description: Do not divide clock source.
+    value: 0
+  - name: DIV_BY_2
+    description: Divide clock source by 2.
+    value: 1
+  - name: DIV_BY_3
+    description: Divide clock source by 3.
+    value: 2
+  - name: DIV_BY_4
+    description: Divide clock source by 4.
+    value: 3
+  - name: DIV_BY_5
+    description: Divide clock source by 5.
+    value: 4
+  - name: DIV_BY_6
+    description: Divide clock source by 6.
+    value: 5
+  - name: DIV_BY_7
+    description: Divide clock source by 7.
+    value: 6
+  - name: DIV_BY_8
+    description: Divide clock source by 8.
+    value: 7
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177
+enum/SOFT:
+  bit_size: 1
+  variants:
+  - name: IMMEDIATE
+    description: The peripheral will halt immediately, even if the resultant state will result in corruption if the system is restarted.
+    value: 0
+  - name: DELAYED
+    description: The peripheral blocks the debug freeze until it has reached a boundary where it can resume without corruption.
+    value: 1
+enum/TFIFOCTL_RXTRIG:
+  bit_size: 3
+  variants:
+  - name: LEVEL_5
+    description: Trigger when RX FIFO contains >= 5 byte.
+    value: 4
+  - name: LEVEL_6
+    description: Trigger when RX FIFO contains >= 6 byte.
+    value: 5
+  - name: LEVEL_7
+    description: Trigger when RX FIFO contains >= 7 byte.
+    value: 6
+  - name: LEVEL_8
+    description: Trigger when RX FIFO contains >= 8 byte.
+    value: 7
+enum/TFIFOCTL_TXTRIG:
+  bit_size: 3
+  variants:
+  - name: LEVEL_4
+    description: Trigger when TX FIFO contains 4 byte.
+    value: 4
+  - name: LEVEL_5
+    description: Trigger when TX FIFO contains 5 byte.
+    value: 5
+  - name: LEVEL_6
+    description: Trigger when TX FIFO contains 6 byte.
+    value: 6
+  - name: LEVEL_7
+    description: Trigger when TX FIFO contains 7 byte.
+    value: 7
