@@ -1,0 +1,92 @@
+# Transform for WWDTx registers based on WWDT0 on G350x
+
+transforms:
+  - !DeleteUselessEnums
+
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
+  #
+  # TODO: Add this to chiptool
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  # FREE is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STOP
+      1: RUN
+
+  # RESETASSERT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  # RESETSTKY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  # RESETSTKYCLR is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  # TODO: Something better than a cursed rename as merge
+  - !MergeBlocks
+    from: WWDT0
+    main: WWDT0
+    to: WWDT
+
+  # Remove prefixes
+  - !RenameRegisters
+    block: .*
+    from: WWDT0_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: WWDT0_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: WWDT0_(.+)
+    to: $1
+
+  ## Interrupts
+  # These fields are all the same layout.
+  - !MergeFieldsets
+    from: (IMASK|ISET|MIS|RIS|ICLR)
+    to: INT
+    check: NoCheck
+
+  # Rename INT0_CFG, there is only one interrupt
+  - !Rename
+    type: Enum
+    from: INT0_CFG
+    to: INT_CFG
+
+  ## WWDTCTL0
+  # WINDOW1 and WINDOW2 are same type
+  - !MergeEnums
+    from: WINDOW(\d+)
+    to: WINDOW
+
+  # TODO: Add keys to PWREN and RSTCTL
+
+  ## Cleanup
+  - !Sort
