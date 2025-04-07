@@ -1,0 +1,237 @@
+# Data relating to part numbers.
+#
+# The metadata for code generation is based off of general families of chips. However the SysConfig metadata
+# deals very little with specific part numbers. This data fills in the gaps.
+#
+# In particular this file describes the following:
+# - Part numbers within each "family" according to SysConfig/SDK metadata
+# - Datasheet, reference manual and errata URLs
+# - Flash and RAM amounts (SysConfig does not describe this per part number)
+# - The packages available for each part number.
+
+parts:
+## C Series
+- msps003fx:
+  datasheet_url: https://www.ti.com/lit/gpn/mspm0c1104
+  reference_manual_url: https://www.ti.com/lit/pdf/slau893
+  errata_url: https://www.ti.com/lit/pdf/slaz753
+  part_numbers:
+  - name: msps003f3 # Part number
+    flash: 8 # KB
+    ram: 1 # KB
+    packages: PW20 # Package code
+
+  - name: msps003f4
+    flash: 16
+    ram: 1
+    packages: PW20
+
+- mspm0c110x:
+  datasheet_url: https://www.ti.com/lit/gpn/mspm0c1104
+  reference_manual_url: https://www.ti.com/lit/pdf/slau893
+  errata_url: https://www.ti.com/lit/pdf/slaz753
+  part_numbers:
+  - name: mspm0c1103
+    flash: 8
+    ram: 1
+    packages: DGS20, DSG, DYY, RUK
+
+  - name: mspm0c1104
+    flash: 16
+    ram: 1
+    packages: DGS20, DSG, DYY, RUK, YCJ
+
+## G Series
+- mspm0g110x:
+  datasheet_url: https://www.ti.com/lit/gpn/mspm0g1107
+  reference_manual_url: https://www.ti.com/lit/pdf/slau846
+  errata_url: https://www.ti.com/lit/pdf/slaz742
+  part_numbers:
+  - name: mspm0g1105
+    flash: 32
+    ram: 16
+    packages: DGS28, PM, PT, RGE, RGZ, RHB
+  
+  - name: mspm0g1106
+    flash: 64
+    ram: 32
+    packages: DGS28, PM, PT, RGE, RGZ, RHB
+  
+  - name: mspm0g1107
+    flash: 128
+    ram: 32
+    packages: DGS28, PM, PT, RGE, RGZ, RHB, YCJ
+
+- mspm0g150x:
+  datasheet_url: https://www.ti.com/lit/gpn/mspm0g1507
+  reference_manual_url: https://www.ti.com/lit/pdf/slau846
+  errata_url: https://www.ti.com/lit/pdf/slaz742
+  part_numbers:
+  - name: mspm0g1505
+    flash: 32
+    ram: 16
+    packages: DGS, PM, PT, RGE, RGZ, RHB
+
+  - name: mspm0g1506
+    flash: 64
+    ram: 32
+    packages: DGS, PM, PT, RGE, RGZ, RHB
+
+  - name: mspm0g1507
+    flash: 128
+    ram: 32
+    packages: DGS, PM, PT, RGE, RGZ, RHB, YCJ
+
+- mspm0g151x:
+  datasheet_url: https://www.ti.com/lit/gpn/mspm0g1519
+  reference_manual_url: https://www.ti.com/lit/pdf/slau846
+  errata_url: https://www.ti.com/lit/pdf/slaz758
+  part_numbers:
+  - name: mspm0g1518
+    flash: 256
+    ram: 128
+    # SLASFA2 (November 2024) states that G1518 has no orderable parts
+    #
+    # This will likely change in the future as the chip is "prerelease"
+    packages:
+
+  - name: mspm0g1519
+    flash: 512
+    ram: 128
+    # TODO: SLASFA2 does not list all packages yet
+    packages: RGZ, RHB
+
+- mspm0g350x:
+  datasheet_url: https://www.ti.com/lit/gpn/mspm0g3507
+  reference_manual_url: https://www.ti.com/lit/pdf/slau846
+  errata_url: https://www.ti.com/lit/pdf/slaz742
+  part_numbers:
+  - name: mspm0g3505
+    flash: 32
+    ram: 16
+    packages: DGS28, PM, PT, RGZ, RHB
+
+  - name: mspm0g3506
+    flash: 64
+    ram: 32
+    packages: DGS28, PM, PT, RGZ, RHB
+
+  - name: mspm0g3507
+    flash: 128
+    ram: 32
+    packages: DGS28, PM, PT, RGZ, RHB
+
+- mspm0g351x:
+  datasheet_url: https://www.ti.com/lit/gpn/mspm0g3519
+  reference_manual_url: https://www.ti.com/lit/pdf/slau846
+  errata_url: https://www.ti.com/lit/pdf/slaz758
+  part_numbers:
+  - name: mspm0g3518
+    flash: 256
+    ram: 128
+    # SLASFA2 (November 2024) states that G1518 has no orderable parts
+    #
+    # This will likely change in the future as the chip is "prerelease"
+    packages:
+
+  - name: mspm0g3519
+    flash: 512
+    ram: 128
+    # TODO: SLASFA2 does not list all packages yet
+    packages: PM, PN, PZ, RGZ, RHB
+
+## L Series
+- mspm0l110x:
+  datasheet_url: https://www.ti.com/lit/gpn/mspm0l1106
+  reference_manual_url: https://www.ti.com/lit/pdf/slau847
+  errata_url: https://www.ti.com/lit/pdf/slaz741
+  part_numbers:
+  - name: mspm0l1105
+    flash: 32
+    ram: 4
+    packages: DGS20, DGS28, DYY, RGE, RGB, RTR
+
+  - name: mspm0l1106
+    flash: 64
+    ram: 4
+    packages: DGS20, DGS28, DYY, RGE, RHB, RTR
+
+- mspm0l122x:
+  datasheet_url: https://www.ti.com/lit/gpn/mspm0l1228
+  reference_manual_url: https://www.ti.com/lit/pdf/slau847
+  errata_url: https://www.ti.com/lit/pdf/slaz755
+  part_numbers:
+  - name: mspm0l1227
+    flash: 128
+    ram: 32
+    packages: PM, PN, PT, RGE, RGZ, RHB
+
+  - name: mspm0l1228
+    flash: 256
+    ram: 32
+    packages: PM, PN, PT, RGE, RGZ, RHB
+
+- mspm0l130x:
+  datasheet_url: https://www.ti.com/lit/gpn/mspm0l1306
+  reference_manual_url: https://www.ti.com/lit/pdf/slau847
+  errata_url: https://www.ti.com/lit/pdf/slaz741
+  part_numbers:
+  - name: mspm0l1303
+    flash: 8
+    ram: 2
+    packages: RGE
+
+  - name: mspm0l1304
+    flash: 16
+    ram: 2
+    packages: DGS20, DGS28, DYY, RGE, RHB, RTR
+
+  - name: mspm0l1305
+    flash: 32
+    ram: 4
+    packages: DGS20, DGS28, DYY, RGE, RGB, RTR
+
+  - name: mspm0l1306
+    flash: 64
+    ram: 4
+    packages: DGS20, DGS28, DYY, RGE, RHB
+
+- mspm0l134x:
+  datasheet_url: https://www.ti.com/lit/gpn/mspm0l1346
+  reference_manual_url: https://www.ti.com/lit/pdf/slau847
+  errata_url: https://www.ti.com/lit/pdf/slaz741
+  part_numbers:
+  - name: mspm0l1343
+    flash: 8
+    ram: 2
+    packages: DGS20
+
+  - name: mspm0l1344
+    flash: 16
+    ram: 2
+    packages: DGS20
+
+  - name: mspm0l1345
+    flash: 32
+    ram: 4
+    packages: DGS28
+
+  - name: mspm0l1346
+    flash: 64
+    ram: 4
+    packages: DGS28
+
+- mspm0l222x:
+  datasheet_url: https://www.ti.com/lit/gpn/mspm0l2228
+  reference_manual_url: https://www.ti.com/lit/pdf/slau847
+  errata_url: https://www.ti.com/lit/pdf/slaz755
+  part_numbers:
+  - name: mspm0l2227
+    flash: 128
+    ram: 32
+    packages: PM, PN, PT, RGZ
+
+  - name: mspm0l2228
+    flash: 256
+    ram: 32
+    packages: PM, PN, PT, RGZ
