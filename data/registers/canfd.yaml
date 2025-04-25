@@ -1,0 +1,3284 @@
+block/CANFD:
+  items:
+  - name: CREL
+    description: MCAN Core Release Register.
+    byte_offset: 0
+    access: Read
+    fieldset: CREL
+  - name: ENDN
+    description: MCAN Endian Register.
+    byte_offset: 4
+    access: Read
+    fieldset: ENDN
+  - name: DBTP
+    description: MCAN Data Bit Timing and Prescaler Register.
+    byte_offset: 12
+    fieldset: DBTP
+  - name: TEST
+    description: MCAN Test Register.
+    byte_offset: 16
+    fieldset: TEST
+  - name: RWD
+    description: MCAN RAM Watchdog.
+    byte_offset: 20
+    fieldset: RWD
+  - name: CCCR
+    description: MCAN CC Control Register.
+    byte_offset: 24
+    fieldset: CCCR
+  - name: NBTP
+    description: MCAN Nominal Bit Timing and Prescaler Register.
+    byte_offset: 28
+    fieldset: NBTP
+  - name: TSCC
+    description: MCAN Timestamp Counter Configuration.
+    byte_offset: 32
+    fieldset: TSCC
+  - name: TSCV
+    description: MCAN Timestamp Counter Value.
+    byte_offset: 36
+    fieldset: TSCV
+  - name: TOCC
+    description: MCAN Timeout Counter Configuration.
+    byte_offset: 40
+    fieldset: TOCC
+  - name: TOCV
+    description: MCAN Timeout Counter Value.
+    byte_offset: 44
+    fieldset: TOCV
+  - name: ECR
+    description: MCAN Error Counter Register.
+    byte_offset: 64
+    access: Read
+    fieldset: ECR
+  - name: PSR
+    description: MCAN Protocol Status Register.
+    byte_offset: 68
+    access: Read
+    fieldset: PSR
+  - name: TDCR
+    description: MCAN Transmitter Delay Compensation Register.
+    byte_offset: 72
+    fieldset: TDCR
+  - name: IR
+    description: MCAN Interrupt Register.
+    byte_offset: 80
+    fieldset: IR
+  - name: IE
+    description: MCAN Interrupt Enable.
+    byte_offset: 84
+    fieldset: IE
+  - name: ILS
+    description: MCAN Interrupt Line Select.
+    byte_offset: 88
+    fieldset: ILS
+  - name: ILE
+    description: MCAN Interrupt Line Enable.
+    byte_offset: 92
+    fieldset: ILE
+  - name: GFC
+    description: MCAN Global Filter Configuration.
+    byte_offset: 128
+    fieldset: GFC
+  - name: SIDFC
+    description: MCAN Standard ID Filter Configuration.
+    byte_offset: 132
+    fieldset: SIDFC
+  - name: XIDFC
+    description: MCAN Extended ID Filter Configuration.
+    byte_offset: 136
+    fieldset: XIDFC
+  - name: XIDAM
+    description: MCAN Extended ID and Mask.
+    byte_offset: 144
+    fieldset: XIDAM
+  - name: HPMS
+    description: MCAN High Priority Message Status.
+    byte_offset: 148
+    access: Read
+    fieldset: HPMS
+  - name: NDAT1
+    description: MCAN New Data 1.
+    byte_offset: 152
+    fieldset: NDAT1
+  - name: NDAT2
+    description: MCAN New Data 2.
+    byte_offset: 156
+    fieldset: NDAT2
+  - name: RXF0C
+    description: MCAN Rx FIFO 0 Configuration.
+    byte_offset: 160
+    fieldset: RXF0C
+  - name: RXF0S
+    description: MCAN Rx FIFO 0 Status.
+    byte_offset: 164
+    access: Read
+    fieldset: RXF0S
+  - name: RXF0A
+    description: MCAN Rx FIFO 0 Acknowledge.
+    byte_offset: 168
+    fieldset: RXF0A
+  - name: RXBC
+    description: MCAN Rx Buffer Configuration.
+    byte_offset: 172
+    fieldset: RXBC
+  - name: RXF1C
+    description: MCAN Rx FIFO 1 Configuration.
+    byte_offset: 176
+    fieldset: RXF1C
+  - name: RXF1S
+    description: MCAN Rx FIFO 1 Status.
+    byte_offset: 180
+    access: Read
+    fieldset: RXF1S
+  - name: RXF1A
+    description: MCAN Rx FIFO 1 Acknowledge.
+    byte_offset: 184
+    fieldset: RXF1A
+  - name: RXESC
+    description: MCAN Rx Buffer / FIFO Element Size Configuration.
+    byte_offset: 188
+    fieldset: RXESC
+  - name: TXBC
+    description: MCAN Tx Buffer Configuration.
+    byte_offset: 192
+    fieldset: TXBC
+  - name: TXFQS
+    description: MCAN Tx FIFO / Queue Status.
+    byte_offset: 196
+    access: Read
+    fieldset: TXFQS
+  - name: TXESC
+    description: MCAN Tx Buffer Element Size Configuration.
+    byte_offset: 200
+    fieldset: TXESC
+  - name: TXBRP
+    description: MCAN Tx Buffer Request Pending.
+    byte_offset: 204
+    access: Read
+    fieldset: TXBRP
+  - name: TXBAR
+    description: MCAN Tx Buffer Add Request.
+    byte_offset: 208
+    fieldset: TXBAR
+  - name: TXBCR
+    description: MCAN Tx Buffer Cancellation Request.
+    byte_offset: 212
+    fieldset: TXBCR
+  - name: TXBTO
+    description: MCAN Tx Buffer Transmission Occurred.
+    byte_offset: 216
+    access: Read
+    fieldset: TXBTO
+  - name: TXBCF
+    description: MCAN Tx Buffer Cancellation Finished.
+    byte_offset: 220
+    access: Read
+    fieldset: TXBCF
+  - name: TXBTIE
+    description: MCAN Tx Buffer Transmission Interrupt Enable.
+    byte_offset: 224
+    fieldset: TXBTIE
+  - name: TXBCIE
+    description: MCAN Tx Buffer Cancellation Finished Interrupt Enable.
+    byte_offset: 228
+    fieldset: TXBCIE
+  - name: TXEFC
+    description: MCAN Tx Event FIFO Configuration.
+    byte_offset: 240
+    fieldset: TXEFC
+  - name: TXEFS
+    description: MCAN Tx Event FIFO Status.
+    byte_offset: 244
+    access: Read
+    fieldset: TXEFS
+  - name: TXEFA
+    description: MCAN Tx Event FIFO Acknowledge.
+    byte_offset: 248
+    fieldset: TXEFA
+block/CANFD0_PROCESSORS:
+  items:
+  - name: SUBSYS_REGS
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 0
+    block: SUBSYS
+  - name: ECC_REGS
+    array:
+      len: 1
+      stride: 528
+    byte_offset: 512
+    block: ECC
+block/CANFD0_TI_WRAPPER:
+  items:
+  - name: PROCESSORS
+    array:
+      len: 1
+      stride: 1040
+    byte_offset: 0
+    block: CANFD0_PROCESSORS
+  - name: MSP
+    array:
+      len: 1
+      stride: 512
+    byte_offset: 1536
+    block: MSP
+block/CPU_INT:
+  items:
+  - name: IIDX
+    description: Interrupt Index Register.
+    byte_offset: 0
+    access: Read
+    fieldset: IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: IMASK
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: RIS
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: MIS
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: ISET
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: ICLR
+block/ECC:
+  items:
+  - name: MCANERR_REV
+    description: MCAN Error Aggregator Revision Register.
+    byte_offset: 0
+    access: Read
+    fieldset: MCANERR_REV
+  - name: MCANERR_VECTOR
+    description: MCAN ECC Vector Register.
+    byte_offset: 8
+    fieldset: MCANERR_VECTOR
+  - name: MCANERR_STAT
+    description: MCAN Error Misc Status.
+    byte_offset: 12
+    access: Read
+    fieldset: MCANERR_STAT
+  - name: MCANERR_WRAP_REV
+    description: MCAN ECC Wrapper Revision Register.
+    byte_offset: 16
+    access: Read
+    fieldset: MCANERR_WRAP_REV
+  - name: MCANERR_CTRL
+    description: MCAN ECC Control.
+    byte_offset: 20
+    fieldset: MCANERR_CTRL
+  - name: MCANERR_ERR_CTRL1
+    description: MCAN ECC Error Control 1 Register.
+    byte_offset: 24
+    fieldset: MCANERR_ERR_CTRL1
+  - name: MCANERR_ERR_CTRL2
+    description: MCAN ECC Error Control 2 Register.
+    byte_offset: 28
+    fieldset: MCANERR_ERR_CTRL2
+  - name: MCANERR_ERR_STAT1
+    description: MCAN ECC Error Status 1 Register.
+    byte_offset: 32
+    fieldset: MCANERR_ERR_STAT1
+  - name: MCANERR_ERR_STAT2
+    description: MCAN ECC Error Status 2 Register.
+    byte_offset: 36
+    access: Read
+    fieldset: MCANERR_ERR_STAT2
+  - name: MCANERR_ERR_STAT3
+    description: MCAN ECC Error Status 3 Register.
+    byte_offset: 40
+    fieldset: MCANERR_ERR_STAT3
+  - name: MCANERR_SEC_EOI
+    description: MCAN Single Error Corrected End of Interrupt Register.
+    byte_offset: 60
+    fieldset: MCANERR_SEC_EOI
+  - name: MCANERR_SEC_STATUS
+    description: MCAN Single Error Corrected Interrupt Status Register.
+    byte_offset: 64
+    fieldset: MCANERR_SEC_STATUS
+  - name: MCANERR_SEC_ENABLE_SET
+    description: MCAN Single Error Corrected Interrupt Enable Set Register.
+    byte_offset: 128
+    fieldset: MCANERR_SEC_ENABLE_SET
+  - name: MCANERR_SEC_ENABLE_CLR
+    description: MCAN Single Error Corrected Interrupt Enable Clear Register.
+    byte_offset: 192
+    fieldset: MCANERR_SEC_ENABLE_CLR
+  - name: MCANERR_DED_EOI
+    description: MCAN Double Error Detected End of Interrupt Register.
+    byte_offset: 316
+    fieldset: MCANERR_DED_EOI
+  - name: MCANERR_DED_STATUS
+    description: MCAN Double Error Detected Interrupt Status Register.
+    byte_offset: 320
+    fieldset: MCANERR_DED_STATUS
+  - name: MCANERR_DED_ENABLE_SET
+    description: MCAN Double Error Detected Interrupt Enable Set Register.
+    byte_offset: 384
+    fieldset: MCANERR_DED_ENABLE_SET
+  - name: MCANERR_DED_ENABLE_CLR
+    description: MCAN Double Error Detected Interrupt Enable Clear Register.
+    byte_offset: 448
+    fieldset: MCANERR_DED_ENABLE_CLR
+  - name: MCANERR_AGGR_ENABLE_SET
+    description: MCAN Error Aggregator Enable Set Register.
+    byte_offset: 512
+    fieldset: MCANERR_AGGR_ENABLE_SET
+  - name: MCANERR_AGGR_ENABLE_CLR
+    description: MCAN Error Aggregator Enable Clear Register.
+    byte_offset: 516
+    fieldset: MCANERR_AGGR_ENABLE_CLR
+  - name: MCANERR_AGGR_STATUS_SET
+    description: MCAN Error Aggregator Status Set Register.
+    byte_offset: 520
+    fieldset: MCANERR_AGGR_STATUS_SET
+  - name: MCANERR_AGGR_STATUS_CLR
+    description: MCAN Error Aggregator Status Clear Register.
+    byte_offset: 524
+    fieldset: MCANERR_AGGR_STATUS_CLR
+block/GPRCM:
+  description: PERIPHERALREGION.
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 26624
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 26628
+    access: Write
+    fieldset: RSTCTL
+  - name: STAT
+    description: Status Register.
+    byte_offset: 26644
+    access: Read
+    fieldset: STAT
+  - name: MCAN
+    array:
+      len: 1
+      stride: 252
+    byte_offset: 28672
+    block: CANFD
+  - name: TI_WRAPPER
+    array:
+      len: 1
+      stride: 2560
+    byte_offset: 29184
+    block: CANFD0_TI_WRAPPER
+block/MSP:
+  items:
+  - name: CPU_INT
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 32
+    block: CPU_INT
+  - name: EVT_MODE
+    description: Event Mode.
+    byte_offset: 224
+    fieldset: EVT_MODE
+  - name: DESC
+    description: Module Description.
+    byte_offset: 252
+    access: Read
+    fieldset: DESC
+  - name: SUBSYS_CLKEN
+    description: MCAN module clock enable.
+    byte_offset: 256
+    fieldset: SUBSYS_CLKEN
+  - name: SUBSYS_CLKDIV
+    description: Clock divider.
+    byte_offset: 260
+    fieldset: SUBSYS_CLKDIV
+  - name: SUBSYS_CLKCTL
+    description: MCAN-SS clock stop control register.
+    byte_offset: 264
+    fieldset: SUBSYS_CLKCTL
+  - name: SUBSYS_CLKSTS
+    description: MCANSS clock stop status register.
+    byte_offset: 268
+    access: Read
+    fieldset: SUBSYS_CLKSTS
+block/SUBSYS:
+  items:
+  - name: SUBSYS_PID
+    description: MCAN Subsystem Revision Register.
+    byte_offset: 0
+    access: Read
+    fieldset: SUBSYS_PID
+  - name: SUBSYS_CTRL
+    description: MCAN Subsystem Control Register.
+    byte_offset: 4
+    fieldset: SUBSYS_CTRL
+  - name: SUBSYS_STAT
+    description: MCAN Subsystem Status Register.
+    byte_offset: 8
+    access: Read
+    fieldset: SUBSYS_STAT
+  - name: SUBSYS_ICS
+    description: MCAN Subsystem Interrupt Clear Shadow Register.
+    byte_offset: 12
+    fieldset: SUBSYS_ICS
+  - name: SUBSYS_IRS
+    description: MCAN Subsystem Interrupt Raw Satus Register.
+    byte_offset: 16
+    fieldset: SUBSYS_IRS
+  - name: SUBSYS_IECS
+    description: MCAN Subsystem Interrupt Enable Clear Shadow Register.
+    byte_offset: 20
+    fieldset: SUBSYS_IECS
+  - name: SUBSYS_IE
+    description: MCAN Subsystem Interrupt Enable Register.
+    byte_offset: 24
+    fieldset: SUBSYS_IE
+  - name: SUBSYS_IES
+    description: MCAN Subsystem Interrupt Enable Status.
+    byte_offset: 28
+    access: Read
+    fieldset: SUBSYS_IES
+  - name: SUBSYS_EOI
+    description: MCAN Subsystem End of Interrupt.
+    byte_offset: 32
+    fieldset: SUBSYS_EOI
+  - name: SUBSYS_EXT_TS_PRESCALER
+    description: MCAN Subsystem External Timestamp Prescaler 0.
+    byte_offset: 36
+    fieldset: SUBSYS_EXT_TS_PRESCALER
+  - name: SUBSYS_EXT_TS_UNSERVICED_INTR_CNTR
+    description: MCAN Subsystem External Timestamp Unserviced Interrupts Counter.
+    byte_offset: 40
+    access: Read
+    fieldset: SUBSYS_EXT_TS_UNSERVICED_INTR_CNTR
+fieldset/CCCR:
+  description: MCAN CC Control Register.
+  fields:
+  - name: INIT
+    description: 'Initialization 0 Normal Operation 1 Initialization is started Note: Due to the synchronization mechanism between the two clock domains, there may be a delay until the value written to INIT can be read back. Therefore the programmer has to assure that the previous value written to INIT has been accepted by reading INIT before setting INIT to a new value.'
+    bit_offset: 0
+    bit_size: 1
+  - name: CCE
+    description: Configuration Change Enable 0 The CPU has no write access to the protected configuration registers 1 The CPU has write access to the protected configuration registers (while CCCR.INIT = '1') Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 1
+    bit_size: 1
+  - name: ASM
+    description: Restricted Operation Mode. Bit ASM can only be set by SW when both CCE and INIT are set to '1'. The bit can be reset by SW at any time. 0 Normal CAN operation 1 Restricted Operation Mode active Qualified Write 1 to Set is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 2
+    bit_size: 1
+  - name: CSA
+    description: Clock Stop Acknowledge 0 No clock stop acknowledged 1 MCAN may be set in power down by stopping the Host and CAN clocks.
+    bit_offset: 3
+    bit_size: 1
+  - name: CSR
+    description: Clock Stop Request 0 No clock stop is requested 1 Clock stop requested. When clock stop is requested, first INIT and then CSA will be set after all pending transfer requests have been completed and the CAN bus reached idle.
+    bit_offset: 4
+    bit_size: 1
+  - name: MON
+    description: Bus Monitoring Mode. Bit MON can only be set by SW when both CCE and INIT are set to '1'. The bit can be reset by SW at any time. 0 Bus Monitoring Mode is disabled 1 Bus Monitoring Mode is enabled Qualified Write 1 to Set is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 5
+    bit_size: 1
+  - name: DAR
+    description: Disable Automatic Retransmission 0 Automatic retransmission of messages not transmitted successfully enabled 1 Automatic retransmission disabled Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 6
+    bit_size: 1
+  - name: TEST
+    description: Test Mode Enable 0 Normal operation, register TEST holds reset values 1 Test Mode, write access to register TEST enabled Qualified Write 1 to Set is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 7
+    bit_size: 1
+  - name: FDOE
+    description: Flexible Datarate Operation Enable 0 FD operation disabled 1 FD operation enabled Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 8
+    bit_size: 1
+  - name: BRSE
+    description: 'Bit Rate Switch Enable 0 Bit rate switching for transmissions disabled 1 Bit rate switching for transmissions enabled Note: When CAN FD operation is disabled FDOE = ''0'', BRSE is not evaluated. Qualified Write is possible only with CCCR.CCE=''1'' and CCCR.INIT=''1''.'
+    bit_offset: 9
+    bit_size: 1
+  - name: PXHD
+    description: 'Protocol Exception Handling Disable 0 Protocol exception handling enabled 1 Protocol exception handling disabled Note: When protocol exception handling is disabled, the MCAN will transmit an error frame when it detects a protocol exception condition. Qualified Write is possible only with CCCR.CCE=''1'' and CCCR.INIT=''1''.'
+    bit_offset: 12
+    bit_size: 1
+  - name: EFBI
+    description: Edge Filtering during Bus Integration 0 Edge filtering disabled 1 Two consecutive dominant tq required to detect an edge for hard synchronization Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 13
+    bit_size: 1
+  - name: TXP
+    description: Transmit Pause. If this bit is set, the MCAN pauses for two CAN bit times before starting the next transmission after itself has successfully transmitted a frame. 0 Transmit pause disabled 1 Transmit pause enabled Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 14
+    bit_size: 1
+  - name: NISO
+    description: Non ISO Operation. If this bit is set, the MCAN uses the CAN FD frame format as specified by the Bosch CAN FD Specification V1.0. 0 CAN FD frame format according to ISO 11898-1:2015 1 CAN FD frame format according to Bosch CAN FD Specification V1.0.
+    bit_offset: 15
+    bit_size: 1
+fieldset/CREL:
+  description: MCAN Core Release Register.
+  fields:
+  - name: DAY
+    description: Time Stamp Day. Two digits, BCD-coded.
+    bit_offset: 0
+    bit_size: 8
+  - name: MON
+    description: Time Stamp Month. Two digits, BCD-coded.
+    bit_offset: 8
+    bit_size: 8
+  - name: YEAR
+    description: Time Stamp Year. One digit, BCD-coded.
+    bit_offset: 16
+    bit_size: 4
+  - name: SUBSTEP
+    description: Sub-Step of Core Release. One digit, BCD-coded.
+    bit_offset: 20
+    bit_size: 4
+  - name: STEP
+    description: Step of Core Release. One digit, BCD-coded.
+    bit_offset: 24
+    bit_size: 4
+  - name: REL
+    description: Core Release. One digit, BCD-coded.
+    bit_offset: 28
+    bit_size: 4
+fieldset/DBTP:
+  description: MCAN Data Bit Timing and Prescaler Register.
+  fields:
+  - name: DSJW
+    description: Data Resynchronization Jump Width. Valid values are 0 to 15. The actual interpretation by the hardware of this value is such that one more than the value programmed here is used. Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 0
+    bit_size: 4
+  - name: DTSEG2
+    description: Data Time Segment After Sample Point. Valid values are 0 to 15. The actual interpretation by the hardware of this value is such that one more than the programmed value is used. Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 4
+    bit_size: 4
+  - name: DTSEG1
+    description: Data Time Segment Before Sample Point. Valid values are 0 to 31. The actual interpretation by the hardware of this value is such that one more than the programmed value is used. Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 8
+    bit_size: 5
+  - name: DBRP
+    description: Data Bit Rate Prescaler. The value by which the oscillator frequency is divided for generating the bit time quanta. The bit time is built up from a multiple of this quanta. Valid values for the Bit Rate Prescaler are 0 to 31. The actual interpretation by the hardware of this value is such that one more than the value programmed here is used. Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 16
+    bit_size: 5
+  - name: TDC
+    description: Transmitter Delay Compensation 0 Transmitter Delay Compensation disabled 1 Transmitter Delay Compensation enabled.
+    bit_offset: 23
+    bit_size: 1
+fieldset/DESC:
+  description: Module Description.
+  fields:
+  - name: MINREV
+    description: Minor rev of the IP.
+    bit_offset: 0
+    bit_size: 4
+  - name: MAJREV
+    description: Major rev of the IP.
+    bit_offset: 4
+    bit_size: 4
+  - name: FEATUREVER
+    description: Feature Set for the module *instance*.
+    bit_offset: 12
+    bit_size: 4
+    enum: FEATUREVER
+  - name: MODULEID
+    description: Module identification contains a unique peripheral identification number. The assignments are maintained in a central database for all of the platform modules to ensure uniqueness.
+    bit_offset: 16
+    bit_size: 16
+fieldset/ECR:
+  description: MCAN Error Counter Register.
+  fields:
+  - name: TEC
+    description: 'Transmit Error Counter. Actual state of the Transmit Error Counter, values between 0 and 255. Note: When CCCR.ASM is set, the CAN protocol controller does not increment TEC and REC when a CAN protocol error is detected, but CEL is still incremented.'
+    bit_offset: 0
+    bit_size: 8
+  - name: REC
+    description: 'Receive Error Counter. Actual state of the Receive Error Counter, values between 0 and 127. Note: When CCCR.ASM is set, the CAN protocol controller does not increment TEC and REC when a CAN protocol error is detected, but CEL is still incremented.'
+    bit_offset: 8
+    bit_size: 7
+  - name: RP
+    description: Receive Error Passive 0 The Receive Error Counter is below the error passive level of 128 1 The Receive Error Counter has reached the error passive level of 128.
+    bit_offset: 15
+    bit_size: 1
+  - name: CEL
+    description: 'CAN Error Logging. The counter is incremented each time when a CAN protocol error causes the Transmit Error Counter or the Receive Error Counter to be incremented. It is reset by read access to CEL. The counter stops at 0xFF; the next increment of TEC or REC sets interrupt flag IR.ELO. Note: When CCCR.ASM is set, the CAN protocol controller does not increment TEC and REC when a CAN protocol error is detected, but CEL is still incremented.'
+    bit_offset: 16
+    bit_size: 8
+fieldset/ENDN:
+  description: MCAN Endian Register.
+  fields: []
+fieldset/EVT_MODE:
+  description: Event Mode.
+  fields:
+  - name: INT0_CFG
+    description: Event line mode select for event corresponding to [IPSTANDARD.CPU_INT].
+    bit_offset: 0
+    bit_size: 2
+    enum: INT0_CFG
+fieldset/GFC:
+  description: MCAN Global Filter Configuration.
+  fields:
+  - name: RRFE
+    description: Reject Remote Frames Extended 0 Filter remote frames with 29-bit extended IDs 1 Reject all remote frames with 29-bit extended IDs Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 0
+    bit_size: 1
+  - name: RRFS
+    description: Reject Remote Frames Standard 0 Filter remote frames with 11-bit standard IDs 1 Reject all remote frames with 11-bit standard IDs Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 1
+    bit_size: 1
+  - name: ANFE
+    description: Accept Non-matching Frames Extended. Defines how received messages with 29-bit IDs that do not match any element of the filter list are treated. 00 Accept in Rx FIFO 0 01 Accept in Rx FIFO 1 10 Reject 11 Reject Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 2
+    bit_size: 2
+  - name: ANFS
+    description: Accept Non-matching Frames Standard. Defines how received messages with 11-bit IDs that do not match any element of the filter list are treated. 00 Accept in Rx FIFO 0 01 Accept in Rx FIFO 1 10 Reject 11 Reject Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 4
+    bit_size: 2
+fieldset/HPMS:
+  description: MCAN High Priority Message Status.
+  fields:
+  - name: BIDX
+    description: Buffer Index. Index of Rx FIFO element to which the message was stored. Only valid when MSI(1) = '1'.
+    bit_offset: 0
+    bit_size: 6
+  - name: MSI
+    description: Message Storage Indicator 00 No FIFO selected 01 FIFO message lost 10 Message stored in FIFO 0 11 Message stored in FIFO 1.
+    bit_offset: 6
+    bit_size: 2
+  - name: FIDX
+    description: Filter Index. Index of matching filter element. Range is 0 to SIDFC.LSS - 1 resp. XIDFC.LSE - 1.
+    bit_offset: 8
+    bit_size: 7
+  - name: FLST
+    description: Filter List. Indicates the filter list of the matching filter element. 0 Standard Filter List 1 Extended Filter List.
+    bit_offset: 15
+    bit_size: 1
+fieldset/ICLR:
+  description: Interrupt clear.
+  fields:
+  - name: INTL0
+    description: Clear MCAN Interrupt Line 0.
+    bit_offset: 0
+    bit_size: 1
+  - name: INTL1
+    description: Clear MCAN Interrupt Line 1.
+    bit_offset: 1
+    bit_size: 1
+  - name: SEC
+    description: Clear Message RAM SEC interrupt.
+    bit_offset: 2
+    bit_size: 1
+  - name: DED
+    description: Clear Message RAM DED interrupt.
+    bit_offset: 3
+    bit_size: 1
+  - name: EXT_TS_CNTR_OVFL
+    description: Clear External Timestamp Counter Overflow interrupt.
+    bit_offset: 4
+    bit_size: 1
+  - name: WAKEUP
+    description: Clear Clock Stop Wake Up interrupt.
+    bit_offset: 5
+    bit_size: 1
+fieldset/IE:
+  description: MCAN Interrupt Enable.
+  fields:
+  - name: RF0NE
+    description: Rx FIFO 0 New Message Enable.
+    bit_offset: 0
+    bit_size: 1
+  - name: RF0WE
+    description: Rx FIFO 0 Watermark Reached Enable.
+    bit_offset: 1
+    bit_size: 1
+  - name: RF0FE
+    description: Rx FIFO 0 Full Enable.
+    bit_offset: 2
+    bit_size: 1
+  - name: RF0LE
+    description: Rx FIFO 0 Message Lost Enable.
+    bit_offset: 3
+    bit_size: 1
+  - name: RF1NE
+    description: Rx FIFO 1 New Message Enable.
+    bit_offset: 4
+    bit_size: 1
+  - name: RF1WE
+    description: Rx FIFO 1 Watermark Reached Enable.
+    bit_offset: 5
+    bit_size: 1
+  - name: RF1FE
+    description: Rx FIFO 1 Full Enable.
+    bit_offset: 6
+    bit_size: 1
+  - name: RF1LE
+    description: Rx FIFO 1 Message Lost Enable.
+    bit_offset: 7
+    bit_size: 1
+  - name: HPME
+    description: High Priority Message Enable.
+    bit_offset: 8
+    bit_size: 1
+  - name: TCE
+    description: Transmission Completed Enable.
+    bit_offset: 9
+    bit_size: 1
+  - name: TCFE
+    description: Transmission Cancellation Finished Enable.
+    bit_offset: 10
+    bit_size: 1
+  - name: TFEE
+    description: Tx FIFO Empty Enable.
+    bit_offset: 11
+    bit_size: 1
+  - name: TEFNE
+    description: Tx Event FIFO New Entry Enable.
+    bit_offset: 12
+    bit_size: 1
+  - name: TEFWE
+    description: Tx Event FIFO Watermark Reached Enable.
+    bit_offset: 13
+    bit_size: 1
+  - name: TEFFE
+    description: Tx Event FIFO Full Enable.
+    bit_offset: 14
+    bit_size: 1
+  - name: TEFLE
+    description: Tx Event FIFO Element Lost Enable.
+    bit_offset: 15
+    bit_size: 1
+  - name: TSWE
+    description: Timestamp Wraparound Enable.
+    bit_offset: 16
+    bit_size: 1
+  - name: MRAFE
+    description: Message RAM Access Failure Enable.
+    bit_offset: 17
+    bit_size: 1
+  - name: TOOE
+    description: Timeout Occurred Enable.
+    bit_offset: 18
+    bit_size: 1
+  - name: DRXE
+    description: Message Stored to Dedicated Rx Buffer Enable.
+    bit_offset: 19
+    bit_size: 1
+  - name: BECE
+    description: Bit Error Corrected Enable A separate interrupt line reserved for corrected bit errors is provided via the MCAN_ERROR_REGS. It advised for the user to use these registers and leave this bit cleared to '0'.
+    bit_offset: 20
+    bit_size: 1
+  - name: BEUE
+    description: Bit Error Uncorrected Enable.
+    bit_offset: 21
+    bit_size: 1
+  - name: ELOE
+    description: Error Logging Overflow Enable.
+    bit_offset: 22
+    bit_size: 1
+  - name: EPE
+    description: Error Passive Enable.
+    bit_offset: 23
+    bit_size: 1
+  - name: EWE
+    description: Warning Status Enable.
+    bit_offset: 24
+    bit_size: 1
+  - name: BOE
+    description: Bus_Off Status Enable.
+    bit_offset: 25
+    bit_size: 1
+  - name: WDIE
+    description: Watchdog Interrupt Enable.
+    bit_offset: 26
+    bit_size: 1
+  - name: PEAE
+    description: Protocol Error in Arbitration Phase Enable.
+    bit_offset: 27
+    bit_size: 1
+  - name: PEDE
+    description: Protocol Error in Data Phase Enable.
+    bit_offset: 28
+    bit_size: 1
+  - name: ARAE
+    description: Access to Reserved Address Enable.
+    bit_offset: 29
+    bit_size: 1
+fieldset/IIDX:
+  description: Interrupt Index Register.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 8
+    enum: STAT
+fieldset/ILE:
+  description: MCAN Interrupt Line Enable.
+  fields:
+  - name: EINT0
+    description: Enable Interrupt Line 0 0 Interrupt Line 0 is disabled 1 Interrupt Line 0 is enabled.
+    bit_offset: 0
+    bit_size: 1
+  - name: EINT1
+    description: Enable Interrupt Line 1 0 Interrupt Line 1 is disabled 1 Interrupt Line 1 is enabled.
+    bit_offset: 1
+    bit_size: 1
+fieldset/ILS:
+  description: MCAN Interrupt Line Select.
+  fields:
+  - name: RF0NL
+    description: Rx FIFO 0 New Message Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 0
+    bit_size: 1
+  - name: RF0WL
+    description: Rx FIFO 0 Watermark Reached Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 1
+    bit_size: 1
+  - name: RF0FL
+    description: Rx FIFO 0 Full Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 2
+    bit_size: 1
+  - name: RF0LL
+    description: Rx FIFO 0 Message Lost Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 3
+    bit_size: 1
+  - name: RF1NL
+    description: Rx FIFO 1 New Message Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 4
+    bit_size: 1
+  - name: RF1WL
+    description: Rx FIFO 1 Watermark Reached Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 5
+    bit_size: 1
+  - name: RF1FL
+    description: Rx FIFO 1 Full Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 6
+    bit_size: 1
+  - name: RF1LL
+    description: Rx FIFO 1 Message Lost Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 7
+    bit_size: 1
+  - name: HPML
+    description: High Priority Message Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 8
+    bit_size: 1
+  - name: TCL
+    description: Transmission Completed Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 9
+    bit_size: 1
+  - name: TCFL
+    description: Transmission Cancellation Finished Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 10
+    bit_size: 1
+  - name: TFEL
+    description: Tx FIFO Empty Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 11
+    bit_size: 1
+  - name: TEFNL
+    description: Tx Event FIFO New Entry Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 12
+    bit_size: 1
+  - name: TEFWL
+    description: Tx Event FIFO Watermark Reached Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 13
+    bit_size: 1
+  - name: TEFFL
+    description: Tx Event FIFO Full Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 14
+    bit_size: 1
+  - name: TEFLL
+    description: Tx Event FIFO Element Lost Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 15
+    bit_size: 1
+  - name: TSWL
+    description: Timestamp Wraparound Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 16
+    bit_size: 1
+  - name: MRAFL
+    description: Message RAM Access Failure Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 17
+    bit_size: 1
+  - name: TOOL
+    description: Timeout Occurred Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 18
+    bit_size: 1
+  - name: DRXL
+    description: Message Stored to Dedicated Rx Buffer Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 19
+    bit_size: 1
+  - name: BECL
+    description: Bit Error Corrected Line A separate interrupt line reserved for corrected bit errors is provided via the MCAN_ERROR_REGS. It advised for the user to use these registers and leave the MCAN_IE.BECE bit cleared to '0' (disabled), thereby relegating this bit to not applicable.
+    bit_offset: 20
+    bit_size: 1
+  - name: BEUL
+    description: Bit Error Uncorrected Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 21
+    bit_size: 1
+  - name: ELOL
+    description: Error Logging Overflow Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 22
+    bit_size: 1
+  - name: EPL
+    description: Error Passive Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 23
+    bit_size: 1
+  - name: EWL
+    description: Warning Status Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 24
+    bit_size: 1
+  - name: BOL
+    description: Bus_Off Status Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 25
+    bit_size: 1
+  - name: WDIL
+    description: Watchdog Interrupt Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 26
+    bit_size: 1
+  - name: PEAL
+    description: Protocol Error in Arbitration Phase Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 27
+    bit_size: 1
+  - name: PEDL
+    description: Protocol Error in Data Phase Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 28
+    bit_size: 1
+  - name: ARAL
+    description: Access to Reserved Address Line 0 Interrupt source is assigned to Interrupt Line 0 1 Interrupt source is assigned to Interrupt Line 1.
+    bit_offset: 29
+    bit_size: 1
+fieldset/IMASK:
+  description: Interrupt mask.
+  fields:
+  - name: INTL0
+    description: MCAN Interrupt Line 0 mask.
+    bit_offset: 0
+    bit_size: 1
+  - name: INTL1
+    description: MCAN Interrupt Line 1 mask.
+    bit_offset: 1
+    bit_size: 1
+  - name: SEC
+    description: Message RAM SEC interrupt mask.
+    bit_offset: 2
+    bit_size: 1
+  - name: DED
+    description: Massage RAM DED interrupt mask.
+    bit_offset: 3
+    bit_size: 1
+  - name: EXT_TS_CNTR_OVFL
+    description: External Timestamp Counter Overflow interrupt mask.
+    bit_offset: 4
+    bit_size: 1
+  - name: WAKEUP
+    description: Clock Stop Wake Up interrupt mask.
+    bit_offset: 5
+    bit_size: 1
+fieldset/IR:
+  description: MCAN Interrupt Register.
+  fields:
+  - name: RF0N
+    description: Rx FIFO 0 New Message 0 No new message written to Rx FIFO 0 1 New message written to Rx FIFO 0.
+    bit_offset: 0
+    bit_size: 1
+  - name: RF0W
+    description: Rx FIFO 0 Watermark Reached 0 Rx FIFO 0 fill level below watermark 1 Rx FIFO 0 fill level reached watermark.
+    bit_offset: 1
+    bit_size: 1
+  - name: RF0F
+    description: Rx FIFO 0 Full 0 Rx FIFO 0 not full 1 Rx FIFO 0 full.
+    bit_offset: 2
+    bit_size: 1
+  - name: RF0L
+    description: Rx FIFO 0 Message Lost 0 No Rx FIFO 0 message lost 1 Rx FIFO 0 message lost, also set after write attempt to Rx FIFO 0 of size zero.
+    bit_offset: 3
+    bit_size: 1
+  - name: RF1N
+    description: Rx FIFO 1 New Message 0 No new message written to Rx FIFO 1 1 New message written to Rx FIFO 1.
+    bit_offset: 4
+    bit_size: 1
+  - name: RF1W
+    description: Rx FIFO 1 Watermark Reached 0 Rx FIFO 1 fill level below watermark 1 Rx FIFO 1 fill level reached watermark.
+    bit_offset: 5
+    bit_size: 1
+  - name: RF1F
+    description: Rx FIFO 1 Full 0 Rx FIFO 1 not full 1 Rx FIFO 1 full.
+    bit_offset: 6
+    bit_size: 1
+  - name: RF1L
+    description: Rx FIFO 1 Message Lost 0 No Rx FIFO 1 message lost 1 Rx FIFO 1 message lost, also set after write attempt to Rx FIFO 1 of size zero.
+    bit_offset: 7
+    bit_size: 1
+  - name: HPM
+    description: High Priority Message 0 No high priority message received 1 High priority message received.
+    bit_offset: 8
+    bit_size: 1
+  - name: TC
+    description: Transmission Completed 0 No transmission completed 1 Transmission completed.
+    bit_offset: 9
+    bit_size: 1
+  - name: TCF
+    description: Transmission Cancellation Finished 0 No transmission cancellation finished 1 Transmission cancellation finished.
+    bit_offset: 10
+    bit_size: 1
+  - name: TFE
+    description: Tx FIFO Empty 0 Tx FIFO non-empty 1 Tx FIFO empty.
+    bit_offset: 11
+    bit_size: 1
+  - name: TEFN
+    description: Tx Event FIFO New Entry 0 Tx Event FIFO unchanged 1 Tx Handler wrote Tx Event FIFO element.
+    bit_offset: 12
+    bit_size: 1
+  - name: TEFW
+    description: Tx Event FIFO Watermark Reached 0 Tx Event FIFO fill level below watermark 1 Tx Event FIFO fill level reached watermark.
+    bit_offset: 13
+    bit_size: 1
+  - name: TEFF
+    description: Tx Event FIFO Full 0 Tx Event FIFO not full 1 Tx Event FIFO full.
+    bit_offset: 14
+    bit_size: 1
+  - name: TEFL
+    description: Tx Event FIFO Element Lost 0 No Tx Event FIFO element lost 1 Tx Event FIFO element lost, also set after write attempt to Tx Event FIFO of size zero.
+    bit_offset: 15
+    bit_size: 1
+  - name: TSW
+    description: Timestamp Wraparound 0 No timestamp counter wrap-around 1 Timestamp counter wrapped around.
+    bit_offset: 16
+    bit_size: 1
+  - name: MRAF
+    description: 'Message RAM Access Failure. The flag is set, when the Rx Handler: - has not completed acceptance filtering or storage of an accepted message until the arbitration field of the following message has been received. In this case acceptance filtering or message storage is aborted and the Rx Handler starts processing of the following message. - was not able to write a message to the Message RAM. In this case message storage is aborted. In both cases the FIFO put index is not updated resp. the New Data flag for a dedicated Rx Buffer is not set, a partly stored message is overwritten when the next message is stored to this location. The flag is also set when the Tx Handler was not able to read a message from the Message RAM in time. In this case message transmission is aborted. In case of a Tx Handler access failure the MCAN is switched into Restricted Operation Mode. To leave Restricted Operation Mode, the Host CPU has to reset CCCR.ASM. 0 No Message RAM access failure occurred 1 Message RAM access failure occurred.'
+    bit_offset: 17
+    bit_size: 1
+  - name: TOO
+    description: Timeout Occurred 0 No timeout 1 Timeout reached.
+    bit_offset: 18
+    bit_size: 1
+  - name: DRX
+    description: Message Stored to Dedicated Rx Buffer. The flag is set whenever a received message has been stored into a dedicated Rx Buffer. 0 No Rx Buffer updated 1 At least one received message stored into an Rx Buffer.
+    bit_offset: 19
+    bit_size: 1
+  - name: BEU
+    description: Bit Error Uncorrected. Message RAM bit error detected, uncorrected. This bit is set when a double bit error is detected by the ECC aggregator attached to the Message RAM. An uncorrected Message RAM bit error sets CCCR.INIT to '1'. This is done to avoid transmission of corrupted data. 0 No bit error detected when reading from Message RAM 1 Bit error detected, uncorrected (e.g. parity logic).
+    bit_offset: 21
+    bit_size: 1
+  - name: ELO
+    description: Error Logging Overflow 0 CAN Error Logging Counter did not overflow 1 Overflow of CAN Error Logging Counter occurred.
+    bit_offset: 22
+    bit_size: 1
+  - name: EP
+    description: Error Passive 0 Error_Passive status unchanged 1 Error_Passive status changed.
+    bit_offset: 23
+    bit_size: 1
+  - name: EW
+    description: Warning Status 0 Error_Warning status unchanged 1 Error_Warning status changed.
+    bit_offset: 24
+    bit_size: 1
+  - name: BO
+    description: Bus_Off Status 0 Bus_Off status unchanged 1 Bus_Off status changed.
+    bit_offset: 25
+    bit_size: 1
+  - name: WDI
+    description: Watchdog Interrupt 0 No Message RAM Watchdog event occurred 1 Message RAM Watchdog event due to missing READY.
+    bit_offset: 26
+    bit_size: 1
+  - name: PEA
+    description: Protocol Error in Arbitration Phase (Nominal Bit Time is used) 0 No protocol error in arbitration phase 1 Protocol error in arbitration phase detected (PSR.LEC ? 0,7).
+    bit_offset: 27
+    bit_size: 1
+  - name: PED
+    description: Protocol Error in Data Phase (Data Bit Time is used) 0 No protocol error in data phase 1 Protocol error in data phase detected (PSR.DLEC ? 0,7).
+    bit_offset: 28
+    bit_size: 1
+  - name: ARA
+    description: Access to Reserved Address 0 No access to reserved address occurred 1 Access to reserved address occurred.
+    bit_offset: 29
+    bit_size: 1
+fieldset/ISET:
+  description: Interrupt set.
+  fields:
+  - name: INTL0
+    description: Set MCAN Interrupt Line 0.
+    bit_offset: 0
+    bit_size: 1
+  - name: INTL1
+    description: Set MCAN Interrupt Line 1.
+    bit_offset: 1
+    bit_size: 1
+  - name: SEC
+    description: Set Message RAM SEC interrupt.
+    bit_offset: 2
+    bit_size: 1
+  - name: DED
+    description: Set Message RAM DED interrupt.
+    bit_offset: 3
+    bit_size: 1
+  - name: EXT_TS_CNTR_OVFL
+    description: Set External Timestamp Counter Overflow interrupt.
+    bit_offset: 4
+    bit_size: 1
+  - name: WAKEUP
+    description: Set Clock Stop Wake Up interrupt.
+    bit_offset: 5
+    bit_size: 1
+fieldset/MCANERR_AGGR_ENABLE_CLR:
+  description: MCAN Error Aggregator Enable Clear Register.
+  fields:
+  - name: ENABLE_PARITY_CLR
+    description: Write 1 to disable parity errors. Reads return the corresponding enable bit's current value.
+    bit_offset: 0
+    bit_size: 1
+  - name: ENABLE_TIMEOUT_CLR
+    description: Write 1 to disable timeout errors. Reads return the corresponding enable bit's current value.
+    bit_offset: 1
+    bit_size: 1
+fieldset/MCANERR_AGGR_ENABLE_SET:
+  description: MCAN Error Aggregator Enable Set Register.
+  fields:
+  - name: ENABLE_PARITY_SET
+    description: Write 1 to enable parity errors. Reads return the corresponding enable bit's current value.
+    bit_offset: 0
+    bit_size: 1
+  - name: ENABLE_TIMEOUT_SET
+    description: Write 1 to enable timeout errors. Reads return the corresponding enable bit's current value.
+    bit_offset: 1
+    bit_size: 1
+fieldset/MCANERR_AGGR_STATUS_CLR:
+  description: MCAN Error Aggregator Status Clear Register.
+  fields:
+  - name: AGGR_PARITY_ERR
+    description: Aggregator Parity Error Status 2-bit saturating counter of the number of parity errors that have occurred since last cleared. 0 No parity errors have occurred 1 One parity error has occurred 2 Two parity errors have occurred 3 Three parity errors have occurred A write of a non-zero value to this bit field decrements it by the value provided.
+    bit_offset: 0
+    bit_size: 2
+  - name: SVBUS_TIMEOUT
+    description: Aggregator Serial VBUS Timeout Error Status 2-bit saturating counter of the number of SVBUS timeout errors that have occurred since last cleared. 0 No timeout errors have occurred 1 One timeout error has occurred 2 Two timeout errors have occurred 3 Three timeout errors have occurred A write of a non-zero value to this bit field decrements it by the value provided.
+    bit_offset: 2
+    bit_size: 2
+fieldset/MCANERR_AGGR_STATUS_SET:
+  description: MCAN Error Aggregator Status Set Register.
+  fields:
+  - name: AGGR_PARITY_ERR
+    description: Aggregator Parity Error Status 2-bit saturating counter of the number of parity errors that have occurred since last cleared. 0 No parity errors have occurred 1 One parity error has occurred 2 Two parity errors have occurred 3 Three parity errors have occurred A write of a non-zero value to this bit field increments it by the value provided.
+    bit_offset: 0
+    bit_size: 2
+  - name: SVBUS_TIMEOUT
+    description: Aggregator Serial VBUS Timeout Error Status 2-bit saturating counter of the number of SVBUS timeout errors that have occurred since last cleared. 0 No timeout errors have occurred 1 One timeout error has occurred 2 Two timeout errors have occurred 3 Three timeout errors have occurred A write of a non-zero value to this bit field increments it by the value provided.
+    bit_offset: 2
+    bit_size: 2
+fieldset/MCANERR_CTRL:
+  description: MCAN ECC Control.
+  fields:
+  - name: ECC_ENABLE
+    description: Enable ECC Generation.
+    bit_offset: 0
+    bit_size: 1
+  - name: ECC_CHECK
+    description: Enable ECC Check. ECC is completely bypassed if both ECC_ENABLE and ECC_CHECK are '0'.
+    bit_offset: 1
+    bit_size: 1
+  - name: ENABLE_RMW
+    description: Enable read-modify-write on partial word writes.
+    bit_offset: 2
+    bit_size: 1
+  - name: FORCE_SEC
+    description: Force single-bit error. Cleared on a writeback or the cycle following the error if ERROR_ONCE is asserted. For write through mode, this applies to writes as well as reads. MCANERR_ERR_CTRL1 and MCANERR_ERR_CTRL2 should be configured prior to setting this bit.
+    bit_offset: 3
+    bit_size: 1
+  - name: FORCE_DED
+    description: Force double-bit error. Cleared the cycle following the error if ERROR_ONCE is asserted. For write through mode, this applies to writes as well as reads. MCANERR_ERR_CTRL1 and MCANERR_ERR_CTRL2 should be configured prior to setting this bit.
+    bit_offset: 4
+    bit_size: 1
+  - name: FORCE_N_ROW
+    description: Enable single/double-bit error on the next RAM read, regardless of the MCANERR_ERR_CTRL1.ECC_ROW setting. For write through mode, this applies to writes as well as reads.
+    bit_offset: 5
+    bit_size: 1
+  - name: ERROR_ONCE
+    description: If this bit is set, the FORCE_SEC/FORCE_DED will inject an error to the specified row only once. The FORCE_SEC bit will be cleared once a writeback happens. If writeback is not enabled, this error will be cleared the cycle following the read when the data is corrected. For double-bit errors, the FORCE_DED bit will be cleared the cycle following the double-bit error. Any subsequent reads will not force an error.
+    bit_offset: 6
+    bit_size: 1
+  - name: CHECK_SVBUS_TIMEOUT
+    description: Enables Serial VBUS timeout mechanism.
+    bit_offset: 8
+    bit_size: 1
+fieldset/MCANERR_DED_ENABLE_CLR:
+  description: MCAN Double Error Detected Interrupt Enable Clear Register.
+  fields:
+  - name: MSGMEM_ENABLE_CLR
+    description: Message RAM DED Interrupt Pending Enable Clear. Writing a 1 to this bit disables the Message RAM DED error interrupts. Writing a 0 has no effect. Reads return the corresponding enable bit's current value.
+    bit_offset: 0
+    bit_size: 1
+fieldset/MCANERR_DED_ENABLE_SET:
+  description: MCAN Double Error Detected Interrupt Enable Set Register.
+  fields:
+  - name: MSGMEM_ENABLE_SET
+    description: Message RAM DED Interrupt Pending Enable Set. Writing a 1 to this bit enables the Message RAM DED error interrupts. Writing a 0 has no effect. Reads return the corresponding enable bit's current value.
+    bit_offset: 0
+    bit_size: 1
+fieldset/MCANERR_DED_EOI:
+  description: MCAN Double Error Detected End of Interrupt Register.
+  fields:
+  - name: EOI_WR
+    description: Write to this register indicates that software has acknowledged the pending interrupt and the next interrupt can be sent to the host. Note that a write to the MCANERR_ERR_STAT1.CLR_ECC_DED goes through the SVBUS and has a delayed completion. To avoid an additional interrupt, read the MCANERR_ERR_STAT1 register back prior to writing to this bit field.
+    bit_offset: 0
+    bit_size: 1
+fieldset/MCANERR_DED_STATUS:
+  description: MCAN Double Error Detected Interrupt Status Register.
+  fields:
+  - name: MSGMEM_PEND
+    description: Message RAM DED Interrupt Pending 0 No DED interrupt is pending 1 DED interrupt is pending.
+    bit_offset: 0
+    bit_size: 1
+fieldset/MCANERR_ERR_CTRL1:
+  description: MCAN ECC Error Control 1 Register.
+  fields: []
+fieldset/MCANERR_ERR_CTRL2:
+  description: MCAN ECC Error Control 2 Register.
+  fields:
+  - name: ECC_BIT1
+    description: Column/Data bit that needs to be flipped when FORCE_SEC or FORCE_DED is set.
+    bit_offset: 0
+    bit_size: 16
+  - name: ECC_BIT2
+    description: Second column/data bit that needs to be flipped when FORCE_DED is set.
+    bit_offset: 16
+    bit_size: 16
+fieldset/MCANERR_ERR_STAT1:
+  description: MCAN ECC Error Status 1 Register.
+  fields:
+  - name: ECC_SEC
+    description: Single Bit Error Corrected Status. A 2-bit saturating counter of the number of SEC errors that have occurred since last cleared. 0 No single-bit error detected 1 One single-bit error was detected and corrected 2 Two single-bit errors were detected and corrected 3 Three single-bit errors were detected and corrected A write of a non-zero value to this bit field increments it by the value provided.
+    bit_offset: 0
+    bit_size: 2
+  - name: ECC_DED
+    description: Double Bit Error Detected Status. A 2-bit saturating counter of the number of DED errors that have occurred since last cleared. 0 No double-bit error detected 1 One double-bit error was detected 2 Two double-bit errors were detected 3 Three double-bit errors were detected A write of a non-zero value to this bit field increments it by the value provided.
+    bit_offset: 2
+    bit_size: 2
+  - name: ECC_OTHER
+    description: SEC While Writeback Error Status 0 No SEC error while writeback pending 1 Indicates that successive single-bit errors have occurred while a writeback is still pending.
+    bit_offset: 4
+    bit_size: 1
+  - name: CTRL_REG_ERROR
+    description: Control Register Error. A bit field in the control register is in an ambiguous state. This means that the redundancy registers have detected a state where not all values are the same and has defaulted to the reset state. S/W needs to re-write these registers to a known state. A write of 1 will set this interrupt flag.
+    bit_offset: 7
+    bit_size: 1
+  - name: CLR_ECC_SEC
+    description: Clear ECC_SEC. A write of a non-zero value to this bit field decrements the ECC_SEC bit field by the value provided.
+    bit_offset: 8
+    bit_size: 2
+  - name: CLR_ECC_DED
+    description: Clear ECC_DED. A write of a non-zero value to this bit field decrements the ECC_DED bit field by the value provided.
+    bit_offset: 10
+    bit_size: 2
+  - name: CLR_ECC_OTHER
+    description: Writing a '1' clears the ECC_OTHER bit.
+    bit_offset: 12
+    bit_size: 1
+  - name: CLR_CTRL_REG_ERROR
+    description: Writing a '1' clears the CTRL_REG_ERROR bit.
+    bit_offset: 15
+    bit_size: 1
+  - name: ECC_BIT1
+    description: ECC Error Bit Position. Indicates the bit position in the RAM data that is in error on an SEC error. Only valid on an SEC error. 0 Bit 0 is in error 1 Bit 1 is in error 2 Bit 2 is in error 3 Bit 3 is in error ... 31 Bit 31 is in error >32 Invalid.
+    bit_offset: 16
+    bit_size: 16
+fieldset/MCANERR_ERR_STAT2:
+  description: MCAN ECC Error Status 2 Register.
+  fields: []
+fieldset/MCANERR_ERR_STAT3:
+  description: MCAN ECC Error Status 3 Register.
+  fields:
+  - name: WB_PEND
+    description: Delayed Write Back Pending Status 0 No write back pending 1 An ECC data correction write back is pending.
+    bit_offset: 0
+    bit_size: 1
+  - name: SVBUS_TIMEOUT
+    description: Serial VBUS Timeout Flag. Write 1 to set.
+    bit_offset: 1
+    bit_size: 1
+  - name: CLR_SVBUS_TIMEOUT
+    description: Write 1 to clear the Serial VBUS Timeout Flag.
+    bit_offset: 9
+    bit_size: 1
+fieldset/MCANERR_REV:
+  description: MCAN Error Aggregator Revision Register.
+  fields:
+  - name: REVMIN
+    description: Minor Revision of the Error Aggregator.
+    bit_offset: 0
+    bit_size: 6
+  - name: REVMAJ
+    description: Major Revision of the Error Aggregator.
+    bit_offset: 8
+    bit_size: 3
+  - name: MODULE_ID
+    description: Module Identification Number.
+    bit_offset: 16
+    bit_size: 12
+  - name: SCHEME
+    description: PID Register Scheme.
+    bit_offset: 30
+    bit_size: 2
+fieldset/MCANERR_SEC_ENABLE_CLR:
+  description: MCAN Single Error Corrected Interrupt Enable Clear Register.
+  fields:
+  - name: MSGMEM_ENABLE_CLR
+    description: Message RAM SEC Interrupt Pending Enable Clear. Writing a 1 to this bit disables the Message RAM SEC error interrupts. Writing a 0 has no effect. Reads return the corresponding enable bit's current value.
+    bit_offset: 0
+    bit_size: 1
+fieldset/MCANERR_SEC_ENABLE_SET:
+  description: MCAN Single Error Corrected Interrupt Enable Set Register.
+  fields:
+  - name: MSGMEM_ENABLE_SET
+    description: Message RAM SEC Interrupt Pending Enable Set. Writing a 1 to this bit enables the Message RAM SEC error interrupts. Writing a 0 has no effect. Reads return the corresponding enable bit's current value.
+    bit_offset: 0
+    bit_size: 1
+fieldset/MCANERR_SEC_EOI:
+  description: MCAN Single Error Corrected End of Interrupt Register.
+  fields:
+  - name: EOI_WR
+    description: Write to this register indicates that software has acknowledged the pending interrupt and the next interrupt can be sent to the host. Note that a write to the MCANERR_ERR_STAT1.CLR_ECC_SEC goes through the SVBUS and has a delayed completion. To avoid an additional interrupt, read the MCANERR_ERR_STAT1 register back prior to writing to this bit field.
+    bit_offset: 0
+    bit_size: 1
+fieldset/MCANERR_SEC_STATUS:
+  description: MCAN Single Error Corrected Interrupt Status Register.
+  fields:
+  - name: MSGMEM_PEND
+    description: Message RAM SEC Interrupt Pending 0 No SEC interrupt is pending 1 SEC interrupt is pending.
+    bit_offset: 0
+    bit_size: 1
+fieldset/MCANERR_STAT:
+  description: MCAN Error Misc Status.
+  fields:
+  - name: NUM_RAMS
+    description: Number of RAMs. Number of ECC RAMs serviced by the aggregator.
+    bit_offset: 0
+    bit_size: 11
+fieldset/MCANERR_VECTOR:
+  description: MCAN ECC Vector Register.
+  fields:
+  - name: ECC_VECTOR
+    description: ECC RAM ID. Each error detection and correction (EDC) controller has a bank of error registers (offsets 0x10 - 0x3B) associated with it. These registers are accessed via an internal serial bus (SVBUS). To access them through the ECC aggregator the controller ID desired must be written to the ECC_VECTOR field, together with the RD_SVBUS trigger and RD_SVBUS_ADDRESS bit field. This initiates the serial read which consummates by setting the RD_SVBUS_DONE bit. At this point the addressed register may be read by a normal CPU read of the appropriate offset address. 0x000 Message RAM ECC controller is selected Others Reserved (do not use) Subsequent writes through the SVBUS (offsets 0x10 - 0x3B) have a delayed completion. To avoid conflicts, perform a read back of a register within this range after writing.
+    bit_offset: 0
+    bit_size: 11
+  - name: RD_SVBUS
+    description: Read Trigger.
+    bit_offset: 15
+    bit_size: 1
+  - name: RD_SVBUS_ADDRESS
+    description: Read Address Offset.
+    bit_offset: 16
+    bit_size: 8
+  - name: RD_SVBUS_DONE
+    description: Read Completion Flag.
+    bit_offset: 24
+    bit_size: 1
+fieldset/MCANERR_WRAP_REV:
+  description: MCAN ECC Wrapper Revision Register.
+  fields:
+  - name: REVMIN
+    description: Minor Revision of the Error Aggregator.
+    bit_offset: 0
+    bit_size: 6
+  - name: REVMAJ
+    description: Major Revision of the Error Aggregator.
+    bit_offset: 8
+    bit_size: 3
+  - name: MODULE_ID
+    description: Module Identification Number.
+    bit_offset: 16
+    bit_size: 12
+  - name: SCHEME
+    description: PID Register Scheme.
+    bit_offset: 30
+    bit_size: 2
+fieldset/MIS:
+  description: Masked interrupt status.
+  fields:
+  - name: INTL0
+    description: Masked MCAN Interrupt Line 0.
+    bit_offset: 0
+    bit_size: 1
+  - name: INTL1
+    description: Masked MCAN Interrupt Line 1.
+    bit_offset: 1
+    bit_size: 1
+  - name: SEC
+    description: Masked Message RAM SEC interrupt.
+    bit_offset: 2
+    bit_size: 1
+  - name: DED
+    description: Masked Message RAM DED interrupt.
+    bit_offset: 3
+    bit_size: 1
+  - name: EXT_TS_CNTR_OVFL
+    description: Masked External Timestamp Counter Overflow interrupt.
+    bit_offset: 4
+    bit_size: 1
+  - name: WAKEUP
+    description: Masked Clock Stop Wake Up interrupt.
+    bit_offset: 5
+    bit_size: 1
+fieldset/NBTP:
+  description: MCAN Nominal Bit Timing and Prescaler Register.
+  fields:
+  - name: NTSEG2
+    description: Nominal Time Segment After Sample Point. Valid values are 1 to 127. The actual interpretation by the hardware of this value is such that one more than the programmed value is used. Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 0
+    bit_size: 7
+  - name: NTSEG1
+    description: Nominal Time Segment Before Sample Point. Valid values are 1 to 255. The actual interpretation by the hardware of this value is such that one more than the programmed value is used. Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 8
+    bit_size: 8
+  - name: NBRP
+    description: Nominal Bit Rate Prescaler. The value by which the oscillator frequency is divided for generating the bit time quanta. The bit time is built up from a multiple of this quanta. Valid values for the Bit Rate Prescaler are 0 to 511. The actual interpretation by the hardware of this value is such that one more than the value programmed here is used. Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 16
+    bit_size: 9
+  - name: NSJW
+    description: Nominal (Re)Synchronization Jump Width. Valid values are 0 to 127. The actual interpretation by the hardware of this value is such that one more than the value programmed here is used. Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 25
+    bit_size: 7
+fieldset/NDAT1:
+  description: MCAN New Data 1.
+  fields:
+  - name: ND0
+    description: New Data RX Buffer 0 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 0
+    bit_size: 1
+  - name: ND1
+    description: New Data RX Buffer 1 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 1
+    bit_size: 1
+  - name: ND2
+    description: New Data RX Buffer 2 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 2
+    bit_size: 1
+  - name: ND3
+    description: New Data RX Buffer 3 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 3
+    bit_size: 1
+  - name: ND4
+    description: New Data RX Buffer 4 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 4
+    bit_size: 1
+  - name: ND5
+    description: New Data RX Buffer 5 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 5
+    bit_size: 1
+  - name: ND6
+    description: New Data RX Buffer 6 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 6
+    bit_size: 1
+  - name: ND7
+    description: New Data RX Buffer 7 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 7
+    bit_size: 1
+  - name: ND8
+    description: New Data RX Buffer 8 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 8
+    bit_size: 1
+  - name: ND9
+    description: New Data RX Buffer 9 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 9
+    bit_size: 1
+  - name: ND10
+    description: New Data RX Buffer 10 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 10
+    bit_size: 1
+  - name: ND11
+    description: New Data RX Buffer 11 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 11
+    bit_size: 1
+  - name: ND12
+    description: New Data RX Buffer 12 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 12
+    bit_size: 1
+  - name: ND13
+    description: New Data RX Buffer 13 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 13
+    bit_size: 1
+  - name: ND14
+    description: New Data RX Buffer 14 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 14
+    bit_size: 1
+  - name: ND15
+    description: New Data RX Buffer 15 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 15
+    bit_size: 1
+  - name: ND16
+    description: New Data RX Buffer 16 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 16
+    bit_size: 1
+  - name: ND17
+    description: New Data RX Buffer 17 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 17
+    bit_size: 1
+  - name: ND18
+    description: New Data RX Buffer 18 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 18
+    bit_size: 1
+  - name: ND19
+    description: New Data RX Buffer 19 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 19
+    bit_size: 1
+  - name: ND20
+    description: New Data RX Buffer 20 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 20
+    bit_size: 1
+  - name: ND21
+    description: New Data RX Buffer 21 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 21
+    bit_size: 1
+  - name: ND22
+    description: New Data RX Buffer 22 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 22
+    bit_size: 1
+  - name: ND23
+    description: New Data RX Buffer 23 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 23
+    bit_size: 1
+  - name: ND24
+    description: New Data RX Buffer 24 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 24
+    bit_size: 1
+  - name: ND25
+    description: New Data RX Buffer 25 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 25
+    bit_size: 1
+  - name: ND26
+    description: New Data RX Buffer 26 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 26
+    bit_size: 1
+  - name: ND27
+    description: New Data RX Buffer 27 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 27
+    bit_size: 1
+  - name: ND28
+    description: New Data RX Buffer 28 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 28
+    bit_size: 1
+  - name: ND29
+    description: New Data RX Buffer 29 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 29
+    bit_size: 1
+  - name: ND30
+    description: New Data RX Buffer 30 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 30
+    bit_size: 1
+  - name: ND31
+    description: New Data RX Buffer 31 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 31
+    bit_size: 1
+fieldset/NDAT2:
+  description: MCAN New Data 2.
+  fields:
+  - name: ND32
+    description: New Data RX Buffer 32 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 0
+    bit_size: 1
+  - name: ND33
+    description: New Data RX Buffer 33 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 1
+    bit_size: 1
+  - name: ND34
+    description: New Data RX Buffer 34 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 2
+    bit_size: 1
+  - name: ND35
+    description: New Data RX Buffer 35 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 3
+    bit_size: 1
+  - name: ND36
+    description: New Data RX Buffer 36 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 4
+    bit_size: 1
+  - name: ND37
+    description: New Data RX Buffer 37 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 5
+    bit_size: 1
+  - name: ND38
+    description: New Data RX Buffer 38 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 6
+    bit_size: 1
+  - name: ND39
+    description: New Data RX Buffer 39 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 7
+    bit_size: 1
+  - name: ND40
+    description: New Data RX Buffer 40 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 8
+    bit_size: 1
+  - name: ND41
+    description: New Data RX Buffer 41 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 9
+    bit_size: 1
+  - name: ND42
+    description: New Data RX Buffer 42 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 10
+    bit_size: 1
+  - name: ND43
+    description: New Data RX Buffer 43 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 11
+    bit_size: 1
+  - name: ND44
+    description: New Data RX Buffer 44 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 12
+    bit_size: 1
+  - name: ND45
+    description: New Data RX Buffer 45 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 13
+    bit_size: 1
+  - name: ND46
+    description: New Data RX Buffer 46 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 14
+    bit_size: 1
+  - name: ND47
+    description: New Data RX Buffer 47 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 15
+    bit_size: 1
+  - name: ND48
+    description: New Data RX Buffer 48 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 16
+    bit_size: 1
+  - name: ND49
+    description: New Data RX Buffer 49 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 17
+    bit_size: 1
+  - name: ND50
+    description: New Data RX Buffer 50 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 18
+    bit_size: 1
+  - name: ND51
+    description: New Data RX Buffer 51 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 19
+    bit_size: 1
+  - name: ND52
+    description: New Data RX Buffer 52 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 20
+    bit_size: 1
+  - name: ND53
+    description: New Data RX Buffer 53 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 21
+    bit_size: 1
+  - name: ND54
+    description: New Data RX Buffer 54 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 22
+    bit_size: 1
+  - name: ND55
+    description: New Data RX Buffer 55 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 23
+    bit_size: 1
+  - name: ND56
+    description: New Data RX Buffer 56 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 24
+    bit_size: 1
+  - name: ND57
+    description: New Data RX Buffer 57 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 25
+    bit_size: 1
+  - name: ND58
+    description: New Data RX Buffer 58 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 26
+    bit_size: 1
+  - name: ND59
+    description: New Data RX Buffer 59 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 27
+    bit_size: 1
+  - name: ND60
+    description: New Data RX Buffer 60 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 28
+    bit_size: 1
+  - name: ND61
+    description: New Data RX Buffer 61 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 29
+    bit_size: 1
+  - name: ND62
+    description: New Data RX Buffer 62 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 30
+    bit_size: 1
+  - name: ND63
+    description: New Data RX Buffer 63 0 Rx Buffer not updated 1 Rx Buffer updated from new message.
+    bit_offset: 31
+    bit_size: 1
+fieldset/PSR:
+  description: MCAN Protocol Status Register.
+  fields:
+  - name: LEC
+    description: 'Last Error Code. The LEC indicates the type of the last error to occur on the CAN bus. This field will be cleared to ''0'' when a message has been transferred (reception or transmission) without error. 0 No Error: No error occurred since LEC has been reset by successful reception or transmission. 1 Stuff Error: More than 5 equal bits in a sequence have occurred in a part of a received message where this is not allowed. 2 Form Error: A fixed format part of a received frame has the wrong format. 3 AckError: The message transmitted by the MCAN was not acknowledged by another node. 4 Bit1Error: During the transmission of a message (with the exception of the arbitration field), the device wanted to send a recessive level (bit of logical value ''1''), but the monitored bus value was dominant. 5 Bit0Error: During the transmission of a message (or acknowledge bit, or active error flag, or overload flag), the device wanted to send a dominant level (data or identifier bit logical value ''0''), but the monitored bus value was recessive. During Bus_Off recovery this status is set each time a sequence of 11 recessive bits has been monitored. This enables the CPU to monitor the proceeding of the Bus_Off recovery sequence (indicating the bus is not stuck at dominant or continuously disturbed). 6 CRCError: The CRC check sum of a received message was incorrect. The CRC of an incoming message does not match with the CRC calculated from the received data. 7 NoChange: Any read access to the Protocol Status Register re-initializes the LEC to ''7''. When the LEC shows the value ''7'', no CAN bus event was detected since the last CPU read access to the Protocol Status Register. Note: When a frame in CAN FD format has reached the data phase with BRS flag set, the next CAN event (error or valid frame) will be shown in DLEC instead of LEC. An error in a fixed stuff bit of a CAN FD CRC sequence will be shown as a Form Error, not Stuff Error. Note: The Bus_Off recovery sequence (see ISO 11898-1:2015) cannot be shortened by setting or resetting CCCR.INIT. If the device goes Bus_Off, it will set CCCR.INIT of its own accord, stopping all bus activities. Once CCCR.INIT has been cleared by the CPU, the device will then wait for 129 occurrences of Bus Idle (129 * 11 consecutive recessive bits) before resuming normal operation. At the end of the Bus_Off recovery sequence, the Error Management Counters will be reset. During the waiting time after the resetting of CCCR.INIT, each time a sequence of 11 recessive bits has been monitored, a Bit0Error code is written to PSR.LEC, enabling the CPU to readily check up whether the CAN bus is stuck at dominant or continuously disturbed and to monitor the Bus_Off recovery sequence. ECR.REC is used to count these sequences.'
+    bit_offset: 0
+    bit_size: 3
+  - name: ACT
+    description: 'Node Activity. Monitors the module''s CAN communication state. 00 Synchronizing - node is synchronizing on CAN communication 01 Idle - node is neither receiver nor transmitter 10 Receiver - node is operating as receiver 11 Transmitter - node is operating as transmitter Note: ACT is set to &quot;00&quot; by a Protocol Exception Event.'
+    bit_offset: 3
+    bit_size: 2
+  - name: EP
+    description: Error Passive 0 The M_CAN is in the Error_Active state. It normally takes part in bus communication and sends an active error flag when an error has been detected 1 The M_CAN is in the Error_Passive state.
+    bit_offset: 5
+    bit_size: 1
+  - name: EW
+    description: Warning Status 0 Both error counters are below the Error_Warning limit of 96 1 At least one of error counter has reached the Error_Warning limit of 96.
+    bit_offset: 6
+    bit_size: 1
+  - name: BO
+    description: Bus_Off Status 0 The M_CAN is not Bus_Off 1 The M_CAN is in Bus_Off state.
+    bit_offset: 7
+    bit_size: 1
+  - name: DLEC
+    description: Data Phase Last Error Code. Type of last error that occurred in the data phase of a CAN FD format frame with its BRS flag set. Coding is the same as for LEC. This field will be cleared to zero when a CAN FD format frame with its BRS flag set has been transferred (reception or transmission) without error.
+    bit_offset: 8
+    bit_size: 3
+  - name: RESI
+    description: ESI Flag of Last Received CAN FD Message. This bit is set together with RFDF, independent of acceptance filtering. 0 Last received CAN FD message did not have its ESI flag set 1 Last received CAN FD message had its ESI flag set.
+    bit_offset: 11
+    bit_size: 1
+  - name: RBRS
+    description: BRS Flag of Last Received CAN FD Message. This bit is set together with RFDF, independent of acceptance filtering. 0 Last received CAN FD message did not have its BRS flag set 1 Last received CAN FD message had its BRS flag set.
+    bit_offset: 12
+    bit_size: 1
+  - name: RFDF
+    description: Received a CAN FD Message. This bit is set independent of acceptance filtering. 0 Since this bit was reset by the CPU, no CAN FD message has been received 1 Message in CAN FD format with FDF flag set has been received.
+    bit_offset: 13
+    bit_size: 1
+  - name: PXE
+    description: Protocol Exception Event 0 No protocol exception event occurred since last read access 1 Protocol exception event occurred.
+    bit_offset: 14
+    bit_size: 1
+  - name: TDCV
+    description: Transmitter Delay Compensation Value. Position of the secondary sample point, defined by the sum of the measured delay from the internal CAN TX signal to the internal CAN RX signal and TDCR.TDCO. The SSP position is, in the data phase, the number of mtq between the start of the transmitted bit and the secondary sample point. Valid values are 0 to 127 mtq.
+    bit_offset: 16
+    bit_size: 7
+fieldset/PWREN:
+  description: Power enable.
+  fields:
+  - name: ENABLE
+    description: Enable the power.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RIS:
+  description: Raw interrupt status.
+  fields:
+  - name: INTL0
+    description: MCAN Interrupt Line 0.
+    bit_offset: 0
+    bit_size: 1
+  - name: INTL1
+    description: MCAN Interrupt Line 1.
+    bit_offset: 1
+    bit_size: 1
+  - name: SEC
+    description: Message RAM SEC interrupt.
+    bit_offset: 2
+    bit_size: 1
+  - name: DED
+    description: Message RAM DED interrupt.
+    bit_offset: 3
+    bit_size: 1
+  - name: EXT_TS_CNTR_OVFL
+    description: External Timestamp Counter Overflow interrupt.
+    bit_offset: 4
+    bit_size: 1
+  - name: WAKEUP
+    description: Clock Stop Wake Up interrupt.
+    bit_offset: 5
+    bit_size: 1
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral.
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register.
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key B1h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/RWD:
+  description: MCAN RAM Watchdog.
+  fields:
+  - name: WDC
+    description: Watchdog Configuration. Start value of the Message RAM Watchdog Counter. With the reset value of &quot;00&quot; the counter is disabled. Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 0
+    bit_size: 8
+  - name: WDV
+    description: Watchdog Value. Acutal Message RAM Watchdog Counter Value. The RAM Watchdog monitors the READY output of the Message RAM. A Message RAM access via the MCAN's Generic Master Interface starts the Message RAM Watchdog Counter with the value configured by the WDC field. The counter is reloaded with WDC when the Message RAM signals successful completion by activating its READY output. In case there is no response from the Message RAM until the counter has counted down to zero, the counter stops and interrupt flag MCAN_IR.WDI is set. The RAM Watchdog Counter is clocked by the host (system) clock.
+    bit_offset: 8
+    bit_size: 8
+fieldset/RXBC:
+  description: MCAN Rx Buffer Configuration.
+  fields:
+  - name: RBSA
+    description: Rx Buffer Start Address. Configures the start address of the Rx Buffers section in the Message RAM (32-bit word address). +I466.
+    bit_offset: 2
+    bit_size: 14
+fieldset/RXESC:
+  description: MCAN Rx Buffer / FIFO Element Size Configuration.
+  fields:
+  - name: F0DS
+    description: 'Rx FIFO 0 Data Field Size 000 8 byte data field 001 12 byte data field 010 16 byte data field 011 20 byte data field 100 24 byte data field 101 32 byte data field 110 48 byte data field 111 64 byte data field Note: In case the data field size of an accepted CAN frame exceeds the data field size configured for the matching Rx Buffer or Rx FIFO, only the number of bytes as configured by RXESC are stored to the Rx Buffer resp. Rx FIFO element. The rest of the frame''s data field is ignored. Qualified Write is possible only with CCCR.CCE=''1'' and CCCR.INIT=''1''.'
+    bit_offset: 0
+    bit_size: 3
+  - name: F1DS
+    description: 'Rx FIFO 1 Data Field Size 000 8 byte data field 001 12 byte data field 010 16 byte data field 011 20 byte data field 100 24 byte data field 101 32 byte data field 110 48 byte data field 111 64 byte data field Note: In case the data field size of an accepted CAN frame exceeds the data field size configured for the matching Rx Buffer or Rx FIFO, only the number of bytes as configured by RXESC are stored to the Rx Buffer resp. Rx FIFO element. The rest of the frame''s data field is ignored. Qualified Write is possible only with CCCR.CCE=''1'' and CCCR.INIT=''1''.'
+    bit_offset: 4
+    bit_size: 3
+  - name: RBDS
+    description: 'Rx Buffer Data Field Size 000 8 byte data field 001 12 byte data field 010 16 byte data field 011 20 byte data field 100 24 byte data field 101 32 byte data field 110 48 byte data field 111 64 byte data field Note: In case the data field size of an accepted CAN frame exceeds the data field size configured for the matching Rx Buffer or Rx FIFO, only the number of bytes as configured by RXESC are stored to the Rx Buffer resp. Rx FIFO element. The rest of the frame''s data field is ignored. Qualified Write is possible only with CCCR.CCE=''1'' and CCCR.INIT=''1''.'
+    bit_offset: 8
+    bit_size: 3
+fieldset/RXF0A:
+  description: MCAN Rx FIFO 0 Acknowledge.
+  fields:
+  - name: F0AI
+    description: Rx FIFO 0 Acknowledge Index. After the Host has read a message or a sequence of messages from Rx FIFO 0 it has to write the buffer index of the last element read from Rx FIFO 0 to F0AI. This will set the Rx FIFO 0 Get Index RXF0S.F0GI to F0AI + 1 and update the FIFO 0 Fill Level RXF0S.F0FL.
+    bit_offset: 0
+    bit_size: 6
+fieldset/RXF0C:
+  description: MCAN Rx FIFO 0 Configuration.
+  fields:
+  - name: F0SA
+    description: Rx FIFO 0 Start Address. Start address of Rx FIFO 0 in Message RAM (32-bit word address). Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 2
+    bit_size: 14
+  - name: F0S
+    description: Rx FIFO 0 Size. The Rx FIFO 0 elements are indexed from 0 to F0S-1. 0 No Rx FIFO 0 1-64 Number of Rx FIFO 0 elements >64 Values greater than 64 are interpreted as 64 Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 16
+    bit_size: 7
+  - name: F0WM
+    description: Rx FIFO 0 Watermark 0 Watermark interrupt disabled 1-64 Level for Rx FIFO 0 watermark interrupt (IR.RF0W) >64 Watermark interrupt disabled Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 24
+    bit_size: 7
+  - name: F0OM
+    description: FIFO 0 Operation Mode. FIFO 0 can be operated in blocking or in overwrite mode. 0 FIFO 0 blocking mode 1 FIFO 0 overwrite mode Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 31
+    bit_size: 1
+fieldset/RXF0S:
+  description: MCAN Rx FIFO 0 Status.
+  fields:
+  - name: F0FL
+    description: Rx FIFO 0 Fill Level. Number of elements stored in Rx FIFO 0, range 0 to 64.
+    bit_offset: 0
+    bit_size: 7
+  - name: F0GI
+    description: Rx FIFO 0 Get Index. Rx FIFO 0 read index pointer, range 0 to 63.
+    bit_offset: 8
+    bit_size: 6
+  - name: F0PI
+    description: Rx FIFO 0 Put Index. Rx FIFO 0 write index pointer, range 0 to 63.
+    bit_offset: 16
+    bit_size: 6
+  - name: F0F
+    description: Rx FIFO 0 Full 0 Rx FIFO 0 not full 1 Rx FIFO 0 full.
+    bit_offset: 24
+    bit_size: 1
+  - name: RF0L
+    description: 'Rx FIFO 0 Message Lost. This bit is a copy of interrupt flag IR.RF0L. When IR.RF0L is reset, this bit is also reset. 0 No Rx FIFO 0 message lost 1 Rx FIFO 0 message lost, also set after write attempt to Rx FIFO 0 of size zero Note: Overwriting the oldest message when RXF0C.F0OM = ''1'' will not set this flag.'
+    bit_offset: 25
+    bit_size: 1
+fieldset/RXF1A:
+  description: MCAN Rx FIFO 1 Acknowledge.
+  fields:
+  - name: F1AI
+    description: Rx FIFO 1 Acknowledge Index. After the Host has read a message or a sequence of messages from Rx FIFO 1 it has to write the buffer index of the last element read from Rx FIFO 1 to F1AI. This will set the Rx FIFO 1 Get Index RXF1S.F1GI to F1AI + 1 and update the FIFO 1 Fill Level RXF1S.F1FL.
+    bit_offset: 0
+    bit_size: 6
+fieldset/RXF1C:
+  description: MCAN Rx FIFO 1 Configuration.
+  fields:
+  - name: F1SA
+    description: Rx FIFO 1 Start Address Start address of Rx FIFO 1 in Message RAM (32-bit word address).
+    bit_offset: 2
+    bit_size: 14
+  - name: F1S
+    description: Rx FIFO 1 Size. The Rx FIFO 1 elements are indexed from 0 to F1S - 1. 0 No Rx FIFO 1 1-64 Number of Rx FIFO 1 elements >64 Values greater than 64 are interpreted as 64 Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 16
+    bit_size: 7
+  - name: F1WM
+    description: Rx FIFO 1 Watermark 0 Watermark interrupt disabled 1-64 Level for Rx FIFO 1 watermark interrupt (IR.RF1W) >64 Watermark interrupt disabled Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 24
+    bit_size: 7
+  - name: F1OM
+    description: FIFO 1 Operation Mode. FIFO 1 can be operated in blocking or in overwrite mode. 0 FIFO 1 blocking mode 1 FIFO 1 overwrite mode Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 31
+    bit_size: 1
+fieldset/RXF1S:
+  description: MCAN Rx FIFO 1 Status.
+  fields:
+  - name: F1FL
+    description: Rx FIFO 1 Fill Level. Number of elements stored in Rx FIFO 1, range 0 to 64.
+    bit_offset: 0
+    bit_size: 7
+  - name: F1GI
+    description: Rx FIFO 1 Get Index. Rx FIFO 1 read index pointer, range 0 to 63.
+    bit_offset: 8
+    bit_size: 6
+  - name: F1PI
+    description: Rx FIFO 1 Put Index. Rx FIFO 1 write index pointer, range 0 to 63.
+    bit_offset: 16
+    bit_size: 6
+  - name: F1F
+    description: Rx FIFO 1 Full 0 Rx FIFO 1 not full 1 Rx FIFO 1 full.
+    bit_offset: 24
+    bit_size: 1
+  - name: RF1L
+    description: 'Rx FIFO 1 Message Lost. This bit is a copy of interrupt flag IR.RF1L. When IR.RF1L is reset, this bit is also reset. 0 No Rx FIFO 1 message lost 1 Rx FIFO 1 message lost, also set after write attempt to Rx FIFO 1 of size zero Note: Overwriting the oldest message when RXF1C.F1OM = ''1'' will not set this flag.'
+    bit_offset: 25
+    bit_size: 1
+  - name: DMS
+    description: Debug Message Status 00 Idle state, wait for reception of debug messages 01 Debug message A received 10 Debug messages A, B received 11 Debug messages A, B, C received.
+    bit_offset: 30
+    bit_size: 2
+fieldset/SIDFC:
+  description: MCAN Standard ID Filter Configuration.
+  fields:
+  - name: FLSSA
+    description: Filter List Standard Start Address. Start address of standard Message ID filter list (32-bit word address).
+    bit_offset: 2
+    bit_size: 14
+  - name: LSS
+    description: List Size Standard 0 No standard Message ID filter 1-128 Number of standard Message ID filter elements >128 Values greater than 128 are interpreted as 128.
+    bit_offset: 16
+    bit_size: 8
+fieldset/STAT:
+  description: Status Register.
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+fieldset/SUBSYS_CLKCTL:
+  description: MCAN-SS clock stop control register.
+  fields:
+  - name: STOPREQ
+    description: 'This bit is used to enable/disable MCAN clock (both host clock and functional clock) gating request. Note: This bit can be reset by HW by Clock-Stop Wake-up via CAN RX Activity. See spec for more details.'
+    bit_offset: 0
+    bit_size: 1
+  - name: WAKEUP_INT_EN
+    description: This bit contols enabling or disabling the MCAN IP clock stop wakeup interrupt (when MCANSS_CTRL.WAKEUPREQEN wakeup request is enabled to wakeup MCAN IP upon CAN RXD activity).
+    bit_offset: 4
+    bit_size: 1
+  - name: WKUP_GLTFLT_EN
+    description: Setting this bit enables the glitch filter on MCAN RXD input, which wakes up the MCAN controller to exit clock gating.
+    bit_offset: 8
+    bit_size: 1
+fieldset/SUBSYS_CLKDIV:
+  description: Clock divider.
+  fields:
+  - name: RATIO
+    description: Clock divide ratio specification. Enables configuring clock divide settings for the MCAN functional clock input to the MCAN-SS.
+    bit_offset: 0
+    bit_size: 2
+    enum: RATIO
+fieldset/SUBSYS_CLKEN:
+  description: MCAN module clock enable.
+  fields:
+  - name: CLK_REQEN
+    description: MCAN functional and MCAN/MCANSS MMR clock request enable bit.
+    bit_offset: 0
+    bit_size: 1
+fieldset/SUBSYS_CLKSTS:
+  description: MCANSS clock stop status register.
+  fields:
+  - name: CLKSTOP_ACKSTS
+    description: Clock stop acknowledge status from MCAN IP.
+    bit_offset: 0
+    bit_size: 1
+  - name: STOPREQ_HW_OVR
+    description: MCANSS clock stop HW override status bit. This bit indicates when the MCANSS_CLKCTL.STOPREQ bit has been cleared by HW when a clock-stop wake-up event via CAN RX activity is triggered.
+    bit_offset: 4
+    bit_size: 1
+  - name: CCLKDONE
+    description: This bit indicates the status of MCAN contoller clock request from GPRCM.
+    bit_offset: 8
+    bit_size: 1
+fieldset/SUBSYS_CTRL:
+  description: MCAN Subsystem Control Register.
+  fields:
+  - name: DBGSUSP_FREE
+    description: Debug Suspend Free Bit. Enables debug suspend. 0 Honor debug suspend 1 Disregard debug suspend.
+    bit_offset: 3
+    bit_size: 1
+  - name: WAKEUPREQEN
+    description: Wakeup Request Enable. Enables the MCANSS to wakeup on CAN RXD activity. 0 Disable wakeup request 1 Enables wakeup request.
+    bit_offset: 4
+    bit_size: 1
+  - name: AUTOWAKEUP
+    description: Automatic Wakeup Enable. Enables the MCANSS to automatically clear the MCAN CCCR.INIT bit, fully waking the MCAN up, on an enabled wakeup request. 0 Disable the automatic write to CCCR.INIT 1 Enable the automatic write to CCCR.INIT.
+    bit_offset: 5
+    bit_size: 1
+  - name: EXT_TS_CNTR_EN
+    description: External Timestamp Counter Enable. 0 External timestamp counter disabled 1 External timestamp counter enabled.
+    bit_offset: 6
+    bit_size: 1
+fieldset/SUBSYS_EOI:
+  description: MCAN Subsystem End of Interrupt.
+  fields:
+  - name: EOI
+    description: End of Interrupt. A write to this register will clear the associated interrupt. If the unserviced interrupt counter is > 1, another interrupt is generated. 0x00 External TS Interrupt is cleared 0x01 MCAN(0) interrupt is cleared 0x02 MCAN(1) interrupt is cleared Other writes are ignored.
+    bit_offset: 0
+    bit_size: 8
+fieldset/SUBSYS_EXT_TS_PRESCALER:
+  description: MCAN Subsystem External Timestamp Prescaler 0.
+  fields:
+  - name: PRESCALER
+    description: External Timestamp Prescaler Reload Value. The external timestamp count rate is the host (system) clock rate divided by this value, except in the case of 0. A zero value in this bit field will act identically to a value of 0x000001.
+    bit_offset: 0
+    bit_size: 24
+fieldset/SUBSYS_EXT_TS_UNSERVICED_INTR_CNTR:
+  description: MCAN Subsystem External Timestamp Unserviced Interrupts Counter.
+  fields:
+  - name: EXT_TS_INTR_CNTR
+    description: External Timestamp Counter Unserviced Rollover Interrupts. If this value is > 1, an MCANSS_EOI write of '1' to bit 0 will issue another interrupt. The status of this bit field is affected by the MCANSS_IRS.EXT_TS_CNTR_OVFL bit field.
+    bit_offset: 0
+    bit_size: 5
+fieldset/SUBSYS_ICS:
+  description: MCAN Subsystem Interrupt Clear Shadow Register.
+  fields:
+  - name: EXT_TS_CNTR_OVFL
+    description: External Timestamp Counter Overflow Interrupt Status Clear. Reads always return a 0. 0 Write of '0' has no effect 1 Write of '1' clears the MCANSS_IRS.EXT_TS_CNTR_OVFL bit.
+    bit_offset: 0
+    bit_size: 1
+fieldset/SUBSYS_IE:
+  description: MCAN Subsystem Interrupt Enable Register.
+  fields:
+  - name: EXT_TS_CNTR_OVFL
+    description: External Timestamp Counter Overflow Interrupt Enable. A write of '0' has no effect. A write of '1' sets the MCANSS_IES.EXT_TS_CNTR_OVFL bit.
+    bit_offset: 0
+    bit_size: 1
+fieldset/SUBSYS_IECS:
+  description: MCAN Subsystem Interrupt Enable Clear Shadow Register.
+  fields:
+  - name: EXT_TS_CNTR_OVFL
+    description: External Timestamp Counter Overflow Interrupt Enable Clear. Reads always return a 0. 0 Write of '0' has no effect 1 Write of '1' clears the MCANSS_IES.EXT_TS_CNTR_OVFL bit.
+    bit_offset: 0
+    bit_size: 1
+fieldset/SUBSYS_IES:
+  description: MCAN Subsystem Interrupt Enable Status.
+  fields:
+  - name: EXT_TS_CNTR_OVFL
+    description: External Timestamp Counter Overflow Interrupt Enable Status. To set, use the CANSS_IE.EXT_TS_CNTR_OVFL bit. To clear, use the MCANSS_IECS.EXT_TS_CNTR_OVFL bit. 0 External timestamp counter overflow interrupt is not enabled 1 External timestamp counter overflow interrupt is enabled.
+    bit_offset: 0
+    bit_size: 1
+fieldset/SUBSYS_IRS:
+  description: MCAN Subsystem Interrupt Raw Satus Register.
+  fields:
+  - name: EXT_TS_CNTR_OVFL
+    description: External Timestamp Counter Overflow Interrupt Status. This bit is set by HW or by a SW write of '1'. To clear, use the MCANSS_ICS.EXT_TS_CNTR_OVFL bit. 0 External timestamp counter has not overflowed 1 External timestamp counter has overflowed When this bit is set to '1' by HW or SW, the MCANSS_EXT_TS_UNSERVICED_INTR_CNTR.EXT_TS_INTR_CNTR bit field will increment by 1.
+    bit_offset: 0
+    bit_size: 1
+fieldset/SUBSYS_PID:
+  description: MCAN Subsystem Revision Register.
+  fields:
+  - name: MINOR
+    description: Minor Revision of the MCAN Subsystem.
+    bit_offset: 0
+    bit_size: 6
+  - name: MAJOR
+    description: Major Revision of the MCAN Subsystem.
+    bit_offset: 8
+    bit_size: 3
+  - name: MODULE_ID
+    description: Module Identification Number.
+    bit_offset: 16
+    bit_size: 12
+  - name: SCHEME
+    description: PID Register Scheme.
+    bit_offset: 30
+    bit_size: 2
+fieldset/SUBSYS_STAT:
+  description: MCAN Subsystem Status Register.
+  fields:
+  - name: RESET
+    description: Soft Reset Status. 0 Not in reset 1 Reset is in progress.
+    bit_offset: 0
+    bit_size: 1
+  - name: MEM_INIT_DONE
+    description: Memory Initialization Done. 0 Message RAM initialization is in progress 1 Message RAM is initialized for use.
+    bit_offset: 1
+    bit_size: 1
+  - name: ENABLE_FDOE
+    description: Enable FD (Flexible Data-Rate) Configuration Reflects the value of mcanss_enable_fdoe configuration port, -h = mcanss_enable_fdoe.
+    bit_offset: 2
+    bit_size: 1
+fieldset/TDCR:
+  description: MCAN Transmitter Delay Compensation Register.
+  fields:
+  - name: TDCF
+    description: Transmitter Delay Compensation Filter Window Length. Defines the minimum value for the SSP position, dominant edges on the internal CAN RX signal that would result in an earlier SSP position are ignored for transmitter delay measurement. The feature is enabled when TDCF is configured to a value greater than TDCO. Valid values are 0 to 127 mtq. Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 0
+    bit_size: 7
+  - name: TDCO
+    description: Transmitter Delay Compensation Offset. Offset value defining the distance between the measured delay from the internal CAN TX signal to the internal CAN RX signal and the secondary sample point. Valid values are 0 to 127 mtq. Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 8
+    bit_size: 7
+fieldset/TEST:
+  description: MCAN Test Register.
+  fields:
+  - name: LBCK
+    description: Loop Back Mode. Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 4
+    bit_size: 1
+  - name: TX
+    description: Control of Transmit Pin 00 CAN TX pin controlled by the CAN Core, updated at the end of the CAN bit time 01 Sample Point can be monitored at CAN TX pin 10 Dominant ('0') level at CAN TX pin 11 Recessive ('1') at CAN TX pin Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 5
+    bit_size: 2
+  - name: RX
+    description: Receive Pin. Monitors the actual value of the CAN receive pin.
+    bit_offset: 7
+    bit_size: 1
+    enum: RX
+fieldset/TOCC:
+  description: MCAN Timeout Counter Configuration.
+  fields:
+  - name: ETOC
+    description: Enable Timeout Counter 0 Timeout Counter disabled 1 Timeout Counter enabled Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 0
+    bit_size: 1
+  - name: TOS
+    description: Timeout Select. When operating in Continuous mode, a write to TOCV presets the counter to the value configured by TOCC.TOP and continues down-counting. When the Timeout Counter is controlled by one of the FIFOs, an empty FIFO presets the counter to the value configured by TOCC.TOP. Down-counting is started when the first FIFO element is stored. 00 Continuous operation 01 Timeout controlled by Tx Event FIFO 10 Timeout controlled by Rx FIFO 0 11 Timeout controlled by Rx FIFO 1 Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 1
+    bit_size: 2
+  - name: TOP
+    description: Timeout Period. Start value of the Timeout Counter (down-counter). Configures the Timeout Period. Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 16
+    bit_size: 16
+fieldset/TOCV:
+  description: MCAN Timeout Counter Value.
+  fields:
+  - name: TOC
+    description: Timeout Counter. The Timeout Counter is decremented in multiples of CAN bit times, (1...16), depending on the configuration of TSCC.TCP. When decremented to zero, interrupt flag IR.TOO is set and the Timeout Counter is stopped. Start and reset/restart conditions are configured via TOCC.TOS.
+    bit_offset: 0
+    bit_size: 16
+fieldset/TSCC:
+  description: MCAN Timestamp Counter Configuration.
+  fields:
+  - name: TSS
+    description: Timestamp Select 00 Timestamp counter value always 0x0000 01 Timestamp counter value incremented according to TCP 10 External timestamp counter value used 11 Same as &quot;00&quot; Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 0
+    bit_size: 2
+  - name: TCP
+    description: 'Timestamp Counter Prescaler. Configures the timestamp and timeout counters time unit in multiples of CAN bit times. Valid values are 0 to 15. The actual interpretation by the hardware of this value is such that one more than the value programmed here is used. Note: With CAN FD an external counter is required for timestamp generation (TSS = &quot;10&quot;). Qualified Write is possible only with CCCR.CCE=''1'' and CCCR.INIT=''1''.'
+    bit_offset: 16
+    bit_size: 4
+fieldset/TSCV:
+  description: MCAN Timestamp Counter Value.
+  fields:
+  - name: TSC
+    description: 'Timestamp Counter. The internal/external Timestamp Counter value is captured on start of frame (both Rx and Tx). When TSCC.TSS = &quot;01&quot;, the Timestamp Counter is incremented in multiples of CAN bit times, (1...16), depending on the configuration of TSCC.TCP. A wrap around sets interrupt flag IR.TSW. Write access resets the counter to zero. When TSCC.TSS = &quot;10&quot;, TSC reflects the External Timestamp Counter value, and a write access has no impact. Note: A &quot;wrap around&quot; is a change of the Timestamp Counter value from non-zero to zero not caused by write access to MCAN_TSCV.'
+    bit_offset: 0
+    bit_size: 16
+fieldset/TXBAR:
+  description: MCAN Tx Buffer Add Request.
+  fields:
+  - name: AR0
+    description: 'Add Request 0. Each Tx Buffer has its own Add Request bit. Writing a ''1'' will set the corresponding Add Request bit; writing a ''0'' has no impact. This enables the Host to set transmission requests for multiple Tx Buffers with one write to TXBAR. TXBAR bits are set only for those Tx Buffers configured via TXBC. When no Tx scan is running, the bits are reset immediately, else the bits remain set until the Tx scan process has completed. 0 No transmission request added 1 Transmission requested added Note: If an add request is applied for a Tx Buffer with pending transmission request (corresponding TXBRP bit already set), this add request is ignored. Qualified Write is possible only with CCCR.CCE=''0''.'
+    bit_offset: 0
+    bit_size: 1
+  - name: AR1
+    description: Add Request 1. See description for bit 0.
+    bit_offset: 1
+    bit_size: 1
+  - name: AR2
+    description: Add Request 2. See description for bit 0.
+    bit_offset: 2
+    bit_size: 1
+  - name: AR3
+    description: Add Request 3. See description for bit 0.
+    bit_offset: 3
+    bit_size: 1
+  - name: AR4
+    description: Add Request 4. See description for bit 0.
+    bit_offset: 4
+    bit_size: 1
+  - name: AR5
+    description: Add Request 5. See description for bit 0.
+    bit_offset: 5
+    bit_size: 1
+  - name: AR6
+    description: Add Request 6. See description for bit 0.
+    bit_offset: 6
+    bit_size: 1
+  - name: AR7
+    description: Add Request 7. See description for bit 0.
+    bit_offset: 7
+    bit_size: 1
+  - name: AR8
+    description: Add Request 8. See description for bit 0.
+    bit_offset: 8
+    bit_size: 1
+  - name: AR9
+    description: Add Request 9. See description for bit 0.
+    bit_offset: 9
+    bit_size: 1
+  - name: AR10
+    description: Add Request 10. See description for bit 0.
+    bit_offset: 10
+    bit_size: 1
+  - name: AR11
+    description: Add Request 11. See description for bit 0.
+    bit_offset: 11
+    bit_size: 1
+  - name: AR12
+    description: Add Request 12. See description for bit 0.
+    bit_offset: 12
+    bit_size: 1
+  - name: AR13
+    description: Add Request 13. See description for bit 0.
+    bit_offset: 13
+    bit_size: 1
+  - name: AR14
+    description: Add Request 14. See description for bit 0.
+    bit_offset: 14
+    bit_size: 1
+  - name: AR15
+    description: Add Request 15. See description for bit 0.
+    bit_offset: 15
+    bit_size: 1
+  - name: AR16
+    description: Add Request 16. See description for bit 0.
+    bit_offset: 16
+    bit_size: 1
+  - name: AR17
+    description: Add Request 17. See description for bit 0.
+    bit_offset: 17
+    bit_size: 1
+  - name: AR18
+    description: Add Request 18. See description for bit 0.
+    bit_offset: 18
+    bit_size: 1
+  - name: AR19
+    description: Add Request 19. See description for bit 0.
+    bit_offset: 19
+    bit_size: 1
+  - name: AR20
+    description: Add Request 20. See description for bit 0.
+    bit_offset: 20
+    bit_size: 1
+  - name: AR21
+    description: Add Request 21. See description for bit 0.
+    bit_offset: 21
+    bit_size: 1
+  - name: AR22
+    description: Add Request 22. See description for bit 0.
+    bit_offset: 22
+    bit_size: 1
+  - name: AR23
+    description: Add Request 23. See description for bit 0.
+    bit_offset: 23
+    bit_size: 1
+  - name: AR24
+    description: Add Request 24. See description for bit 0.
+    bit_offset: 24
+    bit_size: 1
+  - name: AR25
+    description: Add Request 25. See description for bit 0.
+    bit_offset: 25
+    bit_size: 1
+  - name: AR26
+    description: Add Request 26. See description for bit 0.
+    bit_offset: 26
+    bit_size: 1
+  - name: AR27
+    description: Add Request 27. See description for bit 0.
+    bit_offset: 27
+    bit_size: 1
+  - name: AR28
+    description: Add Request 28. See description for bit 0.
+    bit_offset: 28
+    bit_size: 1
+  - name: AR29
+    description: Add Request 29. See description for bit 0.
+    bit_offset: 29
+    bit_size: 1
+  - name: AR30
+    description: Add Request 30. See description for bit 0.
+    bit_offset: 30
+    bit_size: 1
+  - name: AR31
+    description: Add Request 31. See description for bit 0.
+    bit_offset: 31
+    bit_size: 1
+fieldset/TXBC:
+  description: MCAN Tx Buffer Configuration.
+  fields:
+  - name: TBSA
+    description: Tx Buffers Start Address. Start address of Tx Buffers section in Message RAM (32-bit word address). Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 2
+    bit_size: 14
+  - name: NDTB
+    description: 'Number of Dedicated Transmit Buffers 0 No Dedicated Tx Buffers 1-32 Number of Dedicated Tx Buffers >32 Values greater than 32 are interpreted as 32 Note: Be aware that the sum of TFQS and NDTB may be not greater than 32. There is no check for erroneous configurations. The Tx Buffers section in the Message RAM starts with the dedicated Tx Buffers. Qualified Write is possible only with CCCR.CCE=''1'' and CCCR.INIT=''1''.'
+    bit_offset: 16
+    bit_size: 6
+  - name: TFQS
+    description: 'Transmit FIFO/Queue Size 0 No Tx FIFO/Queue 1-32 Number of Tx Buffers used for Tx FIFO/Queue >32 Values greater than 32 are interpreted as 32 Note: Be aware that the sum of TFQS and NDTB may be not greater than 32. There is no check for erroneous configurations. The Tx Buffers section in the Message RAM starts with the dedicated Tx Buffers. Qualified Write is possible only with CCCR.CCE=''1'' and CCCR.INIT=''1''.'
+    bit_offset: 24
+    bit_size: 6
+  - name: TFQM
+    description: Tx FIFO/Queue Mode 0 Tx FIFO operation 1 Tx Queue operation Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 30
+    bit_size: 1
+fieldset/TXBCF:
+  description: MCAN Tx Buffer Cancellation Finished.
+  fields:
+  - name: CF0
+    description: Cancellation Finished 0. Each Tx Buffer has its own Cancellation Finished bit. The bits are set when the corresponding TXBRP bit is cleared after a cancellation was requested via TXBCR. In case the corresponding TXBRP bit was not set at the point of cancellation, CF is set immediately. The bits are reset when a new transmission is requested by writing a '1' to the corresponding bit of register TXBAR. 0 No transmit buffer cancellation 1 Transmit buffer cancellation finished.
+    bit_offset: 0
+    bit_size: 1
+  - name: CF1
+    description: Cancellation Finished 1. See description for bit 0.
+    bit_offset: 1
+    bit_size: 1
+  - name: CF2
+    description: Cancellation Finished 2. See description for bit 0.
+    bit_offset: 2
+    bit_size: 1
+  - name: CF3
+    description: Cancellation Finished 3. See description for bit 0.
+    bit_offset: 3
+    bit_size: 1
+  - name: CF4
+    description: Cancellation Finished 4. See description for bit 0.
+    bit_offset: 4
+    bit_size: 1
+  - name: CF5
+    description: Cancellation Finished 5. See description for bit 0.
+    bit_offset: 5
+    bit_size: 1
+  - name: CF6
+    description: Cancellation Finished 6. See description for bit 0.
+    bit_offset: 6
+    bit_size: 1
+  - name: CF7
+    description: Cancellation Finished 7. See description for bit 0.
+    bit_offset: 7
+    bit_size: 1
+  - name: CF8
+    description: Cancellation Finished 8. See description for bit 0.
+    bit_offset: 8
+    bit_size: 1
+  - name: CF9
+    description: Cancellation Finished 9. See description for bit 0.
+    bit_offset: 9
+    bit_size: 1
+  - name: CF10
+    description: Cancellation Finished 10. See description for bit 0.
+    bit_offset: 10
+    bit_size: 1
+  - name: CF11
+    description: Cancellation Finished 11. See description for bit 0.
+    bit_offset: 11
+    bit_size: 1
+  - name: CF12
+    description: Cancellation Finished 12. See description for bit 0.
+    bit_offset: 12
+    bit_size: 1
+  - name: CF13
+    description: Cancellation Finished 13. See description for bit 0.
+    bit_offset: 13
+    bit_size: 1
+  - name: CF14
+    description: Cancellation Finished 14. See description for bit 0.
+    bit_offset: 14
+    bit_size: 1
+  - name: CF15
+    description: Cancellation Finished 15. See description for bit 0.
+    bit_offset: 15
+    bit_size: 1
+  - name: CF16
+    description: Cancellation Finished 16. See description for bit 0.
+    bit_offset: 16
+    bit_size: 1
+  - name: CF17
+    description: Cancellation Finished 17. See description for bit 0.
+    bit_offset: 17
+    bit_size: 1
+  - name: CF18
+    description: Cancellation Finished 18. See description for bit 0.
+    bit_offset: 18
+    bit_size: 1
+  - name: CF19
+    description: Cancellation Finished 19. See description for bit 0.
+    bit_offset: 19
+    bit_size: 1
+  - name: CF20
+    description: Cancellation Finished 20. See description for bit 0.
+    bit_offset: 20
+    bit_size: 1
+  - name: CF21
+    description: Cancellation Finished 21. See description for bit 0.
+    bit_offset: 21
+    bit_size: 1
+  - name: CF22
+    description: Cancellation Finished 22. See description for bit 0.
+    bit_offset: 22
+    bit_size: 1
+  - name: CF23
+    description: Cancellation Finished 23. See description for bit 0.
+    bit_offset: 23
+    bit_size: 1
+  - name: CF24
+    description: Cancellation Finished 24. See description for bit 0.
+    bit_offset: 24
+    bit_size: 1
+  - name: CF25
+    description: Cancellation Finished 25. See description for bit 0.
+    bit_offset: 25
+    bit_size: 1
+  - name: CF26
+    description: Cancellation Finished 26. See description for bit 0.
+    bit_offset: 26
+    bit_size: 1
+  - name: CF27
+    description: Cancellation Finished 27. See description for bit 0.
+    bit_offset: 27
+    bit_size: 1
+  - name: CF28
+    description: Cancellation Finished 28. See description for bit 0.
+    bit_offset: 28
+    bit_size: 1
+  - name: CF29
+    description: Cancellation Finished 29. See description for bit 0.
+    bit_offset: 29
+    bit_size: 1
+  - name: CF30
+    description: Cancellation Finished 30. See description for bit 0.
+    bit_offset: 30
+    bit_size: 1
+  - name: CF31
+    description: Cancellation Finished 31. See description for bit 0.
+    bit_offset: 31
+    bit_size: 1
+fieldset/TXBCIE:
+  description: MCAN Tx Buffer Cancellation Finished Interrupt Enable.
+  fields:
+  - name: CFIE0
+    description: Cancellation Finished Interrupt Enable 0. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 0
+    bit_size: 1
+  - name: CFIE1
+    description: Cancellation Finished Interrupt Enable 1. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 1
+    bit_size: 1
+  - name: CFIE2
+    description: Cancellation Finished Interrupt Enable 2. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 2
+    bit_size: 1
+  - name: CFIE3
+    description: Cancellation Finished Interrupt Enable 3. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 3
+    bit_size: 1
+  - name: CFIE4
+    description: Cancellation Finished Interrupt Enable 4. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 4
+    bit_size: 1
+  - name: CFIE5
+    description: Cancellation Finished Interrupt Enable 5. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 5
+    bit_size: 1
+  - name: CFIE6
+    description: Cancellation Finished Interrupt Enable 6. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 6
+    bit_size: 1
+  - name: CFIE7
+    description: Cancellation Finished Interrupt Enable 7. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 7
+    bit_size: 1
+  - name: CFIE8
+    description: Cancellation Finished Interrupt Enable 8. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 8
+    bit_size: 1
+  - name: CFIE9
+    description: Cancellation Finished Interrupt Enable 9. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 9
+    bit_size: 1
+  - name: CFIE10
+    description: Cancellation Finished Interrupt Enable 10. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 10
+    bit_size: 1
+  - name: CFIE11
+    description: Cancellation Finished Interrupt Enable 11. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 11
+    bit_size: 1
+  - name: CFIE12
+    description: Cancellation Finished Interrupt Enable 12. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 12
+    bit_size: 1
+  - name: CFIE13
+    description: Cancellation Finished Interrupt Enable 13. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 13
+    bit_size: 1
+  - name: CFIE14
+    description: Cancellation Finished Interrupt Enable 14. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 14
+    bit_size: 1
+  - name: CFIE15
+    description: Cancellation Finished Interrupt Enable 15. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 15
+    bit_size: 1
+  - name: CFIE16
+    description: Cancellation Finished Interrupt Enable 16. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 16
+    bit_size: 1
+  - name: CFIE17
+    description: Cancellation Finished Interrupt Enable 17. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 17
+    bit_size: 1
+  - name: CFIE18
+    description: Cancellation Finished Interrupt Enable 18. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 18
+    bit_size: 1
+  - name: CFIE19
+    description: Cancellation Finished Interrupt Enable 19. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 19
+    bit_size: 1
+  - name: CFIE20
+    description: Cancellation Finished Interrupt Enable 20. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 20
+    bit_size: 1
+  - name: CFIE21
+    description: Cancellation Finished Interrupt Enable 21. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 21
+    bit_size: 1
+  - name: CFIE22
+    description: Cancellation Finished Interrupt Enable 22. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 22
+    bit_size: 1
+  - name: CFIE23
+    description: Cancellation Finished Interrupt Enable 23. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 23
+    bit_size: 1
+  - name: CFIE24
+    description: Cancellation Finished Interrupt Enable 24. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 24
+    bit_size: 1
+  - name: CFIE25
+    description: Cancellation Finished Interrupt Enable 25. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 25
+    bit_size: 1
+  - name: CFIE26
+    description: Cancellation Finished Interrupt Enable 26. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 26
+    bit_size: 1
+  - name: CFIE27
+    description: Cancellation Finished Interrupt Enable 27. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 27
+    bit_size: 1
+  - name: CFIE28
+    description: Cancellation Finished Interrupt Enable 28. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 28
+    bit_size: 1
+  - name: CFIE29
+    description: Cancellation Finished Interrupt Enable 29. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 29
+    bit_size: 1
+  - name: CFIE30
+    description: Cancellation Finished Interrupt Enable 30. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 30
+    bit_size: 1
+  - name: CFIE31
+    description: Cancellation Finished Interrupt Enable 31. Each Tx Buffer has its own Cancellation Finished Interrupt Enable bit. 0 Cancellation finished interrupt disabled 1 Cancellation finished interrupt enabled.
+    bit_offset: 31
+    bit_size: 1
+fieldset/TXBCR:
+  description: MCAN Tx Buffer Cancellation Request.
+  fields:
+  - name: CR0
+    description: Cancellation Request 0. Each Tx Buffer has its own Cancellation Request bit. Writing a '1' will set the corresponding Cancellation Request bit; writing a '0' has no impact. This enables the Host to set cancellation requests for multiple Tx Buffers with one write to TXBCR. TXBCR bits are set only for those Tx Buffers configured via TXBC. The bits remain set until the corresponding bit of TXBRP is reset. 0 No cancellation pending 1 Cancellation pending Qualified Write is possible only with CCCR.CCE='0'.
+    bit_offset: 0
+    bit_size: 1
+  - name: CR1
+    description: Cancellation Request 1. See description for bit 0.
+    bit_offset: 1
+    bit_size: 1
+  - name: CR2
+    description: Cancellation Request 2. See description for bit 0.
+    bit_offset: 2
+    bit_size: 1
+  - name: CR3
+    description: Cancellation Request 3. See description for bit 0.
+    bit_offset: 3
+    bit_size: 1
+  - name: CR4
+    description: Cancellation Request 4. See description for bit 0.
+    bit_offset: 4
+    bit_size: 1
+  - name: CR5
+    description: Cancellation Request 5. See description for bit 0.
+    bit_offset: 5
+    bit_size: 1
+  - name: CR6
+    description: Cancellation Request 6. See description for bit 0.
+    bit_offset: 6
+    bit_size: 1
+  - name: CR7
+    description: Cancellation Request 7. See description for bit 0.
+    bit_offset: 7
+    bit_size: 1
+  - name: CR8
+    description: Cancellation Request 8. See description for bit 0.
+    bit_offset: 8
+    bit_size: 1
+  - name: CR9
+    description: Cancellation Request 9. See description for bit 0.
+    bit_offset: 9
+    bit_size: 1
+  - name: CR10
+    description: Cancellation Request 10. See description for bit 0.
+    bit_offset: 10
+    bit_size: 1
+  - name: CR11
+    description: Cancellation Request 11. See description for bit 0.
+    bit_offset: 11
+    bit_size: 1
+  - name: CR12
+    description: Cancellation Request 12. See description for bit 0.
+    bit_offset: 12
+    bit_size: 1
+  - name: CR13
+    description: Cancellation Request 13. See description for bit 0.
+    bit_offset: 13
+    bit_size: 1
+  - name: CR14
+    description: Cancellation Request 14. See description for bit 0.
+    bit_offset: 14
+    bit_size: 1
+  - name: CR15
+    description: Cancellation Request 15. See description for bit 0.
+    bit_offset: 15
+    bit_size: 1
+  - name: CR16
+    description: Cancellation Request 16. See description for bit 0.
+    bit_offset: 16
+    bit_size: 1
+  - name: CR17
+    description: Cancellation Request 17. See description for bit 0.
+    bit_offset: 17
+    bit_size: 1
+  - name: CR18
+    description: Cancellation Request 18. See description for bit 0.
+    bit_offset: 18
+    bit_size: 1
+  - name: CR19
+    description: Cancellation Request 19. See description for bit 0.
+    bit_offset: 19
+    bit_size: 1
+  - name: CR20
+    description: Cancellation Request 20. See description for bit 0.
+    bit_offset: 20
+    bit_size: 1
+  - name: CR21
+    description: Cancellation Request 21. See description for bit 0.
+    bit_offset: 21
+    bit_size: 1
+  - name: CR22
+    description: Cancellation Request 22. See description for bit 0.
+    bit_offset: 22
+    bit_size: 1
+  - name: CR23
+    description: Cancellation Request 23. See description for bit 0.
+    bit_offset: 23
+    bit_size: 1
+  - name: CR24
+    description: Cancellation Request 24. See description for bit 0.
+    bit_offset: 24
+    bit_size: 1
+  - name: CR25
+    description: Cancellation Request 25. See description for bit 0.
+    bit_offset: 25
+    bit_size: 1
+  - name: CR26
+    description: Cancellation Request 26. See description for bit 0.
+    bit_offset: 26
+    bit_size: 1
+  - name: CR27
+    description: Cancellation Request 27. See description for bit 0.
+    bit_offset: 27
+    bit_size: 1
+  - name: CR28
+    description: Cancellation Request 28. See description for bit 0.
+    bit_offset: 28
+    bit_size: 1
+  - name: CR29
+    description: Cancellation Request 29. See description for bit 0.
+    bit_offset: 29
+    bit_size: 1
+  - name: CR30
+    description: Cancellation Request 30. See description for bit 0.
+    bit_offset: 30
+    bit_size: 1
+  - name: CR31
+    description: Cancellation Request 31. See description for bit 0.
+    bit_offset: 31
+    bit_size: 1
+fieldset/TXBRP:
+  description: MCAN Tx Buffer Request Pending.
+  fields:
+  - name: TRP0
+    description: 'Transmission Request Pending 0. Each Tx Buffer has its own Transmission Request Pending bit. The bits are set via register TXBAR. The bits are reset after a requested transmission has completed or has been cancelled via register TXBCR. TXBRP bits are set only for those Tx Buffers configured via TXBC. After a TXBRP bit has been set, a Tx scan is started to check for the pending Tx request with the highest priority (Tx Buffer with lowest Message ID). A cancellation request resets the corresponding transmission request pending bit of register TXBRP. In case a transmission has already been started when a cancellation is requested, this is done at the end of the transmission, regardless whether the transmission was successful or not. The cancellation request bits are reset directly after the corresponding TXBRP bit has been reset. After a cancellation has been requested, a finished cancellation is signalled via TXBCF - after successful transmission together with the corresponding TXBTO bit - when the transmission has not yet been started at the point of cancellation - when the transmission has been aborted due to lost arbitration - when an error occurred during frame transmission In DAR mode all transmissions are automatically cancelled if they are not successful. The corresponding TXBCF bit is set for all unsuccessful transmissions. 0 No transmission request pending 1 Transmission request pending Note: TXBRP bits which are set while a Tx scan is in progress are not considered during this particular Tx scan. In case a cancellation is requested for such a Tx Buffer, this Add Request is cancelled immediately, the corresponding TXBRP bit is reset.'
+    bit_offset: 0
+    bit_size: 1
+  - name: TRP1
+    description: Transmission Request Pending 1. See description for bit 0.
+    bit_offset: 1
+    bit_size: 1
+  - name: TRP2
+    description: Transmission Request Pending 2. See description for bit 0.
+    bit_offset: 2
+    bit_size: 1
+  - name: TRP3
+    description: Transmission Request Pending 3. See description for bit 0.
+    bit_offset: 3
+    bit_size: 1
+  - name: TRP4
+    description: Transmission Request Pending 4. See description for bit 0.
+    bit_offset: 4
+    bit_size: 1
+  - name: TRP5
+    description: Transmission Request Pending 5. See description for bit 0.
+    bit_offset: 5
+    bit_size: 1
+  - name: TRP6
+    description: Transmission Request Pending 6. See description for bit 0.
+    bit_offset: 6
+    bit_size: 1
+  - name: TRP7
+    description: Transmission Request Pending 7. See description for bit 0.
+    bit_offset: 7
+    bit_size: 1
+  - name: TRP8
+    description: Transmission Request Pending 8. See description for bit 0.
+    bit_offset: 8
+    bit_size: 1
+  - name: TRP9
+    description: Transmission Request Pending 9. See description for bit 0.
+    bit_offset: 9
+    bit_size: 1
+  - name: TRP10
+    description: Transmission Request Pending 10. See description for bit 0.
+    bit_offset: 10
+    bit_size: 1
+  - name: TRP11
+    description: Transmission Request Pending 11. See description for bit 0.
+    bit_offset: 11
+    bit_size: 1
+  - name: TRP12
+    description: Transmission Request Pending 12. See description for bit 0.
+    bit_offset: 12
+    bit_size: 1
+  - name: TRP13
+    description: Transmission Request Pending 13. See description for bit 0.
+    bit_offset: 13
+    bit_size: 1
+  - name: TRP14
+    description: Transmission Request Pending 14. See description for bit 0.
+    bit_offset: 14
+    bit_size: 1
+  - name: TRP15
+    description: Transmission Request Pending 15. See description for bit 0.
+    bit_offset: 15
+    bit_size: 1
+  - name: TRP16
+    description: Transmission Request Pending 16. See description for bit 0.
+    bit_offset: 16
+    bit_size: 1
+  - name: TRP17
+    description: Transmission Request Pending 17. See description for bit 0.
+    bit_offset: 17
+    bit_size: 1
+  - name: TRP18
+    description: Transmission Request Pending 18. See description for bit 0.
+    bit_offset: 18
+    bit_size: 1
+  - name: TRP19
+    description: Transmission Request Pending 19. See description for bit 0.
+    bit_offset: 19
+    bit_size: 1
+  - name: TRP20
+    description: Transmission Request Pending 20. See description for bit 0.
+    bit_offset: 20
+    bit_size: 1
+  - name: TRP21
+    description: Transmission Request Pending 21. See description for bit 0.
+    bit_offset: 21
+    bit_size: 1
+  - name: TRP22
+    description: Transmission Request Pending 22. See description for bit 0.
+    bit_offset: 22
+    bit_size: 1
+  - name: TRP23
+    description: Transmission Request Pending 23. See description for bit 0.
+    bit_offset: 23
+    bit_size: 1
+  - name: TRP24
+    description: Transmission Request Pending 24. See description for bit 0.
+    bit_offset: 24
+    bit_size: 1
+  - name: TRP25
+    description: Transmission Request Pending 25. See description for bit 0.
+    bit_offset: 25
+    bit_size: 1
+  - name: TRP26
+    description: Transmission Request Pending 26. See description for bit 0.
+    bit_offset: 26
+    bit_size: 1
+  - name: TRP27
+    description: Transmission Request Pending 27. See description for bit 0.
+    bit_offset: 27
+    bit_size: 1
+  - name: TRP28
+    description: Transmission Request Pending 28. See description for bit 0.
+    bit_offset: 28
+    bit_size: 1
+  - name: TRP29
+    description: Transmission Request Pending 29. See description for bit 0.
+    bit_offset: 29
+    bit_size: 1
+  - name: TRP30
+    description: Transmission Request Pending 30. See description for bit 0.
+    bit_offset: 30
+    bit_size: 1
+  - name: TRP31
+    description: Transmission Request Pending 31. See description for bit 0.
+    bit_offset: 31
+    bit_size: 1
+fieldset/TXBTIE:
+  description: MCAN Tx Buffer Transmission Interrupt Enable.
+  fields:
+  - name: TIE0
+    description: Transmission Interrupt Enable 0. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 0
+    bit_size: 1
+  - name: TIE1
+    description: Transmission Interrupt Enable 1. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 1
+    bit_size: 1
+  - name: TIE2
+    description: Transmission Interrupt Enable 2. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 2
+    bit_size: 1
+  - name: TIE3
+    description: Transmission Interrupt Enable 3. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 3
+    bit_size: 1
+  - name: TIE4
+    description: Transmission Interrupt Enable 4. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 4
+    bit_size: 1
+  - name: TIE5
+    description: Transmission Interrupt Enable 5. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 5
+    bit_size: 1
+  - name: TIE6
+    description: Transmission Interrupt Enable 6. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 6
+    bit_size: 1
+  - name: TIE7
+    description: Transmission Interrupt Enable 7. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 7
+    bit_size: 1
+  - name: TIE8
+    description: Transmission Interrupt Enable 8. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 8
+    bit_size: 1
+  - name: TIE9
+    description: Transmission Interrupt Enable 9. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 9
+    bit_size: 1
+  - name: TIE10
+    description: Transmission Interrupt Enable 10. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 10
+    bit_size: 1
+  - name: TIE11
+    description: Transmission Interrupt Enable 11. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 11
+    bit_size: 1
+  - name: TIE12
+    description: Transmission Interrupt Enable 12. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 12
+    bit_size: 1
+  - name: TIE13
+    description: Transmission Interrupt Enable 13. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 13
+    bit_size: 1
+  - name: TIE14
+    description: Transmission Interrupt Enable 14. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 14
+    bit_size: 1
+  - name: TIE15
+    description: Transmission Interrupt Enable 15. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 15
+    bit_size: 1
+  - name: TIE16
+    description: Transmission Interrupt Enable 16. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 16
+    bit_size: 1
+  - name: TIE17
+    description: Transmission Interrupt Enable 17. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 17
+    bit_size: 1
+  - name: TIE18
+    description: Transmission Interrupt Enable 18. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 18
+    bit_size: 1
+  - name: TIE19
+    description: Transmission Interrupt Enable 19. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 19
+    bit_size: 1
+  - name: TIE20
+    description: Transmission Interrupt Enable 20. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 20
+    bit_size: 1
+  - name: TIE21
+    description: Transmission Interrupt Enable 21. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 21
+    bit_size: 1
+  - name: TIE22
+    description: Transmission Interrupt Enable 22. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 22
+    bit_size: 1
+  - name: TIE23
+    description: Transmission Interrupt Enable 23. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 23
+    bit_size: 1
+  - name: TIE24
+    description: Transmission Interrupt Enable 24. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 24
+    bit_size: 1
+  - name: TIE25
+    description: Transmission Interrupt Enable 25. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 25
+    bit_size: 1
+  - name: TIE26
+    description: Transmission Interrupt Enable 26. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 26
+    bit_size: 1
+  - name: TIE27
+    description: Transmission Interrupt Enable 27. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 27
+    bit_size: 1
+  - name: TIE28
+    description: Transmission Interrupt Enable 28. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 28
+    bit_size: 1
+  - name: TIE29
+    description: Transmission Interrupt Enable 29. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 29
+    bit_size: 1
+  - name: TIE30
+    description: Transmission Interrupt Enable 30. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 30
+    bit_size: 1
+  - name: TIE31
+    description: Transmission Interrupt Enable 31. Each Tx Buffer has its own Transmission Interrupt Enable bit. 0 Transmission interrupt disabled 1 Transmission interrupt enable.
+    bit_offset: 31
+    bit_size: 1
+fieldset/TXBTO:
+  description: MCAN Tx Buffer Transmission Occurred.
+  fields:
+  - name: TO0
+    description: Transmission Occurred 0. Each Tx Buffer has its own Transmission Occurred bit. The bits are set when the corresponding TXBRP bit is cleared after a successful transmission. The bits are reset when a new transmission is requested by writing a '1' to the corresponding bit of register TXBAR. 0 No transmission occurred 1 Transmission occurred.
+    bit_offset: 0
+    bit_size: 1
+  - name: TO1
+    description: Transmission Occurred 1. See description for bit 0.
+    bit_offset: 1
+    bit_size: 1
+  - name: TO2
+    description: Transmission Occurred 2. See description for bit 0.
+    bit_offset: 2
+    bit_size: 1
+  - name: TO3
+    description: Transmission Occurred 3. See description for bit 0.
+    bit_offset: 3
+    bit_size: 1
+  - name: TO4
+    description: Transmission Occurred 4. See description for bit 0.
+    bit_offset: 4
+    bit_size: 1
+  - name: TO5
+    description: Transmission Occurred 5. See description for bit 0.
+    bit_offset: 5
+    bit_size: 1
+  - name: TO6
+    description: Transmission Occurred 6. See description for bit 0.
+    bit_offset: 6
+    bit_size: 1
+  - name: TO7
+    description: Transmission Occurred 7. See description for bit 0.
+    bit_offset: 7
+    bit_size: 1
+  - name: TO8
+    description: Transmission Occurred 8. See description for bit 0.
+    bit_offset: 8
+    bit_size: 1
+  - name: TO9
+    description: Transmission Occurred 9. See description for bit 0.
+    bit_offset: 9
+    bit_size: 1
+  - name: TO10
+    description: Transmission Occurred 10. See description for bit 0.
+    bit_offset: 10
+    bit_size: 1
+  - name: TO11
+    description: Transmission Occurred 11. See description for bit 0.
+    bit_offset: 11
+    bit_size: 1
+  - name: TO12
+    description: Transmission Occurred 12. See description for bit 0.
+    bit_offset: 12
+    bit_size: 1
+  - name: TO13
+    description: Transmission Occurred 13. See description for bit 0.
+    bit_offset: 13
+    bit_size: 1
+  - name: TO14
+    description: Transmission Occurred 14. See description for bit 0.
+    bit_offset: 14
+    bit_size: 1
+  - name: TO15
+    description: Transmission Occurred 15. See description for bit 0.
+    bit_offset: 15
+    bit_size: 1
+  - name: TO16
+    description: Transmission Occurred 16. See description for bit 0.
+    bit_offset: 16
+    bit_size: 1
+  - name: TO17
+    description: Transmission Occurred 17. See description for bit 0.
+    bit_offset: 17
+    bit_size: 1
+  - name: TO18
+    description: Transmission Occurred 18. See description for bit 0.
+    bit_offset: 18
+    bit_size: 1
+  - name: TO19
+    description: Transmission Occurred 19. See description for bit 0.
+    bit_offset: 19
+    bit_size: 1
+  - name: TO20
+    description: Transmission Occurred 20. See description for bit 0.
+    bit_offset: 20
+    bit_size: 1
+  - name: TO21
+    description: Transmission Occurred 21. See description for bit 0.
+    bit_offset: 21
+    bit_size: 1
+  - name: TO22
+    description: Transmission Occurred 22. See description for bit 0.
+    bit_offset: 22
+    bit_size: 1
+  - name: TO23
+    description: Transmission Occurred 23. See description for bit 0.
+    bit_offset: 23
+    bit_size: 1
+  - name: TO24
+    description: Transmission Occurred 24. See description for bit 0.
+    bit_offset: 24
+    bit_size: 1
+  - name: TO25
+    description: Transmission Occurred 25. See description for bit 0.
+    bit_offset: 25
+    bit_size: 1
+  - name: TO26
+    description: Transmission Occurred 26. See description for bit 0.
+    bit_offset: 26
+    bit_size: 1
+  - name: TO27
+    description: Transmission Occurred 27. See description for bit 0.
+    bit_offset: 27
+    bit_size: 1
+  - name: TO28
+    description: Transmission Occurred 28. See description for bit 0.
+    bit_offset: 28
+    bit_size: 1
+  - name: TO29
+    description: Transmission Occurred 29. See description for bit 0.
+    bit_offset: 29
+    bit_size: 1
+  - name: TO30
+    description: Transmission Occurred 30. See description for bit 0.
+    bit_offset: 30
+    bit_size: 1
+  - name: TO31
+    description: Transmission Occurred 31. See description for bit 0.
+    bit_offset: 31
+    bit_size: 1
+fieldset/TXEFA:
+  description: MCAN Tx Event FIFO Acknowledge.
+  fields:
+  - name: EFAI
+    description: Event FIFO Acknowledge Index. After the Host has read an element or a sequence of elements from the Tx Event FIFO it has to write the index of the last element read from Tx Event FIFO to EFAI. This will set the Tx Event FIFO Get Index TXEFS.EFGI to EFAI + 1 and update the Event FIFO Fill Level TXEFS.EFFL.
+    bit_offset: 0
+    bit_size: 5
+fieldset/TXEFC:
+  description: MCAN Tx Event FIFO Configuration.
+  fields:
+  - name: EFSA
+    description: Event FIFO Start Address. Start address of Tx Event FIFO in Message RAM (32-bit word address).
+    bit_offset: 2
+    bit_size: 14
+  - name: EFS
+    description: Event FIFO Size. The Tx Event FIFO elements are indexed from 0 to EFS - 1. 0 Tx Event FIFO disabled 1-32 Number of Tx Event FIFO elements >32 Values greater than 32 are interpreted as 32.
+    bit_offset: 16
+    bit_size: 6
+  - name: EFWM
+    description: Event FIFO Watermark 0 Watermark interrupt disabled 1-32 Level for Tx Event FIFO watermark interrupt (IR.TEFW) >32 Watermark interrupt disabled.
+    bit_offset: 24
+    bit_size: 6
+fieldset/TXEFS:
+  description: MCAN Tx Event FIFO Status.
+  fields:
+  - name: EFFL
+    description: Event FIFO Fill Level. Number of elements stored in Tx Event FIFO, range 0 to 32.
+    bit_offset: 0
+    bit_size: 6
+  - name: EFGI
+    description: Event FIFO Get Index. Tx Event FIFO read index pointer, range 0 to 31.
+    bit_offset: 8
+    bit_size: 5
+  - name: EFPI
+    description: Event FIFO Put Index.Tx Event FIFO write index pointer, range 0 to 31.
+    bit_offset: 16
+    bit_size: 5
+  - name: EFF
+    description: Event FIFO Full 0 Tx Event FIFO not full 1 Tx Event FIFO full.
+    bit_offset: 24
+    bit_size: 1
+  - name: TEFL
+    description: Tx Event FIFO Element Lost. This bit is a copy of interrupt flag IR.TEFL. When IR.TEFL is reset, this bit is also reset. 0 No Tx Event FIFO element lost 1 Tx Event FIFO element lost, also set after write attempt to Tx Event FIFO of size zero.
+    bit_offset: 25
+    bit_size: 1
+fieldset/TXESC:
+  description: MCAN Tx Buffer Element Size Configuration.
+  fields:
+  - name: TBDS
+    description: 'Tx Buffer Data Field Size 000 8 byte data field 001 12 byte data field 010 16 byte data field 011 20 byte data field 100 24 byte data field 101 32 byte data field 110 48 byte data field 111 64 byte data field Note: In case the data length code DLC of a Tx Buffer element is configured to a value higher than the Tx Buffer data field size TXESC.TBDS, the bytes not defined by the Tx Buffer are transmitted as &quot;0xCC&quot; (padding bytes). Qualified Write is possible only with CCCR.CCE=''1'' and CCCR.INIT=''1''.'
+    bit_offset: 0
+    bit_size: 3
+fieldset/TXFQS:
+  description: MCAN Tx FIFO / Queue Status.
+  fields:
+  - name: TFFL
+    description: Tx FIFO Free Level. Number of consecutive free Tx FIFO elements starting from TFGI, range 0 to 32. Read as zero when Tx Queue operation is configured (TXBC.TFQM = '1').
+    bit_offset: 0
+    bit_size: 6
+  - name: TFGI
+    description: 'Tx FIFO Get Index. Tx FIFO read index pointer, range 0 to 31. Read as zero when Tx Queue operation is configured (TXBC.TFQM = ''1''). Note: In case of mixed configurations where dedicated Tx Buffers are combined with a Tx FIFO or a Tx Queue, the Put and Get Indices indicate the number of the Tx Buffer starting with the first dedicated Tx Buffers. Example: For a configuration of 12 dedicated Tx Buffers and a Tx FIFO of 20 Buffers a Put Index of 15 points to the fourth buffer of the Tx FIFO.'
+    bit_offset: 8
+    bit_size: 5
+  - name: TFQP
+    description: 'Tx FIFO/Queue Put Index. Tx FIFO/Queue write index pointer, range 0 to 31. Note: In case of mixed configurations where dedicated Tx Buffers are combined with a Tx FIFO or a Tx Queue, the Put and Get Indices indicate the number of the Tx Buffer starting with the first dedicated Tx Buffers. Example: For a configuration of 12 dedicated Tx Buffers and a Tx FIFO of 20 Buffers a Put Index of 15 points to the fourth buffer of the Tx FIFO.'
+    bit_offset: 16
+    bit_size: 5
+  - name: TFQF
+    description: Tx FIFO/Queue Full 0 Tx FIFO/Queue not full 1 Tx FIFO/Queue full.
+    bit_offset: 21
+    bit_size: 1
+fieldset/XIDAM:
+  description: MCAN Extended ID and Mask.
+  fields:
+  - name: EIDM
+    description: Extended ID Mask. For acceptance filtering of extended frames the Extended ID AND Mask is ANDed with the Message ID of a received frame. Intended for masking of 29-bit IDs in SAE J1939. With the reset value of all bits set to one the mask is not active. Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 0
+    bit_size: 29
+fieldset/XIDFC:
+  description: MCAN Extended ID Filter Configuration.
+  fields:
+  - name: FLESA
+    description: List Size Extended 0 No extended Message ID filter 1-64 Number of extended Message ID filter elements >64 Values greater than 64 are interpreted as 64 Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 2
+    bit_size: 14
+  - name: LSE
+    description: Filter List Extended Start Address. Start address of extended Message ID filter list (32-bit word address). Qualified Write is possible only with CCCR.CCE='1' and CCCR.INIT='1'.
+    bit_offset: 16
+    bit_size: 7
+enum/FEATUREVER:
+  bit_size: 4
+  variants:
+  - name: VERSION_0
+    description: 'MCAN module with CAN-FD mode enabled <<Internal Note: This is an in-IP paper spin variant. How does this map to the SYS_MCAN_ENABLE_FD choice value?>>.'
+    value: 0
+  - name: VERSION_1
+    description: 'MCAN module with CAN-FD mode disabled <<Internal Note: This is an in-IP paper spin variant. How does this map to the SYS_MCAN_ENABLE_FD choice value?>>.'
+    value: 1
+enum/INT0_CFG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: The interrupt or event line is disabled.
+    value: 0
+  - name: SOFTWARE
+    description: The interrupt or event line is in software mode. Software must clear the RIS.
+    value: 1
+  - name: HARDWARE
+    description: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.
+    value: 2
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/RATIO:
+  bit_size: 2
+  variants:
+  - name: DIV_BY_1_
+    description: Divides input clock by 1.
+    value: 0
+  - name: DIV_BY_2_
+    description: Divides input clock by 2.
+    value: 1
+  - name: DIV_BY_4_
+    description: Divides input clock by 4.
+    value: 2
+  - name: DIV_BY_1_1
+    description: Divides input clock by 1.
+    value: 3
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177
+enum/RX:
+  bit_size: 1
+  variants:
+  - name: DOMINANT
+    description: The CAN bus is dominant (CAN RX pin = '0').
+    value: 0
+  - name: RECESSIVE
+    description: The CAN bus is recessive (CAN RX pin = '1').
+    value: 1
+enum/STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No interrupt pending.
+    value: 0
+  - name: INTL0
+    description: MCAN Interrupt Line 0 interrupt pending.
+    value: 1
+  - name: INTL1
+    description: MCAN Interrupt Line 1 interrupt pending.
+    value: 2
+  - name: SEC
+    description: Message RAM SEC (Single Error Correction) interrupt pending.
+    value: 3
+  - name: DED
+    description: Message RAM DED (Double Error Detection) interrupt pending.
+    value: 4
+  - name: EXT_TS_CNTR_OVFL
+    description: External Timestamp Counter Overflow interrupt pending.
+    value: 5
+  - name: WAKEUP
+    description: Clock Stop Wake Up interrupt pending.
+    value: 6

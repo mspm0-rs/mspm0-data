@@ -1,0 +1,150 @@
+transforms:
+  - !DeleteUselessEnums
+
+  #
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: RESET
+      1: SET
+
+  # RESETASSERT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  # RESETSTKY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  # RESETSTKYCLR is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  # TODO: Something better than a cursed rename as merge
+  - !MergeBlocks
+    from: CANFD0
+    main: CANFD0
+    to: GPRCM
+
+  # TODO: Something better than a cursed rename as merge
+  - !MergeBlocks
+    from: CANFD0_MCAN
+    main: CANFD0_MCAN
+    to: CANFD
+
+  # TODO: Something better than a cursed rename as merge
+  - !MergeBlocks
+    from: CANFD0_MCANSS_REGS
+    main: CANFD0_MCANSS_REGS
+    to: SUBSYS
+
+  # TODO: Something better than a cursed rename as merge
+  - !MergeBlocks
+    from: CANFD0_MCAN_ECC_REGS
+    main: CANFD0_MCAN_ECC_REGS
+    to: ECC
+
+  # TODO: Something better than a cursed rename as merge
+  - !MergeBlocks
+    from: CANFD0_MSP
+    main: CANFD0_MSP
+    to: MSP
+
+  # TODO: Something better than a cursed rename as merge
+  - !MergeBlocks
+    from: CANFD0_CPU_INT
+    main: CANFD0_CPU_INT
+    to: CPU_INT
+
+  # Remove CANFD0 prefixes
+  - !RenameRegisters
+    block: .*
+    from: CANFD0_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: CANFD0_(.+)
+    to: $1
+
+  - !Rename
+    type: Fieldset
+    from: CANFD0_(.+)
+    to: $1
+
+  # Remove MCAN prefixes
+  - !RenameRegisters
+    block: .*
+    from: MCAN_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: MCAN_(.+)
+    to: $1
+
+  - !Rename
+    type: Fieldset
+    from: MCAN_(.+)
+    to: $1
+
+  # Remove MCANSS prefixes
+  - !RenameRegisters
+    block: .*
+    from: MCANSS_(.+)
+    to: SUBSYS_$1
+
+  - !RenameFields
+    fieldset: .*
+    from: MCANSS_(.+)
+    to: SUBSYS_$1
+
+  - !Rename
+    type: Fieldset
+    from: MCANSS_(.+)
+    to: SUBSYS_$1
+
+  ## Add missing keys
+  - !AddFields
+    fieldset: PWREN
+    fields:
+    - name: KEY
+      description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: PWREN_KEY
+
+  - !AddFields
+    fieldset: RSTCTL
+    fields:
+    - name: KEY
+      description: Unlock key B1h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: RESET_KEY
+
+  - !Add
+    ir:
+      enum/PWREN_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 38
+      enum/RESET_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 177
+
+  # Cleanup
+  - !Sort
