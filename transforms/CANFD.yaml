@@ -2,7 +2,6 @@
 transforms:
   - !DeleteUselessEnums
 
-  #
   - !DeleteEnumsWithVariants
     variants:
       0: CLR
