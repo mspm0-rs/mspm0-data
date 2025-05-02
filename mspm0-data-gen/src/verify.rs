@@ -183,7 +183,7 @@ fn verify_trng_power_domain(chip: &Chip, name: &str) -> anyhow::Result<()> {
 /// - C110X
 /// - G151X
 fn no_gpamp_c110x_l151x(chip: &Chip, name: &str) -> anyhow::Result<()> {
-    if chip.peripherals.contains_key("GPAMP") && (name == "MSPM0C110X" || name == "MSPM0G151X") {
+    if chip.peripherals.contains_key("GPAMP") && (name == "mspm0c110x" || name == "mspm0g151x") {
         bail!("{name}: should not have GPAMP");
     }
 

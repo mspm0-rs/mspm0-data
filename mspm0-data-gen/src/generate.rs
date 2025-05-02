@@ -218,7 +218,7 @@ fn generate_peripherals2(
             }
 
             // GPAMP does not exist on these parts.
-            if name == "GPAMP" && (chip_name == "MSPM0C110X" || chip_name == "MSPM0G151X") {
+            if name == "GPAMP" && (chip_name == "mspm0c110x" || chip_name == "mspm0g151x") {
                 continue;
             }
 
