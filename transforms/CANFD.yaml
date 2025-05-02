@@ -1,3 +1,4 @@
+# Transforms for CANFD registers from G350x
 transforms:
   - !DeleteUselessEnums
 
