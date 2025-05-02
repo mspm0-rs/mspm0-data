@@ -36,3 +36,9 @@ These are the data sources currently used.
 * mspm0 SVDs: register blocks
 * Manually entered
   * IIDX values for interrupts within a `INT_GROUP`
+
+# Adding a new chip
+
+1. Update the data sources to include the new chip. You will need to get the SVD and sysconfig metadata.
+2. Add the new chip family and part numbers to [`parts.yaml`](./data/parts.yaml)
+3. If needed, add any chip specific register blocks like `sysctl`.

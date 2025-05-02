@@ -2,6 +2,7 @@ mod clock_tree;
 mod generate;
 mod header;
 mod int_group;
+mod parts;
 mod sysconfig;
 mod verify;
 
@@ -60,11 +61,12 @@ fn main() -> anyhow::Result<()> {
     stopwatch.section("Read interrupt group mappings");
 
     let int_groups = int_group::Groups::parse()?;
+    let parts = parts::PartsFile::read()?;
 
     // TODO: Expanded family names (ex. C110X -> C1103 & C1104)
 
     stopwatch.section("Generate data");
-    generate::generate(&headers, &sysconfig, &int_groups)?;
+    generate::generate(&parts, &headers, &sysconfig, &int_groups)?;
 
     stopwatch.stop();
 

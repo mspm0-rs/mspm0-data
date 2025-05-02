@@ -3,15 +3,48 @@ use std::{collections::BTreeMap, fmt};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Chip {
+    /// The chip name.
+    ///
+    /// This shall not contain any placeholders and be a full chip name like mspm0g3507.
+    pub name: String,
+
+    /// The device family.
+    ///
+    /// Usually this is a value like `mspm0g350x`.
+    pub family: String,
+
+    /// URL for the datasheet.
+    pub datasheet_url: String,
+
+    /// URL for the reference manual.
+    pub reference_manual_url: String,
+
+    /// URL for the errata.
+    pub errata_url: String,
+
+    /// Amount of ram in KB.
+    pub ram: u32,
+
+    /// Amount of flash in KB.
+    pub flash: u32,
+
+    /// Packages which this chip is available in.
     pub packages: Vec<Package>,
+
     /// Mapping from device pin to IOMUX register index.
     pub iomux: BTreeMap<String, u32>,
+
+    /// The peripherals available on the chip.
     pub peripherals: BTreeMap<String, Peripheral>,
+
+    /// Interrupts available on the chip.
     pub interrupts: BTreeMap<i32, Interrupt>,
+
+    /// DMA channels available on the chip.
     pub dma_channels: BTreeMap<u32, DmaChannel>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Package {
     /// The name of the package.
     ///
@@ -32,7 +65,7 @@ pub struct Package {
     pub pins: Vec<PackagePin>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PackagePin {
     /// The position by pin name.
     ///
@@ -174,7 +207,7 @@ pub enum PowerDomain {
     Backup,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Peripheral {
     pub name: String,
 
@@ -192,7 +225,7 @@ pub struct Peripheral {
     pub pins: Vec<PeripheralPin>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PeripheralPin {
     /// The name of the pin that this peripheral can be bound to.
     ///
@@ -209,14 +242,14 @@ pub struct PeripheralPin {
     pub pf: Option<u8>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Interrupt {
     pub name: String,
     pub num: i32,
     pub group: BTreeMap<u32, String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DmaChannel {
     /// Whether this is a full channel or basic channel.
     pub full: bool,

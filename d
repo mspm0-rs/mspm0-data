@@ -32,18 +32,55 @@ case "$CMD" in
         ./d build-metapac
     ;;
     check)
-        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0c110x
-        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g110x
-        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g150x
-        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g151x
-        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g310x
-        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g350x
-        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g351x
-        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0l110x
-        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0l122x
-        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0l130x
-        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0l134x
-        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0l222x
+        # MSPS
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,msps003f3
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,msps003f4
+
+        # C Series
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0c1103
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0c1104
+
+        # G Series
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g1105
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g1106
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g1107
+
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g1505
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g1506
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g1507
+
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g1518
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g1519
+
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g3505
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g3506
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g3507
+
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g3105
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g3106
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g3107
+
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g3518
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0g3519
+
+        # L Series
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0l1105
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0l1106
+
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0l1227
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0l1228
+
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0l1304
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0l1305
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0l1306
+
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0l1343
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0l1344
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0l1345
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0l1346
+
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0l2227
+        cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,mspm0l2228
     ;;
     *)
         echo "unknown command"
