@@ -22,11 +22,8 @@ pub struct Chip {
     /// URL for the errata.
     pub errata_url: String,
 
-    /// Amount of ram in KB.
-    pub ram: u32,
-
-    /// Amount of flash in KB.
-    pub flash: u32,
+    /// Memory layout.
+    pub memory: Vec<Memory>,
 
     /// Packages which this chip is available in.
     pub packages: Vec<Package>,
@@ -253,4 +250,16 @@ pub struct Interrupt {
 pub struct DmaChannel {
     /// Whether this is a full channel or basic channel.
     pub full: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Memory {
+    /// The memory partition.
+    pub name: String,
+
+    /// Amount of memory in KB.
+    pub length: u32,
+
+    /// Address of the memory.
+    pub address: u32,
 }

@@ -39,12 +39,21 @@ pub struct PartNumber {
     /// The part number.
     pub name: String,
 
-    /// Amount of flash in KB.
-    pub flash: u32,
-
-    /// Amount of ram in KB.
-    pub ram: u32,
+    /// Memory layout.
+    pub memory: Vec<PartMemory>,
 
     /// The packages available for this part number.
     pub packages: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PartMemory {
+    /// The memory partition.
+    pub name: String,
+
+    /// Amount of memory in KB.
+    pub length: u32,
+
+    /// Address of the memory.
+    pub address: u32,
 }

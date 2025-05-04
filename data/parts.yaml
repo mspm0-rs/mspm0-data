@@ -17,15 +17,25 @@ families:
   errata_url: https://www.ti.com/lit/pdf/slaz753
   part_numbers:
   - name: msps003f3 # Part number
-    flash: 8 # KB
-    ram: 1 # KB
+    memory:
+    - name: FLASH
+      length: 8 # KB
+      address: 0x00000000
+    - name: SRAM
+      length: 1 # KB
+      address: 0x20000000
     # Package codes
     packages:
     - PW20
 
   - name: msps003f4
-    flash: 16
-    ram: 1
+    memory:
+    - name: FLASH
+      length: 16
+      address: 0x00000000
+    - name: SRAM
+      length: 1
+      address: 0x20000000
     packages:
     - PW20
 
@@ -35,8 +45,13 @@ families:
   errata_url: https://www.ti.com/lit/pdf/slaz753
   part_numbers:
   - name: mspm0c1103
-    flash: 8
-    ram: 1
+    memory:
+    - name: FLASH
+      length: 8
+      address: 0x00000000
+    - name: SRAM
+      length: 1
+      address: 0x20000000
     packages:
     - DGS20
     - DSG
@@ -44,8 +59,13 @@ families:
     - RUK
 
   - name: mspm0c1104
-    flash: 16
-    ram: 1
+    memory:
+    - name: FLASH
+      length: 16
+      address: 0x00000000
+    - name: SRAM
+      length: 1
+      address: 0x20000000
     packages:
     - DGS20'
     - DSG
@@ -60,8 +80,13 @@ families:
   errata_url: https://www.ti.com/lit/pdf/slaz742
   part_numbers:
   - name: mspm0g1105
-    flash: 32
-    ram: 16
+    memory:
+    - name: FLASH
+      length: 32
+      address: 0x00000000
+    - name: SRAM
+      length: 16
+      address: 0x20200000
     packages:
     - DGS28
     - PM
@@ -71,8 +96,13 @@ families:
     - RHB
   
   - name: mspm0g1106
-    flash: 64
-    ram: 32
+    memory:
+    - name: FLASH
+      length: 64
+      address: 0x00000000
+    - name: SRAM
+      length: 32
+      address: 0x20200000
     packages:
     - DGS28
     - PM
@@ -82,8 +112,13 @@ families:
     - RHB
   
   - name: mspm0g1107
-    flash: 128
-    ram: 32
+    memory:
+    - name: FLASH
+      length: 128
+      address: 0x00000000
+    - name: SRAM
+      length: 32
+      address: 0x20200000
     packages:
     - DGS28
     - PM
@@ -99,8 +134,13 @@ families:
   errata_url: https://www.ti.com/lit/pdf/slaz742
   part_numbers:
   - name: mspm0g1505
-    flash: 32
-    ram: 16
+    memory:
+    - name: FLASH
+      length: 32
+      address: 0x00000000
+    - name: SRAM
+      length: 16
+      address: 0x20200000
     packages:
     - DGS
     - PM
@@ -110,8 +150,13 @@ families:
     - RHB
 
   - name: mspm0g1506
-    flash: 64
-    ram: 32
+    memory:
+    - name: FLASH
+      length: 64
+      address: 0x00000000
+    - name: SRAM
+      length: 32
+      address: 0x20200000
     packages:
     - DGS
     - PM
@@ -121,8 +166,13 @@ families:
     - RHB
 
   - name: mspm0g1507
-    flash: 128
-    ram: 32
+    memory:
+    - name: FLASH
+      length: 64
+      address: 0x00000000
+    - name: SRAM
+      length: 32
+      address: 0x20200000
     packages:
     - DGS
     - PM
@@ -138,16 +188,32 @@ families:
   errata_url: https://www.ti.com/lit/pdf/slaz758
   part_numbers:
   - name: mspm0g1518
-    flash: 256
-    ram: 128
+    memory:
+    - name: FLASH
+      length: 256
+      address: 0x00000000
+    - name: SRAM_BANK0
+      length: 64
+      address: 0x20200000
+    - name: SRAM_BANK1
+      length: 64
+      address: 0x20210000
     # SLASFA2 (November 2024) states that G1518 has no orderable parts
     #
     # This will likely change in the future as the chip is "prerelease"
     packages:
 
   - name: mspm0g1519
-    flash: 512
-    ram: 128
+    memory:
+    - name: FLASH
+      length: 512
+      address: 0x00000000
+    - name: SRAM_BANK0
+      length: 64
+      address: 0x20200000
+    - name: SRAM_BANK1
+      length: 64
+      address: 0x20210000
     # TODO: SLASFA2 does not list all packages yet
     packages:
     - RGZ
@@ -159,24 +225,39 @@ families:
   errata_url: https://www.ti.com/lit/pdf/slaz742
   part_numbers:
   - name: mspm0g3105
-    flash: 32
-    ram: 16
+    memory:
+    - name: FLASH
+      length: 32
+      address: 0x00000000
+    - name: SRAM
+      length: 16
+      address: 0x20200000
     packages:
     - DGS20
     - DGS28
     - RHB
 
   - name: mspm0g3106
-    flash: 64
-    ram: 32
+    memory:
+    - name: FLASH
+      length: 64
+      address: 0x00000000
+    - name: SRAM
+      length: 32
+      address: 0x20200000
     packages:
     - DGS20
     - DGS28
     - RHB
 
   - name: mspm0g3107
-    flash: 128
-    ram: 32
+    memory:
+    - name: FLASH
+      length: 128
+      address: 0x00000000
+    - name: SRAM
+      length: 32
+      address: 0x20200000
     packages:
     - DGS20
     - DGS28
@@ -188,8 +269,13 @@ families:
   errata_url: https://www.ti.com/lit/pdf/slaz742
   part_numbers:
   - name: mspm0g3505
-    flash: 32
-    ram: 16
+    memory:
+    - name: FLASH
+      length: 32
+      address: 0x00000000
+    - name: SRAM
+      length: 16
+      address: 0x20200000
     packages:
     - DGS28
     - PM
@@ -198,8 +284,13 @@ families:
     - RHB
 
   - name: mspm0g3506
-    flash: 64
-    ram: 32
+    memory:
+    - name: FLASH
+      length: 64
+      address: 0x00000000
+    - name: SRAM
+      length: 32
+      address: 0x20200000
     packages:
     - DGS28
     - PM
@@ -208,8 +299,13 @@ families:
     - RHB
 
   - name: mspm0g3507
-    flash: 128
-    ram: 32
+    memory:
+    - name: FLASH
+      length: 128
+      address: 0x00000000
+    - name: SRAM
+      length: 32
+      address: 0x20200000
     packages:
     - DGS28
     - PM
@@ -223,16 +319,32 @@ families:
   errata_url: https://www.ti.com/lit/pdf/slaz758
   part_numbers:
   - name: mspm0g3518
-    flash: 256
-    ram: 128
+    memory:
+    - name: FLASH
+      length: 256
+      address: 0x00000000
+    - name: SRAM_BANK0
+      length: 64
+      address: 0x20200000
+    - name: SRAM_BANK1
+      length: 64
+      address: 0x20210000
     # SLASFA2 (November 2024) states that G1518 has no orderable parts
     #
     # This will likely change in the future as the chip is "prerelease"
     packages:
 
   - name: mspm0g3519
-    flash: 512
-    ram: 128
+    memory:
+    - name: FLASH
+      length: 512
+      address: 0x00000000
+    - name: SRAM_BANK0
+      length: 64
+      address: 0x20200000
+    - name: SRAM_BANK1
+      length: 64
+      address: 0x20210000
     # TODO: SLASFA2 does not list all packages yet
     packages:
     - PM
@@ -248,8 +360,13 @@ families:
   errata_url: https://www.ti.com/lit/pdf/slaz741
   part_numbers:
   - name: mspm0l1105
-    flash: 32
-    ram: 4
+    memory:
+    - name: FLASH
+      length: 32
+      address: 0x00000000
+    - name: SRAM
+      length: 4
+      address: 0x20000000
     packages:
     - DGS20
     - DGS28
@@ -259,8 +376,13 @@ families:
     - RTR
 
   - name: mspm0l1106
-    flash: 64
-    ram: 4
+    memory:
+    - name: FLASH
+      length: 64
+      address: 0x00000000
+    - name: SRAM
+      length: 4
+      address: 0x20000000
     packages:
     - DGS20
     - DGS28
@@ -275,8 +397,13 @@ families:
   errata_url: https://www.ti.com/lit/pdf/slaz755
   part_numbers:
   - name: mspm0l1227
-    flash: 128
-    ram: 32
+    memory:
+    - name: FLASH
+      length: 128
+      address: 0x00000000
+    - name: SRAM
+      length: 32
+      address: 0x20200000
     packages:
     - PM
     - PN
@@ -286,8 +413,13 @@ families:
     - RHB
 
   - name: mspm0l1228
-    flash: 256
-    ram: 32
+    memory:
+    - name: FLASH
+      length: 256
+      address: 0x00000000
+    - name: SRAM
+      length: 32
+      address: 0x20200000
     packages:
     - PM
     - PN
@@ -302,14 +434,24 @@ families:
   errata_url: https://www.ti.com/lit/pdf/slaz741
   part_numbers:
   - name: mspm0l1303
-    flash: 8
-    ram: 2
+    memory:
+    - name: FLASH
+      length: 8
+      address: 0x00000000
+    - name: SRAM
+      length: 2
+      address: 0x20000000
     packages:
     - RGE
 
   - name: mspm0l1304
-    flash: 16
-    ram: 2
+    memory:
+    - name: FLASH
+      length: 16
+      address: 0x00000000
+    - name: SRAM
+      length: 2
+      address: 0x20000000
     packages:
     - DGS20
     - DGS28
@@ -319,8 +461,13 @@ families:
     - RTR
 
   - name: mspm0l1305
-    flash: 32
-    ram: 4
+    memory:
+    - name: FLASH
+      length: 32
+      address: 0x00000000
+    - name: SRAM
+      length: 4
+      address: 0x20000000
     packages:
     - DGS20
     - DGS28
@@ -330,8 +477,13 @@ families:
     - RTR
 
   - name: mspm0l1306
-    flash: 64
-    ram: 4
+    memory:
+    - name: FLASH
+      length: 64
+      address: 0x00000000
+    - name: SRAM
+      length: 4
+      address: 0x20000000
     packages:
     - DGS20
     - DGS28
@@ -345,26 +497,46 @@ families:
   errata_url: https://www.ti.com/lit/pdf/slaz741
   part_numbers:
   - name: mspm0l1343
-    flash: 8
-    ram: 2
+    memory:
+    - name: FLASH
+      length: 8
+      address: 0x00000000
+    - name: SRAM
+      length: 2
+      address: 0x20000000
     packages:
     - DGS20
 
   - name: mspm0l1344
-    flash: 16
-    ram: 2
+    memory:
+    - name: FLASH
+      length: 16
+      address: 0x00000000
+    - name: SRAM
+      length: 2
+      address: 0x20000000
     packages:
     - DGS20
 
   - name: mspm0l1345
-    flash: 32
-    ram: 4
+    memory:
+    - name: FLASH
+      length: 32
+      address: 0x00000000
+    - name: SRAM
+      length: 4
+      address: 0x20000000
     packages:
     - DGS28
 
   - name: mspm0l1346
-    flash: 64
-    ram: 4
+    memory:
+    - name: FLASH
+      length: 64
+      address: 0x00000000
+    - name: SRAM
+      length: 4
+      address: 0x20000000
     packages:
     - DGS28
 
@@ -374,8 +546,13 @@ families:
   errata_url: https://www.ti.com/lit/pdf/slaz755
   part_numbers:
   - name: mspm0l2227
-    flash: 128
-    ram: 32
+    memory:
+    - name: FLASH
+      length: 128
+      address: 0x00000000
+    - name: SRAM
+      length: 32
+      address: 0x20200000
     packages:
     - PM
     - PN
@@ -383,8 +560,13 @@ families:
     - RGZ
 
   - name: mspm0l2228
-    flash: 256
-    ram: 32
+    memory:
+    - name: FLASH
+      length: 256
+      address: 0x00000000
+    - name: SRAM
+      length: 32
+      address: 0x20200000
     packages:
     - PM
     - PN
