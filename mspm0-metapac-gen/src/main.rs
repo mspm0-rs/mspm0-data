@@ -53,6 +53,7 @@ fn main() -> anyhow::Result<()> {
         generate_chip_pac(name, chip, &out_dir);
         generate_chip_metadata(name, chip, &out_dir);
         linker::generate_device_x(name, chip, &out_dir)?;
+        linker::generate_memory_x(name, chip, &out_dir)?;
 
         // TODO: Generate memory.x
     }
