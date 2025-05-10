@@ -2,15 +2,15 @@ use std::{borrow::Cow, cmp::Ordering, collections::BTreeMap, fs, sync::LazyLock}
 
 use anyhow::{bail, Context};
 use mspm0_data_types::{
-    Chip, DmaChannel, Interrupt, Package, PackagePin, Peripheral, PeripheralPin, PeripheralType,
-    PowerDomain,
+    Chip, DmaChannel, Interrupt, Memory, Package, PackagePin, Peripheral, PeripheralPin,
+    PeripheralType, PowerDomain,
 };
 use regex::Regex;
 
 use crate::{
     header::{Header, Headers},
     int_group::Groups,
-    parts::{PartFamily, PartsFile},
+    parts::{PartFamily, PartMemory, PartsFile},
     sysconfig::{self, PartPeripheralWrapper, Sysconfig, SysconfigFile},
     verify,
 };
@@ -77,8 +77,7 @@ fn generate_family(
             datasheet_url: family.datasheet_url.clone(),
             reference_manual_url: family.reference_manual_url.clone(),
             errata_url: family.errata_url.clone(),
-            ram: part_number.ram,
-            flash: part_number.flash,
+            memory: part_number.memory.iter().map(convert_memory).collect(),
             packages: packages.collect(),
             iomux: iomux.clone(),
             peripherals: peripherals.clone(),
@@ -723,4 +722,12 @@ fn skip_peripheral_pin(pin_name: &String, chip_name: &str) -> bool {
     }
 
     false
+}
+
+fn convert_memory(memory: &PartMemory) -> Memory {
+    Memory {
+        name: memory.name.clone(),
+        length: memory.length,
+        address: memory.address,
+    }
 }
