@@ -7,7 +7,7 @@ use std::{
 use mspm0_data_types::Chip;
 
 pub fn generate_device_x(name: &str, chip: &Chip, out_dir: &Path) -> anyhow::Result<()> {
-    let dir = out_dir.join("src/chips").join(&name);
+    let dir = out_dir.join("src/chips").join(name);
     fs::create_dir_all(&dir)?;
 
     let path = dir.join("device.x");
@@ -26,7 +26,7 @@ pub fn generate_device_x(name: &str, chip: &Chip, out_dir: &Path) -> anyhow::Res
 }
 
 pub fn generate_memory_x(name: &str, chip: &Chip, out_dir: &Path) -> anyhow::Result<()> {
-    let dir = out_dir.join("src/chips").join(&name);
+    let dir = out_dir.join("src/chips").join(name);
     fs::create_dir_all(&dir)?;
 
     let path = dir.join("memory.x");

@@ -19,29 +19,30 @@ impl ClockTree {
         let mut clock_trees = BTreeMap::new();
         let sysconfigs = data_sources.join("sysconfig");
 
-        for path in glob::glob(&format!("{}/**/clocktree.json", sysconfigs.display())).unwrap() {
-            if let Ok(path) = path {
-                let Some(name) = path.iter().nth_back(1) else {
-                    continue;
-                };
+        for path in glob::glob(&format!("{}/**/clocktree.json", sysconfigs.display()))
+            .unwrap()
+            .flatten()
+        {
+            let Some(name) = path.iter().nth_back(1) else {
+                continue;
+            };
 
-                let name = name.to_string_lossy().to_lowercase();
-                let content = fs::read_to_string(path)?;
-                let clock_tree = serde_json::from_str::<ClockTree>(&content)?;
+            let name = name.to_string_lossy().to_lowercase();
+            let content = fs::read_to_string(path)?;
+            let clock_tree = serde_json::from_str::<ClockTree>(&content)?;
 
-                if name.contains("c110x") {
-                    for entry in clock_tree.ip_instances.iter() {
-                        match entry.ty.as_str() {
-                            "Divider" | "Mux" => {
-                                // dbg!(&entry);
-                            }
-                            _ => {}
+            if name.contains("c110x") {
+                for entry in clock_tree.ip_instances.iter() {
+                    match entry.ty.as_str() {
+                        "Divider" | "Mux" => {
+                            // dbg!(&entry);
                         }
+                        _ => {}
                     }
                 }
-
-                clock_trees.insert(name, clock_tree);
             }
+
+            clock_trees.insert(name, clock_tree);
         }
 
         Ok(clock_trees)

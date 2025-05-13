@@ -1,9 +1,10 @@
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Metadata {
     pub name: &'static str,
+    pub family: &'static str,
     // pub memory: &'static [MemoryRegion],
     pub peripherals: &'static [Peripheral],
-    pub pincm_mappings: &'static [PinCmMapping],
+    pub pins: &'static [Pin],
     // pub nvic_priority_bits: Option<u8>,
     pub interrupts: &'static [Interrupt],
     pub dma_channels: &'static [DmaChannel],
@@ -17,7 +18,7 @@ pub struct Peripheral {
 }
 
 #[derive(Debug, Eq, PartialEq, Clone)]
-pub struct PinCmMapping {
+pub struct Pin {
     pub pin: &'static str,
     pub pincm: u8,
 }

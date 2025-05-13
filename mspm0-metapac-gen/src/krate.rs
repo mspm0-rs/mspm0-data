@@ -2,7 +2,7 @@ use std::{collections::BTreeMap, fs, path::Path};
 
 use mspm0_data_types::Chip;
 
-pub fn generate<'a>(out_dir: &Path, chips: &BTreeMap<String, Chip>) -> anyhow::Result<()> {
+pub fn generate(out_dir: &Path, chips: &BTreeMap<String, Chip>) -> anyhow::Result<()> {
     use std::fmt::Write;
 
     fs::copy("mspm0-metapac-gen/res/build.rs", out_dir.join("build.rs"))?;
@@ -16,8 +16,11 @@ pub fn generate<'a>(out_dir: &Path, chips: &BTreeMap<String, Chip>) -> anyhow::R
 
     writeln!(cargo_toml, "# Chip features - automatically generated")?;
 
-    for (name, _) in chips {
-        writeln!(cargo_toml, "{name} = []")?;
+    // Features are done by chip and package.
+    for (name, chip) in chips {
+        for package in chip.packages.iter() {
+            writeln!(cargo_toml, "{name}{} = []", package.package.to_lowercase())?;
+        }
     }
 
     fs::write(out_dir.join("Cargo.toml"), cargo_toml)?;

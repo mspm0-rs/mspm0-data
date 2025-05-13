@@ -58,18 +58,34 @@ fn generate_family(
     int_groups: &BTreeMap<String, Groups>,
 ) -> anyhow::Result<()> {
     // Data shared across all chips in a family.
-    let packages = get_packages(&family.family, &sysconfig)?;
-    let iomux = generate_pincm(&family.family, &sysconfig)?;
-    let peripherals = generate_peripherals2(&family.family, header, &sysconfig)?;
+    let packages = get_packages(&family.family, sysconfig)?;
+    let iomux = generate_pincm(&family.family, sysconfig)?;
+    let peripherals = generate_peripherals2(&family.family, header, sysconfig)?;
     let interrupts = generate_irqs(&family.family, header, int_groups)?;
-    let dma_channels = generate_dma_channels(&family.family, &sysconfig)?;
+    let dma_channels = generate_dma_channels(&family.family, sysconfig)?;
 
     for part_number in family.part_numbers.iter() {
         // Filter for package types available on the part number.
         let packages = packages
             .iter()
             .filter(|package| part_number.packages.contains(&package.package))
-            .cloned();
+            .cloned()
+            .map(|package| {
+                // We need to build the actual chip name, including package.
+                //
+                // e.g. mspm0c1104dgs20
+                //
+                // however this really should be something like mspm0c1104**s**dgs20 or mspm0c1104**q**dgs20
+                let mut chip = part_number.name.clone();
+                chip.push_str(&package.package.to_lowercase());
+
+                Package {
+                    name: package.name,
+                    chip,
+                    package: package.package,
+                    pins: package.pins,
+                }
+            });
 
         let chip = Chip {
             name: part_number.name.clone(),
@@ -108,7 +124,7 @@ fn get_packages(family: &str, sysconfig: &SysconfigFile) -> anyhow::Result<Vec<P
     for package in sysconfig.packages.values() {
         let raw_name = &package.name;
 
-        let captures = PATTERN.captures(&raw_name).unwrap();
+        let captures = PATTERN.captures(raw_name).unwrap();
         let name = &captures["name"];
         let package_name = &captures["package"];
 
@@ -278,7 +294,7 @@ fn generate_peripherals2(
                             let pin = device_pin_name
                                 .split_once('/')
                                 .map(|(a, _)| a)
-                                .unwrap_or_else(|| &device_pin_name)
+                                .unwrap_or_else(|| device_pin_name)
                                 .to_string();
 
                             if skip_peripheral_pin(device_pin_name, chip_name) {

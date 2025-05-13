@@ -1,29 +1,80 @@
-use mspm0_data_types::{Chip, Peripheral, PeripheralType};
+use std::{collections::HashSet, sync::LazyLock};
+
+use mspm0_data_types::{Chip, Package, Peripheral, PeripheralType};
 use proc_macro2::{Literal, TokenStream};
 use quote::quote;
+use regex::Regex;
 
-pub fn generate(name: &str, chip: &Chip) -> TokenStream {
+static GPIO_PIN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?m)^P(?<bank>[A-Z])\d+").unwrap());
+
+pub fn pins(chip: &Chip, package: &Package) -> TokenStream {
+    // Filter for pins available on this package.
+    let pins = package.pins.iter().filter_map(|pin| {
+        // We need to match explicitly for GPIO pins.
+        //
+        // The metadata contains both non-GPIO pins (VCORE, VSS, VDD) and NRST.
+        // On parts where a GPIO pin and NRST are bonded, we need to pick the GPIO pins.
+        let signal = pin
+            .signals
+            .iter()
+            .find(|signal| GPIO_PIN.is_match(signal))?;
+
+        let pincm = chip
+            .iomux
+            .get(signal)
+            .expect("Signal did not have an iomux pincm entry");
+        let pincm = Literal::u8_suffixed(*pincm as u8);
+
+        Some(quote! { Pin { pin: #signal, pincm: #pincm } })
+    });
+
+    quote! { &[#(#pins),*] }
+}
+
+pub fn peripherals(chip: &Chip, package: &Package) -> TokenStream {
+    // Peripheral pins should only be marked as available if the package contains the pin.
+    //
+    // So we make a list of pins for quick lookup.
+    let pins = package
+        .pins
+        .iter()
+        .filter_map(|pin| pin.signals.iter().find(|signal| GPIO_PIN.is_match(signal)))
+        .cloned()
+        .collect::<HashSet<String>>();
+
     let mut peripherals = Vec::<TokenStream>::new();
 
     for peri in chip.peripherals.values() {
-        if let Some(peri) = generate_peripheral(peri) {
+        if let Some(peri) = generate_peripheral(peri, &pins) {
             peripherals.push(peri);
         }
     }
 
-    let mut pincm_mappings = Vec::new();
+    quote! { &[#(#peripherals),*] }
+}
 
-    for (pin, cm) in chip.iomux.iter() {
-        let pincm = Literal::u8_unsuffixed(*cm as _);
+pub fn dma_channels(chip: &Chip) -> TokenStream {
+    let mut dma_channels = Vec::new();
 
-        pincm_mappings.push(quote! {
-            PinCmMapping {
-                pin: #pin,
-                pincm: #pincm,
+    for (&num, channel) in chip.dma_channels.iter() {
+        let number = Literal::u32_unsuffixed(num);
+        let full = channel.full;
+
+        dma_channels.push(quote! {
+            DmaChannel {
+                number: #number,
+                full: #full,
             }
         });
     }
 
+    quote! {
+        &[#(#dma_channels),*]
+    }
+}
+
+pub fn interrupts(chip: &Chip) -> TokenStream {
     let mut interrupts = Vec::new();
 
     for (_, interrupt) in chip.interrupts.iter() {
@@ -43,28 +94,8 @@ pub fn generate(name: &str, chip: &Chip) -> TokenStream {
         });
     }
 
-    let mut dma_channels = Vec::new();
-
-    for (&num, channel) in chip.dma_channels.iter() {
-        let number = Literal::u32_unsuffixed(num);
-        let full = channel.full;
-
-        dma_channels.push(quote! {
-            DmaChannel {
-                number: #number,
-                full: #full,
-            }
-        });
-    }
-
     quote! {
-        pub static METADATA: Metadata = Metadata {
-            name: #name,
-            peripherals: &[#(#peripherals),*],
-            pincm_mappings: &[#(#pincm_mappings),*],
-            interrupts: &[#(#interrupts),*],
-            dma_channels: &[#(#dma_channels),*],
-        };
+        &[#(#interrupts),*]
     }
 }
 
@@ -72,7 +103,10 @@ fn skip_peripheral(ty: PeripheralType) -> bool {
     matches!(ty, PeripheralType::Unknown | PeripheralType::Sysctl)
 }
 
-fn generate_peripheral(peripheral: &Peripheral) -> Option<TokenStream> {
+fn generate_peripheral(
+    peripheral: &Peripheral,
+    available_pins: &HashSet<String>,
+) -> Option<TokenStream> {
     // Exclude peripherals that don't really exist as singletons.
     if skip_peripheral(peripheral.ty) {
         return None;
@@ -91,13 +125,15 @@ fn generate_peripheral(peripheral: &Peripheral) -> Option<TokenStream> {
             None => quote! { None },
         };
 
-        pins.push(quote! {
-            PeripheralPin {
-                pin: #name,
-                signal: #signal,
-                pf: #pf,
-            }
-        });
+        if available_pins.contains(name) {
+            pins.push(quote! {
+                PeripheralPin {
+                    pin: #name,
+                    signal: #signal,
+                    pf: #pf,
+                }
+            });
+        }
     }
 
     Some(quote! {

@@ -27,7 +27,7 @@ impl Headers {
             let name = name.to_string_lossy();
 
             let name = name.split(".h").next().unwrap();
-            headers.insert(name.to_string(), Header::read(&name, &header)?);
+            headers.insert(name.to_string(), Header::read(name, &header)?);
         }
 
         Ok(Self { headers })
@@ -96,7 +96,7 @@ impl Header {
         }
 
         assert!(
-            peripherals.len() > 0,
+            !peripherals.is_empty(),
             "{chip_name}: no matches in header for peripherals and addresses"
         );
 
@@ -142,7 +142,7 @@ impl Header {
         }
 
         assert!(
-            irqs.len() > 0,
+            !irqs.is_empty(),
             "{chip_name}: no matches in header for irq numbers"
         );
 
