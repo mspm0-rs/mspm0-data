@@ -9,6 +9,7 @@ use std::{
 
 use anyhow::Context;
 use mspm0_data_types::{Chip, Package};
+use quote::quote;
 
 mod interrupt;
 mod krate;
@@ -64,6 +65,8 @@ fn main() -> anyhow::Result<()> {
             linker::generate_memory_x(&name, chip, &out_dir)?;
         }
     }
+
+    generate_all_chips(&out_dir, chips.values())?;
 
     krate::generate(&out_dir, &chips)?;
 
@@ -153,6 +156,28 @@ fn generate_chip_metadata(
     drop(file);
 
     rustfmt(path);
+}
+
+fn generate_all_chips<'a>(out_dir: &Path, chips: impl Iterator<Item = &'a Chip>) -> anyhow::Result<()> {
+    let mut list = Vec::new();
+
+    for chip in chips {
+        for package in chip.packages.iter() {
+            list.push(&package.chip);
+        }
+    }
+
+    let list = quote! {
+        pub const ALL_CHIPS: &[&str] = &[
+            #(#list),*
+        ];
+    };
+
+    let all_chips = out_dir.join("src/all_chips.rs");
+    fs::write(&all_chips, list.to_string())?;
+    rustfmt(all_chips);
+
+    Ok(())
 }
 
 fn rustfmt<P: AsRef<Path>>(path: P) {
