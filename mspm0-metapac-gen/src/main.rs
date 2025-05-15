@@ -112,11 +112,13 @@ fn generate_chip_metadata(
         "
         pub(crate) static PERIPHERALS: &[Peripheral] = {};
         pub(crate) static INTERRUPTS: &[Interrupt] = {};
+        pub(crate) static INTERRUPT_GROUPS: &[InterruptGroup] = {};
         pub(crate) static DMA_CHANNELS: &[DmaChannel] = {};
         pub(crate) static PINS: &[Pin] = {};
         ",
         metadata::peripherals(chip, package),
         metadata::interrupts(chip),
+        metadata::interrupt_groups(chip),
         metadata::dma_channels(chip),
         metadata::pins(chip, package),
     )
@@ -147,6 +149,7 @@ fn generate_chip_metadata(
             peripherals: PERIPHERALS,
             pins: PINS,
             interrupts: INTERRUPTS,
+            interrupt_groups: INTERRUPT_GROUPS,
             dma_channels: DMA_CHANNELS,
         }};
         ",
@@ -158,7 +161,10 @@ fn generate_chip_metadata(
     rustfmt(path);
 }
 
-fn generate_all_chips<'a>(out_dir: &Path, chips: impl Iterator<Item = &'a Chip>) -> anyhow::Result<()> {
+fn generate_all_chips<'a>(
+    out_dir: &Path,
+    chips: impl Iterator<Item = &'a Chip>,
+) -> anyhow::Result<()> {
     let mut list = Vec::new();
 
     for chip in chips {

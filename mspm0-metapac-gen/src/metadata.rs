@@ -99,6 +99,49 @@ pub fn interrupts(chip: &Chip) -> TokenStream {
     }
 }
 
+pub fn interrupt_groups(chip: &Chip) -> TokenStream {
+    let mut groups = Vec::new();
+
+    for (_, interrupt) in chip.interrupts.iter() {
+        // Skip interrupts handled by cortex-m
+        if interrupt.num < 0 {
+            continue;
+        }
+
+        if interrupt.group.is_empty() {
+            continue;
+        }
+
+        let mut entries = Vec::new();
+
+        for (index, interrupt) in interrupt.group.iter() {
+            let number = Literal::u32_unsuffixed(*index);
+
+            entries.push(quote! {
+                GroupInterrupt {
+                    name: #interrupt,
+                    number: #number
+                }
+            });
+        }
+
+        let name = &interrupt.name;
+        let number = Literal::u32_unsuffixed(interrupt.num as u32);
+
+        groups.push(quote! {
+            InterruptGroup {
+                name: #name,
+                number: #number,
+                interrupts: &[#(#entries),*]
+            }
+        });
+    }
+
+    quote! {
+        &[#(#groups),*]
+    }
+}
+
 fn skip_peripheral(ty: PeripheralType) -> bool {
     matches!(ty, PeripheralType::Unknown | PeripheralType::Sysctl)
 }

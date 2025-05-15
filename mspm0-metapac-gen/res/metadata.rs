@@ -7,6 +7,7 @@ pub struct Metadata {
     pub pins: &'static [Pin],
     // pub nvic_priority_bits: Option<u8>,
     pub interrupts: &'static [Interrupt],
+    pub interrupt_groups: &'static [InterruptGroup],
     pub dma_channels: &'static [DmaChannel],
 }
 
@@ -32,6 +33,19 @@ pub struct PeripheralPin {
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Interrupt {
+    pub name: &'static str,
+    pub number: u32,
+}
+
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct InterruptGroup {
+    pub name: &'static str,
+    pub number: u32,
+    pub interrupts: &'static [GroupInterrupt],
+}
+
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct GroupInterrupt {
     pub name: &'static str,
     pub number: u32,
 }
