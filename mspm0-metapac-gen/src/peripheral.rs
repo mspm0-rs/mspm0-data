@@ -1,3 +1,4 @@
+use crate::perimap::PERIMAP;
 use heck::ToPascalCase;
 use mspm0_data_types::{Chip, Peripheral, PeripheralType};
 use proc_macro2::{Ident, Literal, Span, TokenStream};
@@ -35,11 +36,11 @@ fn generate_peripheral_imports(chip: &Chip) -> TokenStream {
 
     peripheral_types
         .iter()
-        .map(|(name, peripheral)| generate_import(name, peripheral))
+        .map(|(name, peripheral)| generate_import(name, peripheral, chip))
         .collect()
 }
 
-fn generate_import(_name: &str, peripheral: &Peripheral) -> TokenStream {
+fn generate_import(_name: &str, peripheral: &Peripheral, chip: &Chip) -> TokenStream {
     if !GENERATE_PERIPHERALS
         .iter()
         .any(|ty_generate| &peripheral.ty == ty_generate)
@@ -52,15 +53,14 @@ fn generate_import(_name: &str, peripheral: &Peripheral) -> TokenStream {
         Span::call_site(),
     );
 
-    let path = if let Some(ref version) = peripheral.version {
-        format!("../../peripherals/{}_{}.rs", peripheral.ty, version)
+    if let Some(&block) = PERIMAP.get(&format!("{}:{}", chip.family.to_lowercase(), name)) {
+        let path = format!("../../peripherals/{}_{}.rs", block.0, block.1);
+        quote! {
+            #[path = #path]
+            pub mod #name;
+        }
     } else {
-        format!("../../peripherals/{}.rs", peripheral.ty)
-    };
-
-    quote! {
-        #[path = #path]
-        pub mod #name;
+        TokenStream::default()
     }
 }
 
