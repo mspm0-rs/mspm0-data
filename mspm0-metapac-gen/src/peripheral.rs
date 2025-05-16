@@ -9,6 +9,7 @@ use quote::quote;
 const GENERATE_PERIPHERALS: &[PeripheralType] = &[
     PeripheralType::Cpuss,
     PeripheralType::Dma,
+    PeripheralType::Canfd,
     PeripheralType::Gpio,
     PeripheralType::Iomux,
     PeripheralType::I2c,
