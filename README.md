@@ -42,7 +42,7 @@ These are the data sources currently used.
 1. Update the data sources to include the new chip. You will need to get the SVD and sysconfig metadata.
 2. Add the new chip family and part numbers to [`parts.yaml`](./data/parts.yaml)
 3. If needed, add any chip specific register blocks like `sysctl`.
-4. Check the peripheral mapping in [`perimap.rs`](./mspm0-metapac-gen/src/perimap.rs) to use the correct peripherals.
+4. Check the peripheral mapping in [`perimap.rs`](./mspm0-data-gen/src/perimap.rs) to use the correct peripherals.
 
 # Adding support for a new peripheral
 
@@ -60,10 +60,11 @@ are only interested in one. It's easier than it looks, and doing all families at
 - For each version, pick the "best" YAML (the one that has less enums/docs missing), place them in `data/registers/canfd_vX.yaml`
 - Cleanup the register yamls (see below).
 - Minimize the diff between each pair of versions. For example between `canfd_v1.yaml` and `canfd_v2.yaml`. If one is missing enums or descriptions, copy it from another.
-- Add entries to [`perimap`](./mspm0-metapac-gen/src/perimap.rs), see below.
-- Rebuild (`./d build-metapac`), then:
+- Add entries to [`perimap`](./mspm0-data-gen/src/perimap.rs), see below.
+- Rebuild (`./d gen && ./d build-metapac`), then:
   - Check `mspm0-metapac/src/chips/<chip>/pac.rs` has the right `#[path = "../../peripherals/canfd_v1.rs"]` paths.
   - Ensure a successful build of the affected pac. e.g.
+
     ```
     cd build/mspm0-metapac
     cargo build --features mspm0g3507pm
@@ -73,8 +74,8 @@ Please separate manual changes and changes resulting from regen in separate comm
 
 ## Register cleanup
 
-
 SVDs have some widespread annoyances that should be fixed when adding register YAMLs to this repo. Check out `chiptool` transforms, they can help in speeding up the cleanups.
+
 - Remove "useless prefixes". For example if all regs in the `RNG` peripheral are named `RNG_FOO`, `RNG_BAR`, the `RNG_` peripheral is not conveying any useful information at all, and must go.
 - Remove "useless enums". Useless enums is one of the biggest cause of slow compilation times in STM32 PACs.
   - 0=disabled, 1=enabled. Common in `xxEN` and `xxIE` fields. If a field says "enable foo" and is one bit, it's obvious "true" means enabled and "false" means disabled.
@@ -86,7 +87,7 @@ SVDs have some widespread annoyances that should be fixed when adding register Y
 
 ## Peripheral mapping (perimap)
 
-The `mspm0-metapac-gen` binary has a map to match peripherals to the right version in all chips, the [perimap](./mspm0-metapac-gen/src/perimap.rs).
+The `mspm0-metapac-gen` binary has a map to match peripherals to the right version in all chips, the [perimap](./mspm0-data-gen/src/perimap.rs).
 
 When parsing a chip, for each peripheral a "key" string is constructed using this format: `FAMILY:PERIPHERAL_NAME`, where:
 
