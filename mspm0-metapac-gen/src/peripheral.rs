@@ -1,3 +1,5 @@
+use std::collections::{BTreeMap, BTreeSet};
+
 use heck::ToPascalCase;
 use mspm0_data_types::{Chip, Peripheral, PeripheralType};
 use proc_macro2::{Ident, Literal, Span, TokenStream};
@@ -17,8 +19,8 @@ const GENERATE_PERIPHERALS: &[PeripheralType] = &[
     PeripheralType::Uart,
 ];
 
-pub fn generate(chip: &Chip) -> TokenStream {
-    let peripheral_imports = generate_peripheral_imports(chip);
+pub fn generate(chip: &Chip, all_versions: &mut BTreeMap<String, BTreeSet<String>>) -> TokenStream {
+    let peripheral_imports = generate_peripheral_imports(chip, all_versions);
     let peripheral_consts = generate_peripheral_consts(chip);
 
     quote! {
@@ -27,7 +29,10 @@ pub fn generate(chip: &Chip) -> TokenStream {
     }
 }
 
-fn generate_peripheral_imports(chip: &Chip) -> TokenStream {
+fn generate_peripheral_imports(
+    chip: &Chip,
+    all_versions: &mut BTreeMap<String, BTreeSet<String>>,
+) -> TokenStream {
     // Sort the peripherals by type for generation.
     let mut peripheral_types = chip.peripherals.iter().collect::<Vec<_>>();
     peripheral_types.sort_by(|(a, _), (b, _)| a.cmp(b));
@@ -35,11 +40,15 @@ fn generate_peripheral_imports(chip: &Chip) -> TokenStream {
 
     peripheral_types
         .iter()
-        .map(|(name, peripheral)| generate_import(name, peripheral))
+        .map(|(name, peripheral)| generate_import(name, peripheral, all_versions))
         .collect()
 }
 
-fn generate_import(_name: &str, peripheral: &Peripheral) -> TokenStream {
+fn generate_import(
+    _name: &str,
+    peripheral: &Peripheral,
+    all_versions: &mut BTreeMap<String, BTreeSet<String>>,
+) -> TokenStream {
     if !GENERATE_PERIPHERALS
         .iter()
         .any(|ty_generate| &peripheral.ty == ty_generate)
@@ -53,6 +62,10 @@ fn generate_import(_name: &str, peripheral: &Peripheral) -> TokenStream {
     );
 
     if let Some(version) = peripheral.version.clone() {
+        all_versions
+            .entry(name.to_string())
+            .or_default()
+            .insert(version.clone());
         let path = format!("../../peripherals/{}_{}.rs", name, version);
         quote! {
             #[path = #path]
