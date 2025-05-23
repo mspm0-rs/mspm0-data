@@ -157,6 +157,10 @@ fn generate_peripheral(
 
     let name = &peripheral.name;
     let kind = &peripheral.ty.to_string();
+    let version = match &peripheral.version {
+        Some(v) => quote! { Some(#v) },
+        None => quote! { None },
+    };
 
     let mut pins = Vec::<TokenStream>::new();
 
@@ -183,6 +187,7 @@ fn generate_peripheral(
         Peripheral {
             name: #name,
             kind: #kind,
+            version: #version,
             pins: &[#(#pins),*],
         }
     })

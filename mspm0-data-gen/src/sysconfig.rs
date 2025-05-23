@@ -132,6 +132,7 @@ pub struct PeripheralPin {
 pub struct Peripheral {
     pub id: String,
     pub name: String,
+    pub version: Option<String>,
     pub description: String,
     /// Attributes are dynamic and depend on the peripheral type.
     pub attributes: serde_json::Value,
