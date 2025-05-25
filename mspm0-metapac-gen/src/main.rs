@@ -68,7 +68,7 @@ fn main() -> anyhow::Result<()> {
     }
 
     generate_all_chips(&out_dir, chips.values())?;
-    generate_all_peripheral_versions(&out_dir, &all_peripheral_versions);
+    generate_all_peripheral_versions(&out_dir, &all_peripheral_versions)?;
 
     krate::generate(&out_dir, &chips)?;
 
@@ -201,22 +201,25 @@ fn generate_all_chips<'a>(
 fn generate_all_peripheral_versions(
     out_dir: &Path,
     all_versions: &BTreeMap<String, BTreeSet<String>>,
-) {
+) -> anyhow::Result<()> {
     let mut contents = String::new();
     writeln!(
         &mut contents,
         "pub static ALL_PERIPHERAL_VERSIONS: &[(&str, &[&str])] = &["
-    )
-    .unwrap();
+    )?;
     for (kind, versions) in all_versions.iter() {
-        write!(&mut contents, "    ({:?}, &[", kind).unwrap();
+        write!(&mut contents, "    ({:?}, &[", kind)?;
         for version in versions.iter() {
-            write!(&mut contents, "{:?}, ", version).unwrap();
+            write!(&mut contents, "{:?}, ", version)?;
         }
-        writeln!(&mut contents, "]),").unwrap();
+        writeln!(&mut contents, "]),")?;
     }
-    writeln!(&mut contents, "];").unwrap();
-    fs::write(out_dir.join("src/all_peripheral_versions.rs"), contents).unwrap();
+    writeln!(&mut contents, "];")?;
+    let all_peripheral_versions = out_dir.join("src/all_peripheral_versions.rs");
+    fs::write(&all_peripheral_versions, contents)?;
+    rustfmt(all_peripheral_versions);
+
+    Ok(())
 }
 
 fn rustfmt<P: AsRef<Path>>(path: P) {
