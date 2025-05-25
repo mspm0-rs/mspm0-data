@@ -14,4 +14,5 @@ pub mod metadata {
     include!("metadata.rs");
     include!(env!("MSPM0_METAPAC_METADATA_PATH"));
     include!("all_chips.rs");
+    include!("all_peripheral_versions.rs");
 }

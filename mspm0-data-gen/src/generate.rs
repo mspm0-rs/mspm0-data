@@ -11,6 +11,7 @@ use crate::{
     header::{Header, Headers},
     int_group::Groups,
     parts::{PartFamily, PartMemory, PartsFile},
+    perimap::PERIMAP,
     sysconfig::{self, PartPeripheralWrapper, Sysconfig, SysconfigFile},
     verify,
 };
@@ -441,12 +442,15 @@ fn generate_missing(
     static GPIO_PIN: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"(?m)^P(?<bank>[A-Z])\d+").unwrap());
 
+    let version = PERIMAP
+        .get(&format!("{}:{}", chip_name, PeripheralType::Dma))
+        .map(|s| s.to_string());
     peripherals.insert(
         "DMA".to_string(),
         Peripheral {
             name: "DMA".to_string(),
             ty: PeripheralType::Dma,
-            version: None,
+            version,
             address: Some(0x4042A000),
             // DMA always lives in PD1
             power_domain: PowerDomain::Pd1,
@@ -465,12 +469,15 @@ fn generate_missing(
             let address = get_peripheral_addresses(chip_name, &bank, header, sysconfig)?
                 .context(format!("{bank} must have address"))?;
 
+            let version = PERIMAP
+                .get(&format!("{}:{}", chip_name, PeripheralType::Gpio))
+                .map(|s| s.to_string());
             let gpio = peripherals
                 .entry(bank)
                 .or_insert_with_key(|name| Peripheral {
                     name: name.clone(),
                     ty: PeripheralType::Gpio,
-                    version: None,
+                    version,
                     address: Some(address),
                     // GPIO always lives in PD0
                     power_domain: PowerDomain::Pd0,
@@ -506,7 +513,10 @@ fn maybe_rename(name: &str) -> String {
 
 fn get_peripheral_type_version(chip_name: &str, name: &str) -> (PeripheralType, Option<String>) {
     if name.starts_with("SYSCTL") {
-        return (PeripheralType::Sysctl, Some(get_sysctl_version(chip_name)));
+        let version = PERIMAP
+            .get(&format!("{}:{}", chip_name, PeripheralType::Sysctl))
+            .map(|s| s.to_string());
+        return (PeripheralType::Sysctl, version);
     }
 
     let ty = if name.starts_with("ADC") {
@@ -572,8 +582,11 @@ fn get_peripheral_type_version(chip_name: &str, name: &str) -> (PeripheralType, 
     } else {
         PeripheralType::Unknown
     };
+    let version = PERIMAP
+        .get(&format!("{}:{}", chip_name, ty))
+        .map(|s| s.to_string());
 
-    (ty, None)
+    (ty, version)
 }
 
 fn get_peripheral_addresses(
@@ -603,21 +616,6 @@ fn get_peripheral_addresses(
         ))?;
 
     Ok(Some(address))
-}
-
-fn get_sysctl_version(chip_name: &str) -> String {
-    let s = match chip_name {
-        "msps003fx" | "mspm0c110x" => "c110x",
-        "mspm0l110x" | "mspm0l130x" | "mspm0l134x" => "l110x_l130x_l134x",
-        "mspm0l122x" | "mspm0l222x" => "l122x_l222x",
-        "mspm0g110x" | "mspm0g150x" | "mspm0g310x" | "mspm0g350x" => "g350x_g310x_g150x_g110x",
-        "mspm0g151x" | "mspm0g351x" => "g351x_g151x",
-        "mspm0h321x" => "h321x",
-
-        _ => unreachable!("Missing mapping from {chip_name} to sysctl version"),
-    };
-
-    String::from(s)
 }
 
 fn generate_irqs(
