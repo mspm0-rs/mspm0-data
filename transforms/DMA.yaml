@@ -125,6 +125,18 @@ transforms:
       bit_offset: 23
       bit_size: 1
 
+  - !MakeFieldArray
+    fieldsets: INT
+    # Explicitly exclude PREIRQ interrupts from this match, those will be arrayified later..
+    from: (PREIRQ){0}CH\d+
+    to: CH
+
+  - !MakeFieldArray
+    fieldsets: INT
+    # Explicitly exclude PREIRQ interrupts from this match, those will be arrayified later..
+    from: PREIRQCH\d+
+    to: PREIRQCH
+
   # Remove DMA prefixes for enum variants
   - !RenameEnumVariants
     enum: STAT
@@ -161,6 +173,34 @@ transforms:
   - !MergeEnums
     from: (SRC|DST)WDTH
     to: WDTH
+
+  ## AUTOEN is missing, but only present on some chips. It is a pure addition.
+  - !Add
+    ir:
+      enum/AUTOEN:
+        bit_size: 2
+        variants:
+        - name: NONE
+          description: No automatic DMA enable
+          value: 0
+        - name: SA
+          description: Automatic DMA channel enable on SA register write.
+          value: 1
+        - name: DA
+          description: Automatic DMA channel enable on DA register write.
+          value: 2
+        - name: SZ
+          description: Automatic DMA channel enable on SZ register write.
+          value: 3
+
+  - !AddFields
+    fieldset: CTL
+    fields:
+    - name: AUTOEN
+      description: 'Automatic DMA channel enable on SA, DA, SZ register write. If channel is configured as SW trigger (TCTL=0), the AUTOEN will set the EN and REQ. If channel is configured as HW trigger (CTL!=0), the AUTOEN will only set the EN. Note: This feature is not present in all devices. Consult the device specific datasheet.'
+      bit_offset: 2
+      bit_size: 2
+      enum: AUTOEN
 
   ## Cleanup
   - !Sort

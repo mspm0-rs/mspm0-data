@@ -204,88 +204,20 @@ fieldset/IIDX:
 fieldset/INT:
   description: Interrupt clear.
   fields:
-  - name: CH0
+  - name: CH
     description: DMA Channel 0 interrupt signals that size counter reached zero (DMASZ=0).
     bit_offset: 0
     bit_size: 1
-  - name: CH1
-    description: DMA Channel 1 interrupt signals that size counter reached zero (DMASZ=0).
-    bit_offset: 1
-    bit_size: 1
-  - name: CH2
-    description: DMA Channel 2 interrupt signals that size counter reached zero (DMASZ=0).
-    bit_offset: 2
-    bit_size: 1
-  - name: CH3
-    description: DMA Channel 3 interrupt signals that size counter reached zero (DMASZ=0).
-    bit_offset: 3
-    bit_size: 1
-  - name: CH4
-    description: DMA Channel 4 interrupt signals that size counter reached zero (DMASZ=0).
-    bit_offset: 4
-    bit_size: 1
-  - name: CH5
-    description: DMA Channel 5 interrupt signals that size counter reached zero (DMASZ=0).
-    bit_offset: 5
-    bit_size: 1
-  - name: CH6
-    description: DMA Channel 6 interrupt signals that size counter reached zero (DMASZ=0).
-    bit_offset: 6
-    bit_size: 1
-  - name: CH7
-    bit_offset: 7
-    bit_size: 1
-  - name: CH8
-    bit_offset: 8
-    bit_size: 1
-  - name: CH9
-    bit_offset: 9
-    bit_size: 1
-  - name: CH10
-    bit_offset: 10
-    bit_size: 1
-  - name: CH11
-    bit_offset: 11
-    bit_size: 1
-  - name: CH12
-    bit_offset: 12
-    bit_size: 1
-  - name: CH13
-    bit_offset: 13
-    bit_size: 1
-  - name: CH14
-    bit_offset: 14
-    bit_size: 1
-  - name: CH15
-    bit_offset: 15
-    bit_size: 1
-  - name: PREIRQCH0
+    array:
+      len: 16
+      stride: 1
+  - name: PREIRQCH
     description: Pre-IRQ for Channel 0. Size counter reached Pre-IRQ threshold.
     bit_offset: 16
     bit_size: 1
-  - name: PREIRQCH1
-    description: Pre-IRQ for Channel 1. Size counter reached Pre-IRQ threshold.
-    bit_offset: 17
-    bit_size: 1
-  - name: PREIRQCH2
-    description: Pre-IRQ for Channel 2. Size counter reached Pre-IRQ threshold.
-    bit_offset: 18
-    bit_size: 1
-  - name: PREIRQCH3
-    bit_offset: 19
-    bit_size: 1
-  - name: PREIRQCH4
-    bit_offset: 20
-    bit_size: 1
-  - name: PREIRQCH5
-    bit_offset: 21
-    bit_size: 1
-  - name: PREIRQCH6
-    bit_offset: 22
-    bit_size: 1
-  - name: PREIRQCH7
-    bit_offset: 23
-    bit_size: 1
+    array:
+      len: 8
+      stride: 1
   - name: ADDRERR
     description: DMA address error, SRC address not reachable.
     bit_offset: 24
@@ -337,6 +269,21 @@ fieldset/TCTL:
     bit_offset: 7
     bit_size: 1
     enum: TINT
+enum/AUTOEN:
+  bit_size: 2
+  variants:
+  - name: NONE
+    description: No automatic DMA enable
+    value: 0
+  - name: SA
+    description: Automatic DMA channel enable on SA register write.
+    value: 1
+  - name: DA
+    description: Automatic DMA channel enable on DA register write.
+    value: 2
+  - name: SZ
+    description: Automatic DMA channel enable on SZ register write.
+    value: 3
 enum/BURSTSZ:
   bit_size: 2
   variants:
@@ -570,19 +517,4 @@ enum/WDTH:
     value: 2
   - name: LONG
     description: Destination data width is LONG-WORD (64-bit).
-    value: 3
-enum/AUTOEN:
-  bit_size: 2
-  variants:
-  - name: NONE
-    description: No automatic DMA enable
-    value: 0
-  - name: SA
-    description: Automatic DMA channel enable on SA register write.
-    value: 1
-  - name: DA
-    description: Automatic DMA channel enable on DA register write.
-    value: 2
-  - name: SZ
-    description: Automatic DMA channel enable on SZ register write.
     value: 3
