@@ -293,7 +293,7 @@ enum/BURSTSZ:
   - name: BURST_8
     description: The burst size is 8, after 8 transfers the block transfer is interrupted and the priority is reevaluated.
     value: 1
-  - name: BUSRT_16
+  - name: BURST_16
     description: The burst size is 16, after 16 transfers the block transfer is interrupted and the priority is reevaluated.
     value: 2
   - name: BURST_32
