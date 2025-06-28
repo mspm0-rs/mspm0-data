@@ -15,6 +15,7 @@ pub struct Metadata {
 pub struct Peripheral {
     pub name: &'static str,
     pub kind: &'static str,
+    pub version: Option<&'static str>,
     pub pins: &'static [PeripheralPin],
 }
 

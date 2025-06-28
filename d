@@ -57,6 +57,7 @@ case "$CMD" in
         ./d download-all
         ./d gen
         ./d build-metapac
+        ./d check
     ;;
     check)
         # Iterate over each chip that was generated in metapac and build it.
