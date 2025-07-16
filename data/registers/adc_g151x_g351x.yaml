@@ -228,6 +228,7 @@ fieldset/CLKCFG:
     description: KEY to Allow State Change A9h = KEY to allow write access to this register
     bit_offset: 24
     bit_size: 8
+    enum: CLKCFG_KEY
 fieldset/CLKFREQ:
   description: Sample Clock Frequency Range Register.
   fields:

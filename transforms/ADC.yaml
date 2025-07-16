@@ -232,8 +232,6 @@ transforms:
       description: SYSOSC is the source of ADC sample clock.
       value: 1
 
-      enum: CLKCFG_KEY
-
   ## Need to add the MEMRES register, for now we use the maximum memres registers (G351x).
   ## This needs to be handled in the ADC HAL. TI said they would fix it.
   - !AddRegisters
@@ -282,6 +280,7 @@ transforms:
       description: KEY to Allow State Change A9h = KEY to allow write access to this register
       bit_offset: 24
       bit_size: 8
+      enum: CLKCFG_KEY
 
   - !Add
     ir:
