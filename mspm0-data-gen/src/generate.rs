@@ -2,8 +2,8 @@ use std::{borrow::Cow, cmp::Ordering, collections::BTreeMap, fs, sync::LazyLock}
 
 use anyhow::{bail, Context};
 use mspm0_data_types::{
-    Chip, DmaChannel, Interrupt, Memory, Package, PackagePin, Peripheral, PeripheralPin,
-    PeripheralType, PowerDomain,
+    AdcChannel, Chip, DmaChannel, Interrupt, Memory, Package, PackagePin, Peripheral,
+    PeripheralPin, PeripheralType, PowerDomain,
 };
 use regex::Regex;
 
@@ -64,6 +64,7 @@ fn generate_family(
     let peripherals = generate_peripherals2(&family.family, header, sysconfig)?;
     let interrupts = generate_irqs(&family.family, header, int_groups)?;
     let dma_channels = generate_dma_channels(&family.family, sysconfig)?;
+    let adc_channels = generate_adc_channels(&family.family, sysconfig)?;
 
     for part_number in family.part_numbers.iter() {
         // Filter for package types available on the part number.
@@ -100,6 +101,7 @@ fn generate_family(
             peripherals: peripherals.clone(),
             interrupts: interrupts.clone(),
             dma_channels: dma_channels.clone(),
+            adc_channels: adc_channels.clone(),
         };
 
         if let Err(err) = verify::verify(&chip, &part_number.name) {
@@ -721,6 +723,41 @@ fn generate_dma_channels(
             .context(format!("{name} full_channel attribute is not a bool"))?;
 
         channels.insert(channel_number, DmaChannel { full });
+    }
+
+    Ok(channels)
+}
+
+fn generate_adc_channels(
+    _chip_name: &str,
+    sysconfig: &SysconfigFile,
+) -> anyhow::Result<BTreeMap<u32, BTreeMap<u32, AdcChannel>>> {
+    static PATTERN: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"ADC(?<adc>\d+)\.(?<channel>\d+)").unwrap());
+
+    let mut channels = BTreeMap::new();
+
+    for channel in sysconfig
+        .peripheral_pins
+        .values()
+        .filter(|p| p.name.starts_with("ADC"))
+    {
+        let name = &channel.name;
+        let captures = PATTERN.captures(name).unwrap();
+        let adc_number = captures["adc"]
+            .parse::<u32>()
+            .context("Could not parse DMA adc number")?;
+        let channel_number = captures["channel"]
+            .parse::<u32>()
+            .context("Could not parse DMA channel number")?;
+
+        if !channels.contains_key(&adc_number) {
+            channels.insert(adc_number, BTreeMap::new());
+        }
+        channels
+            .get_mut(&adc_number)
+            .unwrap()
+            .insert(channel_number, AdcChannel {});
     }
 
     Ok(channels)

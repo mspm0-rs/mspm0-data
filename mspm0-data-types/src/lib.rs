@@ -39,6 +39,9 @@ pub struct Chip {
 
     /// DMA channels available on the chip.
     pub dma_channels: BTreeMap<u32, DmaChannel>,
+
+    /// ADC channels per ADC peripheral available on the chip.
+    pub adc_channels: BTreeMap<u32, BTreeMap<u32, AdcChannel>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -251,6 +254,9 @@ pub struct DmaChannel {
     /// Whether this is a full channel or basic channel.
     pub full: bool,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AdcChannel {}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Memory {

@@ -9,6 +9,7 @@ pub struct Metadata {
     pub interrupts: &'static [Interrupt],
     pub interrupt_groups: &'static [InterruptGroup],
     pub dma_channels: &'static [DmaChannel],
+    pub adc_channels: &'static [AdcChannel],
 }
 
 #[derive(Debug, Eq, PartialEq, Clone)]
@@ -58,4 +59,13 @@ pub struct DmaChannel {
 
     /// Whether this is a full or basic dma channel.
     pub full: bool,
+}
+
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct AdcChannel {
+    /// The number of the corresponding adc peripheral.
+    pub adc: u8,
+
+    /// The number of the adc channel.
+    pub number: u8,
 }
