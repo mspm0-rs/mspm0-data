@@ -1,14 +1,14 @@
 block/ADC:
   description: PERIPHERALREGION.
   items:
-  - name: FSUB_0
+  - name: FSUB
     description: Subscriber Configuration Register.
     byte_offset: 1024
-    fieldset: FSUB_0
-  - name: FPUB_1
+    fieldset: FPORT
+  - name: FPUB
     description: Publisher Configuration Register.
     byte_offset: 1092
-    fieldset: FPUB_1
+    fieldset: FPORT
   - name: GPRCM
     array:
       len: 1
@@ -78,7 +78,7 @@ block/ADC:
   - name: MEMCTL
     description: Conversion Memory Control Register.
     array:
-      len: 4
+      len: 24
       stride: 4
     byte_offset: 4480
     fieldset: MEMCTL
@@ -273,7 +273,7 @@ fieldset/CPU_INT:
     bit_offset: 8
     bit_size: 1
     array:
-      len: 4
+      len: 24
       stride: 1
 fieldset/CPU_INT_IIDX:
   description: Interrupt index.
@@ -329,10 +329,9 @@ fieldset/CTL1:
     bit_size: 3
     enum: AVGN
   - name: AVGD
-    description: Hardware averager denominator. The number to divide the accumulated value by (this is a shift). Note result register is maximum of 16-bits long so if not shifted appropirately result will be truncated.
+    description: Hardware averager denominator. The number to divide the accumulated value by (this is a shift). Note result register is maximum of 16-bits long so if not shifted appropriately result will be truncated.
     bit_offset: 28
     bit_size: 3
-    enum: AVGD
 fieldset/CTL2:
   description: Control Register 2.
   fields:
@@ -341,7 +340,7 @@ fieldset/CTL2:
     bit_offset: 0
     bit_size: 1
   - name: RES
-    description: 'Resolution. These bits define the resolutoin of ADC conversion result. Note : A value of 3 defaults to 12-bits resolution.'
+    description: 'Resolution. These bits define the resolution of ADC conversion result. Note : A value of 3 defaults to 12-bits resolution.'
     bit_offset: 1
     bit_size: 2
     enum: RES
@@ -366,12 +365,10 @@ fieldset/CTL2:
     description: Sequencer start address. These bits select which MEMCTLx is used for single conversion or as first MEMCTL for sequence mode. The value of STARTADD is 0x00 to 0x17, corresponding to MEMRES0 to MEMRES23.
     bit_offset: 16
     bit_size: 5
-    enum: STARTADD
   - name: ENDADD
     description: Sequence end address. These bits select which MEMCTLx is the last one for the sequence mode. The value of ENDADD is 0x00 to 0x17, corresponding to MEMRES0 to MEMRES23.
     bit_offset: 24
     bit_size: 5
-    enum: ENDADD
 fieldset/DESC:
   description: Module Description.
   fields:
@@ -403,7 +400,7 @@ fieldset/DMA_TRIG:
     bit_offset: 8
     bit_size: 1
     array:
-      len: 4
+      len: 24
       stride: 1
 fieldset/DMA_TRIG_IIDX:
   description: Interrupt index.
@@ -417,31 +414,22 @@ fieldset/EVT_MODE:
   description: Event Mode.
   fields:
   - name: CPU
-    description: Event line mode select for event corresponding to IPSTANDARD.INT_EVENT0.
+    description: Event line mode select for event corresponding to CPU_INT.
     bit_offset: 0
     bit_size: 2
     enum: INT_CFG
   - name: EVT1_CFG
-    description: Event line mode select for event corresponding to IPSTANDARD.INT_EVENT1.
+    description: Event line mode select for event corresponding to GEN_EVENT.
     bit_offset: 2
     bit_size: 2
     enum: EVT1_CFG
-fieldset/FPUB_1:
+fieldset/FPORT:
   description: Publisher Configuration Register.
   fields:
   - name: CHANID
     description: 0 = disconnected. 1-15 = connected to channelID = CHANID.
     bit_offset: 0
-    bit_size: 2
-    enum: FPUB_1_CHANID
-fieldset/FSUB_0:
-  description: Subscriber Configuration Register.
-  fields:
-  - name: CHANID
-    description: 0 = disconnected. 1-15 = connected to channelID = CHANID.
-    bit_offset: 0
-    bit_size: 2
-    enum: FSUB_0_CHANID
+    bit_size: 4
 fieldset/GEN_EVENT:
   description: Interrupt clear.
   fields:
@@ -476,11 +464,10 @@ fieldset/MEMCTL:
     description: Input channel select.
     bit_offset: 0
     bit_size: 5
-    enum: CHANSEL
   - name: VRSEL
     description: 'Voltage reference selection. VEREFM must be connected to on-board ground when external reference option is selected. Note: Writing value 0x3 defaults to INTREF.'
     bit_offset: 8
-    bit_size: 2
+    bit_size: 3
     enum: VRSEL
   - name: STIME
     description: Selects the source of sample timer period between SCOMP0 and SCOMP1.
@@ -584,33 +571,6 @@ fieldset/WCLOW:
     description: If DF = 0, unsigned binary format has to be used. The value based on the resolution has to be right aligned with the MSB on the left. For 10-bits and 8-bits resolution, unused bits have to be 0s. If DF = 1, 2s-complement format has to be used. The value based on the resolution has to be left aligned with the LSB on the right. For 10-bits and 8-bits resolution, unused bits have to be 0s.
     bit_offset: 0
     bit_size: 16
-enum/AVGD:
-  bit_size: 3
-  variants:
-  - name: SHIFT0
-    description: No shift.
-    value: 0
-  - name: SHIFT1
-    description: 1 bit shift.
-    value: 1
-  - name: SHIFT2
-    description: 2 bit shift.
-    value: 2
-  - name: SHIFT3
-    description: 3 bit shift.
-    value: 3
-  - name: SHIFT4
-    description: 4 bit shift.
-    value: 4
-  - name: SHIFT5
-    description: 5 bit shift.
-    value: 5
-  - name: SHIFT6
-    description: 6 bit shift.
-    value: 6
-  - name: SHIFT7
-    description: 7 bit shift.
-    value: 7
 enum/AVGN:
   bit_size: 3
   variants:
@@ -638,105 +598,6 @@ enum/AVGN:
   - name: AVG_128
     description: Averages 128 conversions before storing in MEMRESx register.
     value: 7
-enum/CHANSEL:
-  bit_size: 5
-  variants:
-  - name: CHAN_0
-    description: Selects channel 0.
-    value: 0
-  - name: CHAN_1
-    description: Selects channel 1.
-    value: 1
-  - name: CHAN_2
-    description: Selects channel 2.
-    value: 2
-  - name: CHAN_3
-    description: Selects channel 3.
-    value: 3
-  - name: CHAN_4
-    description: Selects channel 4.
-    value: 4
-  - name: CHAN_5
-    description: Selects channel 5.
-    value: 5
-  - name: CHAN_6
-    description: Selects channel 6.
-    value: 6
-  - name: CHAN_7
-    description: Selects channel 7.
-    value: 7
-  - name: CHAN_8
-    description: Selects channel 8.
-    value: 8
-  - name: CHAN_9
-    description: Selects channel 9.
-    value: 9
-  - name: CHAN_10
-    description: Selects channel 10.
-    value: 10
-  - name: CHAN_11
-    description: Selects channel 11.
-    value: 11
-  - name: CHAN_12
-    description: Selects channel 12.
-    value: 12
-  - name: CHAN_13
-    description: Selects channel 13.
-    value: 13
-  - name: CHAN_14
-    description: Selects channel 14.
-    value: 14
-  - name: CHAN_15
-    description: Selects channel 15.
-    value: 15
-  - name: CHAN_16
-    description: Selects channel 16.
-    value: 16
-  - name: CHAN_17
-    description: Selects channel 17.
-    value: 17
-  - name: CHAN_18
-    description: Selects channel 18.
-    value: 18
-  - name: CHAN_19
-    description: Selects channel 19.
-    value: 19
-  - name: CHAN_20
-    description: Selects channel 20.
-    value: 20
-  - name: CHAN_21
-    description: Selects channel 21.
-    value: 21
-  - name: CHAN_22
-    description: Selects channel 22.
-    value: 22
-  - name: CHAN_23
-    description: Selects channel 23.
-    value: 23
-  - name: CHAN_24
-    description: Selects channel 24.
-    value: 24
-  - name: CHAN_25
-    description: Selects channel 25.
-    value: 25
-  - name: CHAN_26
-    description: Selects channel 26.
-    value: 26
-  - name: CHAN_27
-    description: Selects channel 27.
-    value: 27
-  - name: CHAN_28
-    description: Selects channel 28.
-    value: 28
-  - name: CHAN_29
-    description: Selects channel 29.
-    value: 29
-  - name: CHAN_30
-    description: Selects channel 30.
-    value: 30
-  - name: CHAN_31
-    description: Selects channel 31.
-    value: 31
 enum/CLKCFG_KEY:
   bit_size: 8
   variants:
@@ -934,81 +795,6 @@ enum/DMA_TRIG_IIDX_STAT:
   - name: MEMRESIFG23
     description: MEMRES23 data loaded interrupt.
     value: 32
-enum/ENDADD:
-  bit_size: 5
-  variants:
-  - name: ADDR_00
-    description: MEMCTL0 is selected as end address of sequence.
-    value: 0
-  - name: ADDR_01
-    description: MEMCTL1 is selected as end address of sequence.
-    value: 1
-  - name: ADDR_02
-    description: MEMCTL2 is selected as end address of sequence.
-    value: 2
-  - name: ADDR_03
-    description: MEMCTL3 is selected as end address of sequence.
-    value: 3
-  - name: ADDR_04
-    description: MEMCTL4 is selected as end address of sequence.
-    value: 4
-  - name: ADDR_05
-    description: MEMCTL5 is selected as end address of sequence.
-    value: 5
-  - name: ADDR_06
-    description: MEMCTL6 is selected as end address of sequence.
-    value: 6
-  - name: ADDR_07
-    description: MEMCTL7 is selected as end address of sequence.
-    value: 7
-  - name: ADDR_08
-    description: MEMCTL8 is selected as end address of sequence.
-    value: 8
-  - name: ADDR_09
-    description: MEMCTL9 is selected as end address of sequence.
-    value: 9
-  - name: ADDR_10
-    description: MEMCTL10 is selected as end address of sequence.
-    value: 10
-  - name: ADDR_11
-    description: MEMCTL11 is selected as end address of sequence.
-    value: 11
-  - name: ADDR_12
-    description: MEMCTL12 is selected as end address of sequence.
-    value: 12
-  - name: ADDR_13
-    description: MEMCTL13 is selected as end address of sequence.
-    value: 13
-  - name: ADDR_14
-    description: MEMCTL14 is selected as end address of sequence.
-    value: 14
-  - name: ADDR_15
-    description: MEMCTL15 is selected as end address of sequence.
-    value: 15
-  - name: ADDR_16
-    description: MEMCTL16 is selected as end address of sequence.
-    value: 16
-  - name: ADDR_17
-    description: MEMCTL17 is selected as end address of sequence.
-    value: 17
-  - name: ADDR_18
-    description: MEMCTL18 is selected as end address of sequence.
-    value: 18
-  - name: ADDR_19
-    description: MEMCTL19 is selected as end address of sequence.
-    value: 19
-  - name: ADDR_20
-    description: MEMCTL20 is selected as end address of sequence.
-    value: 20
-  - name: ADDR_21
-    description: MEMCTL21 is selected as end address of sequence.
-    value: 21
-  - name: ADDR_22
-    description: MEMCTL22 is selected as end address of sequence.
-    value: 22
-  - name: ADDR_23
-    description: MEMCTL23 is selected as end address of sequence.
-    value: 23
 enum/EVT1_CFG:
   bit_size: 2
   variants:
@@ -1021,12 +807,6 @@ enum/EVT1_CFG:
   - name: HARDWARE
     description: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.
     value: 2
-enum/FPUB_1_CHANID:
-  bit_size: 2
-  variants:
-  - name: UNCONNECTED
-    description: A value of 0 specifies that the event is not connected.
-    value: 0
 enum/FRANGE:
   bit_size: 3
   variants:
@@ -1054,12 +834,6 @@ enum/FRANGE:
   - name: RANGE40TO48
     description: '>40 to 48 MHz.'
     value: 7
-enum/FSUB_0_CHANID:
-  bit_size: 2
-  variants:
-  - name: UNCONNECTED
-    description: A value of 0 specifies that the event is not connected.
-    value: 0
 enum/GEN_EVENT_IIDX_STAT:
   bit_size: 10
   variants:
@@ -1131,7 +905,7 @@ enum/SAMPCLK:
     description: SYSOSC is the source of ADC sample clock.
     value: 1
   - name: HFCLK
-    description: HFCLK clock is the source of ADC sample clock.
+    description: 'HFCLK clock is the source of ADC sample clock. Note : HFCLK may not be available on all the devices.'
     value: 2
 enum/SAMPCNT:
   bit_size: 5
@@ -1187,81 +961,6 @@ enum/SCLKDIV:
   - name: DIV_BY_48
     description: Divide clock source by 48.
     value: 7
-enum/STARTADD:
-  bit_size: 5
-  variants:
-  - name: ADDR_00
-    description: MEMCTL0 is selected as start address of a sequence or for a single conversion.
-    value: 0
-  - name: ADDR_01
-    description: MEMCTL1 is selected as start address of a sequence or for a single conversion.
-    value: 1
-  - name: ADDR_02
-    description: MEMCTL2 is selected as start address of a sequence or for a single conversion.
-    value: 2
-  - name: ADDR_03
-    description: MEMCTL3 is selected as start address of a sequence or for a single conversion.
-    value: 3
-  - name: ADDR_04
-    description: MEMCTL4 is selected as start address of a sequence or for a single conversion.
-    value: 4
-  - name: ADDR_05
-    description: MEMCTL5 is selected as start address of a sequence or for a single conversion.
-    value: 5
-  - name: ADDR_06
-    description: MEMCTL6 is selected as start address of a sequence or for a single conversion.
-    value: 6
-  - name: ADDR_07
-    description: MEMCTL7 is selected as start address of a sequence or for a single conversion.
-    value: 7
-  - name: ADDR_08
-    description: MEMCTL8 is selected as start address of a sequence or for a single conversion.
-    value: 8
-  - name: ADDR_09
-    description: MEMCTL9 is selected as start address of a sequence or for a single conversion.
-    value: 9
-  - name: ADDR_10
-    description: MEMCTL10 is selected as start address of a sequence or for a single conversion.
-    value: 10
-  - name: ADDR_11
-    description: MEMCTL11 is selected as start address of a sequence or for a single conversion.
-    value: 11
-  - name: ADDR_12
-    description: MEMCTL12 is selected as start address of a sequence or for a single conversion.
-    value: 12
-  - name: ADDR_13
-    description: MEMCTL13 is selected as start address of a sequence or for a single conversion.
-    value: 13
-  - name: ADDR_14
-    description: MEMCTL14 is selected as start address of a sequence or for a single conversion.
-    value: 14
-  - name: ADDR_15
-    description: MEMCTL15 is selected as start address of a sequence or for a single conversion.
-    value: 15
-  - name: ADDR_16
-    description: MEMCTL16 is selected as start address of a sequence or for a single conversion.
-    value: 16
-  - name: ADDR_17
-    description: MEMCTL17 is selected as start address of a sequence or for a single conversion.
-    value: 17
-  - name: ADDR_18
-    description: MEMCTL18 is selected as start address of a sequence or for a single conversion.
-    value: 18
-  - name: ADDR_19
-    description: MEMCTL19 is selected as start address of a sequence or for a single conversion.
-    value: 19
-  - name: ADDR_20
-    description: MEMCTL20 is selected as start address of a sequence or for a single conversion.
-    value: 20
-  - name: ADDR_21
-    description: MEMCTL21 is selected as start address of a sequence or for a single conversion.
-    value: 21
-  - name: ADDR_22
-    description: MEMCTL22 is selected as start address of a sequence or for a single conversion.
-    value: 22
-  - name: ADDR_23
-    description: MEMCTL23 is selected as start address of a sequence or for a single conversion.
-    value: 23
 enum/STIME:
   bit_size: 1
   variants:
@@ -1290,14 +989,20 @@ enum/TRIGSRC:
     description: Hardware event trigger.
     value: 1
 enum/VRSEL:
-  bit_size: 2
+  bit_size: 3
   variants:
-  - name: VDDA
+  - name: VDDA_VSSA
     description: VDDA reference.
     value: 0
-  - name: EXTREF
+  - name: EXTREF_VREFM
     description: External reference from pin.
     value: 1
-  - name: INTREF
+  - name: INTREF_VSSA
     description: Internal reference.
     value: 2
+  - name: VDDA_VREFM
+    description: VDDA and VREFM connected to VREF+ and VREF- of ADC.
+    value: 3
+  - name: INTREF_VREFM
+    description: INTREF and VREFM connected to VREF+ and VREF- of ADC.
+    value: 4

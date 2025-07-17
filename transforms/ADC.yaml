@@ -57,6 +57,26 @@ transforms:
       0: IDLE
       1: ACTIVE
 
+  # STARTADD enum is useless
+  - !DeleteEnums
+    from: STARTADD
+    soft: false
+
+  # ENDADD enum is useless
+  - !DeleteEnums
+    from: ENDADD
+    soft: false
+
+  # CHANSEL enum is useless
+  - !DeleteEnums
+    from: CHANSEL
+    soft: false
+
+  # AVGD enum is useless
+  - !DeleteEnums
+    from: AVGD
+    soft: false
+
   # TODO: Something better than a cursed rename as merge
   - !MergeBlocks
     from: ADC0
@@ -203,6 +223,26 @@ transforms:
     fieldsets: DMA_TRIG
     from: MEMRESIFG\d+
     to: MEMRESIFG
+
+  ## Publisher/Subscriber ports
+  ## We resize the CHANID because some chips differ which violates the reference manual.
+  - !ResizeEnums
+    enum: (FSUB_0|FPUB_1)_CHANID
+    bit_size: 4
+
+  - !DeleteEnums
+    from: (FSUB_0|FPUB_1)_CHANID
+    bit_size: 4
+
+  - !MergeFieldsets
+    from: (FPUB|FSUB)_\d+
+    to: FPORT
+
+  - !RenameRegisters
+    block: .*
+    from: (FSUB|FPUB)_[0-1]
+    to: $1
+
 
   ## Some are missing the RSTAMPCAPEN
   - !DeleteFields
