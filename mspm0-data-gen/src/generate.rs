@@ -210,6 +210,7 @@ fn generate_peripherals2(
             let peripheral = sysconfig.peripherals.get(peripheral_id).unwrap();
 
             let name = &peripheral.name;
+            let mut attributes = None;
             // make names consistent sometimes
             let name = maybe_rename(name);
             let id = &peripheral.id;
@@ -240,6 +241,29 @@ fn generate_peripherals2(
                 continue;
             }
 
+            // Parse attributes for the ADC peripherals
+            if name.starts_with("ADC") {
+                let mut adc_attr = BTreeMap::new();
+                let raw_memctl_dim = &peripheral.attributes.get("SYS_ADC_MEMCTL_DIM").expect(
+                    format!(
+                        "SYS_ADC_MEMCTL_DIM should exist for {} in {}",
+                        name, chip_name
+                    )
+                    .as_str(),
+                );
+                let memctl_error = format!(
+                    "SYS_ADC_MEMCTL_DIM: {} should be an u32 as string for {} in {}",
+                    raw_memctl_dim, name, chip_name
+                );
+                let memctl_dim = raw_memctl_dim
+                    .as_str()
+                    .expect(memctl_error.as_str())
+                    .parse::<u32>()
+                    .expect(memctl_error.as_str());
+                adc_attr.insert(String::from("ADC_MEMCTL_DIM"), memctl_dim);
+                attributes = Some(adc_attr);
+            }
+
             let (ty, version) = get_peripheral_type_version(chip_name, &name);
             let address = get_peripheral_addresses(chip_name, &name, header, sysconfig)?;
             let power_domain = get_power_domain(peripheral, ty, chip_name)?;
@@ -251,6 +275,7 @@ fn generate_peripherals2(
                 address,
                 power_domain,
                 pins: vec![],
+                attributes,
             };
 
             // Lookup the pins
@@ -457,6 +482,7 @@ fn generate_missing(
             // DMA always lives in PD1
             power_domain: PowerDomain::Pd1,
             pins: vec![],
+            attributes: None,
         },
     );
 
@@ -484,6 +510,7 @@ fn generate_missing(
                     // GPIO always lives in PD0
                     power_domain: PowerDomain::Pd0,
                     pins: vec![],
+                    attributes: None,
                 });
 
             let pin = device_pin

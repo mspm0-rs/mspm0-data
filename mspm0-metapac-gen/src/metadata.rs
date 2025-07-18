@@ -205,12 +205,26 @@ fn generate_peripheral(
         }
     }
 
+    let mut attributes = Vec::<TokenStream>::new();
+
+    if let Some(map) = &peripheral.attributes {
+        for (name, value) in map {
+            attributes.push(quote! {
+                PeripheralAttribute {
+                    name: #name,
+                    value: #value,
+                }
+            })
+        }
+    }
+
     Some(quote! {
         Peripheral {
             name: #name,
             kind: #kind,
             version: #version,
             pins: &[#(#pins),*],
+            attributes: &[#(#attributes),*],
         }
     })
 }
