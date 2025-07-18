@@ -39,6 +39,9 @@ pub struct Chip {
 
     /// DMA channels available on the chip.
     pub dma_channels: BTreeMap<u32, DmaChannel>,
+
+    /// ADC channels per ADC peripheral available on the chip.
+    pub adc_channels: BTreeMap<u32, BTreeMap<u32, AdcChannel>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -220,6 +223,9 @@ pub struct Peripheral {
     pub power_domain: PowerDomain,
 
     pub pins: Vec<PeripheralPin>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub attributes: Option<BTreeMap<String, u32>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -251,6 +257,9 @@ pub struct DmaChannel {
     /// Whether this is a full channel or basic channel.
     pub full: bool,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AdcChannel {}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Memory {

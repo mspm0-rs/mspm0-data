@@ -126,12 +126,14 @@ fn generate_chip_metadata(
         pub(crate) static INTERRUPTS: &[Interrupt] = {};
         pub(crate) static INTERRUPT_GROUPS: &[InterruptGroup] = {};
         pub(crate) static DMA_CHANNELS: &[DmaChannel] = {};
+        pub(crate) static ADC_CHANNELS: &[AdcChannel] = {};
         pub(crate) static PINS: &[Pin] = {};
         ",
         metadata::peripherals(chip, package),
         metadata::interrupts(chip),
         metadata::interrupt_groups(chip),
         metadata::dma_channels(chip),
+        metadata::adc_channels(chip),
         metadata::pins(chip, package),
     )
     .unwrap();
@@ -163,6 +165,7 @@ fn generate_chip_metadata(
             interrupts: INTERRUPTS,
             interrupt_groups: INTERRUPT_GROUPS,
             dma_channels: DMA_CHANNELS,
+            adc_channels: ADC_CHANNELS,
         }};
         ",
     )

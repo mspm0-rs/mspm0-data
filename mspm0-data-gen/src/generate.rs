@@ -2,8 +2,8 @@ use std::{borrow::Cow, cmp::Ordering, collections::BTreeMap, fs, sync::LazyLock}
 
 use anyhow::{bail, Context};
 use mspm0_data_types::{
-    Chip, DmaChannel, Interrupt, Memory, Package, PackagePin, Peripheral, PeripheralPin,
-    PeripheralType, PowerDomain,
+    AdcChannel, Chip, DmaChannel, Interrupt, Memory, Package, PackagePin, Peripheral,
+    PeripheralPin, PeripheralType, PowerDomain,
 };
 use regex::Regex;
 
@@ -64,6 +64,7 @@ fn generate_family(
     let peripherals = generate_peripherals2(&family.family, header, sysconfig)?;
     let interrupts = generate_irqs(&family.family, header, int_groups)?;
     let dma_channels = generate_dma_channels(&family.family, sysconfig)?;
+    let adc_channels = generate_adc_channels(&family.family, sysconfig)?;
 
     for part_number in family.part_numbers.iter() {
         // Filter for package types available on the part number.
@@ -100,6 +101,7 @@ fn generate_family(
             peripherals: peripherals.clone(),
             interrupts: interrupts.clone(),
             dma_channels: dma_channels.clone(),
+            adc_channels: adc_channels.clone(),
         };
 
         if let Err(err) = verify::verify(&chip, &part_number.name) {
@@ -208,6 +210,7 @@ fn generate_peripherals2(
             let peripheral = sysconfig.peripherals.get(peripheral_id).unwrap();
 
             let name = &peripheral.name;
+            let mut attributes = None;
             // make names consistent sometimes
             let name = maybe_rename(name);
             let id = &peripheral.id;
@@ -238,6 +241,29 @@ fn generate_peripherals2(
                 continue;
             }
 
+            // Parse attributes for the ADC peripherals
+            if name.starts_with("ADC") {
+                let mut adc_attr = BTreeMap::new();
+                let raw_memctl_dim = &peripheral.attributes.get("SYS_ADC_MEMCTL_DIM").expect(
+                    format!(
+                        "SYS_ADC_MEMCTL_DIM should exist for {} in {}",
+                        name, chip_name
+                    )
+                    .as_str(),
+                );
+                let memctl_error = format!(
+                    "SYS_ADC_MEMCTL_DIM: {} should be an u32 as string for {} in {}",
+                    raw_memctl_dim, name, chip_name
+                );
+                let memctl_dim = raw_memctl_dim
+                    .as_str()
+                    .expect(memctl_error.as_str())
+                    .parse::<u32>()
+                    .expect(memctl_error.as_str());
+                adc_attr.insert(String::from("ADC_MEMCTL_DIM"), memctl_dim);
+                attributes = Some(adc_attr);
+            }
+
             let (ty, version) = get_peripheral_type_version(chip_name, &name);
             let address = get_peripheral_addresses(chip_name, &name, header, sysconfig)?;
             let power_domain = get_power_domain(peripheral, ty, chip_name)?;
@@ -249,6 +275,7 @@ fn generate_peripherals2(
                 address,
                 power_domain,
                 pins: vec![],
+                attributes,
             };
 
             // Lookup the pins
@@ -455,6 +482,7 @@ fn generate_missing(
             // DMA always lives in PD1
             power_domain: PowerDomain::Pd1,
             pins: vec![],
+            attributes: None,
         },
     );
 
@@ -482,6 +510,7 @@ fn generate_missing(
                     // GPIO always lives in PD0
                     power_domain: PowerDomain::Pd0,
                     pins: vec![],
+                    attributes: None,
                 });
 
             let pin = device_pin
@@ -721,6 +750,41 @@ fn generate_dma_channels(
             .context(format!("{name} full_channel attribute is not a bool"))?;
 
         channels.insert(channel_number, DmaChannel { full });
+    }
+
+    Ok(channels)
+}
+
+fn generate_adc_channels(
+    _chip_name: &str,
+    sysconfig: &SysconfigFile,
+) -> anyhow::Result<BTreeMap<u32, BTreeMap<u32, AdcChannel>>> {
+    static PATTERN: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"ADC(?<adc>\d+)\.(?<channel>\d+)").unwrap());
+
+    let mut channels = BTreeMap::new();
+
+    for channel in sysconfig
+        .peripheral_pins
+        .values()
+        .filter(|p| p.name.starts_with("ADC"))
+    {
+        let name = &channel.name;
+        let captures = PATTERN.captures(name).unwrap();
+        let adc_number = captures["adc"]
+            .parse::<u32>()
+            .context("Could not parse DMA adc number")?;
+        let channel_number = captures["channel"]
+            .parse::<u32>()
+            .context("Could not parse DMA channel number")?;
+
+        if !channels.contains_key(&adc_number) {
+            channels.insert(adc_number, BTreeMap::new());
+        }
+        channels
+            .get_mut(&adc_number)
+            .unwrap()
+            .insert(channel_number, AdcChannel {});
     }
 
     Ok(channels)
