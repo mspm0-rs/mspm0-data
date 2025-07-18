@@ -1,4 +1,4 @@
-# Transform for UART registers based on I2C0 on G350x
+# Transform for ADC registers based on ADC0 on G351x (having the most MEMRES/MEMCTL and VRSEL options)
 transforms:
   - !DeleteUselessEnums
 
@@ -273,7 +273,7 @@ transforms:
       value: 1
 
   ## Need to add the MEMRES register, for now we use the maximum memres registers (G351x).
-  ## This needs to be handled in the ADC HAL. TI said they would fix it.
+  ## This needs to be handled in the ADC HAL.
   - !AddRegisters
     block: ADC
     registers:
