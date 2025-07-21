@@ -150,6 +150,8 @@ fn generate_chip_metadata(
     });
 
     let family = &chip.family;
+    let adc_vrsel = &chip.adc_vrsel;
+    let adc_analog_chan = &chip.adc_analog_chan;
 
     write!(
         &mut file,
@@ -165,6 +167,8 @@ fn generate_chip_metadata(
             interrupts: INTERRUPTS,
             interrupt_groups: INTERRUPT_GROUPS,
             dma_channels: DMA_CHANNELS,
+            adc_vrsel: {adc_vrsel},
+            adc_analog_chan: {adc_analog_chan},
             adc_channels: ADC_CHANNELS,
         }};
         ",

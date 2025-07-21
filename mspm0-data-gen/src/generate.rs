@@ -101,6 +101,8 @@ fn generate_family(
             peripherals: peripherals.clone(),
             interrupts: interrupts.clone(),
             dma_channels: dma_channels.clone(),
+            adc_vrsel: family.adc_vrsel,
+            adc_analog_chan: header.num_analog_chan,
             adc_channels: adc_channels.clone(),
         };
 

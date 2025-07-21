@@ -15,6 +15,7 @@ families:
   datasheet_url: https://www.ti.com/lit/gpn/mspm0c1104
   reference_manual_url: https://www.ti.com/lit/pdf/slau893
   errata_url: https://www.ti.com/lit/pdf/slaz753
+  adc_vrsel: 3
   part_numbers:
   - name: msps003f3 # Part number
     memory:
@@ -43,6 +44,7 @@ families:
   datasheet_url: https://www.ti.com/lit/gpn/mspm0c1104
   reference_manual_url: https://www.ti.com/lit/pdf/slau893
   errata_url: https://www.ti.com/lit/pdf/slaz753
+  adc_vrsel: 3
   part_numbers:
   - name: mspm0c1103
     memory:
@@ -78,6 +80,7 @@ families:
   datasheet_url: https://www.ti.com/lit/gpn/mspm0g1107
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slaz742
+  adc_vrsel: 5
   part_numbers:
   - name: mspm0g1105
     memory:
@@ -132,6 +135,7 @@ families:
   datasheet_url: https://www.ti.com/lit/gpn/mspm0g1507
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slaz742
+  adc_vrsel: 5
   part_numbers:
   - name: mspm0g1505
     memory:
@@ -186,6 +190,7 @@ families:
   datasheet_url: https://www.ti.com/lit/gpn/mspm0g1519
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slaz758
+  adc_vrsel: 5
   part_numbers:
   - name: mspm0g1518
     memory:
@@ -233,6 +238,7 @@ families:
   datasheet_url: https://www.ti.com/lit/gpn/mspm0g3107
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slaz742
+  adc_vrsel: 5
   part_numbers:
   - name: mspm0g3105
     memory:
@@ -277,6 +283,7 @@ families:
   datasheet_url: https://www.ti.com/lit/gpn/mspm0g3507
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slaz742
+  adc_vrsel: 5
   part_numbers:
   - name: mspm0g3505
     memory:
@@ -327,6 +334,7 @@ families:
   datasheet_url: https://www.ti.com/lit/gpn/mspm0g3519
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slaz758
+  adc_vrsel: 5
   part_numbers:
   - name: mspm0g3518
     memory:
@@ -378,6 +386,7 @@ families:
   datasheet_url: https://www.ti.com/lit/gpn/mspm0l1106
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz741
+  adc_vrsel: 5
   part_numbers:
   - name: mspm0l1105
     memory:
@@ -415,6 +424,7 @@ families:
   datasheet_url: https://www.ti.com/lit/gpn/mspm0l1228
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz755
+  adc_vrsel: 5
   part_numbers:
   - name: mspm0l1227
     memory:
@@ -452,6 +462,7 @@ families:
   datasheet_url: https://www.ti.com/lit/gpn/mspm0l1306
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz741
+  adc_vrsel: 5
   part_numbers:
   - name: mspm0l1303
     memory:
@@ -515,6 +526,7 @@ families:
   datasheet_url: https://www.ti.com/lit/gpn/mspm0l1346
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz741
+  adc_vrsel: 5
   part_numbers:
   - name: mspm0l1343
     memory:
@@ -564,6 +576,7 @@ families:
   datasheet_url: https://www.ti.com/lit/gpn/mspm0l2228
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz755
+  adc_vrsel: 5
   part_numbers:
   - name: mspm0l2227
     memory:
