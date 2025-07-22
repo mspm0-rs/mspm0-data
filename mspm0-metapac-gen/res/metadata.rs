@@ -9,8 +9,8 @@ pub struct Metadata {
     pub interrupts: &'static [Interrupt],
     pub interrupt_groups: &'static [InterruptGroup],
     pub dma_channels: &'static [DmaChannel],
-    pub adc_vrsel: u32,
-    pub adc_analog_chan: u32,
+    pub adc_vrsel: u8,
+    pub adc_analog_chan: u8,
     pub adc_channels: &'static [AdcChannel],
 }
 

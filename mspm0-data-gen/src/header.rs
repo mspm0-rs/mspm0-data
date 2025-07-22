@@ -40,7 +40,7 @@ pub struct Header {
 
     pub irq_numbers: BTreeMap<i32, Vec<String>>,
 
-    pub num_analog_chan: u32,
+    pub num_analog_chan: u8,
     // TODO: flash info
     // TODO: Available IOMUX indices
     // TODO: PF values (for non-analog)
@@ -154,7 +154,7 @@ impl Header {
         Ok(irqs)
     }
 
-    fn get_num_analog_channels(chip_name: &str, content: &str) -> anyhow::Result<u32> {
+    fn get_num_analog_channels(chip_name: &str, content: &str) -> anyhow::Result<u8> {
         /// Example:
         /// ```c,no_run
         /// #define ADC_SYS_NUM_ANALOG_CHAN                       (16)
@@ -173,7 +173,7 @@ impl Header {
             "{chip_name}: could not resolve number of analog channels"
         ))?;
 
-        let number = u32::from_str_radix(number.as_str(), 10).context(format!(
+        let number = u8::from_str_radix(number.as_str(), 10).context(format!(
             "{chip_name}: number of analog channels is not valid u32",
         ))?;
 
