@@ -1,6 +1,6 @@
 use std::{collections::HashSet, sync::LazyLock};
 
-use mspm0_data_types::{Chip, Package, Peripheral, PeripheralType};
+use mspm0_data_types::{Chip, Package, Peripheral, PeripheralType, PowerDomain};
 use proc_macro2::{Literal, TokenStream};
 use quote::quote;
 use regex::Regex;
@@ -183,12 +183,19 @@ fn generate_peripheral(
         }
     }
 
+    let power_domain = match peripheral.power_domain {
+        PowerDomain::Pd0 => quote! { PowerDomain::Pd0 },
+        PowerDomain::Pd1 => quote! { PowerDomain::Pd1 },
+        PowerDomain::Backup => quote! { PowerDomain::Backup },
+    };
+
     Some(quote! {
         Peripheral {
             name: #name,
             kind: #kind,
             version: #version,
             pins: &[#(#pins),*],
+            power_domain: #power_domain,
         }
     })
 }
