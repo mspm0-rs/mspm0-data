@@ -19,7 +19,6 @@ pub struct Peripheral {
     pub kind: &'static str,
     pub version: Option<&'static str>,
     pub pins: &'static [PeripheralPin],
-    pub attributes: &'static [PeripheralAttribute],
 }
 
 #[derive(Debug, Eq, PartialEq, Clone)]
@@ -33,12 +32,6 @@ pub struct PeripheralPin {
     pub pin: &'static str,
     pub signal: &'static str,
     pub pf: Option<u8>,
-}
-
-#[derive(Debug, Eq, PartialEq, Clone)]
-pub struct PeripheralAttribute {
-    pub name: &'static str,
-    pub value: u32,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone)]
