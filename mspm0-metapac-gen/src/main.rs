@@ -126,14 +126,12 @@ fn generate_chip_metadata(
         pub(crate) static INTERRUPTS: &[Interrupt] = {};
         pub(crate) static INTERRUPT_GROUPS: &[InterruptGroup] = {};
         pub(crate) static DMA_CHANNELS: &[DmaChannel] = {};
-        pub(crate) static ADC_CHANNELS: &[AdcChannel] = {};
         pub(crate) static PINS: &[Pin] = {};
         ",
         metadata::peripherals(chip, package),
         metadata::interrupts(chip),
         metadata::interrupt_groups(chip),
         metadata::dma_channels(chip),
-        metadata::adc_channels(chip),
         metadata::pins(chip, package),
     )
     .unwrap();
@@ -150,8 +148,8 @@ fn generate_chip_metadata(
     });
 
     let family = &chip.family;
+    let adc_memctl = &chip.adc_memctl;
     let adc_vrsel = &chip.adc_vrsel;
-    let adc_analog_chan = &chip.adc_analog_chan;
 
     write!(
         &mut file,
@@ -167,9 +165,8 @@ fn generate_chip_metadata(
             interrupts: INTERRUPTS,
             interrupt_groups: INTERRUPT_GROUPS,
             dma_channels: DMA_CHANNELS,
+            adc_memctl: {adc_memctl},
             adc_vrsel: {adc_vrsel},
-            adc_analog_chan: {adc_analog_chan},
-            adc_channels: ADC_CHANNELS,
         }};
         ",
     )

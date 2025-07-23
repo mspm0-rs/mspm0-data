@@ -39,8 +39,6 @@ pub struct Header {
     pub peripheral_addresses: BTreeMap<String, u32>,
 
     pub irq_numbers: BTreeMap<i32, Vec<String>>,
-
-    pub num_analog_chan: u8,
     // TODO: flash info
     // TODO: Available IOMUX indices
     // TODO: PF values (for non-analog)
@@ -57,12 +55,9 @@ impl Header {
         // for truly handling IRQs.
         let irq_numbers = Self::get_irq_numbers(chip_name, &content)?;
 
-        let num_analog_chan = Self::get_num_analog_channels(chip_name, &content)?;
-
         Ok(Self {
             peripheral_addresses,
             irq_numbers,
-            num_analog_chan,
         })
     }
 
@@ -152,31 +147,5 @@ impl Header {
         );
 
         Ok(irqs)
-    }
-
-    fn get_num_analog_channels(chip_name: &str, content: &str) -> anyhow::Result<u8> {
-        /// Example:
-        /// ```c,no_run
-        /// #define ADC_SYS_NUM_ANALOG_CHAN                       (16)
-        /// ```
-        static SYS_NUM_ANALOG_CHAN: LazyLock<Regex> = LazyLock::new(|| {
-            Regex::new(r"#define\s+ADC_SYS_NUM_ANALOG_CHAN\s+\((?<number>\d+)\)").unwrap()
-        });
-
-        let capture = SYS_NUM_ANALOG_CHAN.captures(content);
-
-        let capture = capture.expect(
-            format!("{chip_name}: no matches in header for number of analog channels").as_str(),
-        );
-
-        let number = capture.name("number").context(format!(
-            "{chip_name}: could not resolve number of analog channels"
-        ))?;
-
-        let number = u8::from_str_radix(number.as_str(), 10).context(format!(
-            "{chip_name}: number of analog channels is not valid u32",
-        ))?;
-
-        Ok(number)
     }
 }

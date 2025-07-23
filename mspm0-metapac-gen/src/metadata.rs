@@ -74,28 +74,6 @@ pub fn dma_channels(chip: &Chip) -> TokenStream {
     }
 }
 
-pub fn adc_channels(chip: &Chip) -> TokenStream {
-    let mut adc_channels = Vec::new();
-
-    for (&adc_num, adc) in chip.adc_channels.iter() {
-        let adc_number = Literal::u32_unsuffixed(adc_num);
-        for (&num, _) in adc.iter() {
-            let number = Literal::u32_unsuffixed(num);
-
-            adc_channels.push(quote! {
-                AdcChannel {
-                    adc: #adc_number,
-                    number: #number,
-                }
-            });
-        }
-    }
-
-    quote! {
-        &[#(#adc_channels),*]
-    }
-}
-
 pub fn interrupts(chip: &Chip) -> TokenStream {
     let mut interrupts = Vec::new();
 
@@ -205,26 +183,12 @@ fn generate_peripheral(
         }
     }
 
-    let mut attributes = Vec::<TokenStream>::new();
-
-    if let Some(map) = &peripheral.attributes {
-        for (name, value) in map {
-            attributes.push(quote! {
-                PeripheralAttribute {
-                    name: #name,
-                    value: #value,
-                }
-            })
-        }
-    }
-
     Some(quote! {
         Peripheral {
             name: #name,
             kind: #kind,
             version: #version,
             pins: &[#(#pins),*],
-            attributes: &[#(#attributes),*],
         }
     })
 }

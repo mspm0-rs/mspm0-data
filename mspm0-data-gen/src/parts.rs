@@ -31,7 +31,7 @@ pub struct PartFamily {
     pub errata_url: String,
 
     /// The number of options for VRSEL of the ADC peripheral.
-    pub adc_vrsel: u8,
+    pub adc_vrsel: String,
 
     /// Part numbers in this family.
     pub part_numbers: Vec<PartNumber>,
