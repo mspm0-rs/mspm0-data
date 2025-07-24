@@ -1,6 +1,6 @@
 use std::{borrow::Cow, cmp::Ordering, collections::BTreeMap, fs, sync::LazyLock};
 
-use anyhow::{bail, Context};
+use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
     Chip, DmaChannel, Interrupt, Memory, Package, PackagePin, Peripheral, PeripheralPin,
     PeripheralType, PowerDomain,
@@ -64,6 +64,7 @@ fn generate_family(
     let peripherals = generate_peripherals2(&family.family, header, sysconfig)?;
     let interrupts = generate_irqs(&family.family, header, int_groups)?;
     let dma_channels = generate_dma_channels(&family.family, sysconfig)?;
+    let adc_memctl = generate_adc_memctl_dim(&family.family, sysconfig)?;
 
     for part_number in family.part_numbers.iter() {
         // Filter for package types available on the part number.
@@ -100,6 +101,8 @@ fn generate_family(
             peripherals: peripherals.clone(),
             interrupts: interrupts.clone(),
             dma_channels: dma_channels.clone(),
+            adc_memctl,
+            adc_vrsel: adc_vrsel_mapping(&family.adc_vrsel)?,
         };
 
         if let Err(err) = verify::verify(&chip, &part_number.name) {
@@ -724,6 +727,64 @@ fn generate_dma_channels(
     }
 
     Ok(channels)
+}
+
+fn generate_adc_memctl_dim(chip_name: &str, sysconfig: &SysconfigFile) -> anyhow::Result<u8> {
+    // We parse the SYS_ADC_MEMCTL_DIM attribute in the ADC peripherals.
+    // Because we use the same adc pac for all ADC instances, we check if all existing MEMCTL_DIM
+    // attributes are equal.
+    let mut result = None;
+
+    for peripheral in sysconfig
+        .peripherals
+        .values()
+        .filter(|p| p.name.starts_with("ADC"))
+    {
+        let name = &peripheral.name;
+        // make names consistent sometimes
+        let name = maybe_rename(name);
+
+        let raw_memctl_dim = &peripheral.attributes.get("SYS_ADC_MEMCTL_DIM").expect(
+            format!(
+                "SYS_ADC_MEMCTL_DIM should exist for {} in {}",
+                name, chip_name
+            )
+            .as_str(),
+        );
+        let memctl_error = format!(
+            "SYS_ADC_MEMCTL_DIM: {} should be an u32 as string for {} in {}",
+            raw_memctl_dim, name, chip_name
+        );
+        let memctl_dim = raw_memctl_dim
+            .as_str()
+            .expect(memctl_error.as_str())
+            .parse::<u8>()
+            .expect(memctl_error.as_str());
+        match result {
+            Some(m) => ensure!(
+                m == memctl_dim,
+                "{}: Found unequal memctl dim attributes {}, {}",
+                chip_name,
+                m,
+                memctl_dim
+            ),
+            None => result = Some(memctl_dim),
+        };
+    }
+    ensure!(
+        result.is_some(),
+        "{}: Unable to find any SYS_ADC_MEMCTL_DIM",
+        chip_name
+    );
+    Ok(result.unwrap())
+}
+
+fn adc_vrsel_mapping(vrsel: &String) -> anyhow::Result<u8> {
+    match vrsel.as_str() {
+        "VDD_INTREF" => Ok(3),
+        "VDD_INTREF_EXTREF" => Ok(5),
+        _ => Err(anyhow!("Invalid adc vrsel option {}", vrsel)),
+    }
 }
 
 fn skip_peripheral_pin(pin_name: &String, chip_name: &str) -> bool {

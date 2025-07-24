@@ -39,6 +39,14 @@ pub struct Chip {
 
     /// DMA channels available on the chip.
     pub dma_channels: BTreeMap<u32, DmaChannel>,
+
+    /// Number configurable channels (MEMCTL) in the ADC peripheral.
+    pub adc_memctl: u8,
+
+    /// Number of options for VRSEL of the ADC peripheral.
+    ///
+    /// This is requried because we use a single adc_v1 pac for all chips.
+    pub adc_vrsel: u8,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
