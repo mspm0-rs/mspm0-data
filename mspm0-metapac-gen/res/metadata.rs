@@ -19,6 +19,7 @@ pub struct Peripheral {
     pub kind: &'static str,
     pub version: Option<&'static str>,
     pub pins: &'static [PeripheralPin],
+    pub power_domain: PowerDomain,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone)]
@@ -32,6 +33,20 @@ pub struct PeripheralPin {
     pub pin: &'static str,
     pub signal: &'static str,
     pub pf: Option<u8>,
+}
+
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub enum PowerDomain {
+    /// "low speed" power domain. This power domain is powered in RUN, SLEEP, STOP and STANDBY modes.
+    Pd0,
+
+    /// "high performance" power domain. This power domain is powered in RUN and SLEEP modes.
+    Pd1,
+
+    /// PDB backup power domain. This is usually powered by VBAT.
+    ///
+    /// Not available on every chip.
+    Backup,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone)]
