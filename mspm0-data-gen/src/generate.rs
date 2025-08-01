@@ -244,6 +244,7 @@ fn generate_peripherals2(
             let (ty, version) = get_peripheral_type_version(chip_name, &name);
             let address = get_peripheral_addresses(chip_name, &name, header, sysconfig)?;
             let power_domain = get_power_domain(peripheral, ty, chip_name)?;
+            let sys_fentries = get_sys_fentries(peripheral, chip_name)?;
 
             let mut peri = Peripheral {
                 name: name.clone(),
@@ -252,6 +253,7 @@ fn generate_peripherals2(
                 address,
                 power_domain,
                 pins: vec![],
+                sys_fentries,
             };
 
             // Lookup the pins
@@ -343,6 +345,31 @@ fn generate_peripherals2(
     });
 
     Ok(peripherals)
+}
+
+fn get_sys_fentries(
+    peripheral: &sysconfig::Peripheral,
+    chip_name: &str,
+) -> anyhow::Result<Option<usize>> {
+    if !(peripheral.name.starts_with("SPI")
+        || peripheral.name.starts_with("UART")
+        || peripheral.name.starts_with("I2C"))
+    {
+        return Ok(None);
+    }
+
+    let Some(sys_fentries) = peripheral.attributes.get("SYS_FENTRIES") else {
+        bail!("{chip_name}: {} has no SYS_FENTRIES field", peripheral.name)
+    };
+
+    let Some(sys_fentries) = sys_fentries.as_str() else {
+        bail!(
+            "{chip_name}: {} SYS_FENTRIES field is not a string value",
+            peripheral.name
+        )
+    };
+
+    Ok(Some(sys_fentries.parse::<usize>().unwrap()))
 }
 
 fn get_power_domain(
@@ -458,6 +485,7 @@ fn generate_missing(
             // DMA always lives in PD1
             power_domain: PowerDomain::Pd1,
             pins: vec![],
+            sys_fentries: None,
         },
     );
 
@@ -485,6 +513,7 @@ fn generate_missing(
                     // GPIO always lives in PD0
                     power_domain: PowerDomain::Pd0,
                     pins: vec![],
+                    sys_fentries: None,
                 });
 
             let pin = device_pin

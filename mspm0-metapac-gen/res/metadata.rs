@@ -20,6 +20,7 @@ pub struct Peripheral {
     pub version: Option<&'static str>,
     pub pins: &'static [PeripheralPin],
     pub power_domain: PowerDomain,
+    pub sys_fentries: Option<usize>,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone)]

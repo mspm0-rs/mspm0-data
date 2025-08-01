@@ -189,6 +189,11 @@ fn generate_peripheral(
         PowerDomain::Backup => quote! { PowerDomain::Backup },
     };
 
+    let sys_fentries = match peripheral.sys_fentries {
+        Some(sys_fentries) => quote! { Some(#sys_fentries) },
+        None => quote! { None },
+    };
+
     Some(quote! {
         Peripheral {
             name: #name,
@@ -196,6 +201,7 @@ fn generate_peripheral(
             version: #version,
             pins: &[#(#pins),*],
             power_domain: #power_domain,
+            sys_fentries: #sys_fentries,
         }
     })
 }
