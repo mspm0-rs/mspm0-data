@@ -228,6 +228,9 @@ pub struct Peripheral {
     pub power_domain: PowerDomain,
 
     pub pins: Vec<PeripheralPin>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sys_fentries: Option<usize>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
