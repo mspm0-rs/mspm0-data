@@ -68,6 +68,28 @@ transforms:
     to: $1
 
   ## Interrupts
+  ## INT_EVENT -> CPU_INT
+  - !MergeBlocks
+    from: INT_EVENT
+    main: INT_EVENT
+    to: CPU_INT
+
+  - !RenameRegisters
+    block: .*
+    from: INT_EVENT(.*)
+    to: CPU_INT$1
+
+  - !RenameFields
+    fieldset: .*
+    from: INT_EVENT(.+)
+    to: CPU_INT$1
+
+  - !Rename
+    type: All
+    from: INT_EVENT(.+)
+    to: CPU_INT$1
+
+  ## Interrupts
   # These fields are all the same layout.
   - !MergeFieldsets
     from: (IMASK|ISET|MIS|RIS|ICLR)
@@ -86,7 +108,85 @@ transforms:
     from: WINDOW(\d+)
     to: WINDOW
 
-  # TODO: Add keys to PWREN and RSTCTL
+  ## Replace int-typed field with enum-typed in WWDTCNTRST.RESTART
+  - !DeleteFields
+    fieldset: WWDTCNTRST
+    from: RESTART
+
+  - !AddFields
+    fieldset: WWDTCNTRST
+    fields:
+    - name: RESTART
+      description: Window Watchdog Timer Counter Restart Writing 00A7h to this register restarts the WWDT Counter.
+      bit_offset: 0
+      bit_size: 32
+      enum: WWDTCNTRST_RESTART
+
+  ## Add missing keys
+  - !AddFields
+    fieldset: RSTCTL
+    fields:
+    - name: KEY
+      description: Unlock key B1h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: RESET_KEY
+
+  - !AddFields
+    fieldset: PWREN
+    fields:
+    - name: KEY
+      description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: PWREN_KEY
+
+  - !AddFields
+    fieldset: WWDTCTL0
+    fields:
+    - name: KEY
+      description: KEY to allow write access to WWDTCTL0 = C9h.
+      bit_offset: 24
+      bit_size: 8
+      enum: WWDTCTL0_KEY
+
+  - !AddFields
+    fieldset: WWDTCTL1
+    fields:
+    - name: KEY
+      description: KEY to allow write access to WWDTCTL1 = BEh.
+      bit_offset: 24
+      bit_size: 8
+      enum: WWDTCTL1_KEY
+
+  - !Add
+    ir:
+      enum/RESET_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 177
+      enum/PWREN_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 38
+      enum/WWDTCTL0_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 201
+      enum/WWDTCTL1_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 190
+      enum/WWDTCNTRST_RESTART:
+        bit_size: 32
+        variants:
+          - name: RESTART
+            value: 167
+
 
   ## Cleanup
   - !Sort
