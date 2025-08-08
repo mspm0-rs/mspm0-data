@@ -122,6 +122,14 @@ transforms:
       bit_size: 32
       enum: WWDTCNTRST_RESTART
 
+  - !Add
+    ir:
+      enum/WWDTCNTRST_RESTART:
+        bit_size: 32
+        variants:
+          - name: RESTART
+            value: 167
+
   ## Add missing keys
   - !AddFields
     fieldset: RSTCTL
@@ -181,12 +189,6 @@ transforms:
         variants:
           - name: KEY
             value: 190
-      enum/WWDTCNTRST_RESTART:
-        bit_size: 32
-        variants:
-          - name: RESTART
-            value: 167
-
 
   ## Cleanup
   - !Sort
