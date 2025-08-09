@@ -17,4 +17,8 @@ pub static PERIMAP: RegexMap<&str> = RegexMap::new(&[
     ("mspm0l..0x:sysctl", "l110x_l130x_l134x"),
     ("mspm0l134x:sysctl", "l110x_l130x_l134x"),
     ("mspm0l..2x:sysctl", "l122x_l222x"),
+    ("mspm0g.*:wwdt", "gxxxx"),
+    ("mspm0l.*:wwdt", "lxxxx_cxxxx"),
+    ("mspm0c.*:wwdt", "lxxxx_cxxxx"),
+    ("msps00.*:wwdt", "lxxxx_cxxxx"),
 ]);
