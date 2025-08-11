@@ -1,0 +1,372 @@
+block/CPU_INT:
+  items:
+  - name: IIDX
+    description: Interrupt index.
+    byte_offset: 0
+    access: Read
+    fieldset: IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: INT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: INT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: INT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: INT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: INT
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: STAT
+    description: Status Register.
+    byte_offset: 20
+    access: Read
+    fieldset: STAT
+block/WWDT:
+  description: WWDT.
+  items:
+  - name: GPRCM
+    array:
+      len: 1
+      stride: 24
+    byte_offset: 2048
+    block: GPRCM
+  - name: PDBGCTL
+    description: Peripheral Debug Control.
+    byte_offset: 4120
+    fieldset: PDBGCTL
+  - name: CPU_INT
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4128
+    block: CPU_INT
+  - name: EVT_MODE
+    description: Event Mode.
+    byte_offset: 4320
+    fieldset: EVT_MODE
+  - name: DESC
+    description: Module Description.
+    byte_offset: 4348
+    access: Read
+    fieldset: DESC
+  - name: WWDTCTL0
+    description: Window Watchdog Timer Control Register 0.
+    byte_offset: 4352
+    fieldset: WWDTCTL0
+  - name: WWDTCTL1
+    description: Window Watchdog Timer Control Register 0.
+    byte_offset: 4356
+    fieldset: WWDTCTL1
+  - name: WWDTCNTRST
+    description: Window Watchdog Timer Counter Reset Register.
+    byte_offset: 4360
+    fieldset: WWDTCNTRST
+  - name: WWDTSTAT
+    description: Window Watchdog Timer Status Register.
+    byte_offset: 4364
+    access: Read
+    fieldset: WWDTSTAT
+fieldset/DESC:
+  description: Module Description.
+  fields:
+  - name: MINREV
+    description: Minor rev of the IP.
+    bit_offset: 0
+    bit_size: 4
+  - name: MAJREV
+    description: Major rev of the IP.
+    bit_offset: 4
+    bit_size: 4
+  - name: INSTNUM
+    description: Instance Number within the device. This will be a parameter to the RTL for modules that can have multiple instances.
+    bit_offset: 8
+    bit_size: 4
+  - name: FEATUREVER
+    description: Feature Set for the module *instance*.
+    bit_offset: 12
+    bit_size: 4
+  - name: MODULEID
+    description: Module identification contains a unique peripheral identification number. The assignments are maintained in a central database for all of the platform modules to ensure uniqueness.
+    bit_offset: 16
+    bit_size: 16
+fieldset/EVT_MODE:
+  description: Event Mode.
+  fields:
+  - name: INT0_CFG
+    description: Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT][0].
+    bit_offset: 0
+    bit_size: 2
+    enum: INT_CFG
+fieldset/IIDX:
+  description: Interrupt index.
+  fields:
+  - name: STAT
+    description: Module Interrupt Vector Value. This register provides the highest priority interrupt index. A read clears the corresponding interrupt flag in RIS and MISC.
+    bit_offset: 0
+    bit_size: 5
+    enum: STAT
+fieldset/INT:
+  description: Interrupt clear.
+  fields:
+  - name: INTTIM
+    description: Interval Timer Interrupt.
+    bit_offset: 0
+    bit_size: 1
+fieldset/PDBGCTL:
+  description: Peripheral Debug Control.
+  fields:
+  - name: FREE
+    description: Free run control.
+    bit_offset: 0
+    bit_size: 1
+fieldset/PWREN:
+  description: Power enable.
+  fields:
+  - name: ENABLE
+    description: 'Enable the power Note: For safety devices the power cannot be disabled once enabled.'
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: 'Assert reset to the peripheral Note: For safety devices a watchdog reset by software is not possible.'
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear [GPRCM.STAT.RESETSTKY].
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key B1h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/STAT:
+  description: Status Register.
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+fieldset/WWDTCNTRST:
+  description: Window Watchdog Timer Counter Reset Register.
+  fields:
+  - name: RESTART
+    description: Window Watchdog Timer Counter Restart Writing 00A7h to this register restarts the WWDT Counter.
+    bit_offset: 0
+    bit_size: 32
+    enum: WWDTCNTRST_RESTART
+fieldset/WWDTCTL0:
+  description: Window Watchdog Timer Control Register 0.
+  fields:
+  - name: CLKDIV
+    description: Module Clock Divider, Divide the clock source by CLKDIV+1. Divider values from /1 to /8 are possible. The clock divider is currently 4 bits. Bit 4 has no effect and should always be written with 0.
+    bit_offset: 0
+    bit_size: 3
+  - name: PER
+    description: Timer Period of the WWDT. These bits select the total watchdog timer count.
+    bit_offset: 4
+    bit_size: 3
+    enum: PER
+  - name: WINDOW0
+    description: Closed window period in percentage of the timer interval. WWDTCTL1.WINSEL determines the active window setting (WWDTCTL0.WINDOW0 or WWDTCTL0.WINDOW1).
+    bit_offset: 8
+    bit_size: 3
+    enum: WINDOW
+  - name: WINDOW1
+    description: Closed window period in percentage of the timer interval. WWDTCTL1.WINSEL determines the active window setting (WWDTCTL0.WINDOW0 or WWDTCTL0.WINDOW1).
+    bit_offset: 12
+    bit_size: 3
+    enum: WINDOW
+  - name: MODE
+    description: Window Watchdog Timer Mode.
+    bit_offset: 16
+    bit_size: 1
+    enum: MODE
+  - name: STISM
+    description: 'Stop In Sleep Mode. The functionality of this bit requires that POLICY.HWCEN = 0. If POLICY.HWCEN = 1 the WWDT resets during sleep and needs re-configuration. Note: This bit has no effect for the global Window Watchdog as Sleep Mode is not supported.'
+    bit_offset: 17
+    bit_size: 1
+    enum: STISM
+  - name: KEY
+    description: KEY to allow write access to WWDTCTL0 = C9h.
+    bit_offset: 24
+    bit_size: 8
+    enum: WWDTCTL0_KEY
+fieldset/WWDTCTL1:
+  description: Window Watchdog Timer Control Register 0.
+  fields:
+  - name: WINSEL
+    description: Close Window Select.
+    bit_offset: 0
+    bit_size: 1
+    enum: WINSEL
+  - name: KEY
+    description: KEY to allow write access to WWDTCTL1 = BEh.
+    bit_offset: 24
+    bit_size: 8
+    enum: WWDTCTL1_KEY
+fieldset/WWDTSTAT:
+  description: Window Watchdog Timer Status Register.
+  fields:
+  - name: RUN
+    description: Watchdog running status flag.
+    bit_offset: 0
+    bit_size: 1
+enum/INT_CFG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: The interrupt or event line is disabled.
+    value: 0
+  - name: SOFTWARE
+    description: The interrupt or event line is in software mode. Software must clear the RIS.
+    value: 1
+  - name: HARDWARE
+    description: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.
+    value: 2
+enum/MODE:
+  bit_size: 1
+  variants:
+  - name: WINDOW
+    description: 'Window Watchdog Timer Mode. The WWDT will generate a error signal to the ESM when following conditions occur: - Timer Expiration (Timeout) - Reset WWDT during the active window closed period - Keyword violation.'
+    value: 0
+  - name: INTERVAL
+    description: Interval Timer Mode. The WWDT acts as an interval timer. It generates an interrupt on timeout.
+    value: 1
+enum/PER:
+  bit_size: 3
+  variants:
+  - name: EN_25
+    description: Total timer count is 2^25.
+    value: 0
+  - name: EN_21
+    description: Total timer count is 2^21.
+    value: 1
+  - name: EN_18
+    description: Total timer count is 2^18.
+    value: 2
+  - name: EN_15
+    description: Total timer count is 2^15.
+    value: 3
+  - name: EN_12
+    description: Total timer count is 2^12 (default).
+    value: 4
+  - name: EN_10
+    description: Total timer count is 2^10.
+    value: 5
+  - name: EN_8
+    description: Total timer count is 2^8.
+    value: 6
+  - name: EN_6
+    description: Total timer count is 2^6.
+    value: 7
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177
+enum/STAT:
+  bit_size: 5
+  variants:
+  - name: NO_INTR
+    description: No interrupt pending.
+    value: 0
+  - name: INTTIM
+    description: 'Interval Timer Interrupt; Interrupt Flag: INTTIM; Interrupt Priority: Highest.'
+    value: 1
+enum/STISM:
+  bit_size: 1
+  variants:
+  - name: CONT
+    description: The WWDT continues to function in Sleep mode.
+    value: 0
+  - name: STOP
+    description: The WWDT stops in Sleep mode and resumes where it was stopped after wakeup.
+    value: 1
+enum/WINDOW:
+  bit_size: 3
+  variants:
+  - name: SIZE_0
+    description: 0% (No closed Window).
+    value: 0
+  - name: SIZE_12
+    description: 12.50% of the total timer period is closed window.
+    value: 1
+  - name: SIZE_18
+    description: 18.75% of the total timer period is closed window.
+    value: 2
+  - name: SIZE_25
+    description: 25% of the total timer period is closed window.
+    value: 3
+  - name: SIZE_50
+    description: 50% of the total timer period is closed window.
+    value: 4
+  - name: SIZE_75
+    description: 75% of the total timer period is closed window.
+    value: 5
+  - name: SIZE_81
+    description: 81.25% of the total timer period is closed window.
+    value: 6
+  - name: SIZE_87
+    description: 87.50% of the total timer period is closed window.
+    value: 7
+enum/WINSEL:
+  bit_size: 1
+  variants:
+  - name: WIN0
+    description: In window mode field WINDOW0 of WDDTCTL0 defines the closed window size.
+    value: 0
+  - name: WIN1
+    description: In window mode field WINDOW1 of WDDTCTL0 defines the closed window size.
+    value: 1
+enum/WWDTCNTRST_RESTART:
+  bit_size: 32
+  variants:
+  - name: RESTART
+    value: 167
+enum/WWDTCTL0_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 201
+enum/WWDTCTL1_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 190
