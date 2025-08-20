@@ -18,6 +18,7 @@ const GENERATE_PERIPHERALS: &[PeripheralType] = &[
     PeripheralType::Sysctl,
     PeripheralType::Tim,
     PeripheralType::Uart,
+    PeripheralType::Wwdt,
 ];
 
 pub fn generate(chip: &Chip, all_versions: &mut BTreeMap<String, BTreeSet<String>>) -> TokenStream {
