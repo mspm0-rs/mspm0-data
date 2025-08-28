@@ -237,7 +237,7 @@ fn generate_peripherals2(
             }
 
             // GPAMP does not exist on these parts.
-            if name == "GPAMP" && (chip_name == "mspm0c110x" || chip_name == "mspm0g151x") {
+            if name == "GPAMP" && (chip_name == "mspm0c110x" || chip_name == "mspm0c1105_c1106" || chip_name == "mspm0g151x") {
                 continue;
             }
 
@@ -405,6 +405,7 @@ fn get_power_domain(
         "PD_ULP_AON"
             if (chip_name == "msps003fx"
                 || chip_name == "mspm0c110x"
+                || chip_name == "mspm0c1105_c1106"
                 || chip_name == "mspm0l110x"
                 || chip_name == "mspm0l122x"
                 || chip_name == "mspm0l130x"
@@ -423,6 +424,7 @@ fn get_power_domain(
         "PD_ULP_AON"
             if (chip_name == "msps003fx"
                 || chip_name == "mspm0c110x"
+                || chip_name == "mspm0c1105_c1106"
                 || chip_name == "mspm0l110x"
                 || chip_name == "mspm0l122x"
                 || chip_name == "mspm0l130x"
@@ -435,6 +437,7 @@ fn get_power_domain(
         "PD_ULP_AON"
             if (chip_name == "msps003fx"
                 || chip_name == "mspm0c110x"
+                || chip_name == "mspm0c1105_c1106"
                 || chip_name == "mspm0l110x"
                 || chip_name == "mspm0l122x"
                 || chip_name == "mspm0l130x"

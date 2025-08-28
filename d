@@ -5,7 +5,7 @@ cd $(dirname $0)
 CMD=$1
 
 # Revision of the data sources 
-REV=c6db61518acf6975e20ed0c7bb1e6963fdad1232
+REV=c5adc9457cd224c4cb0eaff9dfaff0d20b797f74
 shift
 
 case "$CMD" in

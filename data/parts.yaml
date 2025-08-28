@@ -75,6 +75,52 @@ families:
     - RUK
     - YCJ
 
+- family: mspm0c1105_c1106
+  datasheet_url: https://www.ti.com/lit/gpn/mspm0c1106
+  reference_manual_url: https://www.ti.com/lit/pdf/slau893
+  errata_url: https://www.ti.com/lit/pdf/slaz761
+  adc_vrsel: VDD_INTREF
+  part_numbers:
+  - name: mspm0c1105
+    memory:
+    - name: FLASH
+      length: 32
+      address: 0x00000000
+    - name: RAM
+      length: 8
+      address: 0x20000000
+    packages:
+    - PT
+    - RGZ
+    - ZCM
+    - RHB
+    - DGS32
+    - DGS28
+    - RGE
+    - DGS20
+    - RUK
+    - PT
+
+  - name: mspm0c1106
+    memory:
+    - name: FLASH
+      length: 64
+      address: 0x00000000
+    - name: RAM
+      length: 8
+      address: 0x20000000
+    packages:
+    - PT
+    - RGZ
+    - ZCM
+    - RHB
+    - DGS32
+    - DGS28
+    - RGE
+    - DGS20
+    - RUK
+    - PT
+
 ## G Series
 - family: mspm0g110x
   datasheet_url: https://www.ti.com/lit/gpn/mspm0g1107
