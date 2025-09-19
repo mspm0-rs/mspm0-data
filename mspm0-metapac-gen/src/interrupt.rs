@@ -60,7 +60,7 @@ fn group_enum(interrupt: &Interrupt) -> TokenStream {
     let name = Ident::new(&interrupt.name.to_pascal_case(), Span::call_site());
 
     let members = interrupt.group.iter().map(|(index, interrupt)| {
-        let ident = Ident::new(&interrupt, Span::call_site());
+        let ident = Ident::new(interrupt, Span::call_site());
         let value = Literal::u8_unsuffixed(*index as _);
 
         quote! {
@@ -69,7 +69,7 @@ fn group_enum(interrupt: &Interrupt) -> TokenStream {
     });
 
     let matches = interrupt.group.iter().map(|(index, interrupt)| {
-        let ident = Ident::new(&interrupt, Span::call_site());
+        let ident = Ident::new(interrupt, Span::call_site());
         let value = Literal::u8_unsuffixed(*index as _);
 
         quote! {

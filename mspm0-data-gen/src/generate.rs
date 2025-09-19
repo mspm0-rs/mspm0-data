@@ -1,47 +1,43 @@
 use std::{borrow::Cow, cmp::Ordering, collections::BTreeMap, fs, sync::LazyLock};
 
-use anyhow::{bail, Context};
+use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
-    Chip, DmaChannel, Interrupt, Package, PackagePin, Peripheral, PeripheralPin, PeripheralType,
-    PowerDomain,
+    Chip, DmaChannel, Interrupt, Memory, Package, PackagePin, Peripheral, PeripheralPin,
+    PeripheralType, PowerDomain,
 };
 use regex::Regex;
 
 use crate::{
     header::{Header, Headers},
     int_group::Groups,
+    parts::{PartFamily, PartMemory, PartsFile},
+    perimap::PERIMAP,
     sysconfig::{self, PartPeripheralWrapper, Sysconfig, SysconfigFile},
     verify,
 };
 
-const SKIP_CHIPS: &[&str] = &[
-    // Likely a duplicate of C110x
-    "MSPM0C1105_C1106",
-    // Unreleased
-    "MSPM0L111X",
-    "MSPM0H321X",
-];
-
 pub fn generate(
+    parts: &PartsFile,
     headers: &Headers,
     sysconfig: &Sysconfig,
     int_groups: &BTreeMap<String, Groups>,
 ) -> anyhow::Result<()> {
-    for (name, sysconfig_entry) in sysconfig.files.iter() {
-        let packages = generate_packages(&name, &sysconfig_entry)?;
+    fs::create_dir_all("./build/data/").unwrap();
 
-        if SKIP_CHIPS.iter().any(|&chip| chip == name) {
-            continue;
-        }
-
-        // TODO: Remove _POCIx suffix from e.x. CS1_POCI1
-        let iomux = generate_pincm(&name, &sysconfig_entry)?;
+    for family in parts.families.iter() {
+        let sysconfig = sysconfig
+            .files
+            .get(&family.family.to_uppercase())
+            .context(format!(
+                "No sysconfig data available for {}",
+                &family.family
+            ))?;
 
         // MSPS003FX is the same as C110X except for package options and some pins.
-        let header_name = if name == "MSPS003FX" {
+        let header_name = if family.family == "msps003fx" {
             "mspm0c110x"
         } else {
-            name
+            &family.family
         };
 
         let header = headers
@@ -49,36 +45,81 @@ pub fn generate(
             .get(&header_name.to_lowercase())
             .context(format!("Could not lookup header for {}", header_name))?;
 
-        let peripherals = generate_peripherals2(&name, header, &sysconfig_entry)?;
-
-        let interrupts = generate_irqs(&name, header, int_groups)?;
-
-        let dma_channels = generate_dma_channels(&name, &sysconfig_entry)?;
-
-        fs::create_dir_all("./build/data/").unwrap();
-
-        let chip = Chip {
-            packages,
-            iomux,
-            peripherals,
-            interrupts,
-            dma_channels,
-        };
-
-        if let Err(err) = verify::verify(&chip, &name) {
-            eprintln!("{err}");
-        };
-
-        let _ = fs::write(
-            format!("./build/data/{name}.json"),
-            serde_json::to_string_pretty(&chip).unwrap(),
-        );
+        generate_family(family, header, sysconfig, int_groups)
+            .context(format!("Error when generating family: {}", family.family))?;
     }
 
     Ok(())
 }
 
-fn generate_packages(chip_name: &str, sysconfig: &SysconfigFile) -> anyhow::Result<Vec<Package>> {
+fn generate_family(
+    family: &PartFamily,
+    header: &Header,
+    sysconfig: &SysconfigFile,
+    int_groups: &BTreeMap<String, Groups>,
+) -> anyhow::Result<()> {
+    // Data shared across all chips in a family.
+    let packages = get_packages(&family.family, sysconfig)?;
+    let iomux = generate_pincm(&family.family, sysconfig)?;
+    let peripherals = generate_peripherals2(&family.family, header, sysconfig)?;
+    let interrupts = generate_irqs(&family.family, header, int_groups)?;
+    let dma_channels = generate_dma_channels(&family.family, sysconfig)?;
+    let adc_memctl = generate_adc_memctl_dim(&family.family, sysconfig)?;
+
+    for part_number in family.part_numbers.iter() {
+        // Filter for package types available on the part number.
+        let packages = packages
+            .iter()
+            .filter(|package| part_number.packages.contains(&package.package))
+            .cloned()
+            .map(|package| {
+                // We need to build the actual chip name, including package.
+                //
+                // e.g. mspm0c1104dgs20
+                //
+                // however this really should be something like mspm0c1104**s**dgs20 or mspm0c1104**q**dgs20
+                let mut chip = part_number.name.clone();
+                chip.push_str(&package.package.to_lowercase());
+
+                Package {
+                    name: package.name,
+                    chip,
+                    package: package.package,
+                    pins: package.pins,
+                }
+            });
+
+        let chip = Chip {
+            name: part_number.name.clone(),
+            family: family.family.clone(),
+            datasheet_url: family.datasheet_url.clone(),
+            reference_manual_url: family.reference_manual_url.clone(),
+            errata_url: family.errata_url.clone(),
+            memory: part_number.memory.iter().map(convert_memory).collect(),
+            packages: packages.collect(),
+            iomux: iomux.clone(),
+            peripherals: peripherals.clone(),
+            interrupts: interrupts.clone(),
+            dma_channels: dma_channels.clone(),
+            adc_memctl,
+            adc_vrsel: adc_vrsel_mapping(&family.adc_vrsel)?,
+        };
+
+        if let Err(err) = verify::verify(&chip, &part_number.name) {
+            eprintln!("{err}");
+        };
+
+        let data = serde_json::to_string_pretty(&chip)
+            .context(format!("Serializing chip {}", part_number.name))?;
+
+        fs::write(format!("./build/data/{}.json", &part_number.name), data)
+            .context(format!("Error writing data for {}", part_number.name))?;
+    }
+
+    Ok(())
+}
+
+fn get_packages(family: &str, sysconfig: &SysconfigFile) -> anyhow::Result<Vec<Package>> {
     static PATTERN: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"^(?<name>[A-Za-z0-9-]+)\((?<package>[^)]+)\)").unwrap());
 
@@ -87,7 +128,7 @@ fn generate_packages(chip_name: &str, sysconfig: &SysconfigFile) -> anyhow::Resu
     for package in sysconfig.packages.values() {
         let raw_name = &package.name;
 
-        let captures = PATTERN.captures(&raw_name).unwrap();
+        let captures = PATTERN.captures(raw_name).unwrap();
         let name = &captures["name"];
         let package_name = &captures["package"];
 
@@ -99,7 +140,7 @@ fn generate_packages(chip_name: &str, sysconfig: &SysconfigFile) -> anyhow::Resu
                 .device_pins
                 .get(&pin.device_pin_id)
                 .context(format!(
-                    "{chip_name}: looked up non-existent pin with id: {}",
+                    "{family}: looked up non-existent pin with id: {}",
                     pin.device_pin_id
                 ))?;
 
@@ -114,7 +155,7 @@ fn generate_packages(chip_name: &str, sysconfig: &SysconfigFile) -> anyhow::Resu
 
         packages.push(Package {
             name: name.to_string(),
-            chip: chip_name.to_string(),
+            chip: family.to_string(),
             package: package_name.to_string(),
             pins,
         });
@@ -196,13 +237,14 @@ fn generate_peripherals2(
             }
 
             // GPAMP does not exist on these parts.
-            if name == "GPAMP" && (chip_name == "MSPM0C110X" || chip_name == "MSPM0G151X") {
+            if name == "GPAMP" && (chip_name == "mspm0c110x" || chip_name == "mspm0c1105_c1106" || chip_name == "mspm0g151x") {
                 continue;
             }
 
             let (ty, version) = get_peripheral_type_version(chip_name, &name);
             let address = get_peripheral_addresses(chip_name, &name, header, sysconfig)?;
             let power_domain = get_power_domain(peripheral, ty, chip_name)?;
+            let sys_fentries = get_sys_fentries(peripheral, chip_name)?;
 
             let mut peri = Peripheral {
                 name: name.clone(),
@@ -211,6 +253,7 @@ fn generate_peripherals2(
                 address,
                 power_domain,
                 pins: vec![],
+                sys_fentries,
             };
 
             // Lookup the pins
@@ -257,7 +300,7 @@ fn generate_peripherals2(
                             let pin = device_pin_name
                                 .split_once('/')
                                 .map(|(a, _)| a)
-                                .unwrap_or_else(|| &device_pin_name)
+                                .unwrap_or_else(|| device_pin_name)
                                 .to_string();
 
                             if skip_peripheral_pin(device_pin_name, chip_name) {
@@ -304,6 +347,31 @@ fn generate_peripherals2(
     Ok(peripherals)
 }
 
+fn get_sys_fentries(
+    peripheral: &sysconfig::Peripheral,
+    chip_name: &str,
+) -> anyhow::Result<Option<usize>> {
+    if !(peripheral.name.starts_with("SPI")
+        || peripheral.name.starts_with("UART")
+        || peripheral.name.starts_with("I2C"))
+    {
+        return Ok(None);
+    }
+
+    let Some(sys_fentries) = peripheral.attributes.get("SYS_FENTRIES") else {
+        bail!("{chip_name}: {} has no SYS_FENTRIES field", peripheral.name)
+    };
+
+    let Some(sys_fentries) = sys_fentries.as_str() else {
+        bail!(
+            "{chip_name}: {} SYS_FENTRIES field is not a string value",
+            peripheral.name
+        )
+    };
+
+    Ok(Some(sys_fentries.parse::<usize>().unwrap()))
+}
+
 fn get_power_domain(
     peripheral: &sysconfig::Peripheral,
     ty: PeripheralType,
@@ -335,49 +403,52 @@ fn get_power_domain(
     let domain = match power_domain {
         // Fix mistakes in SYSCTL
         "PD_ULP_AON"
-            if (chip_name == "MSPS003FX"
-                || chip_name == "MSPM0C110X"
-                || chip_name == "MSPM0L110X"
-                || chip_name == "MSPM0L122X"
-                || chip_name == "MSPM0L130X"
-                || chip_name == "MSPM0L134X"
-                || chip_name == "MSPM0L222X")
+            if (chip_name == "msps003fx"
+                || chip_name == "mspm0c110x"
+                || chip_name == "mspm0c1105_c1106"
+                || chip_name == "mspm0l110x"
+                || chip_name == "mspm0l122x"
+                || chip_name == "mspm0l130x"
+                || chip_name == "mspm0l134x"
+                || chip_name == "mspm0l222x")
                 && ty == PeripheralType::Cpuss =>
         {
             PowerDomain::Pd1
         }
         "PD_ULP_AON"
-            if (chip_name == "MSPM0L122X" || chip_name == "MSPM0L222X")
+            if (chip_name == "mspm0l122x" || chip_name == "mspm0l222x")
                 && ty == PeripheralType::AesAdv =>
         {
             PowerDomain::Pd1
         }
         "PD_ULP_AON"
-            if (chip_name == "MSPS003FX"
-                || chip_name == "MSPM0C110X"
-                || chip_name == "MSPM0L110X"
-                || chip_name == "MSPM0L122X"
-                || chip_name == "MSPM0L130X"
-                || chip_name == "MSPM0L134X"
-                || chip_name == "MSPM0L222X")
+            if (chip_name == "msps003fx"
+                || chip_name == "mspm0c110x"
+                || chip_name == "mspm0c1105_c1106"
+                || chip_name == "mspm0l110x"
+                || chip_name == "mspm0l122x"
+                || chip_name == "mspm0l130x"
+                || chip_name == "mspm0l134x"
+                || chip_name == "mspm0l222x")
                 && ty == PeripheralType::Crc =>
         {
             PowerDomain::Pd1
         }
         "PD_ULP_AON"
-            if (chip_name == "MSPS003FX"
-                || chip_name == "MSPM0C110X"
-                || chip_name == "MSPM0L110X"
-                || chip_name == "MSPM0L122X"
-                || chip_name == "MSPM0L130X"
-                || chip_name == "MSPM0L134X"
-                || chip_name == "MSPM0L222X")
+            if (chip_name == "msps003fx"
+                || chip_name == "mspm0c110x"
+                || chip_name == "mspm0c1105_c1106"
+                || chip_name == "mspm0l110x"
+                || chip_name == "mspm0l122x"
+                || chip_name == "mspm0l130x"
+                || chip_name == "mspm0l134x"
+                || chip_name == "mspm0l222x")
                 && ty == PeripheralType::Spi =>
         {
             PowerDomain::Pd1
         }
         "PD_ULP_AON"
-            if (chip_name == "MSPM0L122X" || chip_name == "MSPM0L222X")
+            if (chip_name == "mspm0l122x" || chip_name == "mspm0l222x")
                 && ty == PeripheralType::Trng =>
         {
             PowerDomain::Pd1
@@ -404,16 +475,20 @@ fn generate_missing(
     static GPIO_PIN: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"(?m)^P(?<bank>[A-Z])\d+").unwrap());
 
+    let version = PERIMAP
+        .get(&format!("{}:{}", chip_name, PeripheralType::Dma))
+        .map(|s| s.to_string());
     peripherals.insert(
         "DMA".to_string(),
         Peripheral {
             name: "DMA".to_string(),
             ty: PeripheralType::Dma,
-            version: None,
+            version,
             address: Some(0x4042A000),
             // DMA always lives in PD1
             power_domain: PowerDomain::Pd1,
             pins: vec![],
+            sys_fentries: None,
         },
     );
 
@@ -428,16 +503,20 @@ fn generate_missing(
             let address = get_peripheral_addresses(chip_name, &bank, header, sysconfig)?
                 .context(format!("{bank} must have address"))?;
 
+            let version = PERIMAP
+                .get(&format!("{}:{}", chip_name, PeripheralType::Gpio))
+                .map(|s| s.to_string());
             let gpio = peripherals
                 .entry(bank)
                 .or_insert_with_key(|name| Peripheral {
                     name: name.clone(),
                     ty: PeripheralType::Gpio,
-                    version: None,
+                    version,
                     address: Some(address),
                     // GPIO always lives in PD0
                     power_domain: PowerDomain::Pd0,
                     pins: vec![],
+                    sys_fentries: None,
                 });
 
             let pin = device_pin
@@ -469,7 +548,10 @@ fn maybe_rename(name: &str) -> String {
 
 fn get_peripheral_type_version(chip_name: &str, name: &str) -> (PeripheralType, Option<String>) {
     if name.starts_with("SYSCTL") {
-        return (PeripheralType::Sysctl, Some(get_sysctl_version(chip_name)));
+        let version = PERIMAP
+            .get(&format!("{}:{}", chip_name, PeripheralType::Sysctl))
+            .map(|s| s.to_string());
+        return (PeripheralType::Sysctl, version);
     }
 
     let ty = if name.starts_with("ADC") {
@@ -535,8 +617,11 @@ fn get_peripheral_type_version(chip_name: &str, name: &str) -> (PeripheralType, 
     } else {
         PeripheralType::Unknown
     };
+    let version = PERIMAP
+        .get(&format!("{}:{}", chip_name, ty))
+        .map(|s| s.to_string());
 
-    (ty, None)
+    (ty, version)
 }
 
 fn get_peripheral_addresses(
@@ -566,21 +651,6 @@ fn get_peripheral_addresses(
         ))?;
 
     Ok(Some(address))
-}
-
-fn get_sysctl_version(chip_name: &str) -> String {
-    let s = match chip_name {
-        "MSPS003FX" | "MSPM0C110X" => "c110x",
-        "MSPM0L110X" | "MSPM0L130X" | "MSPM0L134X" => "l110x_l130x_l134x",
-        "MSPM0L122X" | "MSPM0L222X" => "l122x_l222x",
-        "MSPM0G110X" | "MSPM0G150X" | "MSPM0G310X" | "MSPM0G350X" => "g350x_g310x_g150x_g110x",
-        "MSPM0G151X" | "MSPM0G351X" => "g351x_g151x",
-        "MSPM0H321X" => "h321x",
-
-        _ => unreachable!("Missing mapping from {chip_name} to sysctl version"),
-    };
-
-    String::from(s)
 }
 
 fn generate_irqs(
@@ -691,14 +761,80 @@ fn generate_dma_channels(
     Ok(channels)
 }
 
+fn generate_adc_memctl_dim(chip_name: &str, sysconfig: &SysconfigFile) -> anyhow::Result<u8> {
+    // We parse the SYS_ADC_MEMCTL_DIM attribute in the ADC peripherals.
+    // Because we use the same adc pac for all ADC instances, we check if all existing MEMCTL_DIM
+    // attributes are equal.
+    let mut result = None;
+
+    for peripheral in sysconfig
+        .peripherals
+        .values()
+        .filter(|p| p.name.starts_with("ADC"))
+    {
+        let name = &peripheral.name;
+        // make names consistent sometimes
+        let name = maybe_rename(name);
+
+        let raw_memctl_dim = &peripheral.attributes.get("SYS_ADC_MEMCTL_DIM").expect(
+            format!(
+                "SYS_ADC_MEMCTL_DIM should exist for {} in {}",
+                name, chip_name
+            )
+            .as_str(),
+        );
+        let memctl_error = format!(
+            "SYS_ADC_MEMCTL_DIM: {} should be an u32 as string for {} in {}",
+            raw_memctl_dim, name, chip_name
+        );
+        let memctl_dim = raw_memctl_dim
+            .as_str()
+            .expect(memctl_error.as_str())
+            .parse::<u8>()
+            .expect(memctl_error.as_str());
+        match result {
+            Some(m) => ensure!(
+                m == memctl_dim,
+                "{}: Found unequal memctl dim attributes {}, {}",
+                chip_name,
+                m,
+                memctl_dim
+            ),
+            None => result = Some(memctl_dim),
+        };
+    }
+    ensure!(
+        result.is_some(),
+        "{}: Unable to find any SYS_ADC_MEMCTL_DIM",
+        chip_name
+    );
+    Ok(result.unwrap())
+}
+
+fn adc_vrsel_mapping(vrsel: &String) -> anyhow::Result<u8> {
+    match vrsel.as_str() {
+        "VDD_INTREF" => Ok(3),
+        "VDD_INTREF_EXTREF" => Ok(5),
+        _ => Err(anyhow!("Invalid adc vrsel option {}", vrsel)),
+    }
+}
+
 fn skip_peripheral_pin(pin_name: &String, chip_name: &str) -> bool {
     // L130X and L134X defines some device pins that only contain `OPAx.IN0-`, which is one of the symbols. Not the pin
     // itself.
-    if (chip_name == "MSPM0L130X" || chip_name == "MSPM0L134X")
+    if (chip_name == "mspm0l130x" || chip_name == "mspm0l134x")
         && (pin_name == "OPA0.IN0-" || pin_name == "OPA1.IN0-")
     {
         return true;
     }
 
     false
+}
+
+fn convert_memory(memory: &PartMemory) -> Memory {
+    Memory {
+        name: memory.name.clone(),
+        length: memory.length,
+        address: memory.address,
+    }
 }

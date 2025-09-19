@@ -1,3 +1,5 @@
+use std::collections::{BTreeMap, BTreeSet};
+
 use heck::ToPascalCase;
 use mspm0_data_types::{Chip, Peripheral, PeripheralType};
 use proc_macro2::{Ident, Literal, Span, TokenStream};
@@ -7,6 +9,7 @@ use quote::quote;
 ///
 /// By name, then version (if any)
 const GENERATE_PERIPHERALS: &[PeripheralType] = &[
+    PeripheralType::Adc,
     PeripheralType::Cpuss,
     PeripheralType::Dma,
     PeripheralType::Canfd,
@@ -16,10 +19,11 @@ const GENERATE_PERIPHERALS: &[PeripheralType] = &[
     PeripheralType::Sysctl,
     PeripheralType::Tim,
     PeripheralType::Uart,
+    PeripheralType::Wwdt,
 ];
 
-pub fn generate(chip: &Chip) -> TokenStream {
-    let peripheral_imports = generate_peripheral_imports(chip);
+pub fn generate(chip: &Chip, all_versions: &mut BTreeMap<String, BTreeSet<String>>) -> TokenStream {
+    let peripheral_imports = generate_peripheral_imports(chip, all_versions);
     let peripheral_consts = generate_peripheral_consts(chip);
 
     quote! {
@@ -28,19 +32,26 @@ pub fn generate(chip: &Chip) -> TokenStream {
     }
 }
 
-fn generate_peripheral_imports(chip: &Chip) -> TokenStream {
+fn generate_peripheral_imports(
+    chip: &Chip,
+    all_versions: &mut BTreeMap<String, BTreeSet<String>>,
+) -> TokenStream {
     // Sort the peripherals by type for generation.
     let mut peripheral_types = chip.peripherals.iter().collect::<Vec<_>>();
-    peripheral_types.sort_by(|(a, _), (b, _)| a.cmp(&b));
+    peripheral_types.sort_by(|(a, _), (b, _)| a.cmp(b));
     peripheral_types.dedup_by(|(_, a), (_, b)| a.ty == b.ty);
 
     peripheral_types
         .iter()
-        .map(|(name, peripheral)| generate_import(name, peripheral))
+        .map(|(name, peripheral)| generate_import(name, peripheral, all_versions))
         .collect()
 }
 
-fn generate_import(_name: &str, peripheral: &Peripheral) -> TokenStream {
+fn generate_import(
+    _name: &str,
+    peripheral: &Peripheral,
+    all_versions: &mut BTreeMap<String, BTreeSet<String>>,
+) -> TokenStream {
     if !GENERATE_PERIPHERALS
         .iter()
         .any(|ty_generate| &peripheral.ty == ty_generate)
@@ -53,15 +64,18 @@ fn generate_import(_name: &str, peripheral: &Peripheral) -> TokenStream {
         Span::call_site(),
     );
 
-    let path = if let Some(ref version) = peripheral.version {
-        format!("../../peripherals/{}_{}.rs", peripheral.ty, version)
+    if let Some(version) = peripheral.version.clone() {
+        all_versions
+            .entry(name.to_string())
+            .or_default()
+            .insert(version.clone());
+        let path = format!("../../peripherals/{}_{}.rs", name, version);
+        quote! {
+            #[path = #path]
+            pub mod #name;
+        }
     } else {
-        format!("../../peripherals/{}.rs", peripheral.ty)
-    };
-
-    quote! {
-        #[path = #path]
-        pub mod #name;
+        TokenStream::default()
     }
 }
 

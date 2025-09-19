@@ -41,16 +41,9 @@ fn main() {
     .to_ascii_lowercase()
     .replace('_', "-");
 
-    #[cfg(feature = "rt")]
+    #[cfg(any(feature = "rt", feature = "memory-x"))]
     println!(
         "cargo:rustc-link-search={}/src/chips/{}",
-        crate_dir.display(),
-        chip_name,
-    );
-
-    #[cfg(feature = "memory-x")]
-    println!(
-        "cargo:rustc-link-search={}/src/chips/{}/memory_x/",
         crate_dir.display(),
         chip_name,
     );
