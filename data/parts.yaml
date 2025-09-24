@@ -438,18 +438,18 @@ families:
     memory:
     - name: FLASH
       length: 32
-      address: 0x00000000 # TODO: VERIFY
+      address: 0x00000000
     - name: RAM
       length: 8
       address: 0x20000000
     packages:
-    # None yet per datasheet
+    # None yet per preliminary datasheet
 
   - name: mspm0h3216
     memory:
     - name: FLASH
       length: 64 
-      address: 0x00000000 # TODO: VERIFY
+      address: 0x00000000
     - name: RAM
       length: 8
       address: 0x20000000
