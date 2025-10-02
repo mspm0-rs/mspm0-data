@@ -432,7 +432,7 @@ families:
   datasheet_url: https://www.ti.com/lit/gpn/mspm0h3216
   reference_manual_url: https://www.ti.com/lit/pdf/slau923
   errata_url: https://www.ti.com/lit/pdf/slaz763
-  adc_vrsel: VDD_INTREF_EXTREF # TODO: Verify
+  adc_vrsel: VDD_INTREF
   part_numbers:
   - name: mspm0h3215
     memory:
@@ -455,7 +455,6 @@ families:
       address: 0x20000000
     packages:
     - PT
-
 
 ## L Series
 - family: mspm0l110x
