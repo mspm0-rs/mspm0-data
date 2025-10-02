@@ -1,0 +1,334 @@
+# Transform using SYSCTL from H321x
+transforms:
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  - !DeleteUselessEnums
+
+  # Remove SYSCTL prefixes
+  - !RenameRegisters
+    block: .*
+    from: SYSCTL_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: SYSCTL_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: SYSCTL_(.+)
+    to: $1
+
+  # PINCM block does not exist in the datasheet
+  - !Delete
+    from: PINCM
+
+  # BEEPER is part of SYSCTL for H321x. For mspm0-data, the beeper is treated as a separate peripheral
+  # and is removed here.
+  - !Delete
+    from: BEEPER
+
+  - !DeleteEnumsUsedIn
+    fieldsets: BEEPER
+
+  - !DeleteEnums
+    from: BEEPER(.*)
+
+  - !DeleteFieldsets
+    from: BEEPER(.*)
+
+  - !DeleteRegisters
+    block: .*
+    from: BEEPER(.*)
+
+  # IMASK, RIS, MIS, ISET, ICLR are the same type
+  - !MergeFieldsets
+    from: (IMASK|RIS|MIS|ISET|ICLR)
+    to: INT
+
+  # Add missing NMI fieldsets and registers
+  - !Add
+    ir:
+      # SLAU923 (preliminary) does not lablel LFCLKFAIL, but can be implied from NMI_INT.
+      enum/NMI_STAT:
+        bit_size: 2
+        variants:
+        - name: NO_INTR
+          description: No Interrupt.
+          value: 0
+        - name: BORLVL
+          value: 1
+        - name: WWDT0
+          value: 2
+        - name: LFCLKFAIL
+          value: 3
+      fieldset/NMI_IIDX:
+        fields:
+        - name: STAT
+          bit_offset: 0
+          bit_size: 2
+          enum: NMI_STAT
+      fieldset/NMI:
+        fields:
+        - name: BORLVL
+          bit_offset: 0
+          bit_size: 1
+        - name: WWDT0
+          bit_offset: 1
+          bit_size: 1
+        - name: LFCLKFAIL
+          bit_offset: 2
+          bit_size: 1
+
+  - !AddRegisters
+    block: SYSCTL
+    registers:
+    - name: NMI_IIDX
+      byte_offset: 4176
+      fieldset: NMI_IIDX
+    - name: NMI_RIS
+      byte_offset: 4192
+      fieldset: NMI
+    - name: NMI_ISET
+      byte_offset: 4208
+      fieldset: NMI
+    - name: NMI_ICLR
+      byte_offset: 4216
+      fieldset: NMI
+
+  # SYSOSCCFG
+  # Remove SYSOSCTURBO variants, not defined on C110x
+  - !DeleteEnumVariants
+    enum: (SYSOSCCFG_FREQ|SYSOSCFREQ)
+    from: SYSOSCTURBO
+
+  # USE4MHZSTOP, FASTCLKONAREQ and BLOCKASYNCACOMP do not exist on C110x
+  - !DeleteFields
+    fieldset: SYSOSCCFG
+    from: (USE4MHZSTOP|FASTCLKONAREQ|BLOCKASYNCACOMP)
+  
+  # SYSOSCCFG does not have FASTCPUEVENT, but an existing field with the wrong name occupies the
+  # same bit.
+  - !RenameFields
+    fieldset: SYSOSCCFG
+    from: BLOCKASYNCUART
+    to: FASTCPUEVENT
+
+  # SYSTEMCFG is entirely wrong
+  - !Add
+    ir:
+      fieldset/SYSTEMCFG:
+        description: System configuration
+        fields:
+        - name: WWDTLP0RSTDIS
+          bit_offset: 0
+          bit_size: 1
+        - name: KEY
+          bit_offset: 24
+          bit_size: 8
+          enum: SYSTEMCFG_KEY
+      enum/SYSTEMCFG_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 27
+
+  # BEEPCFG we skip, it does belong to SYSCTL but we treat it as a different peripheral.
+  # FIXME: remove BEEPCFG, it exists
+
+  # SYSSTATUS is entirely wrong
+  # FIXME: SYSCTL is missing SWALTSELEN
+
+  # RESETCMD: Add KEY
+  - !Add
+    ir:
+      enum/RESETCMD_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 228
+
+  - !AddFields
+    fieldset: RESETCMD
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: RESETCMD_KEY
+
+  # BORTHRESHOLD_LEVEL is useless
+  - !DeleteEnums
+    from: BORTHRESHOLD_LEVEL
+
+  # BORCLRCMD add key
+  - !Add
+    ir:
+      enum/BORCLRCMD_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 199
+
+  - !AddFields
+    fieldset: BORCLRCMD
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: BORCLRCMD_KEY
+
+  # SYSOSCFCLCTL: Add key
+  - !Add
+    ir:
+      enum/SYSOSCFCLCTL_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 42
+
+  - !AddFields
+    fieldset: SYSOSCFCLCTL
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: SYSOSCFCLCTL_KEY
+
+  # EXLFCTL: Add key
+  - !Add
+    ir:
+      enum/EXLFCTL_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 54
+
+  - !AddFields
+    fieldset: EXLFCTL
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: EXLFCTL_KEY
+
+  # SHDNIOREL: Add key
+  - !Add
+    ir:
+      enum/SHDNIOREL_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 145
+
+  - !AddFields
+    fieldset: SHDNIOREL
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: SHDNIOREL_KEY
+
+  # EXRSTPIN: Add key
+  - !Add
+    ir:
+      enum/EXRSTPIN_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 30
+
+  - !AddFields
+    fieldset: EXRSTPIN
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: EXRSTPIN_KEY
+
+  # SYSSTATUSCLR: Add key
+  - !Add
+    ir:
+      enum/SYSSTATUSCLR_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 206
+
+  - !AddFields
+    fieldset: SYSSTATUSCLR
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: SYSSTATUSCLR_KEY
+
+  # SWDCFG: Add key
+  - !Add
+    ir:
+      enum/SWDCFG_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 98
+
+  - !AddFields
+    fieldset: SWDCFG
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: SWDCFG_KEY
+
+  # FCCCMD, entirely missing from SVDs
+  - !Add
+    ir:
+      enum/FCCCMD_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 14
+    
+  - !AddFields
+    fieldset: FCCCMD
+    fields:
+      - name: KEY
+        bit_offset: 24
+        bit_size: 8
+        enum: FCCCMD_KEY
+
+  # The SVDs we are transforming have a lot of trim and testing registers that are not publicly documented.
+  #
+  # What is done here is to explicitly allow-list fields and enums that appear in SYSCTL_C1103_C1104 per SLAU893B.
+  # There are a lot of trim and testing registers.
+
+  # Allowlist specific fields to keep in the SYSCTL block.
+  - !DeleteEnumsUsedIn
+    fieldsets:
+      include: .*
+      exclude: (IIDX|INT|NMI|NMI_(IIDX|RIS|ISET|ICLR)|SYSOSCCFG|MCLKCFG|HSCLKEN|HSCLKCFG|HFCLKCLKCFG|LFCLKCFG|GENCLKCFG|GENCLKEN|PMODECFG|FCC|SRAMBOUNDARY|SYSTEMCFG|BEEPCFG|WRITELOCK|CLKSTATUS|SYSSTATUS|RSTCAUSE|RESET(LEVEL|CMD)|BOR(THRESHOLD|CLRCMD)|SYSOSCFCLCTL|LFXTCTL|EXLFCTL|EXRSTPIN|SYSSTATUSCLR|SWDCFG|FCCCMD)
+
+  - !DeleteFieldsets
+    from:
+      include: .*
+      exclude: (IIDX|INT|NMI|NMI_(IIDX|RIS|ISET|ICLR)|SYSOSCCFG|MCLKCFG|HSCLKEN|HSCLKCFG|HFCLKCLKCFG|LFCLKCFG|GENCLKCFG|GENCLKEN|PMODECFG|FCC|SRAMBOUNDARY|SYSTEMCFG|BEEPCFG|WRITELOCK|CLKSTATUS|SYSSTATUS|RSTCAUSE|RESET(LEVEL|CMD)|BOR(THRESHOLD|CLRCMD)|SYSOSCFCLCTL|LFXTCTL|EXLFCTL|EXRSTPIN|SYSSTATUSCLR|SWDCFG|FCCCMD)
+
+  - !DeleteRegisters
+    block: SYSCTL
+    from:
+      include: .*
+      exclude: (IIDX|IMASK|NMI|NMI_(IIDX|RIS|ISET|ICLR)|RIS|MIS|ISET|ICLR|SYSOSCCFG|MCLKCFG|HSCLKEN|HSCLKCFG|HFCLKCLKCFG|LFCLKCFG|GENCLKCFG|GENCLKEN|PMODECFG|FCC|SRAMBOUNDARY|SYSTEMCFG|BEEPCFG|WRITELOCK|CLKSTATUS|SYSSTATUS|RSTCAUSE|RESET(LEVEL|CMD)|BOR(THRESHOLD|CLRCMD)|SYSOSCFCLCTL|LFXTCTL|EXLFCTL|EXRSTPIN|SYSSTATUSCLR|SWDCFG|FCCCMD)
+
+  # Miscellaneous enums which don't belong to any of the above
+  - !DeleteEnums
+    from: (CANCLKSRC|CURHSCLKSEL|UDIV)
+
+  # EXCLKDIVEN (DeleteUselessEnums)
+  # TODO: Remove after https://github.com/embassy-rs/chiptool/pull/57
+  - !DeleteEnums
+    from: EXCLKDIVEN
+
+  ## Cleanup
+  - !Sort

@@ -427,6 +427,35 @@ families:
     - RGZ
     - RHB
 
+## H Series
+- family: mspm0h321x
+  datasheet_url: https://www.ti.com/lit/gpn/mspm0h3216
+  reference_manual_url: https://www.ti.com/lit/pdf/slau923
+  errata_url: https://www.ti.com/lit/pdf/slaz763
+  adc_vrsel: VDD_INTREF
+  part_numbers:
+  - name: mspm0h3215
+    memory:
+    - name: FLASH
+      length: 32
+      address: 0x00000000
+    - name: RAM
+      length: 8
+      address: 0x20000000
+    packages:
+    # None yet per preliminary datasheet
+
+  - name: mspm0h3216
+    memory:
+    - name: FLASH
+      length: 64 
+      address: 0x00000000
+    - name: RAM
+      length: 8
+      address: 0x20000000
+    packages:
+    - PT
+
 ## L Series
 - family: mspm0l110x
   datasheet_url: https://www.ti.com/lit/gpn/mspm0l1106
