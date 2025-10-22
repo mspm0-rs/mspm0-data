@@ -1,0 +1,55 @@
+# Transform for MATHACL registers based on MATHACL on Gx50x
+
+transforms:
+  - !DeleteUselessEnums
+
+  # Remove prefixes
+  - !RenameRegisters
+    block: .*
+    from: MATHACL_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: MATHACL_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: MATHACL_(.+)
+    to: $1
+
+  ## Add missing keys
+  - !AddFields
+    fieldset: RSTCTL
+    fields:
+    - name: KEY
+      description: Unlock key B1h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: RESET_KEY
+
+  - !AddFields
+    fieldset: PWREN
+    fields:
+    - name: KEY
+      description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: PWREN_KEY
+
+  - !Add
+    ir:
+      enum/RESET_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 177
+      enum/PWREN_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 38
+
+  ## Cleanup
+  - !Sort
