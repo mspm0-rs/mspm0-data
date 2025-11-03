@@ -38,6 +38,38 @@ transforms:
       bit_size: 8
       enum: PWREN_KEY
 
+  - !AddFields
+    fieldset: OP1
+    fields:
+    - name: DATA
+      description: Operand 1 Register
+      bit_offset: 0
+      bit_size: 32
+
+  - !AddFields
+    fieldset: OP2
+    fields:
+    - name: DATA
+      description: Operand 1 Register
+      bit_offset: 0
+      bit_size: 32
+
+  - !AddFields
+    fieldset: RES1
+    fields:
+    - name: DATA
+      description: Result 1 Register
+      bit_offset: 0
+      bit_size: 32
+
+  - !AddFields
+    fieldset: RES2
+    fields:
+    - name: DATA
+      description: Result 2 Register
+      bit_offset: 0
+      bit_size: 32
+
   - !Add
     ir:
       enum/RESET_KEY:

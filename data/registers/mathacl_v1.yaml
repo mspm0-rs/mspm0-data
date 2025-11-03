@@ -84,10 +84,18 @@ fieldset/CTL:
     bit_size: 5
 fieldset/OP1:
   description: Operand 1 register.
-  fields: []
+  fields:
+  - name: DATA
+    description: Operand 1 Register
+    bit_offset: 0
+    bit_size: 32
 fieldset/OP2:
   description: Operand 2 register.
-  fields: []
+  fields:
+  - name: DATA
+    description: Operand 1 Register
+    bit_offset: 0
+    bit_size: 32
 fieldset/PWREN:
   description: Power enable.
   fields:
@@ -102,10 +110,18 @@ fieldset/PWREN:
     enum: PWREN_KEY
 fieldset/RES1:
   description: Result 1 register.
-  fields: []
+  fields:
+  - name: DATA
+    description: Result 1 Register
+    bit_offset: 0
+    bit_size: 32
 fieldset/RES2:
   description: Result 2 register.
-  fields: []
+  fields:
+  - name: DATA
+    description: Result 2 Register
+    bit_offset: 0
+    bit_size: 32
 fieldset/RSTCTL:
   description: Reset Control.
   fields:
