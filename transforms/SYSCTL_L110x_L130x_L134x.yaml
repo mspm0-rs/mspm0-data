@@ -46,7 +46,7 @@ transforms:
       value: 2
     - name: ANACLKERR
       value: 3
-  
+
   - !AddFields
     fieldset: INT
     fields:
@@ -73,6 +73,18 @@ transforms:
   # TODO: SYSMEMWEPROT, entirely missing from SVDs
   # TODO: SYSSTATUS: Missing FLASHDED, FLASHSEC
   # FIXME: RSTCAUSE has ID enum, but C110x one wasnt set
+
+  # RSTCAUSE.ID.SYSWWDT0 should actually be called BOOTWWDT0 and have a value of 14
+  # RSTCAUSE.ID.SYSWWDT1 does not exist for L-series
+  - !DeleteEnumVariants
+    enum: ID
+    from: (SYSWWDT0|SYSWWDT1)
+
+  - !AddEnumVariants
+    enum: ID
+    variants:
+    - name: BOOTWWDT0
+      value: 14
 
   # RESETCMD: Add KEY
   - !Add

@@ -40,7 +40,16 @@ transforms:
 
   # TODO SYSTEMCFG: Flatten WWDTLP[0..1]RSTDIS
 
-  # TODO RSTCAUSE: Match other chips?
+  # RSTCAUSE.ID.SYSWWDT0 should actually be called BOOTWWDT0 and have a value of 14
+  - !DeleteEnumVariants
+    enum: ID
+    from: SYSWWDT0
+
+  - !AddEnumVariants
+    enum: ID
+    variants:
+    - name: BOOTWWDT0
+      value: 14
 
   # TODO RESETLEVEL: Match other chips?
 
