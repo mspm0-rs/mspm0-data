@@ -38,6 +38,17 @@ transforms:
 
   # TODO: SYSTEMCFG: Add key
 
+  # RSTCAUSE.ID.SYSWWDT0 should actually be called BOOTWWDT0
+  # RSTCAUSE.ID.SYSWWDT1 does not exist for L-series
+  - !RenameEnumVariants
+    enum: ID
+    from: SYSWWDT0
+    to: BOOTWWDT0
+
+  - !DeleteEnumVariants
+    enum: ID
+    from: SYSWWDT1
+
   # RESETCMD: Add KEY
   - !Add
     ir:
