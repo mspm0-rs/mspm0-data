@@ -40,6 +40,27 @@ transforms:
 
   # TODO SYSTEMCFG: Flatten WWDTLP[0..1]RSTDIS
 
+  # RSTCAUSE BOOTNONPMUPARITY variant doesn't exist for G series
+  - !DeleteEnumVariants
+    enum: ID
+    from: BOOTNONPMUPARITY
+
+  # RSTCAUSE SYSFLASHECC variant doesn't exist for G series
+  - !DeleteEnumVariants
+    enum: ID
+    from: SYSFLASHECC
+
+  # RSTCAUSE BOOTSW value is actually 13
+  - !DeleteEnumVariants
+    enum: ID
+    from: BOOTSW
+
+  - !AddEnumVariants
+    enum: ID
+    variants:
+    - name: BOOTSW
+      value: 13
+
   # RSTCAUSE.ID.SYSWWDT0 should actually be called BOOTWWDT0 and have a value of 14
   - !DeleteEnumVariants
     enum: ID

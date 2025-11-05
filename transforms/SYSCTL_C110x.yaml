@@ -79,7 +79,7 @@ transforms:
     variants:
     - name: ANACLKERR
       value: 2
-  
+
   - !AddFields
     fieldset: INT
     fields:
@@ -142,7 +142,7 @@ transforms:
   - !DeleteFields
     fieldset: SYSOSCCFG
     from: (USE4MHZSTOP|FASTCLKONAREQ|BLOCKASYNCACOMP)
-  
+
   # SYSOSCCFG does not have FASTCPUEVENT, but an existing field with the wrong name occupies the
   # same bit.
   - !RenameFields
@@ -174,7 +174,7 @@ transforms:
   - !DeleteFields
     fieldset: GENCLKCFG
     from: CANCLKSRC
-  
+
   # GENCLKCFG is missing FCCSELCLK, FCCTRIGSRC, FCCLVLTRIG, ANACPUMPCFG, FCCTRIGCNT
   - !AddFields
     fieldset: GENCLKCFG
@@ -362,8 +362,71 @@ transforms:
       fieldset/RSTCAUSE:
         fields:
         - name: ID
+          description: ID is a read-to-clear field which indicates the lowest level reset cause since the last read.
           bit_offset: 0
           bit_size: 5
+          enum: ID
+
+  # RSTCAUSE.ID, also missing from SVDs
+  - !Add
+    ir:
+      enum/ID:
+        bit_size: 5
+        variants:
+        - name: NORST
+          description: No reset since last read.
+          value: 0
+        - name: PORHWFAIL
+          description: POR- violation, SHUTDNSTOREx or PMU trim parity fault.
+          value: 1
+        - name: POREXNRST
+          description: NRST triggered POR (&gt;1s hold).
+          value: 2
+        - name: PORSW
+          description: Software triggered POR.
+          value: 3
+        - name: BORSUPPLY
+          description: BOR0- violation.
+          value: 4
+        - name: BORWAKESHUTDN
+          description: SHUTDOWN mode exit.
+          value: 5
+        - name: BOOTCLKFAIL
+          description: Fatal clock failure.
+          value: 9
+        - name: BOOTEXNRST
+          description: NRST triggered BOOTRST (&lt;1s hold).
+          value: 12
+        - name: BOOTSW
+          description: Software triggered BOOTRST.
+          value: 13
+        - name: BOOTWWDT0
+          description: WWDT0 violation.
+          value: 14
+        - name: SYSBSLEXIT
+          description: BSL exit.
+          value: 16
+        - name: SYSBSLENTRY
+          description: BSL entry.
+          value: 17
+        - name: SYSWWDT1
+          description: WWDT1 violation.
+          value: 19
+        - name: SYSCPULOCK
+          description: CPULOCK violation.
+          value: 21
+        - name: SYSDBG
+          description: Debug triggered SYSRST.
+          value: 26
+        - name: SYSSW
+          description: Software triggered SYSRST.
+          value: 27
+        - name: CPUDBG
+          description: Debug triggered CPURST.
+          value: 28
+        - name: CPUSW
+          description: Software triggered CPURST.
+          value: 29
 
   - !AddRegisters
     block: SYSCTL
@@ -520,7 +583,7 @@ transforms:
       bit_size: 8
       enum: SWDCFG_KEY
 
-  # SWDCFG::DISABLE is at the wrong bit offset, so replace it 
+  # SWDCFG::DISABLE is at the wrong bit offset, so replace it
   - !DeleteFields
     fieldset: SWDCFG
     from: DISABLE
