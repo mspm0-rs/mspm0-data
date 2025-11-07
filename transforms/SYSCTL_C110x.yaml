@@ -409,9 +409,6 @@ transforms:
         - name: SYSBSLENTRY
           description: BSL entry.
           value: 17
-        - name: SYSWWDT1
-          description: WWDT1 violation.
-          value: 19
         - name: SYSCPULOCK
           description: CPULOCK violation.
           value: 21
