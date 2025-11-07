@@ -40,7 +40,15 @@ transforms:
 
   # TODO SYSTEMCFG: Flatten WWDTLP[0..1]RSTDIS
 
-  # TODO RSTCAUSE: Match other chips?
+  # RSTCAUSE BOOTNONPMUPARITY variant doesn't exist for G series
+  - !DeleteEnumVariants
+    enum: ID
+    from: BOOTNONPMUPARITY
+
+  # RSTCAUSE SYSFLASHECC variant doesn't exist for G series
+  - !DeleteEnumVariants
+    enum: ID
+    from: SYSFLASHECC
 
   # TODO RESETLEVEL: Match other chips?
 

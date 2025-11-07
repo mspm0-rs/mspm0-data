@@ -398,6 +398,7 @@ fieldset/RSTCAUSE:
   - name: ID
     bit_offset: 0
     bit_size: 5
+    enum: ID
 fieldset/SHDNIOREL:
   description: Shutdown IO Release Command.
   fields:
@@ -633,6 +634,60 @@ enum/HSCLKMUX:
     value: 0
   - name: HSCLK
     value: 1
+enum/ID:
+  bit_size: 5
+  variants:
+  - name: NORST
+    description: No reset since last read.
+    value: 0
+  - name: PORHWFAIL
+    description: POR- violation, SHUTDNSTOREx or PMU trim parity fault.
+    value: 1
+  - name: POREXNRST
+    description: NRST triggered POR (&gt;1s hold).
+    value: 2
+  - name: PORSW
+    description: Software triggered POR.
+    value: 3
+  - name: BORSUPPLY
+    description: BOR0- violation.
+    value: 4
+  - name: BORWAKESHUTDN
+    description: SHUTDOWN mode exit.
+    value: 5
+  - name: BOOTCLKFAIL
+    description: Fatal clock failure.
+    value: 9
+  - name: BOOTEXNRST
+    description: NRST triggered BOOTRST (&lt;1s hold).
+    value: 12
+  - name: BOOTSW
+    description: Software triggered BOOTRST.
+    value: 13
+  - name: BOOTWWDT0
+    description: WWDT0 violation.
+    value: 14
+  - name: SYSBSLEXIT
+    description: BSL exit.
+    value: 16
+  - name: SYSBSLENTRY
+    description: BSL entry.
+    value: 17
+  - name: SYSCPULOCK
+    description: CPULOCK violation.
+    value: 21
+  - name: SYSDBG
+    description: Debug triggered SYSRST.
+    value: 26
+  - name: SYSSW
+    description: Software triggered SYSRST.
+    value: 27
+  - name: CPUDBG
+    description: Debug triggered CPURST.
+    value: 28
+  - name: CPUSW
+    description: Software triggered CPURST.
+    value: 29
 enum/LFCLKMUX:
   bit_size: 2
   variants:

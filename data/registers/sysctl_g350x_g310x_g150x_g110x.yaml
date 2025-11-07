@@ -1267,18 +1267,15 @@ enum/ID:
   - name: BORWAKESHUTDN
     description: SHUTDOWN mode exit.
     value: 5
-  - name: BOOTNONPMUPARITY
-    description: Non-PMU trim parity fault.
-    value: 8
   - name: BOOTCLKFAIL
     description: Fatal clock failure.
     value: 9
-  - name: BOOTSW
-    description: Software triggered BOOTRST.
-    value: 10
   - name: BOOTEXNRST
     description: NRST triggered BOOTRST (&lt;1s hold).
     value: 12
+  - name: BOOTSW
+    description: Software triggered BOOTRST.
+    value: 13
   - name: BOOTWWDT0
     description: WWDT0 violation.
     value: 14

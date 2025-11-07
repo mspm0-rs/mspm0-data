@@ -142,6 +142,11 @@ transforms:
   # SYSSTATUS is entirely wrong
   # FIXME: SYSCTL is missing SWALTSELEN
 
+  # RSTCAUSE ID enum variant SYSWWDT1 does not exist on H-series
+  - !DeleteEnumVariants
+    enum: ID
+    from: SYSWWDT1
+
   # RESETCMD: Add KEY
   - !Add
     ir:
