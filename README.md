@@ -15,11 +15,11 @@
 
 ✔️ = done, 🚧 = work in progress, ❌ = to do
 
-The generated JSON files are [available here in the mspm0-data-generated](todo.txt) repo.
+The generated JSON files are [available here in the mspm0-data-generated](https://github.com/mspm0-rs/mspm0-data-generated/tree/master/data) repo.
 
 # mspm0-metapac
 
-The generated PAC is [available here in the mspm0-data-generated](todo.txt) repo.
+The generated PAC is [available here in the mspm0-data-generated](https://github.com/mspm0-rs/mspm0-data-generated/tree/master/mspm0-metapac) repo.
 
 # Data sources
 
