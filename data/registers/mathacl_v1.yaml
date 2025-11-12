@@ -1,0 +1,376 @@
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: STAT
+    description: Status Register.
+    byte_offset: 20
+    access: Read
+    fieldset: STAT
+block/MATHACL:
+  description: PERIPHERALREGION.
+  items:
+  - name: GPRCM
+    array:
+      len: 1
+      stride: 24
+    byte_offset: 2048
+    block: GPRCM
+  - name: CTL
+    description: Control Register.
+    byte_offset: 4352
+    fieldset: CTL
+  - name: OP2
+    description: Operand 2 register.
+    byte_offset: 4376
+    fieldset: OP2
+  - name: OP1
+    description: Operand 1 register.
+    byte_offset: 4380
+    fieldset: OP1
+  - name: RES1
+    description: Result 1 register.
+    byte_offset: 4384
+    fieldset: RES1
+  - name: RES2
+    description: Result 2 register.
+    byte_offset: 4388
+    fieldset: RES2
+  - name: STATUS
+    description: Status Register.
+    byte_offset: 4400
+    access: Read
+    fieldset: STATUS
+  - name: STATUSCLR
+    description: Status flag clear register.
+    byte_offset: 4416
+    access: Write
+    fieldset: STATUSCLR
+fieldset/CTL:
+  description: Control Register.
+  fields:
+  - name: FUNC
+    description: ULP_ADCHP Enable Conversions.
+    bit_offset: 0
+    bit_size: 5
+    enum: FUNC
+  - name: OPTYPE
+    description: Operand type, could signed or unsigned. applicable to DIV function.
+    bit_offset: 5
+    bit_size: 1
+  - name: QVAL
+    description: Indicates the fractional bits in the operands, ranges from 0 to 31. Applicable to DIV function.
+    bit_offset: 8
+    bit_size: 5
+    enum: QVAL
+  - name: SFACTOR
+    description: Scaling factor. In case of SQRT function, the input operand needs to be in a range. If not it has to be scaled to 2^(+/-n). This field should be written with the value 'n'.
+    bit_offset: 16
+    bit_size: 6
+  - name: SATEN
+    description: Saturation enable This bit is shared among DIV, SQUARE32, MPY32, MAC and SAC functions. When enabled, it will make the result to saturate to maximum value in case of an overflow event When disabled, the result will overflow to an unknown value.
+    bit_offset: 22
+    bit_size: 1
+  - name: NUMITER
+    description: 'Number of iterations, applicable if the function does the computations iteratively, for example sine/cosine/atan2/sqrt. Note: A value of 0 is interpreted as 31.'
+    bit_offset: 24
+    bit_size: 5
+fieldset/OP1:
+  description: Operand 1 register.
+  fields:
+  - name: DATA
+    description: Operand 1 Register
+    bit_offset: 0
+    bit_size: 32
+fieldset/OP2:
+  description: Operand 2 register.
+  fields:
+  - name: DATA
+    description: Operand 1 Register
+    bit_offset: 0
+    bit_size: 32
+fieldset/PWREN:
+  description: Power enable.
+  fields:
+  - name: ENABLE
+    description: Enable the power.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RES1:
+  description: Result 1 register.
+  fields:
+  - name: DATA
+    description: Result 1 Register
+    bit_offset: 0
+    bit_size: 32
+fieldset/RES2:
+  description: Result 2 register.
+  fields:
+  - name: DATA
+    description: Result 2 Register
+    bit_offset: 0
+    bit_size: 32
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral.
+    bit_offset: 0
+    bit_size: 1
+    enum: RESETASSERT
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register.
+    bit_offset: 1
+    bit_size: 1
+    enum: RESETSTKYCLR
+  - name: KEY
+    description: Unlock key B1h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/STAT:
+  description: Status Register.
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+    enum: RESETSTKY
+fieldset/STATUS:
+  description: Status Register.
+  fields:
+  - name: UF
+    description: Underflow Flag.
+    bit_offset: 0
+    bit_size: 1
+  - name: OVF
+    description: Overflow bit for MPY32, SQUARE32, DIV, MAC, and SAC functions This bit will be set on overflow and will retain its value until cleared by writing 1 into CLR.CLR_OVF.
+    bit_offset: 1
+    bit_size: 1
+  - name: ERR
+    description: Incorrect inputs/outputs.
+    bit_offset: 2
+    bit_size: 2
+    enum: ERR
+  - name: BUSY
+    description: MATHACL busy bit.
+    bit_offset: 8
+    bit_size: 1
+    enum: BUSY
+fieldset/STATUSCLR:
+  description: Status flag clear register.
+  fields:
+  - name: CLR_UF
+    description: Write 1 to this bit to clear STATUS.UF bit.
+    bit_offset: 0
+    bit_size: 1
+  - name: CLR_OVF
+    description: Write 1 to this bit to clear STATUS.OVF bit.
+    bit_offset: 1
+    bit_size: 1
+  - name: CLR_ERR
+    description: Write 1 to this bit to clear STATUS.ERR field.
+    bit_offset: 2
+    bit_size: 1
+enum/BUSY:
+  bit_size: 1
+  variants:
+  - name: DONE
+    description: Compute has completed.
+    value: 0
+  - name: NOTDONE
+    description: Compute ongoing.
+    value: 1
+enum/ERR:
+  bit_size: 2
+  variants:
+  - name: NOERROR
+    description: No Error in computation.
+    value: 0
+  - name: DIVBY0
+    description: DIVBY0 error.
+    value: 1
+enum/FUNC:
+  bit_size: 5
+  variants:
+  - name: NOP
+    description: No operation.
+    value: 0
+  - name: SINCOS
+    description: Sine and Cosine operation.
+    value: 1
+  - name: ATAN2
+    description: Arc tangent with x and y values as operands.
+    value: 2
+  - name: DIV
+    description: Divide, the operands are numerator, denominator, and the divide type. Result is the quotient and reminder.
+    value: 4
+  - name: SQRT
+    description: Do square root. Operand is the number whoose square root needs to be computed. The number if outside the range needs to be scaled up down by 2 power 2n to bring it with in the range.
+    value: 5
+  - name: MPY32
+    description: 32-bit Multiply Result.
+    value: 6
+  - name: SQUARE32
+    description: 32-bit square result.
+    value: 7
+  - name: MPY64
+    description: 64-bit multiply result.
+    value: 8
+  - name: SQUARE64
+    description: 64-bit multiply result.
+    value: 9
+  - name: MAC
+    description: Multiply and accumulate operation.
+    value: 10
+  - name: SAC
+    description: Square and accumulate operation.
+    value: 11
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/QVAL:
+  bit_size: 5
+  variants:
+  - name: Q0
+    description: Q0 operands.
+    value: 0
+  - name: Q1
+    description: Q1 operands.
+    value: 1
+  - name: Q2
+    description: Q2 operands.
+    value: 2
+  - name: Q3
+    description: Q3 operands.
+    value: 3
+  - name: Q4
+    description: Q4 operands.
+    value: 4
+  - name: Q5
+    description: Q5 operands.
+    value: 5
+  - name: Q6
+    description: Q6 operands.
+    value: 6
+  - name: Q7
+    description: Q7 operands.
+    value: 7
+  - name: Q8
+    description: Q8 operands.
+    value: 8
+  - name: Q9
+    description: Q9 operands.
+    value: 9
+  - name: Q10
+    description: Q10 operands.
+    value: 10
+  - name: Q11
+    description: Q11 operands.
+    value: 11
+  - name: Q12
+    description: Q12 operands.
+    value: 12
+  - name: Q13
+    description: Q13 operands.
+    value: 13
+  - name: Q14
+    description: Q14 operands.
+    value: 14
+  - name: Q15
+    description: Q15 operands.
+    value: 15
+  - name: Q16
+    description: Q16 operands.
+    value: 16
+  - name: Q17
+    description: Q17 operands.
+    value: 17
+  - name: Q18
+    description: Q18 operands.
+    value: 18
+  - name: Q19
+    description: Q19 operands.
+    value: 19
+  - name: Q20
+    description: Q20 operands.
+    value: 20
+  - name: Q21
+    description: Q21 operands.
+    value: 21
+  - name: Q22
+    description: Q22 operands.
+    value: 22
+  - name: Q23
+    description: Q23 operands.
+    value: 23
+  - name: Q24
+    description: Q24 operands.
+    value: 24
+  - name: Q25
+    description: Q25 operands.
+    value: 25
+  - name: Q26
+    description: Q26 operands.
+    value: 26
+  - name: Q27
+    description: Q27 operands.
+    value: 27
+  - name: Q28
+    description: Q28 operands.
+    value: 28
+  - name: Q29
+    description: Q29 operands.
+    value: 29
+  - name: Q30
+    description: Q30 operands.
+    value: 30
+  - name: Q31
+    description: Q31 operands.
+    value: 31
+enum/RESETASSERT:
+  bit_size: 1
+  variants:
+  - name: NOP
+    description: Writing 0 has no effect.
+    value: 0
+  - name: ASSERT
+    description: Assert reset.
+    value: 1
+enum/RESETSTKY:
+  bit_size: 1
+  variants:
+  - name: NORES
+    description: The peripheral has not been reset since this bit was last cleared by RESETSTKYCLR in the RSTCTL register.
+    value: 0
+  - name: RESET
+    description: The peripheral was reset since the last bit clear.
+    value: 1
+enum/RESETSTKYCLR:
+  bit_size: 1
+  variants:
+  - name: NOP
+    description: Writing 0 has no effect.
+    value: 0
+  - name: CLR
+    description: Clear reset sticky bit.
+    value: 1
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177
