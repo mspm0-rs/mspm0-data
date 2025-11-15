@@ -8,6 +8,7 @@ pub static PERIMAP: RegexMap<&str> = RegexMap::new(&[
     (".*:beeper", "v1"),
     (".*:cpuss", "v1"),
     (".*:iomux", "v1"),
+    (".*:mathacl", "v1"),
     (".*:tim", "v1"),
     (".*:adc", "v1"),
     (".*:wwdt", "v1"),
