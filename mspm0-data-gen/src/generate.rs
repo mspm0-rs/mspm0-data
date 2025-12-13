@@ -195,6 +195,8 @@ fn generate_peripherals2(
         LazyLock::new(|| Regex::new(r"(?m)^P(?<bank>[A-Z])\d+").unwrap());
     static DMA_CHANNEL: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"DMA_CH(?<channel>\d+)").unwrap());
+    static USB_EP: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"USBFS(\d+)_EP(\w+)").unwrap());
 
     let mut peripherals = BTreeMap::new();
 
@@ -237,7 +239,32 @@ fn generate_peripherals2(
             }
 
             // GPAMP does not exist on these parts.
-            if name == "GPAMP" && (chip_name == "mspm0c110x" || chip_name == "mspm0c1105_c1106" || chip_name == "mspm0g151x") {
+            if name == "GPAMP"
+                && (chip_name == "mspm0c110x"
+                    || chip_name == "mspm0c1105_c1106"
+                    || chip_name == "mspm0g151x")
+            {
+                continue;
+            }
+
+            // CANFD does not exist on G151x
+            if name.starts_with("CANFD") && chip_name == "mspm0g151x" {
+                continue;
+            }
+
+            // IWDT technically exists on G151x and G351x, but the SDK and datasheets do not define the address for IWDT.
+            //
+            // To prevent issues, we will only consider IWDT to exist on chips which define an address.
+            if name == "IWDT" && header
+                .peripheral_addresses
+                .get(&name)
+                .is_none()
+            {
+                continue;
+            }
+
+            // Sysconfig creates USB EP peripherals which don't actually exist.
+            if USB_EP.is_match(&name) {
                 continue;
             }
 
@@ -377,7 +404,12 @@ fn get_power_domain(
     ty: PeripheralType,
     chip_name: &str,
 ) -> anyhow::Result<PowerDomain> {
-    let Some(power_domain) = peripheral.attributes.get("power_domain") else {
+    let Some(power_domain) = peripheral
+        .attributes
+        .get("power_domain")
+        // G151x uses all caps power domain while other chips use lowercase.
+        .or_else(|| peripheral.attributes.get("POWER_DOMAIN"))
+    else {
         // GPAMP does not have a specified power domain from sysconfig. It is always in PD0.
         if peripheral.name == "GPAMP" {
             return Ok(PowerDomain::Pd0);
@@ -587,8 +619,12 @@ fn get_peripheral_type_version(chip_name: &str, name: &str) -> (PeripheralType, 
         PeripheralType::Gpio
     } else if name.starts_with("I2C") {
         PeripheralType::I2c
+    } else if name.starts_with("I2S") {
+        PeripheralType::I2s
     } else if name.starts_with("IOMUX") {
         PeripheralType::Iomux
+    } else if name.starts_with("IWDT") {
+        PeripheralType::Iwdt
     } else if name.starts_with("KEYSTORECTL") {
         PeripheralType::KeystoreCtl
     } else if name.starts_with("LCD") {
@@ -597,6 +633,8 @@ fn get_peripheral_type_version(chip_name: &str, name: &str) -> (PeripheralType, 
         PeripheralType::Lfss
     } else if name.starts_with("MATHACL") {
         PeripheralType::Mathacl
+    } else if name.starts_with("NPU") {
+        PeripheralType::Npu
     } else if name.starts_with("OPA") {
         PeripheralType::Opa
     } else if name.starts_with("RTC") {
@@ -605,12 +643,18 @@ fn get_peripheral_type_version(chip_name: &str, name: &str) -> (PeripheralType, 
         PeripheralType::Spi
     } else if name.starts_with("TIMA") {
         PeripheralType::Tim
+    } else if name.starts_with("TIMB") {
+        PeripheralType::Tim
     } else if name.starts_with("TIMG") {
         PeripheralType::Tim
     } else if name.starts_with("TRNG") {
         PeripheralType::Trng
     } else if name.starts_with("UART") {
         PeripheralType::Uart
+    } else if name.starts_with("UC") {
+        PeripheralType::Unicomm
+    } else if name.starts_with("USBFS") {
+        PeripheralType::Usbfs
     } else if name.starts_with("VREF") {
         PeripheralType::Vref
     } else if name.starts_with("WUC") {
@@ -754,6 +798,8 @@ fn generate_dma_channels(
         let full = channel
             .attributes
             .get("full_channel")
+            // G151x defines full channel in all caps
+            .or_else(|| channel.attributes.get("FULL_CHANNEL"))
             .context(format!("{name} does not have a full_channel attribute"))?
             .as_bool()
             .context(format!("{name} full_channel attribute is not a bool"))?;

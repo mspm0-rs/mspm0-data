@@ -125,7 +125,11 @@ pub enum PeripheralType {
 
     I2c,
 
+    I2s,
+
     Iomux,
+
+    Iwdt,
 
     KeystoreCtl,
 
@@ -134,6 +138,8 @@ pub enum PeripheralType {
     Lfss,
 
     Mathacl,
+
+    Npu,
 
     Opa,
 
@@ -152,6 +158,10 @@ pub enum PeripheralType {
     Trng,
 
     Uart,
+
+    Unicomm,
+
+    Usbfs,
 
     Vref,
 
@@ -179,11 +189,14 @@ impl fmt::Display for PeripheralType {
             PeripheralType::GpAmp => "gpamp",
             PeripheralType::Gpio => "gpio",
             PeripheralType::I2c => "i2c",
+            PeripheralType::I2s => "i2s",
             PeripheralType::Iomux => "iomux",
+            PeripheralType::Iwdt => "iwdt",
             PeripheralType::KeystoreCtl => "keystorectl",
             PeripheralType::Lcd => "lcd",
             PeripheralType::Lfss => "lfss",
             PeripheralType::Mathacl => "mathacl",
+            PeripheralType::Npu => "npu",
             PeripheralType::Opa => "opa",
             PeripheralType::Rtc => "rtc",
             PeripheralType::Spi => "spi",
@@ -191,6 +204,8 @@ impl fmt::Display for PeripheralType {
             PeripheralType::Tim => "tim",
             PeripheralType::Trng => "trng",
             PeripheralType::Uart => "uart",
+            PeripheralType::Unicomm => "unicomm",
+            PeripheralType::Usbfs => "usbfs",
             PeripheralType::Vref => "vref",
             PeripheralType::Wuc => "wuc",
             PeripheralType::Wwdt => "wwdt",
