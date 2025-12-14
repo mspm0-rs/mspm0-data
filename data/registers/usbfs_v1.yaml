@@ -1,0 +1,2321 @@
+block/CPU_INT:
+  items:
+  - name: IIDX
+    description: Interrupt index.
+    byte_offset: 0
+    access: Read
+    fieldset: IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: INT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: INT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: INT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: INT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: INT
+block/CSR:
+  description: USB Control and Status Register for Endpoint [y].
+  items:
+  - name: TXMAXP
+    description: USB Maximum Transmit Data Endpoint [n].
+    byte_offset: 0
+    bit_size: 16
+    fieldset: TXMAXP
+  - name: TXCSRL
+    description: USB Transmit Control and Status Endpoint [n] Low.
+    byte_offset: 2
+    bit_size: 8
+    fieldset: TXCSRL
+  - name: TXCSRH
+    description: USB Transmit Control and Status Endpoint [n] High.
+    byte_offset: 3
+    bit_size: 8
+    fieldset: TXCSRH
+  - name: RXMAXP
+    description: USB Maximum Receive Data Endpoint [n].
+    byte_offset: 4
+    bit_size: 16
+    fieldset: RXMAXP
+  - name: RXCSRL
+    description: USB Receive Control and Status Endpoint [n] Low.
+    byte_offset: 6
+    bit_size: 8
+    fieldset: RXCSRL
+  - name: RXCSRH
+    description: USB Receive Control and Status Endpoint [n] High.
+    byte_offset: 7
+    bit_size: 8
+    fieldset: RXCSRH
+  - name: RXCOUNT
+    description: USB Receive Byte Count Endpoint [n].
+    byte_offset: 8
+    bit_size: 16
+    fieldset: RXCOUNT
+  - name: TXTYPE
+    description: USB Host Transmit Configure Type Endpoint [n].
+    byte_offset: 10
+    bit_size: 8
+    fieldset: TXTYPE
+  - name: TXINTERVAL
+    description: USB Host Transmit Interval Endpoint [n].
+    byte_offset: 11
+    bit_size: 8
+  - name: RXTYPE
+    description: USB Host Configure Receive Type Endpoint [n].
+    byte_offset: 12
+    bit_size: 8
+    fieldset: RXTYPE
+  - name: RXINTERVAL
+    description: USB Host Receive Polling Interval Endpoint [n].
+    byte_offset: 13
+    bit_size: 8
+  - name: FIFOSZ
+    description: USB TX and RX FIFO Size Endpoint [n].
+    byte_offset: 15
+    access: Read
+    bit_size: 8
+    fieldset: FIFOSZ
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: STAT
+    description: Status Register.
+    byte_offset: 20
+    access: Read
+    fieldset: STAT
+block/TADDR:
+  description: USB Target Address Register for Endpoint [y].
+  items:
+  - name: TXFUNCADDR
+    description: USB Transmit Functional Address Endpoint [n].
+    byte_offset: 0
+    bit_size: 8
+    fieldset: TXFUNCADDR
+  - name: TXHUBADDR
+    description: USB Transmit Hub Address Endpoint [n].
+    byte_offset: 2
+    bit_size: 8
+    fieldset: TXHUBADDR
+  - name: TXHUBPORT
+    description: USB Transmit Hub Port Endpoint [n].
+    byte_offset: 3
+    bit_size: 8
+    fieldset: TXHUBPORT
+  - name: RXFUNCADDR
+    description: USB Receive Functional Address Endpoint [n].
+    byte_offset: 4
+    bit_size: 8
+    fieldset: RXFUNCADDR
+  - name: RXHUBADDR
+    description: USB Receive Hub Address Endpoint [n].
+    byte_offset: 6
+    bit_size: 8
+    fieldset: RXHUBADDR
+  - name: RXHUBPORT
+    description: USB Receive Hub Port Endpoint [n].
+    byte_offset: 7
+    bit_size: 8
+    fieldset: RXHUBPORT
+block/USBFS:
+  description: PERIPHERALREGION.
+  items:
+  - name: GPRCM
+    array:
+      len: 1
+      stride: 24
+    byte_offset: 2048
+    block: GPRCM
+  - name: CPU_INT
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4128
+    block: CPU_INT
+  - name: EVT_MODE
+    description: Event Mode.
+    byte_offset: 4320
+    access: Read
+    fieldset: EVT_MODE
+  - name: DESC
+    description: Module Description.
+    byte_offset: 4348
+    access: Read
+    fieldset: DESC
+  - name: USBMODE
+    description: USB mode control.
+    byte_offset: 4352
+    fieldset: USBMODE
+  - name: USBMONITOR
+    description: USB Clock Control Register.
+    byte_offset: 4356
+    fieldset: USBMONITOR
+  - name: USBDMASEL
+    description: USB DMA trigger select.
+    byte_offset: 4360
+    fieldset: USBDMASEL
+  - name: FADDR
+    description: USB Device Functional Address.
+    byte_offset: 8192
+    bit_size: 8
+    fieldset: FADDR
+  - name: POWER
+    description: USB Power Control.
+    byte_offset: 8193
+    bit_size: 8
+    fieldset: POWER
+  - name: TXIS
+    description: USB Transmit Interrupt Status.
+    byte_offset: 8194
+    access: Read
+    bit_size: 16
+    fieldset: EP
+  - name: RXIS
+    description: USB Receive Interrupt Status.
+    byte_offset: 8196
+    access: Read
+    bit_size: 16
+    fieldset: EP
+  - name: TXIE
+    description: USB Transmit Interrupt Enable.
+    byte_offset: 8198
+    bit_size: 16
+    fieldset: EP
+  - name: RXIE
+    description: USB Receive Interrupt Enable.
+    byte_offset: 8200
+    bit_size: 16
+    fieldset: EP
+  - name: USBIS
+    description: USB General Interrupt Status.
+    byte_offset: 8202
+    bit_size: 8
+    fieldset: USB_INT
+  - name: USBIE
+    description: USB General Interrupt Enable.
+    byte_offset: 8203
+    bit_size: 8
+    fieldset: USB_INT
+  - name: FRAME
+    description: USB Last Received Frame Number.
+    byte_offset: 8204
+    bit_size: 16
+    fieldset: FRAME
+  - name: EPINDEX
+    description: USB Endpoint Index.
+    byte_offset: 8206
+    bit_size: 8
+    fieldset: EPINDEX
+  - name: TESTMODE
+    description: USB Test Mode.
+    byte_offset: 8207
+    bit_size: 8
+    fieldset: TESTMODE
+  - name: IDXTXMAXP
+    description: Indexed TXMAP.
+    byte_offset: 8208
+    bit_size: 16
+  - name: IDXTXCSRL
+    description: Indexed TXCSRL.
+    byte_offset: 8210
+    bit_size: 8
+  - name: IDXTXCSRH
+    description: Indexed TXCSRH.
+    byte_offset: 8211
+    bit_size: 8
+  - name: IDXRXMAXP
+    description: Indexed RXMAXP.
+    byte_offset: 8212
+    bit_size: 16
+  - name: IDXRXCSRL
+    description: Indexed RXCSRL.
+    byte_offset: 8214
+    bit_size: 8
+  - name: IDXRXCSRH
+    description: Indexed RXCSRH.
+    byte_offset: 8215
+    bit_size: 8
+  - name: IDXRXCOUNT
+    description: Indexed RXCOUNT.
+    byte_offset: 8216
+    bit_size: 16
+  - name: IDXTXTYPE
+    description: Indexed TXTYPE.
+    byte_offset: 8218
+    bit_size: 8
+  - name: IDXTXINTERVAL
+    description: Indexed TXINTERVAL.
+    byte_offset: 8219
+    bit_size: 8
+  - name: IDXRXTYPE
+    description: Indexed RXTYPE.
+    byte_offset: 8220
+    bit_size: 8
+  - name: IDXRXINTERVAL
+    description: Indexed RXINTERVAL.
+    byte_offset: 8221
+    bit_size: 8
+  - name: IDXFIFOSZ
+    description: Indexed FIFOSZ.
+    byte_offset: 8223
+    bit_size: 8
+  - name: FIFO
+    description: USB FIFO Endpoint [n].
+    array:
+      len: 16
+      stride: 4
+    byte_offset: 8224
+  - name: DEVCTL
+    description: USB Device Control.
+    byte_offset: 8288
+    bit_size: 8
+    fieldset: DEVCTL
+  - name: MISC
+    description: USB Miscellaneous Register.
+    byte_offset: 8289
+    bit_size: 8
+    fieldset: MISC
+  - name: IDXTXFIFOSZ
+    description: Indexed USB Transmit Dynamic FIFO Sizing.
+    byte_offset: 8290
+    bit_size: 8
+    fieldset: IDXTXFIFOSZ
+  - name: IDXRXFIFOSZ
+    description: Indexed USB Receive Dynamic FIFO Sizing.
+    byte_offset: 8291
+    bit_size: 8
+    fieldset: IDXRXFIFOSZ
+  - name: IDXTXFIFOADD
+    description: Indexed USB Transmit FIFO Start Address.
+    byte_offset: 8292
+    bit_size: 16
+    fieldset: IDXTXFIFOADD
+  - name: IDXRXFIFOADD
+    description: Indexed USB Receive FIFO Start Address.
+    byte_offset: 8294
+    bit_size: 16
+    fieldset: IDXRXFIFOADD
+  - name: EPINFO
+    description: Endpoint Information.
+    byte_offset: 8312
+    access: Read
+    bit_size: 8
+    fieldset: EPINFO
+  - name: RAMINFO
+    description: USB FIFO Buffer RAM Information.
+    byte_offset: 8313
+    access: Read
+    bit_size: 8
+    fieldset: RAMINFO
+  - name: CONTIM
+    description: USB Connect Timing.
+    byte_offset: 8314
+    bit_size: 8
+    fieldset: CONTIM
+  - name: FSEOF
+    description: USB Full-Speed Last Transaction to End of Frame Timing.
+    byte_offset: 8317
+    bit_size: 8
+    fieldset: FSEOF
+  - name: LSEOF
+    description: USB Low-Speed Last Transaction to End of Frame Timing.
+    byte_offset: 8318
+    bit_size: 8
+  - name: TADDR
+    description: USB Target Address Register for Endpoint [y].
+    array:
+      len: 16
+      stride: 8
+    byte_offset: 8320
+    block: TADDR
+  - name: CSR0L
+    description: USB Control and Status Endpoint 0 Low.
+    byte_offset: 8450
+    bit_size: 8
+    fieldset: CSR0L
+  - name: CSR0H
+    description: USB Control and Status Endpoint 0 High.
+    byte_offset: 8451
+    bit_size: 8
+    fieldset: CSR0H
+  - name: COUNT0
+    description: USB Receive Byte Count Endpoint 0.
+    byte_offset: 8456
+    bit_size: 8
+    fieldset: COUNT0
+  - name: TYPE0
+    description: USB Type Endpoint 0.
+    byte_offset: 8458
+    bit_size: 8
+    fieldset: TYPE0
+  - name: NAKLMT0
+    description: USB NAK Limit Endpoint 0.
+    byte_offset: 8459
+    bit_size: 8
+    fieldset: NAKLMT0
+  - name: CONFIG
+    description: USB Config Data.
+    byte_offset: 8463
+    access: Read
+    bit_size: 8
+    fieldset: CONFIG
+  - name: CSR
+    description: USB Control and Status Register for Endpoint [y].
+    array:
+      len: 15
+      stride: 16
+    byte_offset: 8464
+    block: CSR
+  - name: RQPKTCOUNT
+    description: USB Request Packet Count in Block Transfer Endpoint [n].
+    array:
+      len: 15
+      stride: 4
+    byte_offset: 8964
+    fieldset: RQPKTCOUNT
+  - name: RXDPKTBUFDIS
+    description: USB Receive Double Packet Buffer Disable.
+    byte_offset: 9024
+    bit_size: 16
+    fieldset: EP
+  - name: TXDPKTBUFDIS
+    description: USB Transmit Double Packet Buffer Disable.
+    byte_offset: 9026
+    bit_size: 16
+    fieldset: EP
+fieldset/CONFIG:
+  description: USB Config Data.
+  bit_size: 8
+  fields:
+  - name: UTMIDATWDTH
+    description: Indicates selected UTMI+ data width. Always 0 indicating 8 bits.
+    bit_offset: 0
+    bit_size: 1
+  - name: SOFTCON
+    description: Always 1 . Indicates Soft Connect/Disconnect is enabled.
+    bit_offset: 1
+    bit_size: 1
+  - name: DYNFIFO
+    description: When set to 1 indicates Dynamic FIFO Sizing option selected.
+    bit_offset: 2
+    bit_size: 1
+  - name: HBTXE
+    description: When set to 1 indicates High-bandwidth TX ISO Endpoint Support selected.
+    bit_offset: 3
+    bit_size: 1
+  - name: HBRXE
+    description: When set to 1 indicates High-bandwidth Rx ISO Endpoint Support selected.
+    bit_offset: 4
+    bit_size: 1
+  - name: BIGENDIAN
+    description: Always '0'. Indicates Little Endian ordering.
+    bit_offset: 5
+    bit_size: 1
+  - name: MPTXE
+    description: When set to 1, automatic splitting of bulk packets is selected.
+    bit_offset: 6
+    bit_size: 1
+  - name: MPRXE
+    description: When set to 1, automatic amalgamation of bulk packets is selected.
+    bit_offset: 7
+    bit_size: 1
+fieldset/CONTIM:
+  description: USB Connect Timing.
+  bit_size: 8
+  fields:
+  - name: WTID
+    description: 'The wait ID field configures the delay required from the enable of the ID detection to when the ID value is valid, in units of 4.369 ms. Note: The default corresponds to 52.43 ms.'
+    bit_offset: 0
+    bit_size: 4
+  - name: WTCON
+    description: 'The connect wait field configures the wait required to allow for the user''s connect/disconnect filter, in units of 533.3 ns. Note: The default corresponds to 2.667 us.'
+    bit_offset: 4
+    bit_size: 4
+fieldset/COUNT0:
+  description: USB Receive Byte Count Endpoint 0.
+  bit_size: 8
+  fields:
+  - name: COUNT
+    description: FIFO Count. COUNT is a read-only value that indicates the number of received data bytes in the endpoint 0 FIFO. The value returned changes as the contents of the FIFO change and is only valid while RXRDY (USBCSRL.RXRDY) is set.
+    bit_offset: 0
+    bit_size: 7
+fieldset/CSR0H:
+  description: USB Control and Status Endpoint 0 High.
+  bit_size: 8
+  fields:
+  - name: FLUSH
+    description: 'Flush FIFO. The CPU writes a 1 to this bit to flush the next packet to be transmitted/read from the Endpoint 0 FIFO. The FIFO pointer is reset and the TXRDY/RXRDY bit in the USBCSRL0 register is cleared. Note: FLUSH should only be used when TXRDY/RXRDY is set. At other times, it may cause data to be corrupted.'
+    bit_offset: 0
+    bit_size: 1
+  - name: DT
+    description: 'Data Toggle. When read, this bit indicates the current state of the endpoint 0 data toggle. If DTWE is set, this bit may be written with the required setting of the data toggle. If DTWE is Low, this bit cannot be written. Care should be taken when writing to this bit as it should only be changed to RESET USB endpoint 0. Note: This bit is only effective in host mode.'
+    bit_offset: 1
+    bit_size: 1
+  - name: DTWE
+    description: 'Data Toggle Write Enable. This bit is automatically cleared once the new value is written. Note: This bit is only effective in host mode.'
+    bit_offset: 2
+    bit_size: 1
+  - name: DISPING
+    description: Diable PING tokens in data and status phases of a high-speed Control transfer.
+    bit_offset: 3
+    bit_size: 1
+fieldset/CSR0L:
+  description: USB Control and Status Endpoint 0 Low.
+  bit_size: 8
+  fields:
+  - name: RXRDY
+    description: 'Receive Packet Ready. Device mode: This bit is set when a data packet has been received. An interrupt is generated when this bit is set. The CPU clears this bit by setting the RXRDYC_STATUS bit. Host mode: Software must clear this bit after he packet has been read from the FIFO to acknowledge that the data has been read from the FIFO.'
+    bit_offset: 0
+    bit_size: 1
+  - name: TXRDY
+    description: 'Transmit Packet Ready. Device & Host mode: The CPU sets this bit after loading a data packet into the FIFO. It is cleared automatically when a data packet has been transmitted. An interrupt is also generated at this point (if enabled). Host mode: If both the TXRDY and DATAEND_SETUP bits are set, a setup packet is sent. If just TXRDY is set, an OUT packet is sent.'
+    bit_offset: 1
+    bit_size: 1
+  - name: STALLED
+    description: 'Sent Stall / Receive Stall Device mode: This bit is set when a STALL handshake is transmitted. The CPU should clear this bit. Host mode: This bit is set when a STALL handshake is received. The CPU should clear this bit.'
+    bit_offset: 2
+    bit_size: 1
+  - name: DATAEND_SETUP
+    description: 'Data end / Setup Packet. Device mode: Data end bit. The CPU sets this bit: 1. When setting TXRDY for the last data packet. 2. When clearing RXRDY after unloading the last data packet. 3. When setting TXRDY for a zero length data packet. Host mode: Setup packet. The CPU sets this bit, at the same time as the TXRDY bit is set, to send a SETUP token instead of an OUT token for the transaction. Note: Setting this bit always clears the DT bit in the USBCSRH0 register.'
+    bit_offset: 3
+    bit_size: 1
+  - name: SETEND_ERROR
+    description: 'Setup end / Error. Device mode: Setup end. This bit will be set when a control transaction ends before the DATAEND_SETUP bit has been set. An interrupt will be generated and the FIFO flushed at this time. The bit is cleared by the CPU writing a 1 to the SETENDC_NAKTO bit. Host mode: Error indication. This bit will be set when three attempts have been made to perform a transaction with no response from the peripheral. The CPU should clear this bit. An interrupt is generated when this bit is set.'
+    bit_offset: 4
+    bit_size: 1
+  - name: STALL_RQPKT
+    description: 'Send Stall / Request Packet. Device mode: The CPU writes a 1 to this bit to terminate the current transaction. The STALL handshake will be transmitted and then this bit will be cleared automatically. Host mode: The CPU sets this bit to request an IN transaction. It is cleared when RXRDY bit is set.'
+    bit_offset: 5
+    bit_size: 1
+  - name: RXRDYC_STATUS
+    description: 'Receive ready clear / Status packet Device mode: Receive ready clear. The CPU writes a 1 to this bit to clear the RXRDY bit. It is cleared automatically Host mode: Status Packet. The CPU sets this bit at the same time as the TXRDY or STALL_RQPKT bit is set, to perform a status stage transaction. Setting this bit ensures that the DT bit is set in the USBCSRH0 register, so that a DATA1 packet is used for the Status Stage transaction. Setting this bit ensures that the DT bit is set in the USBCSRH0 register so that a DATA1 packet is used for the STATUS stage transaction.'
+    bit_offset: 6
+    bit_size: 1
+  - name: SETENDC_NAKTO
+    description: 'Setup End Clear / NAK Timeout Device mode: The CPU writes a 1 to this bit to clear the SETEND_ERROR bit. It is cleared automatically. Host mode: This bit will be set when Endpoint 0 is halted following the receipt of NAK responses for longer than the time set by the USBNAKLMT register. The CPU should clear this bit to allow the endpoint to continue.'
+    bit_offset: 7
+    bit_size: 1
+fieldset/DESC:
+  description: Module Description.
+  fields:
+  - name: MINREV
+    description: Minor rev of the IP.
+    bit_offset: 0
+    bit_size: 4
+  - name: MAJREV
+    description: Major rev of the IP.
+    bit_offset: 4
+    bit_size: 4
+  - name: FEATUREVER
+    description: Feature Set for the module *instance*.
+    bit_offset: 12
+    bit_size: 4
+  - name: MODULEID
+    description: Module identification contains a unique peripheral identification number. The assignments are maintained in a central database for all of the platform modules to ensure uniqueness.
+    bit_offset: 16
+    bit_size: 16
+fieldset/DEVCTL:
+  description: USB Device Control.
+  bit_size: 8
+  fields:
+  - name: SESSION
+    description: 'Session Start/End. Host mode: This bit is set or cleared by the CPU to start or end a session. Device mode: This bit is set/cleared by the USB controller when a session starts/ends. It is also set by the CPU to initiate the Session Request Protocol. When the USB controller is in Suspend mode, the bit may be cleared by the CPU to perform a software disconnect. Note: Clearing this bit when the core is not suspended will result in undefined behavior.'
+    bit_offset: 0
+    bit_size: 1
+  - name: HOSTREQ
+    description: When set, the USB controller will initiate the Host Negotiation when Suspend mode is entered. It is cleared when Host Negotiation is completed.
+    bit_offset: 1
+    bit_size: 1
+  - name: HOST
+    description: 'Host Mode. This Read-only bit is set when the USB controller is acting as a Host. Note: Only valid while a session is in progress.'
+    bit_offset: 2
+    bit_size: 1
+    enum: DEVCTL_HOST
+  - name: VUSB
+    description: VUSB / USB-PHY is powered.
+    bit_offset: 3
+    bit_size: 2
+    enum: VUSB
+  - name: LSDEV
+    description: 'Low Speed Device Detected. This Read-only bit is set when a low-speed device has been detected being connected to the port. Note: Only valid in Host mode.'
+    bit_offset: 5
+    bit_size: 1
+  - name: FSDEV
+    description: 'Full Speed Device Detected. This Read-only bit is set when a full-speed device has been detected being connected to the port. Note: Only valid in Host mode.'
+    bit_offset: 6
+    bit_size: 1
+  - name: DEV
+    description: 'Device Mode. This Read-only bit indicates whether the USB controller is operating as the host mode or device mode. Note: Only valid while a session is in progress.'
+    bit_offset: 7
+    bit_size: 1
+    enum: DEV
+fieldset/EP:
+  description: USB Transmit Interrupt Status.
+  bit_size: 16
+  fields:
+  - name: EP
+    description: Transmit Endpoint 0 Interrupt.
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 8
+      stride: 1
+fieldset/EPINDEX:
+  description: USB Endpoint Index.
+  bit_size: 8
+  fields:
+  - name: EPIDX
+    description: 'Endpoint Index. #br#This bit field configures which endpoint is accessed when reading or writing to one of the USB controller''s indexed registers. A value of 0x0 corresponds to Endpoint 0 and a value of 0xF corresponds to Endpoint 15.'
+    bit_offset: 0
+    bit_size: 4
+fieldset/EPINFO:
+  description: Endpoint Information.
+  bit_size: 8
+  fields:
+  - name: TXENDPOINTS
+    description: The number of TX endpoints implemented in the design.
+    bit_offset: 0
+    bit_size: 4
+  - name: RXENDPOINTS
+    description: The number of Rx endpoints implemented in the design.
+    bit_offset: 4
+    bit_size: 4
+fieldset/EVT_MODE:
+  description: Event Mode.
+  fields:
+  - name: EVT0_CFG
+    description: Event line mode select for event corresponding to (IPSTANDARD.INT_EVENT)(0).
+    bit_offset: 0
+    bit_size: 2
+    enum: EVT_CFG
+fieldset/FADDR:
+  description: USB Device Functional Address.
+  bit_size: 8
+  fields:
+  - name: FUNCADDR
+    description: 'FAddr is an 8-bit register that should be written with the 7-bit address of the peripheral part of the transaction. When the USB module is being used in Peripheral mode (DevCtl.D2=0), this register should be written with the address received through a SET_ADDRESS command, which will then be used for decoding the function address in subsequent token packets. Notes: Peripheral Mode Only!!.'
+    bit_offset: 0
+    bit_size: 7
+fieldset/FIFOSZ:
+  description: USB TX and RX FIFO Size Endpoint [n].
+  bit_size: 8
+  fields:
+  - name: TXSIZE
+    description: Returns the configured size of the TX FIFO.
+    bit_offset: 0
+    bit_size: 4
+    enum: FIFOSIZE
+  - name: RXSIZE
+    description: Returns the configured size of the RX FIFO.
+    bit_offset: 4
+    bit_size: 4
+    enum: FIFOSIZE
+fieldset/FRAME:
+  description: USB Last Received Frame Number.
+  bit_size: 16
+  fields:
+  - name: FRAME
+    description: Frame Number.
+    bit_offset: 0
+    bit_size: 11
+fieldset/FSEOF:
+  description: USB Full-Speed Last Transaction to End of Frame Timing.
+  bit_size: 8
+  fields: []
+fieldset/IDXRXFIFOADD:
+  description: Indexed USB Receive FIFO Start Address.
+  bit_size: 16
+  fields:
+  - name: ADDR
+    description: Endpoint Data.
+    bit_offset: 0
+    bit_size: 14
+    enum: IDX_FIFOADD_ADDR
+fieldset/IDXRXFIFOSZ:
+  description: Indexed USB Receive Dynamic FIFO Sizing.
+  bit_size: 8
+  fields:
+  - name: SIZE
+    description: Maximum packet size to be allowed. If DPB = 0, the FIFO also is this size; if DPB = 1, the FIFO is twice this size. Packet size in bytes:.
+    bit_offset: 0
+    bit_size: 4
+    enum: FIFOSIZE
+  - name: DPB
+    description: Double Packet Buffer Support.
+    bit_offset: 4
+    bit_size: 1
+    enum: IDX_FIFOSZ_DPB
+fieldset/IDXTXFIFOADD:
+  description: Indexed USB Transmit FIFO Start Address.
+  bit_size: 16
+  fields:
+  - name: ADDR
+    description: Endpoint Data.
+    bit_offset: 0
+    bit_size: 14
+    enum: IDX_FIFOADD_ADDR
+fieldset/IDXTXFIFOSZ:
+  description: Indexed USB Transmit Dynamic FIFO Sizing.
+  bit_size: 8
+  fields:
+  - name: SIZE
+    description: Max Packet Size.
+    bit_offset: 0
+    bit_size: 4
+    enum: FIFOSIZE
+  - name: DPB
+    description: Double Packet Buffer Support.
+    bit_offset: 4
+    bit_size: 1
+    enum: IDX_FIFOSZ_DPB
+fieldset/IIDX:
+  description: Interrupt index.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 8
+    enum: STAT
+fieldset/INT:
+  description: Interrupt clear.
+  fields:
+  - name: INTRTX
+    description: Endpoint 0 and the TX Endpoints interrupt.
+    bit_offset: 0
+    bit_size: 1
+  - name: INTRRX
+    description: RX Endpoints interrupt.
+    bit_offset: 1
+    bit_size: 1
+  - name: INTRUSB
+    description: USB Interrupts.
+    bit_offset: 2
+    bit_size: 1
+  - name: VUSBPWRDN
+    description: VUSB Power Down.
+    bit_offset: 3
+    bit_size: 1
+  - name: DMADONEARX
+    description: DMA-Done interrupt for Trigger USB-A-RX.
+    bit_offset: 4
+    bit_size: 1
+  - name: DMADONEATX
+    description: DMA-Done interrupt for Trigger USB-A-TX.
+    bit_offset: 5
+    bit_size: 1
+  - name: DMADONEBRX
+    description: DMA-Done interrupt for Trigger USB-B-RX.
+    bit_offset: 6
+    bit_size: 1
+  - name: DMADONEBTX
+    description: DMA-Done interrupt for Trigger USB-B-TX.
+    bit_offset: 7
+    bit_size: 1
+  - name: DMADONECRX
+    description: DMA-Done interrupt for Trigger USB-C-RX.
+    bit_offset: 8
+    bit_size: 1
+  - name: DMADONECTX
+    description: DMA-Done interrupt for Trigger USB-C-TX.
+    bit_offset: 9
+    bit_size: 1
+  - name: DMADONEDRX
+    description: DMA-Done interrupt for Trigger USB-D-RX.
+    bit_offset: 10
+    bit_size: 1
+  - name: DMADONEDTX
+    description: DMA-Done interrupt for Trigger USB-D-TX.
+    bit_offset: 11
+    bit_size: 1
+  - name: DMAPREARX
+    description: DMA-Pre interrupt for Trigger USB-A-RX.
+    bit_offset: 12
+    bit_size: 1
+  - name: DMAPREATX
+    description: DMA-Pre interrupt for Trigger USB-A-TX.
+    bit_offset: 13
+    bit_size: 1
+  - name: DMAPREBRX
+    description: DMA-Pre interrupt for Trigger USB-B-RX.
+    bit_offset: 14
+    bit_size: 1
+  - name: DMAPREBTX
+    description: DMA-Pre interrupt for Trigger USB-B-TX.
+    bit_offset: 15
+    bit_size: 1
+  - name: DMAPRECRX
+    description: DMA-Pre interrupt for Trigger USB-C-RX.
+    bit_offset: 16
+    bit_size: 1
+  - name: DMAPRECTX
+    description: DMA-Pre interrupt for Trigger USB-C-TX.
+    bit_offset: 17
+    bit_size: 1
+  - name: DMAPREDRX
+    description: DMA-Pre interrupt for Trigger USB-D-RX.
+    bit_offset: 18
+    bit_size: 1
+  - name: DMAPREDTX
+    description: DMA-Pre interrupt for Trigger USB-D-TX.
+    bit_offset: 19
+    bit_size: 1
+fieldset/MISC:
+  description: USB Miscellaneous Register.
+  bit_size: 8
+  fields:
+  - name: RX_EDMA
+    description: Receive early DMA mode.
+    bit_offset: 0
+    bit_size: 1
+    enum: RX_EDMA
+  - name: TX_EDMA
+    description: Transmit early DMA mode.
+    bit_offset: 1
+    bit_size: 1
+    enum: TX_EDMA
+fieldset/NAKLMT0:
+  description: USB NAK Limit Endpoint 0.
+  bit_size: 8
+  fields:
+  - name: NAKLMT
+    description: EP0 NAK Limit specifies the number of frames after receiving a stream of NAK responses.
+    bit_offset: 0
+    bit_size: 5
+fieldset/POWER:
+  description: USB Power Control.
+  bit_size: 8
+  fields:
+  - name: ENSUSPENDM
+    description: Set by the CPU to enable the Suspend mode for the USB PHY.
+    bit_offset: 0
+    bit_size: 1
+  - name: SUSPEND
+    description: In Host mode, this bit is set by the CPU to enter Suspend mode. In Peripheral mode, this bit is set on entry into Suspend mode. It is cleared when the CPU reads the interrupt register, or sets the Resume bit.
+    bit_offset: 1
+    bit_size: 1
+  - name: RESUME
+    description: Set by the CPU to generate Resume signaling when the device is in Suspend mode. In Peripheral mode, the CPU should clear this bit after 10 ms (a maximum of 15 ms), to end Resume signaling. In Host mode, the CPU should clear this bit after 20 ms.
+    bit_offset: 2
+    bit_size: 1
+  - name: RESET
+    description: 'This bit is set when Reset signaling is present on the bus. Note: This bit is Read/Write from the CPU in Host Mode but Read-Only in Peripheral Mode.'
+    bit_offset: 3
+    bit_size: 1
+  - name: SOFT_CONN
+    description: 'Soft Connect/Disconnect feature. The USB D+/D- lines are enabled when this bit is set by the CPU and tri-stated when this bit is cleared by the CPU. Note: Only valid in Peripheral Mode.'
+    bit_offset: 6
+    bit_size: 1
+    enum: SOFT_CONN
+  - name: ISOUP
+    description: 'Isochronous Update. When set by the CPU, the USB module will wait for an SOF token from the time TXRDY bit is set in the USBTXCSRLn before sending the packet. If an IN token is received before an SOF token, then a zero length data packet will be sent. Note: Only valid in Peripheral Mode. Also, this bit only affects endpoints performing Isochronous transfers.'
+    bit_offset: 7
+    bit_size: 1
+fieldset/PWREN:
+  description: Power enable.
+  fields:
+  - name: ENABLE
+    description: Enable the power.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RAMINFO:
+  description: USB FIFO Buffer RAM Information.
+  bit_size: 8
+  fields:
+  - name: RAMBITS
+    description: The width of the RAM address bus.
+    bit_offset: 0
+    bit_size: 4
+    enum: RAMBITS
+fieldset/RQPKTCOUNT:
+  description: USB Request Packet Count in Block Transfer Endpoint [n].
+  fields:
+  - name: COUNT
+    description: 'Block Transfer Packet Count sets the number of packets of the size defined by the MAXLOAD bit field that are to be transferred in a block transfer. Note: This is only used in Host mode when AUTORQ is set. The bit has no effect in Device mode or when AUTORQ is not set.'
+    bit_offset: 0
+    bit_size: 16
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral.
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register.
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key B1h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/RXCOUNT:
+  description: USB Receive Byte Count Endpoint [n].
+  bit_size: 16
+  fields:
+  - name: COUNT
+    description: Receive Packet Count indicates the number of bytes in the receive packet.
+    bit_offset: 0
+    bit_size: 13
+fieldset/RXCSRH:
+  description: USB Receive Control and Status Endpoint [n] High.
+  bit_size: 8
+  fields:
+  - name: INCOMPRX
+    description: 'This bit will be set in a high-bandwidth Isochronous or Interrupt transfer if the packet received is incomplete, because parts of the data were not received. It is cleared when RXRDY is cleared. Note: In anything other than Isochronous transfer, this bit will always return 0. Note: Device and host mode.'
+    bit_offset: 0
+    bit_size: 1
+  - name: DT
+    description: 'Data Toggle. When read, this bit indicates the current state of the receive data toggle. If DTWE is High, this bit may be written with the required setting of the data toggle. If DTWE is Low, any value written to this bit is ignored. Care should be taken when writing to this bit as it should only be changed to RESET the receive endpoint. Note: Host mode only.'
+    bit_offset: 1
+    bit_size: 1
+  - name: DTWE
+    description: 'Data Toggle Write Enable. The CPU writes a 1 to this bit to enable the current state of the Endpoint 0 data toggle to be written. This bit is automatically cleared once the new value is written. Note: Host mode only.'
+    bit_offset: 2
+    bit_size: 1
+  - name: DMAMOD
+    description: 'DMA request mode The CPU sets this bit to select DMA Request Mode 1 and clears it to select DMA Request Mode 0. Note: This bit must not be cleared either before or in the same cycle as the above DMAEN bit is cleared. Note: Device and host mode.'
+    bit_offset: 3
+    bit_size: 1
+    enum: DMAMOD
+  - name: PIDERR
+    description: 'PID error ISO Transactions: The USB controller sets this bit to indicate a PID error in the received packet. Bulk/Interrupt Transactions: The setting of this bit is ignored. Note: Device and host mode.'
+    bit_offset: 4
+    bit_size: 1
+  - name: DMAEN
+    description: 'DMA Request Enable The CPU sets this bit to enable the DMA request for the Rx endpoint. Note: Four TX and four RX endpoints can be connected to the DMA module. If this bit is set for a particular endpoint, the TRIGARX, TRIGBRX, TRIGCRX, or TRIGDRX field in the USB DMA Select (USBDMASEL) register must be programmed correspondingly.'
+    bit_offset: 5
+    bit_size: 1
+  - name: ISOAUTORQ
+    description: 'Isochronous transfer mode / Auto request. Device mode: The CPU sets this bit to enable the Rx endpoint for Isochronous transfers, and clears it to enable the Rx endpoint for Bulk/Interrupt transfers. Host mode: If the CPU sets this bit, the STALLREQPKT bit will be automatically set when the RXRDY bit is cleared. - Note: This bit is automatically cleared when a short packet is received.'
+    bit_offset: 6
+    bit_size: 1
+  - name: AUTOCLR
+    description: 'Auto Clear. If the CPU sets this bit then the RXRDY bit will be automatically cleared when a packet of USBRXMAXP bytes has been unloaded from the RX FIFO. When packets of less than the maximum packet size are unloaded, RXRDY will have to be cleared manually. When using a DMA to unload the RX-FIFO, data is read from the RX-FIFO in 4 byte chunks regardless of the USBRXMAXP setting. Note: Device and host mode.'
+    bit_offset: 7
+    bit_size: 1
+fieldset/RXCSRL:
+  description: USB Receive Control and Status Endpoint [n] Low.
+  bit_size: 8
+  fields:
+  - name: RXRDY
+    description: 'Receive Packet Ready. This bit is set when a data packet has been received. The CPU should clear this bit when the packet has been unloaded from the Rx FIFO. An interrupt is generated when the bit is set. If the AUTOCLR bit in the USBRXCSRH[n] register is set, then the this bit is automatically cleared when a packet of USBRXMAXP[n] bytes has been unloaded from the receive FIFO. If the AUTOCLR bit is clear, or if packets of less than the maximum packet size are unloaded, then software must clear this bit manually when the packet has been unloaded from the receive FIFO. Note: Device and host mode.'
+    bit_offset: 0
+    bit_size: 1
+  - name: FULL
+    description: 'FIFO Full. This bit is set when no more packets can be loaded into the RX FIFO. Note: Device and host mode.'
+    bit_offset: 1
+    bit_size: 1
+  - name: OVERERROR
+    description: 'Over run / Error. Device mode: Over run - This bit is set if an OUT packet cannot be loaded into the receive FIFO. The CPU should clear this bit. - Note: This bit is only valid when the endpoint is operating in ISO mode. In Bulk mode, it always returns zero. Host mode: The USB sets this bit when 3 attempts have been made to receive a packet and no data packet has been received. The CPU should clear this bit. An interrupt is generated when the bit is set. - Note: This bit is only valid when the RX endpoint is operating in Bulk or Interrupt mode. In ISO mode, it always returns zero.'
+    bit_offset: 2
+    bit_size: 1
+  - name: DATAERRNAKTO
+    description: 'Data Error / NAK Timeout Device mode: Data Error - This bit is set when RXRDY is set, if the data packet has a CRC or bit-stuff error. It is cleared when RXRDY is cleared. - Note: This bit is only valid when the endpoint is operating in ISO mode. In Bulk mode, it always returns zero. Host mode: NAK Timeout - When operating in ISO mode, this bit is set when RXRDY is set, if the data packet has a CRC or bit-stuff error and cleared when RXRDY is cleared. In Bulk mode, this bit will be set when the Rx endpoint is halted following the receipt of NAK responses for longer than the time set as the NAK Limit by the USBRXINTERVAL register. The CPU should clear this bit to allow the endpoint to continue.'
+    bit_offset: 3
+    bit_size: 1
+  - name: FLUSH
+    description: 'Flush FIFO. The CPU writes a 1 to this bit to flush the next packet to be read from the endpoint RX FIFO. The FIFO pointer is reset and the RXRDY bit is cleared. Note: Thsi bit should only be set when RXRDY is set. At other times, it may cause data to be corrupted. Note: If the FIFO is double-buffered, FLUSH may need to be set twice to completely clear the FIFO. Note: Device and host mode.'
+    bit_offset: 4
+    bit_size: 1
+  - name: STALLREQPKT
+    description: 'Send Stall / Request Packet. Device mode: The CPU writes a 1 to this bit to issue a STALL handshake. The CPU clears this bit to terminate the stall condition. - Note: This bit has no effect where the endpoint is being used for Isochronous transfers. Host mode: The CPU writes a 1 to this bit to request an IN transaction. It is cleared when RXRDY is set.'
+    bit_offset: 5
+    bit_size: 1
+  - name: STALLED
+    description: 'Sent Stall / RX Stall Device mode: This bit is set when a STALL handshake is transmitted. The CPU should clear this bit. Host mode: When a STALL handshake is received, this bit is set and an interrupt is generated. The CPU should clear this bit.'
+    bit_offset: 6
+    bit_size: 1
+    enum: RXCSRL_STALLED
+  - name: CLRDT
+    description: 'Clear Data Toggle. The CPU writes a 1 to this bit to reset the endpoint data toggle to 0. Note: Device and host mode.'
+    bit_offset: 7
+    bit_size: 1
+fieldset/RXFUNCADDR:
+  description: USB Receive Functional Address Endpoint [n].
+  bit_size: 8
+  fields:
+  - name: ADDR
+    description: Device Address specifies the USB bus address for the target Device.
+    bit_offset: 0
+    bit_size: 7
+fieldset/RXHUBADDR:
+  description: USB Receive Hub Address Endpoint [n].
+  bit_size: 8
+  fields:
+  - name: ADDR
+    description: Hub Address.
+    bit_offset: 0
+    bit_size: 7
+  - name: MULTTRAN
+    description: Record whether the hub has multiple transaction translators.
+    bit_offset: 7
+    bit_size: 1
+fieldset/RXHUBPORT:
+  description: USB Receive Hub Port Endpoint [n].
+  bit_size: 8
+  fields:
+  - name: ADDR
+    description: Hub Address.
+    bit_offset: 0
+    bit_size: 7
+fieldset/RXMAXP:
+  description: USB Maximum Receive Data Endpoint [n].
+  bit_size: 16
+  fields:
+  - name: MAXLOAD
+    description: Maximum Payload specifies the maximum payload in bytes per transaction.
+    bit_offset: 0
+    bit_size: 11
+fieldset/RXTYPE:
+  description: USB Host Configure Receive Type Endpoint [n].
+  bit_size: 8
+  fields:
+  - name: TEP
+    description: Target Endpoint Number. Software must configure this value to the endpoint number contained in the transmit endpoint descriptor returned to the USB controller during Device enumeration.
+    bit_offset: 0
+    bit_size: 4
+  - name: PROTO
+    description: Protocol. Software must configure this bit field to select the required protocol for the transmit endpoint:.
+    bit_offset: 4
+    bit_size: 2
+    enum: RXTYPE_PROTO
+  - name: SPEED
+    description: 'Operating Speed. #br#This bit field specifies the operating speed of the target Device:.'
+    bit_offset: 6
+    bit_size: 2
+fieldset/STAT:
+  description: Status Register.
+  fields:
+  - name: SWENABLE
+    description: Software enable status. Shows if enabled via PWREN.ENABLE bit.
+    bit_offset: 0
+    bit_size: 1
+  - name: ENABLE
+    description: Peripheral enable status.
+    bit_offset: 8
+    bit_size: 1
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+fieldset/TESTMODE:
+  description: USB Test Mode.
+  bit_size: 8
+  fields:
+  - name: FORCEFS
+    description: Force Full Speed Upon Reset. The CPU sets this bit either in conjunction with bit 7 (FORCEH) or to force the USB controller into Full-speed mode when it receives a USB reset.
+    bit_offset: 5
+    bit_size: 1
+    enum: FORCEFS
+  - name: FIFOACC
+    description: 'FIFO Access. The CPU sets this bit to transfer the packet in the Endpoint 0 TX FIFO to the Endpoint 0 Rx FIFO. Note: It is cleared automatically.'
+    bit_offset: 6
+    bit_size: 1
+  - name: FORCEH
+    description: Force Host Mode. The CPU sets this bit to instruct the core to enter Host mode when the Session bit is set, regardless of whether it is connected to any peripheral. The state of the CID input, HostDisconnect and LineState signals are ignored. The core will then remain in Host mode until the Session bit is cleared, even if a device is disconnected, and if the Force_Host bit remains set, will re-enter Host mode the next time the Session bit is set. While in this mode, status of the bus connection may be read using the DEV bit of the USBDEVCTL register. The operating speed is determined from the FORCEFS bit.
+    bit_offset: 7
+    bit_size: 1
+fieldset/TXCSRH:
+  description: USB Transmit Control and Status Endpoint [n] High.
+  bit_size: 8
+  fields:
+  - name: DT
+    description: 'Data Toggle. When read, this bit indicates the current state of the transmit endpoint data toggle. If DTWE is High, this bit can be written with the required setting of the data toggle. If DTWE is Low, any value written to this bit is ignored. Care should be taken when writing to this bit as it should only be changed to RESET the transmit endpoint. Note: Host mode only.'
+    bit_offset: 0
+    bit_size: 1
+  - name: DTWE
+    description: 'Data Toggle Write Enable. The CPU writes a 1 to this bit to enable the current state of the TX Endpoint data toggle to be written. This bit is automatically cleared once the new value is written. Note: Host mode only.'
+    bit_offset: 1
+    bit_size: 1
+  - name: DMAMOD
+    description: 'DMA Request Mode. The CPU sets this bit to select DMA Request Mode 1 and clears it to select DMA Request Mode 0. Note: This bit must not be cleared either before or in the same cycle as the DMAEN bit is cleared. Note: Device and host mode.'
+    bit_offset: 2
+    bit_size: 1
+    enum: DMAMOD
+  - name: FDT
+    description: 'Force Data Toggle. The CPU sets this bit to force the endpoint DT bit to switch and the data packet to be cleared from the FIFO, regardless of whether an ACK was received. This can be used by Interrupt TX endpoints that are used to communicate rate feedback for Isochronous endpoints. Note: This bit should only be set when the TXRDY bit is set. At other times, it may cause data to be corrupted. Note: Device and host mode.'
+    bit_offset: 3
+    bit_size: 1
+  - name: DMAEN
+    description: 'DMA Request Enable The CPU sets this bit to enable the DMA request for the TX endpoint. Note: Four TX and four RX endpoints can be connected to the DMA module. If this bit is set for a particular endpoint, the TRIGATX, TRIGBTX, TRIGCTX, or TRIGDTX field in the USB DMA Select (USBDMASEL) register must be programmed correspondingly. Note: Device and host mode.'
+    bit_offset: 4
+    bit_size: 1
+  - name: MODE
+    description: 'Mode The CPU sets this bit to enable the endpoint direction as TX, and clears the bit to enable it as Rx. Note: This bit only has an effect when the same endpoint FIFO is used for both transmit and receive transactions. Note: Host and device mode.'
+    bit_offset: 5
+    bit_size: 1
+    enum: MODE
+  - name: ISO
+    description: 'Isochronous Transfers. The CPU sets this bit to enable the TX endpoint for Isochronous transfers, and clears it to enable the TX endpoint for Bulk or Interrupt transfers. Note: This bit only has any effect in device mode. In host mode, it always returns zero.'
+    bit_offset: 6
+    bit_size: 1
+    enum: ISO
+  - name: AUTOSET
+    description: 'Auto Set. If the CPU sets this bit, the TXRDY bit will be be automatically set when data of the maximum packet size (value in USBTXMAXP[n]) is loaded into the transmit FIFO. If a packet of less than the maximum packet size is loaded, then the TXRDY bit must be set manually. Note: Should not be set for either high-bandwidth Isochronous endpoints or high-bandwidth Interrupt endpoints. Note: Device and host mode.'
+    bit_offset: 7
+    bit_size: 1
+fieldset/TXCSRL:
+  description: USB Transmit Control and Status Endpoint [n] Low.
+  bit_size: 8
+  fields:
+  - name: TXRDY
+    description: 'Transmit Packet Ready. The CPU sets this bit after loading a data packet into the FIFO. This bit is cleared automatically when a data packet has been transmitted. The EPn bit in the USBTXIS register is also set at this point. TXRDY is also automatically cleared prior to loading a second packet into a double-buffered FIFO. Note: Host and device mode.'
+    bit_offset: 0
+    bit_size: 1
+  - name: FIFONE
+    description: 'FIFO Not Empty. The USB controller sets this bit when there is at least 1 packet in the TX FIFO. Note: Host and device mode.'
+    bit_offset: 1
+    bit_size: 1
+  - name: UNDRNERROR
+    description: 'Underrun / Error condition. Device mode: The USB controller sets this bit if an IN token is received when TXRDY is not set. The CPU should clear this bit. Host mode: The USB controller sets this bit when 3 attempts have been made to send a packet and no handshake packet has been received. When the bit is set, an interrupt is generated, TXRDY is cleared and the FIFO is completely flushed. The CPU should clear this bit. Valid only when the endpoint is operating in Bulk or Interrupt mode.'
+    bit_offset: 2
+    bit_size: 1
+  - name: FLUSH
+    description: 'Flush FIFO. The CPU writes a 1 to this bit to flush the latest packet from the endpoint TX FIFO. The FIFO pointer is reset, the TXRDY bit is cleared and an interrupt is generated. May be set simultaneously with TXRDY to abort the packet that is currently being loaded into the FIFO. Note: FLUSH should only be used when TXRDY is set. At other times, it may cause data to be corrupted. Also note that, if the FIFO is double-buffered, FLUSH may need to be set twice to completely clear the FIFO. Note: Host and device mode.'
+    bit_offset: 3
+    bit_size: 1
+  - name: STALLSETUP
+    description: 'Send stall / Setup packet request. Device mode: The CPU writes a 1 to this bit to issue a STALL handshake to an IN token. The CPU clears this bit to terminate the stall condition. Note: This bit has no effect where the endpoint is being used for Isochronous transfers. Host mode: The CPU sets this bit, at the same time as the TXRDY bit is set, to send a SETUP token instead of an OUT token for the transaction. Note: Setting this bit also clears the USBTXCSRH.DT register.'
+    bit_offset: 4
+    bit_size: 1
+  - name: STALLED
+    description: 'Sent stall / RX stalled. Device mode: This bit is set when a STALL handshake is transmitted. The FIFO is flushed and the TXRDY bit is cleared. The CPU should clear this bit. Host mode: This bit is set when a STALL handshake is received. When this bit is set, any DMA request that is in progress is stopped, the FIFO is completely flushed and the TXRDY bit is cleared. The CPU should clear this bit.'
+    bit_offset: 5
+    bit_size: 1
+  - name: CLRDT
+    description: 'Clear DataToggle. The CPU writes a 1 to this bit to reset the endpoint data toggle to 0. Note: Host and device mode.'
+    bit_offset: 6
+    bit_size: 1
+  - name: INCOMPNAKTO
+    description: 'Incomplete TX / NAK Timeout. Device mode: When the endpoint is being used for high-bandwidth Isochronous, this bit is set to indicate where a large packet has been split into 2 or 3 packets for transmission but insufficient IN tokens have been received to send all the parts. Note: In anything other than isochronous transfers, this bit will always return 0. Host mode - bulk endpoints only: This bit will be set when the TX endpoint is halted following the receipt of NAK responses for longer than the time set as theTXPOLLNAKLMT by the TXINTERVAL register. The CPU should clear this bit to allow the endpoint to continue. Host mode - high-bandwidth Interrupt endpoints only: This bit will be set if no response is received from the device to which the packet is being sent.'
+    bit_offset: 7
+    bit_size: 1
+fieldset/TXFUNCADDR:
+  description: USB Transmit Functional Address Endpoint [n].
+  bit_size: 8
+  fields:
+  - name: ADDR
+    description: Device Address specifies the USB bus address for the target Device.
+    bit_offset: 0
+    bit_size: 7
+fieldset/TXHUBADDR:
+  description: USB Transmit Hub Address Endpoint [n].
+  bit_size: 8
+  fields:
+  - name: ADDR
+    description: Device Address specifies the USB bus address for the target Device.
+    bit_offset: 0
+    bit_size: 7
+  - name: MULTTRAN
+    description: Record whether the hub has multiple transaction translators.
+    bit_offset: 7
+    bit_size: 1
+fieldset/TXHUBPORT:
+  description: USB Transmit Hub Port Endpoint [n].
+  bit_size: 8
+  fields:
+  - name: ADDR
+    description: Hub Port specifies the USB hub port number.
+    bit_offset: 0
+    bit_size: 7
+fieldset/TXMAXP:
+  description: USB Maximum Transmit Data Endpoint [n].
+  bit_size: 16
+  fields:
+  - name: MAXLOAD
+    description: Maximum Payload specifies the maximum payload in bytes per transaction.
+    bit_offset: 0
+    bit_size: 11
+fieldset/TXTYPE:
+  description: USB Host Transmit Configure Type Endpoint [n].
+  bit_size: 8
+  fields:
+  - name: TEP
+    description: Target Endpoint Number. Software must configure this value to the endpoint number contained in the transmit endpoint descriptor returned to the USB controller during Device enumeration.
+    bit_offset: 0
+    bit_size: 4
+  - name: PROTO
+    description: Protocol. Software must configure this bit field to select the required protocol for the transmit endpoint:.
+    bit_offset: 4
+    bit_size: 2
+    enum: TXTYPE_PROTO
+  - name: SPEED
+    description: Operating Speed. This bit field specifies the operating speed of the target Device:.
+    bit_offset: 6
+    bit_size: 2
+fieldset/TYPE0:
+  description: USB Type Endpoint 0.
+  bit_size: 8
+  fields:
+  - name: SPEED
+    description: 'Operating Speed specifies the operating speed of the target Device. If selected, the target is assumed #br#to have the same connection speed as the USB controller.'
+    bit_offset: 6
+    bit_size: 2
+fieldset/USBDMASEL:
+  description: USB DMA trigger select.
+  fields:
+  - name: TRIGARX
+    description: TRIG A RX select specifies the RX mapping of the USB endpoint on DMA trigger USB-A-RX.
+    bit_offset: 0
+    bit_size: 3
+  - name: TRIGATX
+    description: TRIG A TX select specifies the TX mapping of the USB endpoint on DMA trigger USB-A-TX.
+    bit_offset: 4
+    bit_size: 3
+  - name: TRIGBRX
+    description: TRIG B RX select specifies the RX mapping of the USB endpoint on DMA trigger USB-B-RX.
+    bit_offset: 8
+    bit_size: 3
+  - name: TRIGBTX
+    description: TRIG B TX select specifies the TX mapping of the USB endpoint on DMA trigger USB-B-TX.
+    bit_offset: 12
+    bit_size: 3
+  - name: TRIGCRX
+    description: TRIG C RX select specifies the RX mapping of the USB endpoint on DMA trigger USB-C-RX.
+    bit_offset: 16
+    bit_size: 3
+  - name: TRIGCTX
+    description: TRIG C TX select specifies the TX mapping of the USB endpoint on DMA trigger USB-C-TX.
+    bit_offset: 20
+    bit_size: 3
+  - name: TRIGDRX
+    description: TRIG D RX select specifies the RX mapping of the USB endpoint on DMA trigger USB-D-RX.
+    bit_offset: 24
+    bit_size: 3
+  - name: TRIGDTX
+    description: TRIG D TX select specifies the TX mapping of the USB endpoint on DMA trigger USB-D-TX.
+    bit_offset: 28
+    bit_size: 3
+fieldset/USBMODE:
+  description: USB mode control.
+  fields:
+  - name: HOST
+    description: USB is configured as HOST mode.
+    bit_offset: 0
+    bit_size: 1
+  - name: DEVICEONLY
+    description: USB is configured as DEVICE_ONLY mode.
+    bit_offset: 1
+    bit_size: 1
+  - name: PHYMODE
+    description: USB PHY mode. Defines whether DP/DM pins are controled by USB module or IOMUX/GPIO module.
+    bit_offset: 4
+    bit_size: 1
+    enum: PHYMODE
+fieldset/USBMONITOR:
+  description: USB Clock Control Register.
+  fields:
+  - name: VUSBEN
+    description: Enable the 1/3 resistor divider for VUSB supply. Set this bit to monitor the VUSB supply with the ADC.
+    bit_offset: 0
+    bit_size: 1
+fieldset/USB_INT:
+  description: USB General Interrupt Status.
+  bit_size: 8
+  fields:
+  - name: SUSPEND
+    description: 'Set when Suspend signaling is detected on the bus. Note: Only valid in Peripheral mode.'
+    bit_offset: 0
+    bit_size: 1
+  - name: RESUME
+    description: Set when Resume signaling is detected on the bus while the USB controller is in Suspend mode.
+    bit_offset: 1
+    bit_size: 1
+  - name: RESETBABBLE
+    description: 'Device mode - RESET: Set in Peripheral mode when Reset signaling is detected on the bus. Host mode - BABBLE: Set in Host mode when babble is detected. Note: Only active after first SOF has been sent.'
+    bit_offset: 2
+    bit_size: 1
+  - name: SOF
+    description: Start of frame.
+    bit_offset: 3
+    bit_size: 1
+  - name: CONN
+    description: 'Set when a device connection is detected. Note: Only valid in Host mode. Valid at all transaction speeds.'
+    bit_offset: 4
+    bit_size: 1
+  - name: DISCON
+    description: Set in Host mode when a device disconnect is detected. Set in Peripheral mode when a session ends. Valid at all transaction speeds.
+    bit_offset: 5
+    bit_size: 1
+enum/CLKCFG_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 169
+enum/DEV:
+  bit_size: 1
+  variants:
+  - name: HOST
+    description: The USB controller is operating in host mode.
+    value: 0
+  - name: DEVICE
+    description: The USB controller is operating in device mode.
+    value: 1
+enum/DEVCTL_HOST:
+  bit_size: 1
+  variants:
+  - name: DEVICE
+    description: The USB controller is acting as a Device.
+    value: 0
+  - name: HOST
+    description: The USB controller is acting as a Host.
+    value: 1
+enum/DMAMOD:
+  bit_size: 1
+  variants:
+  - name: MODE0
+    description: An interrupt is generated after every DMA packet transfer.
+    value: 0
+  - name: MODE1
+    description: An interrupt is generated only after the entire DMA transfer is complete.
+    value: 1
+enum/EVT_CFG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: The interrupt or event line is disabled.
+    value: 0
+  - name: SOFTWARE
+    description: The interrupt or event line is in software mode. Software must clear the RIS.
+    value: 1
+  - name: HARDWARE
+    description: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.
+    value: 2
+enum/FIFOSIZE:
+  bit_size: 4
+  variants:
+  - name: BYTES_8
+    description: FIFO size 8-byte.
+    value: 0
+  - name: BYTES_16
+    description: FIFO size 16-byte.
+    value: 1
+  - name: BYTES_32
+    description: FIFO size 32-byte.
+    value: 2
+  - name: BYTES_64
+    description: FIFO size 64-byte.
+    value: 3
+  - name: BYTES_128
+    description: FIFO size 128-byte.
+    value: 4
+  - name: BYTES_256
+    description: FIFO size 256-byte.
+    value: 5
+  - name: BYTES_512
+    description: FIFO size 512-byte.
+    value: 6
+  - name: BYTES_1024
+    description: FIFO size 1024-byte.
+    value: 7
+  - name: BYTES_2048
+    description: FIFO size 2048-byte.
+    value: 8
+enum/FORCEFS:
+  bit_size: 1
+  variants:
+  - name: LOW
+    description: The USB controller operates at Low Speed.
+    value: 0
+  - name: FULL
+    description: Forces the USB controller into Full-Speed mode upon receiving a USB RESET.
+    value: 1
+enum/IDX_FIFOADD_ADDR:
+  bit_size: 14
+  variants:
+  - name: ADDR_0
+    description: 0.0.
+    value: 0
+  - name: ADDR_8
+    description: 8.0.
+    value: 1
+  - name: ADDR_16
+    description: 16.0.
+    value: 2
+  - name: ADDR_24
+    description: 24.0.
+    value: 3
+  - name: ADDR_32
+    description: 32.0.
+    value: 4
+  - name: ADDR_40
+    description: 40.0.
+    value: 5
+  - name: ADDR_48
+    description: 48.0.
+    value: 6
+  - name: ADDR_56
+    description: 56.0.
+    value: 7
+  - name: ADDR_64
+    description: 64.0.
+    value: 8
+  - name: ADDR_72
+    description: 72.0.
+    value: 9
+  - name: ADDR_80
+    description: 80.0.
+    value: 10
+  - name: ADDR_88
+    description: 88.0.
+    value: 11
+  - name: ADDR_96
+    description: 96.0.
+    value: 12
+  - name: ADDR_104
+    description: 104.0.
+    value: 13
+  - name: ADDR_112
+    description: 112.0.
+    value: 14
+  - name: ADDR_120
+    description: 120.0.
+    value: 15
+  - name: ADDR_128
+    description: 128.0.
+    value: 16
+  - name: ADDR_136
+    description: 136.0.
+    value: 17
+  - name: ADDR_144
+    description: 144.0.
+    value: 18
+  - name: ADDR_152
+    description: 152.0.
+    value: 19
+  - name: ADDR_160
+    description: 160.0.
+    value: 20
+  - name: ADDR_168
+    description: 168.0.
+    value: 21
+  - name: ADDR_176
+    description: 176.0.
+    value: 22
+  - name: ADDR_184
+    description: 184.0.
+    value: 23
+  - name: ADDR_192
+    description: 192.0.
+    value: 24
+  - name: ADDR_200
+    description: 200.0.
+    value: 25
+  - name: ADDR_208
+    description: 208.0.
+    value: 26
+  - name: ADDR_216
+    description: 216.0.
+    value: 27
+  - name: ADDR_224
+    description: 224.0.
+    value: 28
+  - name: ADDR_232
+    description: 232.0.
+    value: 29
+  - name: ADDR_240
+    description: 240.0.
+    value: 30
+  - name: ADDR_248
+    description: 248.0.
+    value: 31
+  - name: ADDR_256
+    description: 256.0.
+    value: 32
+  - name: ADDR_264
+    description: 264.0.
+    value: 33
+  - name: ADDR_272
+    description: 272.0.
+    value: 34
+  - name: ADDR_280
+    description: 280.0.
+    value: 35
+  - name: ADDR_288
+    description: 288.0.
+    value: 36
+  - name: ADDR_296
+    description: 296.0.
+    value: 37
+  - name: ADDR_304
+    description: 304.0.
+    value: 38
+  - name: ADDR_312
+    description: 312.0.
+    value: 39
+  - name: ADDR_320
+    description: 320.0.
+    value: 40
+  - name: ADDR_328
+    description: 328.0.
+    value: 41
+  - name: ADDR_336
+    description: 336.0.
+    value: 42
+  - name: ADDR_344
+    description: 344.0.
+    value: 43
+  - name: ADDR_352
+    description: 352.0.
+    value: 44
+  - name: ADDR_360
+    description: 360.0.
+    value: 45
+  - name: ADDR_368
+    description: 368.0.
+    value: 46
+  - name: ADDR_376
+    description: 376.0.
+    value: 47
+  - name: ADDR_384
+    description: 384.0.
+    value: 48
+  - name: ADDR_392
+    description: 392.0.
+    value: 49
+  - name: ADDR_400
+    description: 400.0.
+    value: 50
+  - name: ADDR_408
+    description: 408.0.
+    value: 51
+  - name: ADDR_416
+    description: 416.0.
+    value: 52
+  - name: ADDR_424
+    description: 424.0.
+    value: 53
+  - name: ADDR_432
+    description: 432.0.
+    value: 54
+  - name: ADDR_440
+    description: 440.0.
+    value: 55
+  - name: ADDR_448
+    description: 448.0.
+    value: 56
+  - name: ADDR_456
+    description: 456.0.
+    value: 57
+  - name: ADDR_464
+    description: 464.0.
+    value: 58
+  - name: ADDR_472
+    description: 472.0.
+    value: 59
+  - name: ADDR_480
+    description: 480.0.
+    value: 60
+  - name: ADDR_488
+    description: 488.0.
+    value: 61
+  - name: ADDR_496
+    description: 496.0.
+    value: 62
+  - name: ADDR_504
+    description: 504.0.
+    value: 63
+  - name: ADDR_512
+    description: 512.0.
+    value: 64
+  - name: ADDR_520
+    description: 520.0.
+    value: 65
+  - name: ADDR_528
+    description: 528.0.
+    value: 66
+  - name: ADDR_536
+    description: 536.0.
+    value: 67
+  - name: ADDR_544
+    description: 544.0.
+    value: 68
+  - name: ADDR_552
+    description: 552.0.
+    value: 69
+  - name: ADDR_560
+    description: 560.0.
+    value: 70
+  - name: ADDR_568
+    description: 568.0.
+    value: 71
+  - name: ADDR_576
+    description: 576.0.
+    value: 72
+  - name: ADDR_584
+    description: 584.0.
+    value: 73
+  - name: ADDR_592
+    description: 592.0.
+    value: 74
+  - name: ADDR_600
+    description: 600.0.
+    value: 75
+  - name: ADDR_608
+    description: 608.0.
+    value: 76
+  - name: ADDR_616
+    description: 616.0.
+    value: 77
+  - name: ADDR_624
+    description: 624.0.
+    value: 78
+  - name: ADDR_632
+    description: 632.0.
+    value: 79
+  - name: ADDR_640
+    description: 640.0.
+    value: 80
+  - name: ADDR_648
+    description: 648.0.
+    value: 81
+  - name: ADDR_656
+    description: 656.0.
+    value: 82
+  - name: ADDR_664
+    description: 664.0.
+    value: 83
+  - name: ADDR_672
+    description: 672.0.
+    value: 84
+  - name: ADDR_680
+    description: 680.0.
+    value: 85
+  - name: ADDR_688
+    description: 688.0.
+    value: 86
+  - name: ADDR_696
+    description: 696.0.
+    value: 87
+  - name: ADDR_704
+    description: 704.0.
+    value: 88
+  - name: ADDR_712
+    description: 712.0.
+    value: 89
+  - name: ADDR_720
+    description: 720.0.
+    value: 90
+  - name: ADDR_728
+    description: 728.0.
+    value: 91
+  - name: ADDR_736
+    description: 736.0.
+    value: 92
+  - name: ADDR_744
+    description: 744.0.
+    value: 93
+  - name: ADDR_752
+    description: 752.0.
+    value: 94
+  - name: ADDR_760
+    description: 760.0.
+    value: 95
+  - name: ADDR_768
+    description: 768.0.
+    value: 96
+  - name: ADDR_776
+    description: 776.0.
+    value: 97
+  - name: ADDR_784
+    description: 784.0.
+    value: 98
+  - name: ADDR_792
+    description: 792.0.
+    value: 99
+  - name: ADDR_800
+    description: 800.0.
+    value: 100
+  - name: ADDR_808
+    description: 808.0.
+    value: 101
+  - name: ADDR_816
+    description: 816.0.
+    value: 102
+  - name: ADDR_824
+    description: 824.0.
+    value: 103
+  - name: ADDR_832
+    description: 832.0.
+    value: 104
+  - name: ADDR_840
+    description: 840.0.
+    value: 105
+  - name: ADDR_848
+    description: 848.0.
+    value: 106
+  - name: ADDR_856
+    description: 856.0.
+    value: 107
+  - name: ADDR_864
+    description: 864.0.
+    value: 108
+  - name: ADDR_872
+    description: 872.0.
+    value: 109
+  - name: ADDR_880
+    description: 880.0.
+    value: 110
+  - name: ADDR_888
+    description: 888.0.
+    value: 111
+  - name: ADDR_896
+    description: 896.0.
+    value: 112
+  - name: ADDR_904
+    description: 904.0.
+    value: 113
+  - name: ADDR_912
+    description: 912.0.
+    value: 114
+  - name: ADDR_920
+    description: 920.0.
+    value: 115
+  - name: ADDR_928
+    description: 928.0.
+    value: 116
+  - name: ADDR_936
+    description: 936.0.
+    value: 117
+  - name: ADDR_944
+    description: 944.0.
+    value: 118
+  - name: ADDR_952
+    description: 952.0.
+    value: 119
+  - name: ADDR_960
+    description: 960.0.
+    value: 120
+  - name: ADDR_968
+    description: 968.0.
+    value: 121
+  - name: ADDR_976
+    description: 976.0.
+    value: 122
+  - name: ADDR_984
+    description: 984.0.
+    value: 123
+  - name: ADDR_992
+    description: 992.0.
+    value: 124
+  - name: ADDR_1000
+    description: 1000.0.
+    value: 125
+  - name: ADDR_1008
+    description: 1008.0.
+    value: 126
+  - name: ADDR_1016
+    description: 1016.0.
+    value: 127
+  - name: ADDR_1024
+    description: 1024.0.
+    value: 128
+  - name: ADDR_1032
+    description: 1032.0.
+    value: 129
+  - name: ADDR_1040
+    description: 1040.0.
+    value: 130
+  - name: ADDR_1048
+    description: 1048.0.
+    value: 131
+  - name: ADDR_1056
+    description: 1056.0.
+    value: 132
+  - name: ADDR_1064
+    description: 1064.0.
+    value: 133
+  - name: ADDR_1072
+    description: 1072.0.
+    value: 134
+  - name: ADDR_1080
+    description: 1080.0.
+    value: 135
+  - name: ADDR_1088
+    description: 1088.0.
+    value: 136
+  - name: ADDR_1096
+    description: 1096.0.
+    value: 137
+  - name: ADDR_1104
+    description: 1104.0.
+    value: 138
+  - name: ADDR_1112
+    description: 1112.0.
+    value: 139
+  - name: ADDR_1120
+    description: 1120.0.
+    value: 140
+  - name: ADDR_1128
+    description: 1128.0.
+    value: 141
+  - name: ADDR_1136
+    description: 1136.0.
+    value: 142
+  - name: ADDR_1144
+    description: 1144.0.
+    value: 143
+  - name: ADDR_1152
+    description: 1152.0.
+    value: 144
+  - name: ADDR_1160
+    description: 1160.0.
+    value: 145
+  - name: ADDR_1168
+    description: 1168.0.
+    value: 146
+  - name: ADDR_1176
+    description: 1176.0.
+    value: 147
+  - name: ADDR_1184
+    description: 1184.0.
+    value: 148
+  - name: ADDR_1192
+    description: 1192.0.
+    value: 149
+  - name: ADDR_1200
+    description: 1200.0.
+    value: 150
+  - name: ADDR_1208
+    description: 1208.0.
+    value: 151
+  - name: ADDR_1216
+    description: 1216.0.
+    value: 152
+  - name: ADDR_1224
+    description: 1224.0.
+    value: 153
+  - name: ADDR_1232
+    description: 1232.0.
+    value: 154
+  - name: ADDR_1240
+    description: 1240.0.
+    value: 155
+  - name: ADDR_1248
+    description: 1248.0.
+    value: 156
+  - name: ADDR_1256
+    description: 1256.0.
+    value: 157
+  - name: ADDR_1264
+    description: 1264.0.
+    value: 158
+  - name: ADDR_1272
+    description: 1272.0.
+    value: 159
+  - name: ADDR_1280
+    description: 1280.0.
+    value: 160
+  - name: ADDR_1288
+    description: 1288.0.
+    value: 161
+  - name: ADDR_1296
+    description: 1296.0.
+    value: 162
+  - name: ADDR_1304
+    description: 1304.0.
+    value: 163
+  - name: ADDR_1312
+    description: 1312.0.
+    value: 164
+  - name: ADDR_1320
+    description: 1320.0.
+    value: 165
+  - name: ADDR_1328
+    description: 1328.0.
+    value: 166
+  - name: ADDR_1336
+    description: 1336.0.
+    value: 167
+  - name: ADDR_1344
+    description: 1344.0.
+    value: 168
+  - name: ADDR_1352
+    description: 1352.0.
+    value: 169
+  - name: ADDR_1360
+    description: 1360.0.
+    value: 170
+  - name: ADDR_1368
+    description: 1368.0.
+    value: 171
+  - name: ADDR_1376
+    description: 1376.0.
+    value: 172
+  - name: ADDR_1384
+    description: 1384.0.
+    value: 173
+  - name: ADDR_1392
+    description: 1392.0.
+    value: 174
+  - name: ADDR_1400
+    description: 1400.0.
+    value: 175
+  - name: ADDR_1408
+    description: 1408.0.
+    value: 176
+  - name: ADDR_1416
+    description: 1416.0.
+    value: 177
+  - name: ADDR_1424
+    description: 1424.0.
+    value: 178
+  - name: ADDR_1432
+    description: 1432.0.
+    value: 179
+  - name: ADDR_1440
+    description: 1440.0.
+    value: 180
+  - name: ADDR_1448
+    description: 1448.0.
+    value: 181
+  - name: ADDR_1456
+    description: 1456.0.
+    value: 182
+  - name: ADDR_1464
+    description: 1464.0.
+    value: 183
+  - name: ADDR_1472
+    description: 1472.0.
+    value: 184
+  - name: ADDR_1480
+    description: 1480.0.
+    value: 185
+  - name: ADDR_1488
+    description: 1488.0.
+    value: 186
+  - name: ADDR_1496
+    description: 1496.0.
+    value: 187
+  - name: ADDR_1504
+    description: 1504.0.
+    value: 188
+  - name: ADDR_1512
+    description: 1512.0.
+    value: 189
+  - name: ADDR_1520
+    description: 1520.0.
+    value: 190
+  - name: ADDR_1528
+    description: 1528.0.
+    value: 191
+  - name: ADDR_1536
+    description: 1536.0.
+    value: 192
+  - name: ADDR_1544
+    description: 1544.0.
+    value: 193
+  - name: ADDR_1552
+    description: 1552.0.
+    value: 194
+  - name: ADDR_1560
+    description: 1560.0.
+    value: 195
+  - name: ADDR_1568
+    description: 1568.0.
+    value: 196
+  - name: ADDR_1576
+    description: 1576.0.
+    value: 197
+  - name: ADDR_1584
+    description: 1584.0.
+    value: 198
+  - name: ADDR_1592
+    description: 1592.0.
+    value: 199
+  - name: ADDR_1600
+    description: 1600.0.
+    value: 200
+  - name: ADDR_1608
+    description: 1608.0.
+    value: 201
+  - name: ADDR_1616
+    description: 1616.0.
+    value: 202
+  - name: ADDR_1624
+    description: 1624.0.
+    value: 203
+  - name: ADDR_1632
+    description: 1632.0.
+    value: 204
+  - name: ADDR_1640
+    description: 1640.0.
+    value: 205
+  - name: ADDR_1648
+    description: 1648.0.
+    value: 206
+  - name: ADDR_1656
+    description: 1656.0.
+    value: 207
+  - name: ADDR_1664
+    description: 1664.0.
+    value: 208
+  - name: ADDR_1672
+    description: 1672.0.
+    value: 209
+  - name: ADDR_1680
+    description: 1680.0.
+    value: 210
+  - name: ADDR_1688
+    description: 1688.0.
+    value: 211
+  - name: ADDR_1696
+    description: 1696.0.
+    value: 212
+  - name: ADDR_1704
+    description: 1704.0.
+    value: 213
+  - name: ADDR_1712
+    description: 1712.0.
+    value: 214
+  - name: ADDR_1720
+    description: 1720.0.
+    value: 215
+  - name: ADDR_1728
+    description: 1728.0.
+    value: 216
+  - name: ADDR_1736
+    description: 1736.0.
+    value: 217
+  - name: ADDR_1744
+    description: 1744.0.
+    value: 218
+  - name: ADDR_1752
+    description: 1752.0.
+    value: 219
+  - name: ADDR_1760
+    description: 1760.0.
+    value: 220
+  - name: ADDR_1768
+    description: 1768.0.
+    value: 221
+  - name: ADDR_1776
+    description: 1776.0.
+    value: 222
+  - name: ADDR_1784
+    description: 1784.0.
+    value: 223
+  - name: ADDR_1792
+    description: 1792.0.
+    value: 224
+  - name: ADDR_1800
+    description: 1800.0.
+    value: 225
+  - name: ADDR_1808
+    description: 1808.0.
+    value: 226
+  - name: ADDR_1816
+    description: 1816.0.
+    value: 227
+  - name: ADDR_1824
+    description: 1824.0.
+    value: 228
+  - name: ADDR_1832
+    description: 1832.0.
+    value: 229
+  - name: ADDR_1840
+    description: 1840.0.
+    value: 230
+  - name: ADDR_1848
+    description: 1848.0.
+    value: 231
+  - name: ADDR_1856
+    description: 1856.0.
+    value: 232
+  - name: ADDR_1864
+    description: 1864.0.
+    value: 233
+  - name: ADDR_1872
+    description: 1872.0.
+    value: 234
+  - name: ADDR_1880
+    description: 1880.0.
+    value: 235
+  - name: ADDR_1888
+    description: 1888.0.
+    value: 236
+  - name: ADDR_1896
+    description: 1896.0.
+    value: 237
+  - name: ADDR_1904
+    description: 1904.0.
+    value: 238
+  - name: ADDR_1912
+    description: 1912.0.
+    value: 239
+  - name: ADDR_1920
+    description: 1920.0.
+    value: 240
+  - name: ADDR_1928
+    description: 1928.0.
+    value: 241
+  - name: ADDR_1936
+    description: 1936.0.
+    value: 242
+  - name: ADDR_1944
+    description: 1944.0.
+    value: 243
+  - name: ADDR_1952
+    description: 1952.0.
+    value: 244
+  - name: ADDR_1960
+    description: 1960.0.
+    value: 245
+  - name: ADDR_1968
+    description: 1968.0.
+    value: 246
+  - name: ADDR_1976
+    description: 1976.0.
+    value: 247
+  - name: ADDR_1984
+    description: 1984.0.
+    value: 248
+  - name: ADDR_1992
+    description: 1992.0.
+    value: 249
+  - name: ADDR_2000
+    description: 2000.0.
+    value: 250
+  - name: ADDR_2008
+    description: 2008.0.
+    value: 251
+  - name: ADDR_2016
+    description: 2016.0.
+    value: 252
+  - name: ADDR_2024
+    description: 2024.0.
+    value: 253
+  - name: ADDR_2032
+    description: 2032.0.
+    value: 254
+  - name: ADDR_2040
+    description: 2040.0.
+    value: 255
+enum/IDX_FIFOSZ_DPB:
+  bit_size: 1
+  variants:
+  - name: SINGLE
+    description: Single packet buffering is supported.
+    value: 0
+  - name: DOUBLE
+    description: Double packet buffering is enabled.
+    value: 1
+enum/ISO:
+  bit_size: 1
+  variants:
+  - name: BULK_INT_TRANSFER
+    description: Enables the transmit endpoint for bulk or interrupt transfers.
+    value: 0
+  - name: ISO_TRANSFER
+    description: Enables the transmit endpoint for isochronous transfers.
+    value: 1
+enum/MODE:
+  bit_size: 1
+  variants:
+  - name: RX
+    description: Enables the endpoint direction as RX.
+    value: 0
+  - name: TX
+    description: Enables the endpoint direction as TX.
+    value: 1
+enum/PHYMODE:
+  bit_size: 1
+  variants:
+  - name: GPIO
+    description: The DP/DM pins are assighed to IOMUX/GPIO module,.
+    value: 0
+  - name: USB
+    description: The DP/DM pins are assighed to USB module.
+    value: 1
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/RAMBITS:
+  bit_size: 4
+  variants:
+  - name: RAM_1KB
+    description: USB FIFO RAM size is 1kB.
+    value: 8
+  - name: RAM_2KB
+    description: USB FIFO RAM size is 2kB.
+    value: 9
+  - name: RAM_4KB
+    description: USB FIFO RAM size is 4kB.
+    value: 10
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177
+enum/RXCSRL_STALLED:
+  bit_size: 1
+  variants:
+  - name: STALLED_WAIT
+    description: No handshake has been received.
+    value: 0
+  - name: STALLED_RECEIVE
+    description: A STALL handshake has been received. The EPn bit in the USBRXIS register is also set.
+    value: 1
+enum/RXTYPE_PROTO:
+  bit_size: 2
+  variants:
+  - name: CTRL
+    description: Control.
+    value: 0
+  - name: ISO
+    description: isochronous.
+    value: 1
+  - name: BULK
+    description: Bulk.
+    value: 2
+  - name: INT
+    description: Interrupt.
+    value: 3
+enum/RX_EDMA:
+  bit_size: 1
+  variants:
+  - name: LATE
+    description: 'Late mode: DMA_REQ signal for all OUT Endpoints will be de-asserted when MAXP bytes have been read to an endpoint.'
+    value: 0
+  - name: EARLY
+    description: 'Early Mode: DMA_REQ signal for all OUT Endpoints will be de-asserted when MAXP-8 bytes have been read to an endpoint.'
+    value: 1
+enum/SOFT_CONN:
+  bit_size: 1
+  variants:
+  - name: TRISTATE
+    description: The USB D+/D- lines are tri-stated.
+    value: 0
+  - name: ENABLE
+    description: The USB D+/D- lines are enabled.
+    value: 1
+enum/STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No bit is set means there is no pending interrupt request.
+    value: 0
+  - name: INTRTX
+    description: Endpoint 0 and the TX Endpoints interrupt.
+    value: 1
+  - name: INTRRX
+    description: RX Endpoints interrupt.
+    value: 2
+  - name: INTRUSB
+    description: USB Interrupts.
+    value: 3
+  - name: VUSBPWRDN
+    description: VUSB power down.
+    value: 4
+  - name: DMADONEARX
+    description: DMA-Done interrupt for Trigger USB-A-RX.
+    value: 5
+  - name: DMADONEATX
+    description: DMA-Done interrupt for Trigger USB-A-TX.
+    value: 6
+  - name: DMADONEBRX
+    description: DMA-Done interrupt for Trigger USB-B-RX.
+    value: 7
+  - name: DMADONEBTX
+    description: DMA-Done interrupt for Trigger USB-B-TX.
+    value: 8
+  - name: DMADONECRX
+    description: DMA-Done interrupt for Trigger USB-C-RX.
+    value: 9
+  - name: DMADONECTX
+    description: DMA-Done interrupt for Trigger USB-C-TX.
+    value: 10
+  - name: DMADONEDRX
+    description: DMA-Done interrupt for Trigger USB-D-RX.
+    value: 11
+  - name: DMADONEDTX
+    description: DMA-Done interrupt for Trigger USB-D-TX.
+    value: 12
+  - name: DMAPREARX
+    description: DMA-Pre interrupt for Trigger USB-A-RX.
+    value: 13
+  - name: DMAPREATX
+    description: DMA-Pre interrupt for Trigger USB-A-TX.
+    value: 14
+  - name: DMAPREBRX
+    description: DMA-Pre interrupt for Trigger USB-B-RX.
+    value: 15
+  - name: DMAPREBTX
+    description: DMA-Pre interrupt for Trigger USB-B-TX.
+    value: 16
+  - name: DMAPRECRX
+    description: DMA-Pre interrupt for Trigger USB-C-RX.
+    value: 17
+  - name: DMAPRECTX
+    description: DMA-Pre interrupt for Trigger USB-C-TX.
+    value: 18
+  - name: DMAPREDRX
+    description: DMA-Pre interrupt for Trigger USB-D-RX.
+    value: 19
+  - name: DMAPREDTX
+    description: DMA-Pre interrupt for Trigger USB-D-TX.
+    value: 20
+enum/TXTYPE_PROTO:
+  bit_size: 2
+  variants:
+  - name: CTRL
+    description: Control.
+    value: 0
+  - name: ISO
+    description: isochronous.
+    value: 1
+  - name: BULK
+    description: Bulk.
+    value: 2
+  - name: INT
+    description: Interrupt.
+    value: 3
+enum/TX_EDMA:
+  bit_size: 1
+  variants:
+  - name: LATE
+    description: 'Late mode: DMA_REQ signal for all IN Endpoints will be de-asserted when MAXP bytes have been written to an endpoint. This is late mode.'
+    value: 0
+  - name: EARLY
+    description: 'Early mode: DMA_REQ signal for all IN Endpoints will be de-asserted when MAXP-8 bytes have been written to an endpoint. This is early mode.'
+    value: 1
+enum/VUSB:
+  bit_size: 2
+  variants:
+  - name: NOT_POWERED
+    description: VUSB / USB-PHY supply is detected as under 1.35V.
+    value: 0
+  - name: POWERED
+    description: VUSB / USB-PHY supply is detected as above 1.35V.
+    value: 3

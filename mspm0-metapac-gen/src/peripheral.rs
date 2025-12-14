@@ -19,6 +19,7 @@ const GENERATE_PERIPHERALS: &[PeripheralType] = &[
     PeripheralType::Sysctl,
     PeripheralType::Tim,
     PeripheralType::Uart,
+    PeripheralType::Usbfs,
     PeripheralType::Wwdt,
 ];
 
