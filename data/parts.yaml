@@ -254,10 +254,14 @@ families:
     - name: RAM_BANK
       length: 64
       address: 0x20210000
-    # SLASFA2 (November 2024) states that G1518 has no orderable parts
-    #
-    # This will likely change in the future as the chip is "prerelease"
     packages:
+    - PM
+    - PN
+    - PT
+    - PZ
+    - RGZ
+    - RHB
+    - ZAW
 
   - name: mspm0g1519
     memory:
@@ -275,10 +279,14 @@ families:
     - name: RAM_BANK
       length: 64
       address: 0x20210000
-    # TODO: SLASFA2 does not list all packages yet
     packages:
+    - PM
+    - PN
+    - PT
+    - PZ
     - RGZ
     - RHB
+    # - ZAW # SLASFA2B does not list ZAW for 1519, but does for 1518
 
 - family: mspm0g310x
   datasheet_url: https://www.ti.com/lit/gpn/mspm0g3107
@@ -398,10 +406,13 @@ families:
     - name: RAM_BANK
       length: 64
       address: 0x20210000
-    # SLASFA2 (November 2024) states that G1518 has no orderable parts
-    #
-    # This will likely change in the future as the chip is "prerelease"
     packages:
+    - PM
+    - PN
+    - PT
+    - PZ
+    - RGZ
+    - RHB
 
   - name: mspm0g3519
     memory:
@@ -419,13 +430,39 @@ families:
     - name: RAM_BANK
       length: 64
       address: 0x20210000
-    # TODO: SLASFA2 does not list all packages yet
     packages:
     - PM
     - PN
+    - PT
     - PZ
     - RGZ
     - RHB
+    - ZAW
+
+- family: mspm0g518x
+  datasheet_url: https://www.ti.com/lit/gpn/mspm0g5187
+  # FIXME: As of Dec 2025, this still points to a revision of the reference manual which does not describe G51xx specific registers.
+  reference_manual_url: https://www.ti.com/lit/pdf/slau846
+  errata_url: https://www.ti.com/lit/pdf/slvsjm6
+  adc_vrsel: VDD_INTREF
+  part_numbers:
+  - name: mspm0g5187
+    memory:
+    - name: FLASH
+      length: 128
+      address: 0x00000000
+    - name: RAM
+      length: 32
+      address: 0x20200000
+    packages:
+    - PM
+    - PT
+    - RGZ
+    - RHB
+    - YCJ
+    - RUY
+    - RGE
+    - DGS
 
 ## H Series
 - family: mspm0h321x

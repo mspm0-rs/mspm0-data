@@ -43,11 +43,12 @@ fn generate_peripheral_imports(
 
     peripheral_types
         .iter()
-        .map(|(name, peripheral)| generate_import(name, peripheral, all_versions))
+        .map(|(name, peripheral)| generate_import(chip, name, peripheral, all_versions))
         .collect()
 }
 
 fn generate_import(
+    _chip: &Chip,
     _name: &str,
     peripheral: &Peripheral,
     all_versions: &mut BTreeMap<String, BTreeSet<String>>,
