@@ -1,4 +1,4 @@
-use std::{borrow::Cow, cmp::Ordering, collections::BTreeMap, fs, sync::LazyLock};
+use std::{borrow::Cow, cmp::Ordering, collections::{BTreeMap, BTreeSet}, fs, sync::LazyLock};
 
 use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
@@ -527,6 +527,9 @@ fn generate_missing(
         },
     );
 
+    // Some devices duplicate the pins multiple times (such as C110x with PA1 and NRST sharing the same physical pin).
+    let mut device_pins = BTreeSet::new();
+
     // GPIO peripherals are not described in sysconfig.
     for device_pin in sysconfig.device_pins.values() {
         if let Some(captures) = GPIO_PIN.captures(&device_pin.name) {
@@ -561,12 +564,14 @@ fn generate_missing(
                 .unwrap_or_else(|| &device_pin.name)
                 .to_string();
 
-            gpio.pins.push(PeripheralPin {
-                pin: pin.clone(),
-                signal: pin,
-                // GPIO always has a PF of 1
-                pf: Some(1),
-            });
+            if device_pins.insert(pin.clone()) {
+                gpio.pins.push(PeripheralPin {
+                    pin: pin.clone(),
+                    signal: pin,
+                    // GPIO always has a PF of 1
+                    pf: Some(1),
+                });
+            }
         }
     }
 

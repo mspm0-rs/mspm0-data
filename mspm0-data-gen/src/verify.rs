@@ -1,4 +1,4 @@
-use std::sync::LazyLock;
+use std::{collections::HashSet, sync::LazyLock};
 
 use anyhow::{bail, Context};
 use mspm0_data_types::{Chip, PowerDomain};
@@ -8,6 +8,8 @@ pub fn verify(chip: &Chip, name: &str) -> anyhow::Result<()> {
     core_peripherals(chip, name)?;
 
     pin_names(chip, name)?;
+
+    gpio_no_duplicates(chip, name)?;
 
     // Peripherals which don't actually exist
     no_gpamp_c110x_l151x(chip, name)?;
@@ -85,6 +87,20 @@ fn pin_names(chip: &Chip, name: &str) -> anyhow::Result<()> {
                 let pin = &pin.pin;
 
                 bail!("{name}, {peripheral_name}: pin {pin} contains invalid characters");
+            }
+        }
+    }
+
+    Ok(())
+}
+
+fn gpio_no_duplicates(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    for (_, peripheral) in chip.peripherals.iter().filter(|(name, _)| name.starts_with("GPIO")) {
+        let mut signals = HashSet::new();
+
+        for pin in peripheral.pins.iter() {
+            if !signals.insert(&pin.pin) {
+                bail!("{name}: {} contains multiple pins of {}", peripheral.name, pin.pin);
             }
         }
     }
