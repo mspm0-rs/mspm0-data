@@ -88,12 +88,12 @@ fieldset/CTL:
   description: Controls the command and decimation rate.
   fields:
   - name: CMD
-    description: Sets the TRNG mode through a command. The mode will not be updated until the previous command is done, as indicated by IRQ_CMD_DONE. 00 --> OFF 01 --> PWRUP_DIG 10 --> PWRUP_ANA 11 --> NORM_FUNC.
+    description: Sets the TRNG mode through a command. The mode will not be updated until the previous command is done, as indicated by IRQ_CMD_DONE.
     bit_offset: 0
     bit_size: 2
     enum: CMD
   - name: DECIM_RATE
-    description: Set decimation rate. Decimate by n 0x0 = Decimation by 1 (no decimation) 0x1 = Decimation by 2 (Skip every other sample) 0x7 = Decimation by 8 (Take every 8th sample).
+    description: Set decimation rate.
     bit_offset: 8
     bit_size: 3
     enum: DECIM_RATE
@@ -102,12 +102,12 @@ fieldset/CTL:
     bit_offset: 16
     bit_size: 1
   - name: PWRUP_PCHRG_CFG
-    description: Configure PCHARGE sequence length b00 = Disabled b01 = 20 us PCHARGE b10 = 30 us PCHARGE (default) b11 = 40 us PCHARGE.
+    description: Configure PCHARGE sequence length.
     bit_offset: 17
     bit_size: 2
     enum: PWRUP_PCHRG
   - name: PWRUP_PSTART_CFG
-    description: Configure pusle startup sequence length b00 = Disabled b01 = rise at 10us, fall at 50us b10 = rise at 10us, fall at 70us (default) b11 = rise at 10us, fall at 90us.
+    description: Configure pulse startup sequence length.
     bit_offset: 19
     bit_size: 2
     enum: PWRUP_PSTART
@@ -138,7 +138,7 @@ fieldset/GPRCM_STAT:
   description: Status Register.
   fields:
   - name: RESETSTKY
-    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    description: This bit indicates if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
     bit_offset: 16
     bit_size: 1
 fieldset/IIDX:
@@ -208,12 +208,12 @@ fieldset/STAT:
     bit_offset: 1
     bit_size: 1
   - name: ISSUED_CMD
-    description: Indicates the last accepted command that is issued to the TRNG interface. Upon writing a valid command, this register will update and the command will be in progress until CMD_DONE_IRQ is set. CMD_DONE_IRQ indicates that the state is in PWROFF, NORM_FUNC, or ERROR. These states will accept new commands. 00 --> OFF 01 --> PWRUP_DIG 10 --> PWRUP_ANA 11 --> NORM_FUNC.
+    description: Indicates the last accepted command that is issued to the TRNG interface. Upon writing a valid command, this register will update and the command will be in progress until CMD_DONE_IRQ is set. CMD_DONE_IRQ indicates that the state is in PWROFF, NORM_FUNC, or ERROR. These states will accept new commands.
     bit_offset: 8
     bit_size: 2
     enum: CMD
   - name: FSM_STATE
-    description: 'Current state of the front end FSM (behind a clock domain crossing). 2 reads are REQUIRED as there is a chance of metastability when reading this States: 0000: OFF 0001: PWRUP_ES 0011: NORM_FUNC 0111: TEST_DIG 1011: TEST_ANA 1010: ERROR 0010: PWRDOWN_ES.'
+    description: Current state of the front end FSM (behind a clock domain crossing). 2 reads are REQUIRED as there is a chance of metastability when reading this.
     bit_offset: 16
     bit_size: 4
     enum: FSM_STATE
@@ -221,7 +221,7 @@ fieldset/TEST_RESULTS:
   description: Test results from TEST_ANA and TEST_DIG.
   fields:
   - name: DIG_TEST
-    description: Indicates if the decimation rate test and health test (verifies conditioning, decimation, and captured buffer) fails.
+    description: Indicates if the decimation rate test and health test (verifies conditioning, decimation, and captured buffer) has succeeded.
     bit_offset: 0
     bit_size: 1
     array:
@@ -238,10 +238,10 @@ enum/CMD:
     description: Turns the power off of the analog source and clocks the digital interface.
     value: 0
   - name: PWRUP_DIG
-    description: Initiates the powerup test sequence for the digital components. This verifies that the digital components are properly working. IRQ_CMD_DONE indicates that the test is done. The results of this test are in bits 0:6 in TEST_RESULTS register.
+    description: Initiates the powerup test sequence for the digital components. This verifies that the digital components are properly working. IRQ_CMD_DONE indicates that the test is done. The results of this test are in DIG_TEST of the TEST_RESULTS register.
     value: 1
   - name: PWRUP_ANA
-    description: Initiates the powerup test sequence for the analog TRNG. This verifies that the analog component is generating sequences with enough entropy. IRQ_CMD_DONE indicates that the test is done. The results of this test are in bit 7 in TEST_RESULTS register.
+    description: Initiates the powerup test sequence for the analog TRNG. This verifies that the analog component is generating sequences with enough entropy. IRQ_CMD_DONE indicates that the test is done. The results of this test are ANA_TEST of the TEST_RESULTS register.
     value: 2
   - name: NORM_FUNC
     description: Normal operating mode for TRNG. All components are turned on.
