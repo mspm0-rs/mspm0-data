@@ -1,0 +1,366 @@
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: STAT
+    description: Status Register.
+    byte_offset: 20
+    access: Read
+    fieldset: GPRCM_STAT
+block/TRNG:
+  description: PERIPHERALREGION.
+  items:
+  - name: GPRCM
+    byte_offset: 2048
+    block: GPRCM
+  - name: IIDX
+    description: Interrupt index.
+    byte_offset: 4128
+    access: Read
+    fieldset: IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 4136
+    fieldset: INT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 4144
+    access: Read
+    fieldset: INT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 4152
+    access: Read
+    fieldset: INT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 4160
+    access: Write
+    fieldset: INT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 4168
+    access: Write
+    fieldset: INT
+  - name: DESC
+    description: Module descriptions.
+    byte_offset: 4348
+    access: Read
+    fieldset: DESC
+  - name: CTL
+    description: Controls the command and decimation rate.
+    byte_offset: 4352
+    fieldset: CTL
+  - name: STAT
+    description: Status register that informs health test results and last issued command.
+    byte_offset: 4356
+    access: Read
+    fieldset: STAT
+  - name: DATA_CAPTURE
+    description: Captured word buffer of RNG data.
+    byte_offset: 4360
+    access: Read
+  - name: TEST_RESULTS
+    description: Test results from TEST_ANA and TEST_DIG.
+    byte_offset: 4364
+    access: Read
+    fieldset: TEST_RESULTS
+  - name: CLKDIV
+    description: Clock Divider.
+    byte_offset: 4368
+    fieldset: CLKDIV
+fieldset/CLKDIV:
+  description: Clock Divider.
+  fields:
+  - name: RATIO
+    description: Selects divide ratio of module clock.
+    bit_offset: 0
+    bit_size: 3
+    enum: RATIO
+fieldset/CTL:
+  description: Controls the command and decimation rate.
+  fields:
+  - name: CMD
+    description: Sets the TRNG mode through a command. The mode will not be updated until the previous command is done, as indicated by IRQ_CMD_DONE.
+    bit_offset: 0
+    bit_size: 2
+    enum: CMD
+  - name: DECIM_RATE
+    description: Set decimation rate.
+    bit_offset: 8
+    bit_size: 3
+    enum: DECIM_RATE
+  - name: PWRUP_CLKDIV
+    description: When '1', the powerup sequence will take twice as long (i.e., clock frequency halved).
+    bit_offset: 16
+    bit_size: 1
+  - name: PWRUP_PCHRG_CFG
+    description: Configure PCHARGE sequence length.
+    bit_offset: 17
+    bit_size: 2
+    enum: PWRUP_PCHRG
+  - name: PWRUP_PSTART_CFG
+    description: Configure pulse startup sequence length.
+    bit_offset: 19
+    bit_size: 2
+    enum: PWRUP_PSTART
+fieldset/DESC:
+  description: Module descriptions.
+  fields:
+  - name: MINREV
+    description: Minor rev of the IP.
+    bit_offset: 0
+    bit_size: 4
+  - name: MAJREV
+    description: Major rev of the IP.
+    bit_offset: 4
+    bit_size: 4
+  - name: INSTNUM
+    description: Instance Number within the device. This will be a parameter to the RTL for modules that can have multiple instances.
+    bit_offset: 8
+    bit_size: 4
+  - name: FEATUREVER
+    description: Feature Set for the module *instance*.
+    bit_offset: 12
+    bit_size: 4
+  - name: MODULEID
+    description: Module Identifier - An internal TI page has been created to request unique module IDs.
+    bit_offset: 16
+    bit_size: 16
+fieldset/GPRCM_STAT:
+  description: Status Register.
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+fieldset/IIDX:
+  description: Interrupt index.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 8
+    enum: STAT
+fieldset/INT:
+  description: Interrupt mask.
+  fields:
+  - name: IRQ_HEALTH_FAIL
+    description: Mask for IRQ_HEALTH_FAIL. Indicates that a health test has failed.
+    bit_offset: 0
+    bit_size: 1
+  - name: IRQ_CMD_FAIL
+    description: Masked interrupt source for IRQ_CMD_FAIL. Indicates that the just issued command/mode has been rejected.
+    bit_offset: 1
+    bit_size: 1
+  - name: IRQ_CMD_DONE
+    description: Mask for IRQ_CMD_DONE. Indicates that a command has finished.
+    bit_offset: 2
+    bit_size: 1
+  - name: IRQ_CAPTURED_RDY
+    description: Mask for IRQ_CAPTURED_RDY. Indicates to the CPU that the Captured Word is ready to be read.
+    bit_offset: 3
+    bit_size: 1
+fieldset/PWREN:
+  description: Power enable.
+  fields:
+  - name: ENABLE
+    description: Enable the power.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change.
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral.
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register.
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key.
+    bit_offset: 24
+    bit_size: 8
+    enum: RSTCTL_KEY
+fieldset/STAT:
+  description: Status register that informs health test results and last issued command.
+  fields:
+  - name: ADAP_FAIL
+    description: Indicates that the Adaptive Proportion Test (1,2,3, or 4-bit counters) failed by having too many or too few counted samples in the last 1024 bit window.
+    bit_offset: 0
+    bit_size: 1
+  - name: REP_FAIL
+    description: Indicates that the repetition counter test caused the most recent failure. Thus, the health count numbers are most likely not for a complete 1024-bit window.
+    bit_offset: 1
+    bit_size: 1
+  - name: ISSUED_CMD
+    description: Indicates the last accepted command that is issued to the TRNG interface. Upon writing a valid command, this register will update and the command will be in progress until CMD_DONE_IRQ is set. CMD_DONE_IRQ indicates that the state is in PWROFF, NORM_FUNC, or ERROR. These states will accept new commands.
+    bit_offset: 8
+    bit_size: 2
+    enum: CMD
+  - name: FSM_STATE
+    description: Current state of the front end FSM (behind a clock domain crossing). 2 reads are REQUIRED as there is a chance of metastability when reading this.
+    bit_offset: 16
+    bit_size: 4
+    enum: FSM_STATE
+fieldset/TEST_RESULTS:
+  description: Test results from TEST_ANA and TEST_DIG.
+  fields:
+  - name: DIG_TEST
+    description: Indicates if the decimation rate test and health test (verifies conditioning, decimation, and captured buffer) has succeeded.
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 8
+      stride: 1
+  - name: ANA_TEST
+    description: Runs through 4096 samples from an enabled entropy source and verifies that none of the health tests failed, indicating sufficient entropy was produced by the analog components.
+    bit_offset: 8
+    bit_size: 1
+enum/CMD:
+  bit_size: 2
+  variants:
+  - name: PWR_OFF
+    description: Turns the power off of the analog source and clocks the digital interface.
+    value: 0
+  - name: PWRUP_DIG
+    description: Initiates the powerup test sequence for the digital components. This verifies that the digital components are properly working. IRQ_CMD_DONE indicates that the test is done. The results of this test are in DIG_TEST of the TEST_RESULTS register.
+    value: 1
+  - name: PWRUP_ANA
+    description: Initiates the powerup test sequence for the analog TRNG. This verifies that the analog component is generating sequences with enough entropy. IRQ_CMD_DONE indicates that the test is done. The results of this test are ANA_TEST of the TEST_RESULTS register.
+    value: 2
+  - name: NORM_FUNC
+    description: Normal operating mode for TRNG. All components are turned on.
+    value: 3
+enum/DECIM_RATE:
+  bit_size: 3
+  variants:
+  - name: DECIM_1
+    description: Decimation by 1 (no decimation)
+    value: 0
+  - name: DECIM_2
+    description: Decimation by 2 (skip every other sample)
+    value: 1
+  - name: DECIM_3
+    description: Decimation by 3 (take every 3rd sample)
+    value: 2
+  - name: DECIM_4
+    description: Decimation by 4 (take every 4th sample)
+    value: 3
+  - name: DECIM_5
+    description: Decimation by 5 (take every 5th sample)
+    value: 4
+  - name: DECIM_6
+    description: Decimation by 6 (take every 6th sample)
+    value: 5
+  - name: DECIM_7
+    description: Decimation by 7 (take every 7th sample)
+    value: 6
+  - name: DECIM_8
+    description: Decimation by 8 (take every 8th sample)
+    value: 7
+enum/FSM_STATE:
+  bit_size: 4
+  variants:
+  - name: OFF
+    value: 0
+  - name: PWRUP_ES
+    value: 1
+  - name: PWRDOWN_ES
+    value: 2
+  - name: NORM_FUNC
+    value: 3
+  - name: TEST_DIG
+    value: 7
+  - name: ERROR
+    value: 10
+  - name: TEST_ANA
+    value: 11
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/PWRUP_PCHRG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    value: 0
+  - name: US_20
+    description: 20 us PCHARGE
+    value: 1
+  - name: US_30
+    description: 30 us PCHARGE (default)
+    value: 2
+  - name: US_40
+    description: 40 us PCHARGE
+    value: 3
+enum/PWRUP_PSTART:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    value: 0
+  - name: RISE_10_FALL_50
+    description: rise at 10us, fall at 50us
+    value: 1
+  - name: RISE_10_FALL_70
+    description: rise at 10us, fall at 70us (default)
+    value: 2
+  - name: RISE_10_FALL_90
+    description: rise at 10us, fall at 90us
+    value: 3
+enum/RATIO:
+  bit_size: 3
+  variants:
+  - name: DIV_BY_1
+    description: Do not divide clock source.
+    value: 0
+  - name: DIV_BY_2
+    description: Divide clock source by 2.
+    value: 1
+  - name: DIV_BY_4
+    description: Divide clock source by 4.
+    value: 3
+  - name: DIV_BY_6
+    description: Divide clock source by 6.
+    value: 5
+  - name: DIV_BY_8
+    description: Divide clock source by 8.
+    value: 7
+enum/RSTCTL_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177
+enum/STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No bit is set means there is no pending interrupt request.
+    value: 0
+  - name: IRQ_HEALTH_FAIL
+    description: Indicates that a health test has failed. The TRNG is in an error state until the interrupt is cleared.
+    value: 1
+  - name: IRQ_CMD_FAIL
+    description: Indicates that the just issued command was rejected and is not being performed.
+    value: 2
+  - name: IRQ_CMD_DONE
+    description: 'Indicates that the current command/mode is done. This may have different meanings based on the mode: OFF --> Power has been turned off PWRUP_DIG --> Digital powerup tests are done PWRUP_ANA --> Analog powerup tests are done NORM_FUNC --> No IRQ, since mode runs indefinitely until a new command is issued.'
+    value: 3
+  - name: IRQ_CAPTURED_RDY
+    description: Indicates that the captured word buffer is ready to be copied to memory.
+    value: 4

@@ -1,0 +1,228 @@
+transforms:
+  - !DeleteUselessEnums
+
+  # Remove specific enums patterns found in the TRNG SVD
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+    
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+  
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+  
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  # Remove useless prefixes
+  - !Rename
+    type: All
+    from: TRNG_(.+)
+    to: $1
+
+  - !RenameRegisters
+    block: .*
+    from: TRNG_(.+)
+    to: $1
+
+  - !RenameRegisters
+    block: GPRCM
+    from: GPRCM_(.+)
+    to: $1
+
+  # Rename CLKDIVIDE Register -> CLKDIV
+  - !RenameRegisters
+    block: TRNG
+    from: CLKDIVIDE
+    to: CLKDIV
+
+  # Rename CLKDIVIDE Fieldset -> CLKDIV
+  - !Rename
+    type: Fieldset
+    from: CLKDIVIDE
+    to: CLKDIV
+
+  # These interrupt fields are all the same layout
+  - !MergeFieldsets
+    from: (RIS|MIS|IMASK|ISET|ICLR)
+    to: INT
+    main: IMASK
+
+  # Add missing Enums for fields with values defined in the description
+  - !Add
+    ir:
+      enum/DECIM_RATE:
+        bit_size: 3
+        variants:
+        - name: DECIM_1
+          description: Decimation by 1 (no decimation)
+          value: 0
+        - name: DECIM_2
+          description: Decimation by 2 (skip every other sample)
+          value: 1
+        - name: DECIM_3
+          description: Decimation by 3 (take every 3rd sample)
+          value: 2
+        - name: DECIM_4
+          description: Decimation by 4 (take every 4th sample)
+          value: 3
+        - name: DECIM_5
+          description: Decimation by 5 (take every 5th sample)
+          value: 4
+        - name: DECIM_6
+          description: Decimation by 6 (take every 6th sample)
+          value: 5
+        - name: DECIM_7
+          description: Decimation by 7 (take every 7th sample)
+          value: 6
+        - name: DECIM_8
+          description: Decimation by 8 (take every 8th sample)
+          value: 7
+      enum/PWRUP_PCHRG:
+        bit_size: 2
+        variants:
+        - name: DISABLE
+          value: 0
+        - name: US_20
+          description: 20 us PCHARGE
+          value: 1
+        - name: US_30
+          description: 30 us PCHARGE (default)
+          value: 2
+        - name: US_40
+          description: 40 us PCHARGE
+          value: 3
+      enum/PWRUP_PSTART:
+        bit_size: 2
+        variants:
+        - name: DISABLE
+          value: 0
+        - name: RISE_10_FALL_50
+          description: rise at 10us, fall at 50us
+          value: 1
+        - name: RISE_10_FALL_70
+          description: rise at 10us, fall at 70us (default)
+          value: 2
+        - name: RISE_10_FALL_90
+          description: rise at 10us, fall at 90us
+          value: 3
+      enum/FSM_STATE:
+        bit_size: 4
+        variants:
+        - name: OFF
+          value: 0
+        - name: PWRUP_ES
+          value: 1
+        - name: PWRDOWN_ES
+          value: 2
+        - name: NORM_FUNC
+          value: 3
+        - name: TEST_DIG
+          value: 7
+        - name: ERROR
+          value: 10
+        - name: TEST_ANA
+          value: 11
+
+  # Attach the new Enums to their fields
+  - !ModifyFieldsEnum
+    fieldset: CTL
+    field: DECIM_RATE
+    enum: DECIM_RATE
+
+  - !ModifyFieldsEnum
+    fieldset: CTL
+    field: PWRUP_PCHRG_CFG
+    enum: PWRUP_PCHRG
+
+  - !ModifyFieldsEnum
+    fieldset: CTL
+    field: PWRUP_PSTART_CFG
+    enum: PWRUP_PSTART
+
+  - !ModifyFieldsEnum
+    fieldset: STAT
+    field: FSM_STATE
+    enum: FSM_STATE
+
+  # Reuse the existing CMD enum for the Status register
+  - !ModifyFieldsEnum
+    fieldset: STAT
+    field: ISSUED_CMD
+    enum: CMD
+
+  # Cleanup TEST_RESULTS: Split DIG_TEST into DIG_TEST[8]
+  - !DeleteFields
+    fieldset: TEST_RESULTS
+    from: DIG_TEST
+
+  - !AddFields
+    fieldset: TEST_RESULTS
+    fields:
+    - name: DIG_TEST
+      description: Indicates if the decimation rate test and health test (verifies conditioning, decimation, and captured buffer) fails.
+      bit_offset: 0
+      bit_size: 1
+      array:
+        len: 8
+        stride: 1
+  
+  # Remove useless array in GPRCM
+  - !DeleteRegisters
+    block: TRNG
+    from: GPRCM
+  
+  - !AddRegisters
+    block: TRNG
+    registers:
+    - name: GPRCM
+      byte_offset: 2048
+      block: GPRCM
+
+  # Add missing KEY fields
+  - !Add
+    ir:
+      enum/PWREN_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 38 #26h
+      enum/RSTCTL_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 177 #B1h
+
+  - !AddFields
+    fieldset: PWREN
+    fields:
+    - name: KEY
+      description: KEY to allow Power State Change.
+      bit_offset: 24
+      bit_size: 8
+      enum: PWREN_KEY
+  
+  - !AddFields
+    fieldset: RSTCTL
+    fields:
+    - name: KEY
+      description: Unlock key.
+      bit_offset: 24
+      bit_size: 8
+      enum: RSTCTL_KEY
+
+  # Remove the empty/unused fieldsets left behind by the merge
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  # Cleanup
+  - !Sort
