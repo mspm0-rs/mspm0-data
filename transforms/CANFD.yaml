@@ -33,7 +33,7 @@ transforms:
   - !Rename
     type: Block
     from: CANFD0
-    to: GPRCM
+    to: CANFD
 
   # Remove CANFD0 prefixes
   - !RenameRegisters
@@ -57,10 +57,6 @@ transforms:
     to: $1
 
   # Rename blocks
-  - !Rename
-    type: Block
-    from: MCAN
-    to: CANFD
 
   - !Rename
     type: Block

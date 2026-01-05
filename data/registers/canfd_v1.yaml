@@ -1,4 +1,158 @@
 block/CANFD:
+  description: PERIPHERALREGION.
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 26624
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 26628
+    access: Write
+    fieldset: RSTCTL
+  - name: STAT
+    description: Status Register.
+    byte_offset: 26644
+    access: Read
+    fieldset: STAT
+  - name: MCAN
+    array:
+      len: 1
+      stride: 252
+    byte_offset: 28672
+    block: MCAN
+  - name: TI_WRAPPER
+    array:
+      len: 1
+      stride: 2560
+    byte_offset: 29184
+    block: TI_WRAPPER
+block/CPU_INT:
+  items:
+  - name: IIDX
+    description: Interrupt Index Register.
+    byte_offset: 0
+    access: Read
+    fieldset: IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: CPU_INT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: CPU_INT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: CPU_INT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: CPU_INT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: CPU_INT
+block/ECC:
+  items:
+  - name: ERR_REV
+    description: MCAN Error Aggregator Revision Register.
+    byte_offset: 0
+    access: Read
+    fieldset: ERR_REV
+  - name: ERR_VECTOR
+    description: MCAN ECC Vector Register.
+    byte_offset: 8
+    fieldset: ERR_VECTOR
+  - name: ERR_STAT
+    description: MCAN Error Misc Status.
+    byte_offset: 12
+    access: Read
+    fieldset: ERR_STAT
+  - name: ERR_WRAP_REV
+    description: MCAN ECC Wrapper Revision Register.
+    byte_offset: 16
+    access: Read
+    fieldset: ERR_WRAP_REV
+  - name: ERR_CTRL
+    description: MCAN ECC Control.
+    byte_offset: 20
+    fieldset: ERR_CTRL
+  - name: ERR_ERR_CTRL1
+    description: MCAN ECC Error Control 1 Register.
+    byte_offset: 24
+    fieldset: ERR_ERR_CTRL1
+  - name: ERR_ERR_CTRL2
+    description: MCAN ECC Error Control 2 Register.
+    byte_offset: 28
+    fieldset: ERR_ERR_CTRL2
+  - name: ERR_ERR_STAT1
+    description: MCAN ECC Error Status 1 Register.
+    byte_offset: 32
+    fieldset: ERR_ERR_STAT1
+  - name: ERR_ERR_STAT2
+    description: MCAN ECC Error Status 2 Register.
+    byte_offset: 36
+    access: Read
+    fieldset: ERR_ERR_STAT2
+  - name: ERR_ERR_STAT3
+    description: MCAN ECC Error Status 3 Register.
+    byte_offset: 40
+    fieldset: ERR_ERR_STAT3
+  - name: ERR_SEC_EOI
+    description: MCAN Single Error Corrected End of Interrupt Register.
+    byte_offset: 60
+    fieldset: ERR_SEC_EOI
+  - name: ERR_SEC_STATUS
+    description: MCAN Single Error Corrected Interrupt Status Register.
+    byte_offset: 64
+    fieldset: ERR_SEC_STATUS
+  - name: ERR_SEC_ENABLE_SET
+    description: MCAN Single Error Corrected Interrupt Enable Set Register.
+    byte_offset: 128
+    fieldset: ERR_SEC_ENABLE_SET
+  - name: ERR_SEC_ENABLE_CLR
+    description: MCAN Single Error Corrected Interrupt Enable Clear Register.
+    byte_offset: 192
+    fieldset: ERR_SEC_ENABLE_CLR
+  - name: ERR_DED_EOI
+    description: MCAN Double Error Detected End of Interrupt Register.
+    byte_offset: 316
+    fieldset: ERR_DED_EOI
+  - name: ERR_DED_STATUS
+    description: MCAN Double Error Detected Interrupt Status Register.
+    byte_offset: 320
+    fieldset: ERR_DED_STATUS
+  - name: ERR_DED_ENABLE_SET
+    description: MCAN Double Error Detected Interrupt Enable Set Register.
+    byte_offset: 384
+    fieldset: ERR_DED_ENABLE_SET
+  - name: ERR_DED_ENABLE_CLR
+    description: MCAN Double Error Detected Interrupt Enable Clear Register.
+    byte_offset: 448
+    fieldset: ERR_DED_ENABLE_CLR
+  - name: ERR_AGGR_ENABLE_SET
+    description: MCAN Error Aggregator Enable Set Register.
+    byte_offset: 512
+    fieldset: ERR_AGGR_ENABLE_SET
+  - name: ERR_AGGR_ENABLE_CLR
+    description: MCAN Error Aggregator Enable Clear Register.
+    byte_offset: 516
+    fieldset: ERR_AGGR_ENABLE_CLR
+  - name: ERR_AGGR_STATUS_SET
+    description: MCAN Error Aggregator Status Set Register.
+    byte_offset: 520
+    fieldset: ERR_AGGR_STATUS_SET
+  - name: ERR_AGGR_STATUS_CLR
+    description: MCAN Error Aggregator Status Clear Register.
+    byte_offset: 524
+    fieldset: ERR_AGGR_STATUS_CLR
+block/MCAN:
   items:
   - name: CREL
     description: MCAN Core Release Register.
@@ -196,160 +350,6 @@ block/CANFD:
     description: MCAN Tx Event FIFO Acknowledge.
     byte_offset: 248
     fieldset: TXEFA
-block/CPU_INT:
-  items:
-  - name: IIDX
-    description: Interrupt Index Register.
-    byte_offset: 0
-    access: Read
-    fieldset: IIDX
-  - name: IMASK
-    description: Interrupt mask.
-    byte_offset: 8
-    fieldset: CPU_INT
-  - name: RIS
-    description: Raw interrupt status.
-    byte_offset: 16
-    access: Read
-    fieldset: CPU_INT
-  - name: MIS
-    description: Masked interrupt status.
-    byte_offset: 24
-    access: Read
-    fieldset: CPU_INT
-  - name: ISET
-    description: Interrupt set.
-    byte_offset: 32
-    access: Write
-    fieldset: CPU_INT
-  - name: ICLR
-    description: Interrupt clear.
-    byte_offset: 40
-    access: Write
-    fieldset: CPU_INT
-block/ECC:
-  items:
-  - name: ERR_REV
-    description: MCAN Error Aggregator Revision Register.
-    byte_offset: 0
-    access: Read
-    fieldset: ERR_REV
-  - name: ERR_VECTOR
-    description: MCAN ECC Vector Register.
-    byte_offset: 8
-    fieldset: ERR_VECTOR
-  - name: ERR_STAT
-    description: MCAN Error Misc Status.
-    byte_offset: 12
-    access: Read
-    fieldset: ERR_STAT
-  - name: ERR_WRAP_REV
-    description: MCAN ECC Wrapper Revision Register.
-    byte_offset: 16
-    access: Read
-    fieldset: ERR_WRAP_REV
-  - name: ERR_CTRL
-    description: MCAN ECC Control.
-    byte_offset: 20
-    fieldset: ERR_CTRL
-  - name: ERR_ERR_CTRL1
-    description: MCAN ECC Error Control 1 Register.
-    byte_offset: 24
-    fieldset: ERR_ERR_CTRL1
-  - name: ERR_ERR_CTRL2
-    description: MCAN ECC Error Control 2 Register.
-    byte_offset: 28
-    fieldset: ERR_ERR_CTRL2
-  - name: ERR_ERR_STAT1
-    description: MCAN ECC Error Status 1 Register.
-    byte_offset: 32
-    fieldset: ERR_ERR_STAT1
-  - name: ERR_ERR_STAT2
-    description: MCAN ECC Error Status 2 Register.
-    byte_offset: 36
-    access: Read
-    fieldset: ERR_ERR_STAT2
-  - name: ERR_ERR_STAT3
-    description: MCAN ECC Error Status 3 Register.
-    byte_offset: 40
-    fieldset: ERR_ERR_STAT3
-  - name: ERR_SEC_EOI
-    description: MCAN Single Error Corrected End of Interrupt Register.
-    byte_offset: 60
-    fieldset: ERR_SEC_EOI
-  - name: ERR_SEC_STATUS
-    description: MCAN Single Error Corrected Interrupt Status Register.
-    byte_offset: 64
-    fieldset: ERR_SEC_STATUS
-  - name: ERR_SEC_ENABLE_SET
-    description: MCAN Single Error Corrected Interrupt Enable Set Register.
-    byte_offset: 128
-    fieldset: ERR_SEC_ENABLE_SET
-  - name: ERR_SEC_ENABLE_CLR
-    description: MCAN Single Error Corrected Interrupt Enable Clear Register.
-    byte_offset: 192
-    fieldset: ERR_SEC_ENABLE_CLR
-  - name: ERR_DED_EOI
-    description: MCAN Double Error Detected End of Interrupt Register.
-    byte_offset: 316
-    fieldset: ERR_DED_EOI
-  - name: ERR_DED_STATUS
-    description: MCAN Double Error Detected Interrupt Status Register.
-    byte_offset: 320
-    fieldset: ERR_DED_STATUS
-  - name: ERR_DED_ENABLE_SET
-    description: MCAN Double Error Detected Interrupt Enable Set Register.
-    byte_offset: 384
-    fieldset: ERR_DED_ENABLE_SET
-  - name: ERR_DED_ENABLE_CLR
-    description: MCAN Double Error Detected Interrupt Enable Clear Register.
-    byte_offset: 448
-    fieldset: ERR_DED_ENABLE_CLR
-  - name: ERR_AGGR_ENABLE_SET
-    description: MCAN Error Aggregator Enable Set Register.
-    byte_offset: 512
-    fieldset: ERR_AGGR_ENABLE_SET
-  - name: ERR_AGGR_ENABLE_CLR
-    description: MCAN Error Aggregator Enable Clear Register.
-    byte_offset: 516
-    fieldset: ERR_AGGR_ENABLE_CLR
-  - name: ERR_AGGR_STATUS_SET
-    description: MCAN Error Aggregator Status Set Register.
-    byte_offset: 520
-    fieldset: ERR_AGGR_STATUS_SET
-  - name: ERR_AGGR_STATUS_CLR
-    description: MCAN Error Aggregator Status Clear Register.
-    byte_offset: 524
-    fieldset: ERR_AGGR_STATUS_CLR
-block/GPRCM:
-  description: PERIPHERALREGION.
-  items:
-  - name: PWREN
-    description: Power enable.
-    byte_offset: 26624
-    fieldset: PWREN
-  - name: RSTCTL
-    description: Reset Control.
-    byte_offset: 26628
-    access: Write
-    fieldset: RSTCTL
-  - name: STAT
-    description: Status Register.
-    byte_offset: 26644
-    access: Read
-    fieldset: STAT
-  - name: MCAN
-    array:
-      len: 1
-      stride: 252
-    byte_offset: 28672
-    block: CANFD
-  - name: TI_WRAPPER
-    array:
-      len: 1
-      stride: 2560
-    byte_offset: 29184
-    block: TI_WRAPPER
 block/MSP:
   items:
   - name: CPU_INT
