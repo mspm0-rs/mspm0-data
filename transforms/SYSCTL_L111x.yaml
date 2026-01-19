@@ -1,0 +1,259 @@
+# Transform using SYSCTL from L111x
+# L111x has LFXT support (HSCLKEN, LFCLKCFG, LFXTCTL, EXLFCTL) and flash protection registers
+# that are not present in L110x/L130x/L134x
+transforms:
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  - !DeleteUselessEnums
+
+  # Remove SYSCTL prefixes
+  - !RenameRegisters
+    block: .*
+    from: SYSCTL_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: SYSCTL_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: SYSCTL_(.+)
+    to: $1
+
+  # IMASK, RIS, MIS, ISET, ICLR are the same type
+  - !MergeFieldsets
+    from: (IMASK|RIS|MIS|ISET|ICLR)
+    to: INT
+
+  # FIXME: Rename IIDX_STAT to INT_STAT in all chips
+  # Note: L111x has correct interrupt structure in SVD:
+  # bit 0: LFOSCGOOD, bit 1: ANACLKERR, bit 2: FLASHSEC, bit 3: LFXTGOOD
+
+  # NMIRIS, NMIISET and NMIICLR are the same type
+  - !MergeFieldsets
+    from: NMI(RIS|ISET|ICLR)
+    to: NMI
+
+  # Remove SYSOSCTURBO variants, not defined on L-series
+  - !DeleteEnumVariants
+    enum: (SYSOSCCFG_FREQ|SYSOSCFREQ)
+    from: SYSOSCTURBO
+
+  # FIXME: Rename NMIIIDX to be consistent across chips
+
+  # Note: L111x has correct RSTCAUSE.ID values in SVD:
+  # BOOTWWDT0 = 14, SYSWWDT1 = 19 (no modifications needed)
+
+  # RESETCMD: Add KEY
+  - !Add
+    ir:
+      enum/RESETCMD_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 228
+
+  - !AddFields
+    fieldset: RESETCMD
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: RESETCMD_KEY
+
+  # BORTHRESHOLD_LEVEL is useless
+  - !DeleteEnums
+    from: BORTHRESHOLD_LEVEL
+
+  # BORCLRCMD: Add key
+  - !Add
+    ir:
+      enum/BORCLRCMD_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 199
+
+  - !AddFields
+    fieldset: BORCLRCMD
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: BORCLRCMD_KEY
+
+  # SYSOSCFCLCTL: Add key
+  - !Add
+    ir:
+      enum/SYSOSCFCLCTL_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 42
+
+  - !AddFields
+    fieldset: SYSOSCFCLCTL
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: SYSOSCFCLCTL_KEY
+
+  # SHDNIOREL: Add key
+  - !Add
+    ir:
+      enum/SHDNIOREL_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 145
+
+  - !AddFields
+    fieldset: SHDNIOREL
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: SHDNIOREL_KEY
+
+  # EXRSTPIN: Add key
+  - !Add
+    ir:
+      enum/EXRSTPIN_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 30
+
+  - !AddFields
+    fieldset: EXRSTPIN
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: EXRSTPIN_KEY
+
+  # SYSSTATUSCLR: Add key
+  - !Add
+    ir:
+      enum/SYSSTATUSCLR_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 206
+
+  - !AddFields
+    fieldset: SYSSTATUSCLR
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: SYSSTATUSCLR_KEY
+
+  # SWDCFG: Add key
+  - !Add
+    ir:
+      enum/SWDCFG_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 98
+
+  - !AddFields
+    fieldset: SWDCFG
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: SWDCFG_KEY
+
+  # FCCCMD: Add key
+  - !Add
+    ir:
+      enum/FCCCMD_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 14
+
+  - !AddFields
+    fieldset: FCCCMD
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: FCCCMD_KEY
+
+  # L111x specific: LFXTCTL: Add key
+  - !Add
+    ir:
+      enum/LFXTCTL_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 165
+
+  - !AddFields
+    fieldset: LFXTCTL
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: LFXTCTL_KEY
+
+  # L111x specific: EXLFCTL: Add key
+  - !Add
+    ir:
+      enum/EXLFCTL_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 165
+
+  - !AddFields
+    fieldset: EXLFCTL
+    fields:
+    - name: KEY
+      bit_offset: 24
+      bit_size: 8
+      enum: EXLFCTL_KEY
+
+  # SHUTDNSTORE: Flatten
+  - !MergeFieldsets
+    from: SHUTDNSTORE(\d+)
+    to: SHUTDNSTORE
+
+  - !MakeRegisterArray
+    blocks: SYSCTL
+    from: SHUTDNSTORE(\d+)
+    to: SHUTDNSTORE
+
+  # SHUTDNSTORE: SVDs do not contain PARITY and PARITYERR fields
+  - !AddFields
+    fieldset: SHUTDNSTORE
+    fields:
+    - name: PARITY
+      bit_offset: 8
+      bit_size: 1
+    - name: PARITYERR
+      bit_offset: 9
+      bit_size: 1
+
+  # MGMT registers are TI internal and don't exist in the datasheet.
+  # Do not include these.
+  - !DeleteEnumsUsedIn
+    fieldsets: MGMT_(.*)
+
+  - !DeleteFieldsets
+    from: MGMT_(.*)
+
+  - !DeleteRegisters
+    block: SYSCTL
+    from: MGMT_(.*)
+
+  ## Cleanup
+  - !Sort

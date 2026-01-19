@@ -1,0 +1,52 @@
+# Transform for DEBUGSS registers based on DEBUGSS on G350x
+transforms:
+  - !DeleteUselessEnums
+
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLEARED
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NO_EFFECT
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: DISABLE
+      1: EVAL
+
+  # Remove DEBUGSS_ prefixes
+  - !RenameRegisters
+    block: .*
+    from: DEBUGSS_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: DEBUGSS_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: DEBUGSS_(.+)
+    to: $1
+
+  # Merge interrupt fieldsets
+  - !MergeFieldsets
+    from: (IMASK|ISET|MIS|RIS|ICLR)
+    to: INT
+    check: NoCheck
+
+  ## Cleanup
+  - !Sort

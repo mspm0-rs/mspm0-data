@@ -1,0 +1,41 @@
+# Transform for EVENTLP registers based on EVENTLP on G350x
+transforms:
+  - !DeleteUselessEnums
+
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLEARED
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: DISABLE
+      1: EVAL
+
+  # Remove EVENTLP_ prefixes
+  - !RenameRegisters
+    block: .*
+    from: EVENTLP_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: EVENTLP_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: EVENTLP_(.+)
+    to: $1
+
+  ## Cleanup
+  - !Sort

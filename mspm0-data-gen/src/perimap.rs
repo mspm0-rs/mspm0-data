@@ -23,6 +23,9 @@ pub static PERIMAP: RegexMap<&str> = RegexMap::new(&[
     (".*:aes", "v1"),
     (".*:flashctl", "v1"),
     (".*:canfd", "v1"),
+    (".*:eventlp", "v1"),
+    (".*:wuc", "v1"),
+    (".*:debugss", "v1"),
     ("mspm0c110x:sysctl", "c110x"),
     ("mspm0c1105_c1106:sysctl", "c110x"),
     ("msps003fx:sysctl", "c110x"),
@@ -32,7 +35,7 @@ pub static PERIMAP: RegexMap<&str> = RegexMap::new(&[
     ("mspm0g5..x:sysctl", "g350x_g310x_g150x_g110x"),
     ("mspm0h321x:sysctl", "h321x"),
     ("mspm0l..0x:sysctl", "l110x_l130x_l134x"),
-    ("mspm0l111x:sysctl", "l110x_l130x_l134x"),  // TODO: L111x has LFXT/HSCLK, may need own variant
+    ("mspm0l111x:sysctl", "l111x"),
     ("mspm0l134x:sysctl", "l110x_l130x_l134x"),
     ("mspm0l.22x:sysctl", "l122x_l222x"),
     // FIXME: When reference manual is updated for L112/L211x, update these if needed (split out).

@@ -1,0 +1,4667 @@
+block/EVENTLP:
+  description: PERIPHERALREGION.
+  items:
+  - name: PUBCFG_DESC_EX
+    description: Extended Module Description.
+    byte_offset: 248
+    access: Read
+    fieldset: PUBCFG_DESC_EX
+  - name: PUBCFG_DESC
+    description: Module Description.
+    byte_offset: 252
+    access: Read
+    fieldset: PUBCFG_DESC
+  - name: PUBCFG_FSUB
+    array:
+      len: 1
+      stride: 128
+    byte_offset: 256
+    block: PUBCFG_FSUB
+  - name: PUBCFG_FPUB
+    array:
+      len: 1
+      stride: 104
+    byte_offset: 768
+    block: PUBCFG_FPUB
+  - name: PUBCFG_EXPORT
+    array:
+      len: 1
+      stride: 4
+    byte_offset: 1280
+    block: PUBCFG_EXPORT
+  - name: PUBCFG_IMPORT
+    array:
+      len: 1
+      stride: 4
+    byte_offset: 1792
+    block: PUBCFG_IMPORT
+  - name: PUBCFG_CPU_CONNECT
+    array:
+      len: 1
+      stride: 128
+    byte_offset: 2304
+    block: PUBCFG_CPU_CONNECT
+  - name: SECCFG_DESC_EX
+    description: Extended Module Description.
+    byte_offset: 4344
+    access: Read
+    fieldset: SECCFG_DESC_EX
+  - name: SECCFG_DESC
+    description: Module Description.
+    byte_offset: 4348
+    access: Read
+    fieldset: SECCFG_DESC
+  - name: SECCFG_FSUB
+    array:
+      len: 1
+      stride: 32
+    byte_offset: 4352
+    block: SECCFG_FSUB
+  - name: SECCFG_FPUB
+    array:
+      len: 1
+      stride: 26
+    byte_offset: 4480
+    block: SECCFG_FPUB
+  - name: SECCFG_EXPORT
+    array:
+      len: 1
+      stride: 1
+    byte_offset: 4608
+    block: SECCFG_EXPORT
+  - name: SECCFG_IMPORT
+    array:
+      len: 1
+      stride: 1
+    byte_offset: 4736
+    block: SECCFG_IMPORT
+  - name: SECCFG_CPU_CONNECT
+    array:
+      len: 1
+      stride: 32
+    byte_offset: 4864
+    block: SECCFG_CPU_CONNECT
+  - name: CTL
+    description: Event Manager control register.
+    byte_offset: 5120
+    bit_size: 8
+    fieldset: CTL
+  - name: LMGMT_SFTYDIAG
+    array:
+      len: 1
+      stride: 1024
+    byte_offset: 7168
+    block: LMGMT_SFTYDIAG
+  - name: IMPEXPCFG_EXPORT
+    array:
+      len: 1
+      stride: 4
+    byte_offset: 8192
+    block: IMPEXPCFG_EXPORT
+  - name: IMPEXPCFG_IMPORT
+    array:
+      len: 1
+      stride: 4
+    byte_offset: 8704
+    block: IMPEXPCFG_IMPORT
+block/IMPEXPCFG_EXPORT:
+  items:
+  - name: IMPEXPCFG_EXPORT_PORT
+    description: Export channel ID register.
+    byte_offset: 0
+    fieldset: IMPEXPCFG_EXPORT_PORT
+block/IMPEXPCFG_IMPORT:
+  items:
+  - name: IMPEXPCFG_IMPORT_PORT
+    description: Import channel ID registe.
+    byte_offset: 0
+    fieldset: IMPEXPCFG_IMPORT_PORT
+block/LMGMT_SFTYDIAG:
+  items:
+  - name: DIAGPAR192
+    description: Diagnostic Parity Register 768.
+    byte_offset: 236
+    access: Write
+    fieldset: DIAGPAR192
+  - name: DIAGPAR191
+    description: Diagnostic Parity Register 191.
+    byte_offset: 240
+    access: Write
+    fieldset: DIAGPAR191
+  - name: DIAGPAR190
+    description: Diagnostic Parity Register 190.
+    byte_offset: 244
+    access: Write
+    fieldset: DIAGPAR190
+  - name: DIAGPAR189
+    description: Diagnostic Parity Register 189.
+    byte_offset: 248
+    access: Write
+    fieldset: DIAGPAR189
+  - name: DIAGPAR188
+    description: Diagnostic Parity Register 188.
+    byte_offset: 252
+    access: Write
+    fieldset: DIAGPAR188
+  - name: DIAGPAR187
+    description: Diagnostic Parity Register 187.
+    byte_offset: 256
+    access: Write
+    fieldset: DIAGPAR187
+  - name: DIAGPAR186
+    description: Diagnostic Parity Register 186.
+    byte_offset: 260
+    access: Write
+    fieldset: DIAGPAR186
+  - name: DIAGPAR185
+    description: Diagnostic Parity Register 185.
+    byte_offset: 264
+    access: Write
+    fieldset: DIAGPAR185
+  - name: DIAGPAR184
+    description: Diagnostic Parity Register 184.
+    byte_offset: 268
+    access: Write
+    fieldset: DIAGPAR184
+  - name: DIAGPAR183
+    description: Diagnostic Parity Register 183.
+    byte_offset: 272
+    access: Write
+    fieldset: DIAGPAR183
+  - name: DIAGPAR182
+    description: Diagnostic Parity Register 182.
+    byte_offset: 276
+    access: Write
+    fieldset: DIAGPAR182
+  - name: DIAGPAR181
+    description: Diagnostic Parity Register 181.
+    byte_offset: 280
+    access: Write
+    fieldset: DIAGPAR181
+  - name: DIAGPAR180
+    description: Diagnostic Parity Register 180.
+    byte_offset: 284
+    access: Write
+    fieldset: DIAGPAR180
+  - name: DIAGPAR179
+    description: Diagnostic Parity Register 179.
+    byte_offset: 288
+    access: Write
+    fieldset: DIAGPAR179
+  - name: DIAGPAR178
+    description: Diagnostic Parity Register 178.
+    byte_offset: 292
+    access: Write
+    fieldset: DIAGPAR178
+  - name: DIAGPAR177
+    description: Diagnostic Parity Register 177.
+    byte_offset: 296
+    access: Write
+    fieldset: DIAGPAR177
+  - name: DIAGPAR176
+    description: Diagnostic Parity Register 176.
+    byte_offset: 300
+    access: Write
+    fieldset: DIAGPAR176
+  - name: DIAGPAR175
+    description: Diagnostic Parity Register 175.
+    byte_offset: 304
+    access: Write
+    fieldset: DIAGPAR175
+  - name: DIAGPAR174
+    description: Diagnostic Parity Register 174.
+    byte_offset: 308
+    access: Write
+    fieldset: DIAGPAR174
+  - name: DIAGPAR173
+    description: Diagnostic Parity Register 173.
+    byte_offset: 312
+    access: Write
+    fieldset: DIAGPAR173
+  - name: DIAGPAR172
+    description: Diagnostic Parity Register 172.
+    byte_offset: 316
+    access: Write
+    fieldset: DIAGPAR172
+  - name: DIAGPAR171
+    description: Diagnostic Parity Register 171.
+    byte_offset: 320
+    access: Write
+    fieldset: DIAGPAR171
+  - name: DIAGPAR170
+    description: Diagnostic Parity Register 170.
+    byte_offset: 324
+    access: Write
+    fieldset: DIAGPAR170
+  - name: DIAGPAR169
+    description: Diagnostic Parity Register 169.
+    byte_offset: 328
+    access: Write
+    fieldset: DIAGPAR169
+  - name: DIAGPAR168
+    description: Diagnostic Parity Register 168.
+    byte_offset: 332
+    access: Write
+    fieldset: DIAGPAR168
+  - name: DIAGPAR167
+    description: Diagnostic Parity Register 167.
+    byte_offset: 336
+    access: Write
+    fieldset: DIAGPAR167
+  - name: DIAGPAR166
+    description: Diagnostic Parity Register 166.
+    byte_offset: 340
+    access: Write
+    fieldset: DIAGPAR166
+  - name: DIAGPAR165
+    description: Diagnostic Parity Register 165.
+    byte_offset: 344
+    access: Write
+    fieldset: DIAGPAR165
+  - name: DIAGPAR164
+    description: Diagnostic Parity Register 164.
+    byte_offset: 348
+    access: Write
+    fieldset: DIAGPAR164
+  - name: DIAGPAR163
+    description: Diagnostic Parity Register 163.
+    byte_offset: 352
+    access: Write
+    fieldset: DIAGPAR163
+  - name: DIAGPAR162
+    description: Diagnostic Parity Register 162.
+    byte_offset: 356
+    access: Write
+    fieldset: DIAGPAR162
+  - name: DIAGPAR161
+    description: Diagnostic Parity Register 161.
+    byte_offset: 360
+    access: Write
+    fieldset: DIAGPAR161
+  - name: DIAGPAR160
+    description: Diagnostic Parity Register 160.
+    byte_offset: 364
+    access: Write
+    fieldset: DIAGPAR160
+  - name: DIAGPAR159
+    description: Diagnostic Parity Register 159.
+    byte_offset: 368
+    access: Write
+    fieldset: DIAGPAR159
+  - name: DIAGPAR158
+    description: Diagnostic Parity Register 158.
+    byte_offset: 372
+    access: Write
+    fieldset: DIAGPAR158
+  - name: DIAGPAR157
+    description: Diagnostic Parity Register 157.
+    byte_offset: 376
+    access: Write
+    fieldset: DIAGPAR157
+  - name: DIAGPAR156
+    description: Diagnostic Parity Register 156.
+    byte_offset: 380
+    access: Write
+    fieldset: DIAGPAR156
+  - name: DIAGPAR155
+    description: Diagnostic Parity Register 155.
+    byte_offset: 384
+    access: Write
+    fieldset: DIAGPAR155
+  - name: DIAGPAR154
+    description: Diagnostic Parity Register 154.
+    byte_offset: 388
+    access: Write
+    fieldset: DIAGPAR154
+  - name: DIAGPAR153
+    description: Diagnostic Parity Register 153.
+    byte_offset: 392
+    access: Write
+    fieldset: DIAGPAR153
+  - name: DIAGPAR152
+    description: Diagnostic Parity Register 152.
+    byte_offset: 396
+    access: Write
+    fieldset: DIAGPAR152
+  - name: DIAGPAR151
+    description: Diagnostic Parity Register 151.
+    byte_offset: 400
+    access: Write
+    fieldset: DIAGPAR151
+  - name: DIAGPAR150
+    description: Diagnostic Parity Register 150.
+    byte_offset: 404
+    access: Write
+    fieldset: DIAGPAR150
+  - name: DIAGPAR149
+    description: Diagnostic Parity Register 149.
+    byte_offset: 408
+    access: Write
+    fieldset: DIAGPAR149
+  - name: DIAGPAR148
+    description: Diagnostic Parity Register 148.
+    byte_offset: 412
+    access: Write
+    fieldset: DIAGPAR148
+  - name: DIAGPAR147
+    description: Diagnostic Parity Register 147.
+    byte_offset: 416
+    access: Write
+    fieldset: DIAGPAR147
+  - name: DIAGPAR146
+    description: Diagnostic Parity Register 146.
+    byte_offset: 420
+    access: Write
+    fieldset: DIAGPAR146
+  - name: DIAGPAR145
+    description: Diagnostic Parity Register 145.
+    byte_offset: 424
+    access: Write
+    fieldset: DIAGPAR145
+  - name: DIAGPAR144
+    description: Diagnostic Parity Register 144.
+    byte_offset: 428
+    access: Write
+    fieldset: DIAGPAR144
+  - name: DIAGPAR143
+    description: Diagnostic Parity Register 143.
+    byte_offset: 432
+    access: Write
+    fieldset: DIAGPAR143
+  - name: DIAGPAR142
+    description: Diagnostic Parity Register 142.
+    byte_offset: 436
+    access: Write
+    fieldset: DIAGPAR142
+  - name: DIAGPAR141
+    description: Diagnostic Parity Register 141.
+    byte_offset: 440
+    access: Write
+    fieldset: DIAGPAR141
+  - name: DIAGPAR140
+    description: Diagnostic Parity Register 140.
+    byte_offset: 444
+    access: Write
+    fieldset: DIAGPAR140
+  - name: DIAGPAR139
+    description: Diagnostic Parity Register 139.
+    byte_offset: 448
+    access: Write
+    fieldset: DIAGPAR139
+  - name: DIAGPAR138
+    description: Diagnostic Parity Register 138.
+    byte_offset: 452
+    access: Write
+    fieldset: DIAGPAR138
+  - name: DIAGPAR137
+    description: Diagnostic Parity Register 137.
+    byte_offset: 456
+    access: Write
+    fieldset: DIAGPAR137
+  - name: DIAGPAR136
+    description: Diagnostic Parity Register 136.
+    byte_offset: 460
+    access: Write
+    fieldset: DIAGPAR136
+  - name: DIAGPAR135
+    description: Diagnostic Parity Register 135.
+    byte_offset: 464
+    access: Write
+    fieldset: DIAGPAR135
+  - name: DIAGPAR134
+    description: Diagnostic Parity Register 134.
+    byte_offset: 468
+    access: Write
+    fieldset: DIAGPAR134
+  - name: DIAGPAR133
+    description: Diagnostic Parity Register 133.
+    byte_offset: 472
+    access: Write
+    fieldset: DIAGPAR133
+  - name: DIAGPAR132
+    description: Diagnostic Parity Register 132.
+    byte_offset: 476
+    access: Write
+    fieldset: DIAGPAR132
+  - name: DIAGPAR131
+    description: Diagnostic Parity Register 131.
+    byte_offset: 480
+    access: Write
+    fieldset: DIAGPAR131
+  - name: DIAGPAR130
+    description: Diagnostic Parity Register 130.
+    byte_offset: 484
+    access: Write
+    fieldset: DIAGPAR130
+  - name: DIAGPAR129
+    description: Diagnostic Parity Register 129.
+    byte_offset: 488
+    access: Write
+    fieldset: DIAGPAR129
+  - name: DIAGPAR128
+    description: Diagnostic Parity Register 128.
+    byte_offset: 492
+    access: Write
+    fieldset: DIAGPAR128
+  - name: DIAGPAR127
+    description: Diagnostic Parity Register 127.
+    byte_offset: 496
+    access: Write
+    fieldset: DIAGPAR127
+  - name: DIAGPAR126
+    description: Diagnostic Parity Register 126.
+    byte_offset: 500
+    access: Write
+    fieldset: DIAGPAR126
+  - name: DIAGPAR125
+    description: Diagnostic Parity Register 125.
+    byte_offset: 504
+    access: Write
+    fieldset: DIAGPAR125
+  - name: DIAGPAR124
+    description: Diagnostic Parity Register 124.
+    byte_offset: 508
+    access: Write
+    fieldset: DIAGPAR124
+  - name: DIAGPAR123
+    description: Diagnostic Parity Register 123.
+    byte_offset: 512
+    access: Write
+    fieldset: DIAGPAR123
+  - name: DIAGPAR122
+    description: Diagnostic Parity Register 122.
+    byte_offset: 516
+    access: Write
+    fieldset: DIAGPAR122
+  - name: DIAGPAR121
+    description: Diagnostic Parity Register 121.
+    byte_offset: 520
+    access: Write
+    fieldset: DIAGPAR121
+  - name: DIAGPAR120
+    description: Diagnostic Parity Register 120.
+    byte_offset: 524
+    access: Write
+    fieldset: DIAGPAR120
+  - name: DIAGPAR119
+    description: Diagnostic Parity Register 119.
+    byte_offset: 528
+    access: Write
+    fieldset: DIAGPAR119
+  - name: DIAGPAR118
+    description: Diagnostic Parity Register 118.
+    byte_offset: 532
+    access: Write
+    fieldset: DIAGPAR118
+  - name: DIAGPAR117
+    description: Diagnostic Parity Register 117.
+    byte_offset: 536
+    access: Write
+    fieldset: DIAGPAR117
+  - name: DIAGPAR116
+    description: Diagnostic Parity Register 116.
+    byte_offset: 540
+    access: Write
+    fieldset: DIAGPAR116
+  - name: DIAGPAR115
+    description: Diagnostic Parity Register 115.
+    byte_offset: 544
+    access: Write
+    fieldset: DIAGPAR115
+  - name: DIAGPAR114
+    description: Diagnostic Parity Register 114.
+    byte_offset: 548
+    access: Write
+    fieldset: DIAGPAR114
+  - name: DIAGPAR113
+    description: Diagnostic Parity Register 113.
+    byte_offset: 552
+    access: Write
+    fieldset: DIAGPAR113
+  - name: DIAGPAR112
+    description: Diagnostic Parity Register 112.
+    byte_offset: 556
+    access: Write
+    fieldset: DIAGPAR112
+  - name: DIAGPAR111
+    description: Diagnostic Parity Register 111.
+    byte_offset: 560
+    access: Write
+    fieldset: DIAGPAR111
+  - name: DIAGPAR110
+    description: Diagnostic Parity Register 110.
+    byte_offset: 564
+    access: Write
+    fieldset: DIAGPAR110
+  - name: DIAGPAR109
+    description: Diagnostic Parity Register 109.
+    byte_offset: 568
+    access: Write
+    fieldset: DIAGPAR109
+  - name: DIAGPAR108
+    description: Diagnostic Parity Register 108.
+    byte_offset: 572
+    access: Write
+    fieldset: DIAGPAR108
+  - name: DIAGPAR107
+    description: Diagnostic Parity Register 107.
+    byte_offset: 576
+    access: Write
+    fieldset: DIAGPAR107
+  - name: DIAGPAR106
+    description: Diagnostic Parity Register 106.
+    byte_offset: 580
+    access: Write
+    fieldset: DIAGPAR106
+  - name: DIAGPAR105
+    description: Diagnostic Parity Register 105.
+    byte_offset: 584
+    access: Write
+    fieldset: DIAGPAR105
+  - name: DIAGPAR104
+    description: Diagnostic Parity Register 104.
+    byte_offset: 588
+    access: Write
+    fieldset: DIAGPAR104
+  - name: DIAGPAR103
+    description: Diagnostic Parity Register 103.
+    byte_offset: 592
+    access: Write
+    fieldset: DIAGPAR103
+  - name: DIAGPAR102
+    description: Diagnostic Parity Register 102.
+    byte_offset: 596
+    access: Write
+    fieldset: DIAGPAR102
+  - name: DIAGPAR101
+    description: Diagnostic Parity Register 101.
+    byte_offset: 600
+    access: Write
+    fieldset: DIAGPAR101
+  - name: DIAGPAR100
+    description: Diagnostic Parity Register 100.
+    byte_offset: 604
+    access: Write
+    fieldset: DIAGPAR100
+  - name: DIAGPAR99
+    description: Diagnostic Parity Register 99.
+    byte_offset: 608
+    access: Write
+    fieldset: DIAGPAR99
+  - name: DIAGPAR98
+    description: Diagnostic Parity Register 98.
+    byte_offset: 612
+    access: Write
+    fieldset: DIAGPAR98
+  - name: DIAGPAR97
+    description: Diagnostic Parity Register 97.
+    byte_offset: 616
+    access: Write
+    fieldset: DIAGPAR97
+  - name: DIAGPAR96
+    description: Diagnostic Parity Register 96.
+    byte_offset: 620
+    access: Write
+    fieldset: DIAGPAR96
+  - name: DIAGPAR95
+    description: Diagnostic Parity Register 95.
+    byte_offset: 624
+    access: Write
+    fieldset: DIAGPAR95
+  - name: DIAGPAR94
+    description: Diagnostic Parity Register 94.
+    byte_offset: 628
+    access: Write
+    fieldset: DIAGPAR94
+  - name: DIAGPAR93
+    description: Diagnostic Parity Register 93.
+    byte_offset: 632
+    access: Write
+    fieldset: DIAGPAR93
+  - name: DIAGPAR92
+    description: Diagnostic Parity Register 92.
+    byte_offset: 636
+    access: Write
+    fieldset: DIAGPAR92
+  - name: DIAGPAR91
+    description: Diagnostic Parity Register 91.
+    byte_offset: 640
+    access: Write
+    fieldset: DIAGPAR91
+  - name: DIAGPAR90
+    description: Diagnostic Parity Register 90.
+    byte_offset: 644
+    access: Write
+    fieldset: DIAGPAR90
+  - name: DIAGPAR89
+    description: Diagnostic Parity Register 89.
+    byte_offset: 648
+    access: Write
+    fieldset: DIAGPAR89
+  - name: DIAGPAR88
+    description: Diagnostic Parity Register 88.
+    byte_offset: 652
+    access: Write
+    fieldset: DIAGPAR88
+  - name: DIAGPAR87
+    description: Diagnostic Parity Register 87.
+    byte_offset: 656
+    access: Write
+    fieldset: DIAGPAR87
+  - name: DIAGPAR86
+    description: Diagnostic Parity Register 86.
+    byte_offset: 660
+    access: Write
+    fieldset: DIAGPAR86
+  - name: DIAGPAR85
+    description: Diagnostic Parity Register 85.
+    byte_offset: 664
+    access: Write
+    fieldset: DIAGPAR85
+  - name: DIAGPAR84
+    description: Diagnostic Parity Register 84.
+    byte_offset: 668
+    access: Write
+    fieldset: DIAGPAR84
+  - name: DIAGPAR83
+    description: Diagnostic Parity Register 83.
+    byte_offset: 672
+    access: Write
+    fieldset: DIAGPAR83
+  - name: DIAGPAR82
+    description: Diagnostic Parity Register 82.
+    byte_offset: 676
+    access: Write
+    fieldset: DIAGPAR82
+  - name: DIAGPAR81
+    description: Diagnostic Parity Register 81.
+    byte_offset: 680
+    access: Write
+    fieldset: DIAGPAR81
+  - name: DIAGPAR80
+    description: Diagnostic Parity Register 80.
+    byte_offset: 684
+    access: Write
+    fieldset: DIAGPAR80
+  - name: DIAGPAR79
+    description: Diagnostic Parity Register 79.
+    byte_offset: 688
+    access: Write
+    fieldset: DIAGPAR79
+  - name: DIAGPAR78
+    description: Diagnostic Parity Register 78.
+    byte_offset: 692
+    access: Write
+    fieldset: DIAGPAR78
+  - name: DIAGPAR77
+    description: Diagnostic Parity Register 77.
+    byte_offset: 696
+    access: Write
+    fieldset: DIAGPAR77
+  - name: DIAGPAR76
+    description: Diagnostic Parity Register 76.
+    byte_offset: 700
+    access: Write
+    fieldset: DIAGPAR76
+  - name: DIAGPAR75
+    description: Diagnostic Parity Register 75.
+    byte_offset: 704
+    access: Write
+    fieldset: DIAGPAR75
+  - name: DIAGPAR74
+    description: Diagnostic Parity Register 74.
+    byte_offset: 708
+    access: Write
+    fieldset: DIAGPAR74
+  - name: DIAGPAR73
+    description: Diagnostic Parity Register 73.
+    byte_offset: 712
+    access: Write
+    fieldset: DIAGPAR73
+  - name: DIAGPAR72
+    description: Diagnostic Parity Register 72.
+    byte_offset: 716
+    access: Write
+    fieldset: DIAGPAR72
+  - name: DIAGPAR71
+    description: Diagnostic Parity Register 71.
+    byte_offset: 720
+    access: Write
+    fieldset: DIAGPAR71
+  - name: DIAGPAR70
+    description: Diagnostic Parity Register 70.
+    byte_offset: 724
+    access: Write
+    fieldset: DIAGPAR70
+  - name: DIAGPAR69
+    description: Diagnostic Parity Register 69.
+    byte_offset: 728
+    access: Write
+    fieldset: DIAGPAR69
+  - name: DIAGPAR68
+    description: Diagnostic Parity Register 68.
+    byte_offset: 732
+    access: Write
+    fieldset: DIAGPAR68
+  - name: DIAGPAR67
+    description: Diagnostic Parity Register 67.
+    byte_offset: 736
+    access: Write
+    fieldset: DIAGPAR67
+  - name: DIAGPAR66
+    description: Diagnostic Parity Register 66.
+    byte_offset: 740
+    access: Write
+    fieldset: DIAGPAR66
+  - name: DIAGPAR65
+    description: Diagnostic Parity Register 65.
+    byte_offset: 744
+    access: Write
+    fieldset: DIAGPAR65
+  - name: DIAGPAR64
+    description: Diagnostic Parity Register 64.
+    byte_offset: 748
+    access: Write
+    fieldset: DIAGPAR64
+  - name: DIAGPAR63
+    description: Diagnostic Parity Register 63.
+    byte_offset: 752
+    access: Write
+    fieldset: DIAGPAR63
+  - name: DIAGPAR62
+    description: Diagnostic Parity Register 62.
+    byte_offset: 756
+    access: Write
+    fieldset: DIAGPAR62
+  - name: DIAGPAR61
+    description: Diagnostic Parity Register 61.
+    byte_offset: 760
+    access: Write
+    fieldset: DIAGPAR61
+  - name: DIAGPAR60
+    description: Diagnostic Parity Register 60.
+    byte_offset: 764
+    access: Write
+    fieldset: DIAGPAR60
+  - name: DIAGPAR59
+    description: Diagnostic Parity Register 59.
+    byte_offset: 768
+    access: Write
+    fieldset: DIAGPAR59
+  - name: DIAGPAR58
+    description: Diagnostic Parity Register 58.
+    byte_offset: 772
+    access: Write
+    fieldset: DIAGPAR58
+  - name: DIAGPAR57
+    description: Diagnostic Parity Register 57.
+    byte_offset: 776
+    access: Write
+    fieldset: DIAGPAR57
+  - name: DIAGPAR56
+    description: Diagnostic Parity Register 56.
+    byte_offset: 780
+    access: Write
+    fieldset: DIAGPAR56
+  - name: DIAGPAR55
+    description: Diagnostic Parity Register 55.
+    byte_offset: 784
+    access: Write
+    fieldset: DIAGPAR55
+  - name: DIAGPAR54
+    description: Diagnostic Parity Register 54.
+    byte_offset: 788
+    access: Write
+    fieldset: DIAGPAR54
+  - name: DIAGPAR53
+    description: Diagnostic Parity Register 53.
+    byte_offset: 792
+    access: Write
+    fieldset: DIAGPAR53
+  - name: DIAGPAR52
+    description: Diagnostic Parity Register 52.
+    byte_offset: 796
+    access: Write
+    fieldset: DIAGPAR52
+  - name: DIAGPAR51
+    description: Diagnostic Parity Register 51.
+    byte_offset: 800
+    access: Write
+    fieldset: DIAGPAR51
+  - name: DIAGPAR50
+    description: Diagnostic Parity Register 50.
+    byte_offset: 804
+    access: Write
+    fieldset: DIAGPAR50
+  - name: DIAGPAR49
+    description: Diagnostic Parity Register 49.
+    byte_offset: 808
+    access: Write
+    fieldset: DIAGPAR49
+  - name: DIAGPAR48
+    description: Diagnostic Parity Register 48.
+    byte_offset: 812
+    access: Write
+    fieldset: DIAGPAR48
+  - name: DIAGPAR47
+    description: Diagnostic Parity Register 47.
+    byte_offset: 816
+    access: Write
+    fieldset: DIAGPAR47
+  - name: DIAGPAR46
+    description: Diagnostic Parity Register 46.
+    byte_offset: 820
+    access: Write
+    fieldset: DIAGPAR46
+  - name: DIAGPAR45
+    description: Diagnostic Parity Register 45.
+    byte_offset: 824
+    access: Write
+    fieldset: DIAGPAR45
+  - name: DIAGPAR44
+    description: Diagnostic Parity Register 44.
+    byte_offset: 828
+    access: Write
+    fieldset: DIAGPAR44
+  - name: DIAGPAR43
+    description: Diagnostic Parity Register 43.
+    byte_offset: 832
+    access: Write
+    fieldset: DIAGPAR43
+  - name: DIAGPAR42
+    description: Diagnostic Parity Register 42.
+    byte_offset: 836
+    access: Write
+    fieldset: DIAGPAR42
+  - name: DIAGPAR41
+    description: Diagnostic Parity Register 41.
+    byte_offset: 840
+    access: Write
+    fieldset: DIAGPAR41
+  - name: DIAGPAR40
+    description: Diagnostic Parity Register 40.
+    byte_offset: 844
+    access: Write
+    fieldset: DIAGPAR40
+  - name: DIAGPAR39
+    description: Diagnostic Parity Register 39.
+    byte_offset: 848
+    access: Write
+    fieldset: DIAGPAR39
+  - name: DIAGPAR38
+    description: Diagnostic Parity Register 38.
+    byte_offset: 852
+    access: Write
+    fieldset: DIAGPAR38
+  - name: DIAGPAR37
+    description: Diagnostic Parity Register 37.
+    byte_offset: 856
+    access: Write
+    fieldset: DIAGPAR37
+  - name: DIAGPAR36
+    description: Diagnostic Parity Register 36.
+    byte_offset: 860
+    access: Write
+    fieldset: DIAGPAR36
+  - name: DIAGPAR35
+    description: Diagnostic Parity Register 35.
+    byte_offset: 864
+    access: Write
+    fieldset: DIAGPAR35
+  - name: DIAGPAR34
+    description: Diagnostic Parity Register 34.
+    byte_offset: 868
+    access: Write
+    fieldset: DIAGPAR34
+  - name: DIAGPAR33
+    description: Diagnostic Parity Register 33.
+    byte_offset: 872
+    access: Write
+    fieldset: DIAGPAR33
+  - name: DIAGPAR32
+    description: Diagnostic Parity Register 32.
+    byte_offset: 876
+    access: Write
+    fieldset: DIAGPAR32
+  - name: DIAGPAR31
+    description: Diagnostic Parity Register 31.
+    byte_offset: 880
+    access: Write
+    fieldset: DIAGPAR31
+  - name: DIAGPAR30
+    description: Diagnostic Parity Register 30.
+    byte_offset: 884
+    access: Write
+    fieldset: DIAGPAR30
+  - name: DIAGPAR29
+    description: Diagnostic Parity Register 29.
+    byte_offset: 888
+    access: Write
+    fieldset: DIAGPAR29
+  - name: DIAGPAR28
+    description: Diagnostic Parity Register 28.
+    byte_offset: 892
+    access: Write
+    fieldset: DIAGPAR28
+  - name: DIAGPAR27
+    description: Diagnostic Parity Register 27.
+    byte_offset: 896
+    access: Write
+    fieldset: DIAGPAR27
+  - name: DIAGPAR26
+    description: Diagnostic Parity Register 26.
+    byte_offset: 900
+    access: Write
+    fieldset: DIAGPAR26
+  - name: DIAGPAR25
+    description: Diagnostic Parity Register 25.
+    byte_offset: 904
+    access: Write
+    fieldset: DIAGPAR25
+  - name: DIAGPAR24
+    description: Diagnostic Parity Register 24.
+    byte_offset: 908
+    access: Write
+    fieldset: DIAGPAR24
+  - name: DIAGPAR23
+    description: Diagnostic Parity Register 23.
+    byte_offset: 912
+    access: Write
+    fieldset: DIAGPAR23
+  - name: DIAGPAR22
+    description: Diagnostic Parity Register 22.
+    byte_offset: 916
+    access: Write
+    fieldset: DIAGPAR22
+  - name: DIAGPAR21
+    description: Diagnostic Parity Register 21.
+    byte_offset: 920
+    access: Write
+    fieldset: DIAGPAR21
+  - name: DIAGPAR20
+    description: Diagnostic Parity Register 20.
+    byte_offset: 924
+    access: Write
+    fieldset: DIAGPAR20
+  - name: DIAGPAR19
+    description: Diagnostic Parity Register 19.
+    byte_offset: 928
+    access: Write
+    fieldset: DIAGPAR19
+  - name: DIAGPAR18
+    description: Diagnostic Parity Register 18.
+    byte_offset: 932
+    access: Write
+    fieldset: DIAGPAR18
+  - name: DIAGPAR17
+    description: Diagnostic Parity Register 17.
+    byte_offset: 936
+    access: Write
+    fieldset: DIAGPAR17
+  - name: DIAGPAR16
+    description: Diagnostic Parity Register 16.
+    byte_offset: 940
+    access: Write
+    fieldset: DIAGPAR16
+  - name: DIAGPAR15
+    description: Diagnostic Parity Register 15.
+    byte_offset: 944
+    access: Write
+    fieldset: DIAGPAR15
+  - name: DIAGPAR14
+    description: Diagnostic Parity Register 14.
+    byte_offset: 948
+    access: Write
+    fieldset: DIAGPAR14
+  - name: DIAGPAR13
+    description: Diagnostic Parity Register 13.
+    byte_offset: 952
+    access: Write
+    fieldset: DIAGPAR13
+  - name: DIAGPAR12
+    description: Diagnostic Parity Register 12.
+    byte_offset: 956
+    access: Write
+    fieldset: DIAGPAR12
+  - name: DIAGPAR11
+    description: Diagnostic Parity Register 11.
+    byte_offset: 960
+    access: Write
+    fieldset: DIAGPAR11
+  - name: DIAGPAR10
+    description: Diagnostic Parity Register 10.
+    byte_offset: 964
+    access: Write
+    fieldset: DIAGPAR10
+  - name: DIAGPAR9
+    description: Diagnostic Parity Register 9.
+    byte_offset: 968
+    access: Write
+    fieldset: DIAGPAR9
+  - name: DIAGPAR8
+    description: Diagnostic Parity Register 8.
+    byte_offset: 972
+    access: Write
+    fieldset: DIAGPAR8
+  - name: DIAGPAR7
+    description: Diagnostic Parity Register 7.
+    byte_offset: 976
+    access: Write
+    fieldset: DIAGPAR7
+  - name: DIAGPAR6
+    description: Diagnostic Parity Register 6.
+    byte_offset: 980
+    access: Write
+    fieldset: DIAGPAR6
+  - name: DIAGPAR5
+    description: Diagnostic Parity Register 5.
+    byte_offset: 984
+    access: Write
+    fieldset: DIAGPAR5
+  - name: DIAGPAR4
+    description: Diagnostic Parity Register 4.
+    byte_offset: 988
+    access: Write
+    fieldset: DIAGPAR4
+  - name: DIAGPAR3
+    description: Diagnostic Parity Register 3.
+    byte_offset: 992
+    access: Write
+    fieldset: DIAGPAR3
+  - name: DIAGPAR2
+    description: Diagnostic Parity Register 2.
+    byte_offset: 996
+    access: Write
+    fieldset: DIAGPAR2
+  - name: DIAGPAR1
+    description: Diagnostic Parity Register 1.
+    byte_offset: 1000
+    access: Write
+    fieldset: DIAGPAR1
+  - name: DIAGPAR0
+    description: Diagnostic Parity Register 0.
+    byte_offset: 1004
+    access: Write
+    fieldset: DIAGPAR0
+  - name: DIAGIFRST
+    description: Diagnostic Interface Reset Register.
+    byte_offset: 1012
+    fieldset: DIAGIFRST
+  - name: DIAGPARFV
+    description: Diagnostic Parity Fail Vector Register.
+    byte_offset: 1016
+    access: Read
+    fieldset: DIAGPARFV
+  - name: DIAGSTAT
+    description: Diagnostic Status Register.
+    byte_offset: 1020
+    access: Read
+    fieldset: DIAGSTAT
+block/PUBCFG_CPU_CONNECT:
+  items:
+  - name: PUBCFG_CPU_NUM
+    description: CPU connect register.
+    array:
+      len: 32
+      stride: 4
+    byte_offset: 0
+    fieldset: PUBCFG_CPU_NUM
+block/PUBCFG_EXPORT:
+  items:
+  - name: PUBCFG_EXPORT_PORT
+    description: Export channel ID register.
+    byte_offset: 0
+    fieldset: PUBCFG_EXPORT_PORT
+block/PUBCFG_FPUB:
+  items:
+  - name: PUBCFG_FPUB_PORT
+    description: Publisher channel ID register.
+    array:
+      len: 26
+      stride: 4
+    byte_offset: 0
+    fieldset: PUBCFG_FPUB_PORT
+block/PUBCFG_FSUB:
+  items:
+  - name: PUBCFG_FSUB_PORT
+    description: Subscriber channel ID register.
+    array:
+      len: 32
+      stride: 4
+    byte_offset: 0
+    fieldset: PUBCFG_FSUB_PORT
+block/PUBCFG_IMPORT:
+  items:
+  - name: PUBCFG_IMPORT_PORT
+    description: Import channel ID registe.
+    byte_offset: 0
+    fieldset: PUBCFG_IMPORT_PORT
+block/SECCFG_CPU_CONNECT:
+  items:
+  - name: SECCFG_CPU_NUM
+    description: CPU connect register.
+    array:
+      len: 32
+      stride: 1
+    byte_offset: 0
+    bit_size: 8
+    fieldset: SECCFG_CPU_NUM
+block/SECCFG_EXPORT:
+  items:
+  - name: SECCFG_EXPORT_PORT
+    description: Export channel ID register.
+    byte_offset: 0
+    bit_size: 8
+block/SECCFG_FPUB:
+  items:
+  - name: SECCFG_FPUB_PORT
+    description: Publisher channel ID register.
+    array:
+      len: 26
+      stride: 1
+    byte_offset: 0
+    bit_size: 8
+block/SECCFG_FSUB:
+  items:
+  - name: SECCFG_FSUB_PORT
+    description: Subscriber channel ID register.
+    array:
+      len: 32
+      stride: 1
+    byte_offset: 0
+    bit_size: 8
+block/SECCFG_IMPORT:
+  items:
+  - name: SECCFG_IMPORT_PORT
+    description: Import channel ID registe.
+    byte_offset: 0
+    bit_size: 8
+fieldset/CTL:
+  description: Event Manager control register.
+  bit_size: 8
+  fields:
+  - name: OVRWR_EN
+    description: Enable overwrite of config even if resources are already configured. By default, a configuration cannot be overwritten.
+    bit_offset: 0
+    bit_size: 4
+    enum: OVRWR_EN
+fieldset/DIAGIFRST:
+  description: Diagnostic Interface Reset Register.
+  fields:
+  - name: ASSERTIFRST
+    description: Writing a 1 will synchronously clear the Diagnostic Interface. The STICKY bits for status and well as the PARFV will be cleared. If a true functional failure still exists, the interface will re-assert FUNCFAIL on the cycle following the interface reset.
+    bit_offset: 0
+    bit_size: 1
+  - name: DIAGPASSCLR
+    description: Writing a 1 will synchronously clear the PARFV MMR DPINDEX field. The STICKY bit for DIAGPASS status will be cleared as well.
+    bit_offset: 1
+    bit_size: 1
+fieldset/DIAGPAR0:
+  description: Diagnostic Parity Register 0.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR0_ASSERTDIAG
+fieldset/DIAGPAR1:
+  description: Diagnostic Parity Register 1.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR1_ASSERTDIAG
+fieldset/DIAGPAR10:
+  description: Diagnostic Parity Register 10.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR10_ASSERTDIAG
+fieldset/DIAGPAR100:
+  description: Diagnostic Parity Register 100.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR100_ASSERTDIAG
+fieldset/DIAGPAR101:
+  description: Diagnostic Parity Register 101.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR101_ASSERTDIAG
+fieldset/DIAGPAR102:
+  description: Diagnostic Parity Register 102.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR102_ASSERTDIAG
+fieldset/DIAGPAR103:
+  description: Diagnostic Parity Register 103.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR103_ASSERTDIAG
+fieldset/DIAGPAR104:
+  description: Diagnostic Parity Register 104.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR104_ASSERTDIAG
+fieldset/DIAGPAR105:
+  description: Diagnostic Parity Register 105.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR105_ASSERTDIAG
+fieldset/DIAGPAR106:
+  description: Diagnostic Parity Register 106.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR106_ASSERTDIAG
+fieldset/DIAGPAR107:
+  description: Diagnostic Parity Register 107.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR107_ASSERTDIAG
+fieldset/DIAGPAR108:
+  description: Diagnostic Parity Register 108.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR108_ASSERTDIAG
+fieldset/DIAGPAR109:
+  description: Diagnostic Parity Register 109.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR109_ASSERTDIAG
+fieldset/DIAGPAR11:
+  description: Diagnostic Parity Register 11.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR11_ASSERTDIAG
+fieldset/DIAGPAR110:
+  description: Diagnostic Parity Register 110.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR110_ASSERTDIAG
+fieldset/DIAGPAR111:
+  description: Diagnostic Parity Register 111.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR111_ASSERTDIAG
+fieldset/DIAGPAR112:
+  description: Diagnostic Parity Register 112.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR112_ASSERTDIAG
+fieldset/DIAGPAR113:
+  description: Diagnostic Parity Register 113.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR113_ASSERTDIAG
+fieldset/DIAGPAR114:
+  description: Diagnostic Parity Register 114.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR114_ASSERTDIAG
+fieldset/DIAGPAR115:
+  description: Diagnostic Parity Register 115.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR115_ASSERTDIAG
+fieldset/DIAGPAR116:
+  description: Diagnostic Parity Register 116.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR116_ASSERTDIAG
+fieldset/DIAGPAR117:
+  description: Diagnostic Parity Register 117.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR117_ASSERTDIAG
+fieldset/DIAGPAR118:
+  description: Diagnostic Parity Register 118.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR118_ASSERTDIAG
+fieldset/DIAGPAR119:
+  description: Diagnostic Parity Register 119.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR119_ASSERTDIAG
+fieldset/DIAGPAR12:
+  description: Diagnostic Parity Register 12.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR12_ASSERTDIAG
+fieldset/DIAGPAR120:
+  description: Diagnostic Parity Register 120.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR120_ASSERTDIAG
+fieldset/DIAGPAR121:
+  description: Diagnostic Parity Register 121.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR121_ASSERTDIAG
+fieldset/DIAGPAR122:
+  description: Diagnostic Parity Register 122.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR122_ASSERTDIAG
+fieldset/DIAGPAR123:
+  description: Diagnostic Parity Register 123.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR123_ASSERTDIAG
+fieldset/DIAGPAR124:
+  description: Diagnostic Parity Register 124.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR124_ASSERTDIAG
+fieldset/DIAGPAR125:
+  description: Diagnostic Parity Register 125.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR125_ASSERTDIAG
+fieldset/DIAGPAR126:
+  description: Diagnostic Parity Register 126.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR126_ASSERTDIAG
+fieldset/DIAGPAR127:
+  description: Diagnostic Parity Register 127.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR127_ASSERTDIAG
+fieldset/DIAGPAR128:
+  description: Diagnostic Parity Register 128.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR128_ASSERTDIAG
+fieldset/DIAGPAR129:
+  description: Diagnostic Parity Register 129.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR129_ASSERTDIAG
+fieldset/DIAGPAR13:
+  description: Diagnostic Parity Register 13.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR13_ASSERTDIAG
+fieldset/DIAGPAR130:
+  description: Diagnostic Parity Register 130.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR130_ASSERTDIAG
+fieldset/DIAGPAR131:
+  description: Diagnostic Parity Register 131.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR131_ASSERTDIAG
+fieldset/DIAGPAR132:
+  description: Diagnostic Parity Register 132.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR132_ASSERTDIAG
+fieldset/DIAGPAR133:
+  description: Diagnostic Parity Register 133.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR133_ASSERTDIAG
+fieldset/DIAGPAR134:
+  description: Diagnostic Parity Register 134.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR134_ASSERTDIAG
+fieldset/DIAGPAR135:
+  description: Diagnostic Parity Register 135.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR135_ASSERTDIAG
+fieldset/DIAGPAR136:
+  description: Diagnostic Parity Register 136.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR136_ASSERTDIAG
+fieldset/DIAGPAR137:
+  description: Diagnostic Parity Register 137.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR137_ASSERTDIAG
+fieldset/DIAGPAR138:
+  description: Diagnostic Parity Register 138.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR138_ASSERTDIAG
+fieldset/DIAGPAR139:
+  description: Diagnostic Parity Register 139.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR139_ASSERTDIAG
+fieldset/DIAGPAR14:
+  description: Diagnostic Parity Register 14.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR14_ASSERTDIAG
+fieldset/DIAGPAR140:
+  description: Diagnostic Parity Register 140.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR140_ASSERTDIAG
+fieldset/DIAGPAR141:
+  description: Diagnostic Parity Register 141.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR141_ASSERTDIAG
+fieldset/DIAGPAR142:
+  description: Diagnostic Parity Register 142.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR142_ASSERTDIAG
+fieldset/DIAGPAR143:
+  description: Diagnostic Parity Register 143.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR143_ASSERTDIAG
+fieldset/DIAGPAR144:
+  description: Diagnostic Parity Register 144.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR144_ASSERTDIAG
+fieldset/DIAGPAR145:
+  description: Diagnostic Parity Register 145.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR145_ASSERTDIAG
+fieldset/DIAGPAR146:
+  description: Diagnostic Parity Register 146.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR146_ASSERTDIAG
+fieldset/DIAGPAR147:
+  description: Diagnostic Parity Register 147.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR147_ASSERTDIAG
+fieldset/DIAGPAR148:
+  description: Diagnostic Parity Register 148.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR148_ASSERTDIAG
+fieldset/DIAGPAR149:
+  description: Diagnostic Parity Register 149.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR149_ASSERTDIAG
+fieldset/DIAGPAR15:
+  description: Diagnostic Parity Register 15.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR15_ASSERTDIAG
+fieldset/DIAGPAR150:
+  description: Diagnostic Parity Register 150.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR150_ASSERTDIAG
+fieldset/DIAGPAR151:
+  description: Diagnostic Parity Register 151.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR151_ASSERTDIAG
+fieldset/DIAGPAR152:
+  description: Diagnostic Parity Register 152.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR152_ASSERTDIAG
+fieldset/DIAGPAR153:
+  description: Diagnostic Parity Register 153.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR153_ASSERTDIAG
+fieldset/DIAGPAR154:
+  description: Diagnostic Parity Register 154.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR154_ASSERTDIAG
+fieldset/DIAGPAR155:
+  description: Diagnostic Parity Register 155.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR155_ASSERTDIAG
+fieldset/DIAGPAR156:
+  description: Diagnostic Parity Register 156.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR156_ASSERTDIAG
+fieldset/DIAGPAR157:
+  description: Diagnostic Parity Register 157.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR157_ASSERTDIAG
+fieldset/DIAGPAR158:
+  description: Diagnostic Parity Register 158.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR158_ASSERTDIAG
+fieldset/DIAGPAR159:
+  description: Diagnostic Parity Register 159.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR159_ASSERTDIAG
+fieldset/DIAGPAR16:
+  description: Diagnostic Parity Register 16.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR16_ASSERTDIAG
+fieldset/DIAGPAR160:
+  description: Diagnostic Parity Register 160.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR160_ASSERTDIAG
+fieldset/DIAGPAR161:
+  description: Diagnostic Parity Register 161.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR161_ASSERTDIAG
+fieldset/DIAGPAR162:
+  description: Diagnostic Parity Register 162.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR162_ASSERTDIAG
+fieldset/DIAGPAR163:
+  description: Diagnostic Parity Register 163.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR163_ASSERTDIAG
+fieldset/DIAGPAR164:
+  description: Diagnostic Parity Register 164.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR164_ASSERTDIAG
+fieldset/DIAGPAR165:
+  description: Diagnostic Parity Register 165.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR165_ASSERTDIAG
+fieldset/DIAGPAR166:
+  description: Diagnostic Parity Register 166.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR166_ASSERTDIAG
+fieldset/DIAGPAR167:
+  description: Diagnostic Parity Register 167.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR167_ASSERTDIAG
+fieldset/DIAGPAR168:
+  description: Diagnostic Parity Register 168.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR168_ASSERTDIAG
+fieldset/DIAGPAR169:
+  description: Diagnostic Parity Register 169.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR169_ASSERTDIAG
+fieldset/DIAGPAR17:
+  description: Diagnostic Parity Register 17.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR17_ASSERTDIAG
+fieldset/DIAGPAR170:
+  description: Diagnostic Parity Register 170.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR170_ASSERTDIAG
+fieldset/DIAGPAR171:
+  description: Diagnostic Parity Register 171.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR171_ASSERTDIAG
+fieldset/DIAGPAR172:
+  description: Diagnostic Parity Register 172.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR172_ASSERTDIAG
+fieldset/DIAGPAR173:
+  description: Diagnostic Parity Register 173.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR173_ASSERTDIAG
+fieldset/DIAGPAR174:
+  description: Diagnostic Parity Register 174.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR174_ASSERTDIAG
+fieldset/DIAGPAR175:
+  description: Diagnostic Parity Register 175.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR175_ASSERTDIAG
+fieldset/DIAGPAR176:
+  description: Diagnostic Parity Register 176.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR176_ASSERTDIAG
+fieldset/DIAGPAR177:
+  description: Diagnostic Parity Register 177.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR177_ASSERTDIAG
+fieldset/DIAGPAR178:
+  description: Diagnostic Parity Register 178.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR178_ASSERTDIAG
+fieldset/DIAGPAR179:
+  description: Diagnostic Parity Register 179.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR179_ASSERTDIAG
+fieldset/DIAGPAR18:
+  description: Diagnostic Parity Register 18.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR18_ASSERTDIAG
+fieldset/DIAGPAR180:
+  description: Diagnostic Parity Register 180.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR180_ASSERTDIAG
+fieldset/DIAGPAR181:
+  description: Diagnostic Parity Register 181.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR181_ASSERTDIAG
+fieldset/DIAGPAR182:
+  description: Diagnostic Parity Register 182.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR182_ASSERTDIAG
+fieldset/DIAGPAR183:
+  description: Diagnostic Parity Register 183.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR183_ASSERTDIAG
+fieldset/DIAGPAR184:
+  description: Diagnostic Parity Register 184.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR184_ASSERTDIAG
+fieldset/DIAGPAR185:
+  description: Diagnostic Parity Register 185.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR185_ASSERTDIAG
+fieldset/DIAGPAR186:
+  description: Diagnostic Parity Register 186.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR186_ASSERTDIAG
+fieldset/DIAGPAR187:
+  description: Diagnostic Parity Register 187.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR187_ASSERTDIAG
+fieldset/DIAGPAR188:
+  description: Diagnostic Parity Register 188.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR188_ASSERTDIAG
+fieldset/DIAGPAR189:
+  description: Diagnostic Parity Register 189.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR189_ASSERTDIAG
+fieldset/DIAGPAR19:
+  description: Diagnostic Parity Register 19.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR19_ASSERTDIAG
+fieldset/DIAGPAR190:
+  description: Diagnostic Parity Register 190.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR190_ASSERTDIAG
+fieldset/DIAGPAR191:
+  description: Diagnostic Parity Register 191.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR191_ASSERTDIAG
+fieldset/DIAGPAR192:
+  description: Diagnostic Parity Register 768.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR192_ASSERTDIAG
+fieldset/DIAGPAR2:
+  description: Diagnostic Parity Register 2.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR2_ASSERTDIAG
+fieldset/DIAGPAR20:
+  description: Diagnostic Parity Register 20.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR20_ASSERTDIAG
+fieldset/DIAGPAR21:
+  description: Diagnostic Parity Register 21.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR21_ASSERTDIAG
+fieldset/DIAGPAR22:
+  description: Diagnostic Parity Register 22.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR22_ASSERTDIAG
+fieldset/DIAGPAR23:
+  description: Diagnostic Parity Register 23.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR23_ASSERTDIAG
+fieldset/DIAGPAR24:
+  description: Diagnostic Parity Register 24.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR24_ASSERTDIAG
+fieldset/DIAGPAR25:
+  description: Diagnostic Parity Register 25.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR25_ASSERTDIAG
+fieldset/DIAGPAR26:
+  description: Diagnostic Parity Register 26.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR26_ASSERTDIAG
+fieldset/DIAGPAR27:
+  description: Diagnostic Parity Register 27.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR27_ASSERTDIAG
+fieldset/DIAGPAR28:
+  description: Diagnostic Parity Register 28.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR28_ASSERTDIAG
+fieldset/DIAGPAR29:
+  description: Diagnostic Parity Register 29.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR29_ASSERTDIAG
+fieldset/DIAGPAR3:
+  description: Diagnostic Parity Register 3.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR3_ASSERTDIAG
+fieldset/DIAGPAR30:
+  description: Diagnostic Parity Register 30.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR30_ASSERTDIAG
+fieldset/DIAGPAR31:
+  description: Diagnostic Parity Register 31.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR31_ASSERTDIAG
+fieldset/DIAGPAR32:
+  description: Diagnostic Parity Register 32.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR32_ASSERTDIAG
+fieldset/DIAGPAR33:
+  description: Diagnostic Parity Register 33.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR33_ASSERTDIAG
+fieldset/DIAGPAR34:
+  description: Diagnostic Parity Register 34.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR34_ASSERTDIAG
+fieldset/DIAGPAR35:
+  description: Diagnostic Parity Register 35.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR35_ASSERTDIAG
+fieldset/DIAGPAR36:
+  description: Diagnostic Parity Register 36.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR36_ASSERTDIAG
+fieldset/DIAGPAR37:
+  description: Diagnostic Parity Register 37.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR37_ASSERTDIAG
+fieldset/DIAGPAR38:
+  description: Diagnostic Parity Register 38.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR38_ASSERTDIAG
+fieldset/DIAGPAR39:
+  description: Diagnostic Parity Register 39.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR39_ASSERTDIAG
+fieldset/DIAGPAR4:
+  description: Diagnostic Parity Register 4.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR4_ASSERTDIAG
+fieldset/DIAGPAR40:
+  description: Diagnostic Parity Register 40.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR40_ASSERTDIAG
+fieldset/DIAGPAR41:
+  description: Diagnostic Parity Register 41.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR41_ASSERTDIAG
+fieldset/DIAGPAR42:
+  description: Diagnostic Parity Register 42.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR42_ASSERTDIAG
+fieldset/DIAGPAR43:
+  description: Diagnostic Parity Register 43.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR43_ASSERTDIAG
+fieldset/DIAGPAR44:
+  description: Diagnostic Parity Register 44.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR44_ASSERTDIAG
+fieldset/DIAGPAR45:
+  description: Diagnostic Parity Register 45.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR45_ASSERTDIAG
+fieldset/DIAGPAR46:
+  description: Diagnostic Parity Register 46.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR46_ASSERTDIAG
+fieldset/DIAGPAR47:
+  description: Diagnostic Parity Register 47.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR47_ASSERTDIAG
+fieldset/DIAGPAR48:
+  description: Diagnostic Parity Register 48.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR48_ASSERTDIAG
+fieldset/DIAGPAR49:
+  description: Diagnostic Parity Register 49.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR49_ASSERTDIAG
+fieldset/DIAGPAR5:
+  description: Diagnostic Parity Register 5.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR5_ASSERTDIAG
+fieldset/DIAGPAR50:
+  description: Diagnostic Parity Register 50.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR50_ASSERTDIAG
+fieldset/DIAGPAR51:
+  description: Diagnostic Parity Register 51.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR51_ASSERTDIAG
+fieldset/DIAGPAR52:
+  description: Diagnostic Parity Register 52.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR52_ASSERTDIAG
+fieldset/DIAGPAR53:
+  description: Diagnostic Parity Register 53.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR53_ASSERTDIAG
+fieldset/DIAGPAR54:
+  description: Diagnostic Parity Register 54.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR54_ASSERTDIAG
+fieldset/DIAGPAR55:
+  description: Diagnostic Parity Register 55.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR55_ASSERTDIAG
+fieldset/DIAGPAR56:
+  description: Diagnostic Parity Register 56.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR56_ASSERTDIAG
+fieldset/DIAGPAR57:
+  description: Diagnostic Parity Register 57.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR57_ASSERTDIAG
+fieldset/DIAGPAR58:
+  description: Diagnostic Parity Register 58.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR58_ASSERTDIAG
+fieldset/DIAGPAR59:
+  description: Diagnostic Parity Register 59.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR59_ASSERTDIAG
+fieldset/DIAGPAR6:
+  description: Diagnostic Parity Register 6.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR6_ASSERTDIAG
+fieldset/DIAGPAR60:
+  description: Diagnostic Parity Register 60.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR60_ASSERTDIAG
+fieldset/DIAGPAR61:
+  description: Diagnostic Parity Register 61.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR61_ASSERTDIAG
+fieldset/DIAGPAR62:
+  description: Diagnostic Parity Register 62.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR62_ASSERTDIAG
+fieldset/DIAGPAR63:
+  description: Diagnostic Parity Register 63.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR63_ASSERTDIAG
+fieldset/DIAGPAR64:
+  description: Diagnostic Parity Register 64.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR64_ASSERTDIAG
+fieldset/DIAGPAR65:
+  description: Diagnostic Parity Register 65.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR65_ASSERTDIAG
+fieldset/DIAGPAR66:
+  description: Diagnostic Parity Register 66.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR66_ASSERTDIAG
+fieldset/DIAGPAR67:
+  description: Diagnostic Parity Register 67.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR67_ASSERTDIAG
+fieldset/DIAGPAR68:
+  description: Diagnostic Parity Register 68.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR68_ASSERTDIAG
+fieldset/DIAGPAR69:
+  description: Diagnostic Parity Register 69.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR69_ASSERTDIAG
+fieldset/DIAGPAR7:
+  description: Diagnostic Parity Register 7.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR7_ASSERTDIAG
+fieldset/DIAGPAR70:
+  description: Diagnostic Parity Register 70.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR70_ASSERTDIAG
+fieldset/DIAGPAR71:
+  description: Diagnostic Parity Register 71.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR71_ASSERTDIAG
+fieldset/DIAGPAR72:
+  description: Diagnostic Parity Register 72.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR72_ASSERTDIAG
+fieldset/DIAGPAR73:
+  description: Diagnostic Parity Register 73.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR73_ASSERTDIAG
+fieldset/DIAGPAR74:
+  description: Diagnostic Parity Register 74.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR74_ASSERTDIAG
+fieldset/DIAGPAR75:
+  description: Diagnostic Parity Register 75.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR75_ASSERTDIAG
+fieldset/DIAGPAR76:
+  description: Diagnostic Parity Register 76.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR76_ASSERTDIAG
+fieldset/DIAGPAR77:
+  description: Diagnostic Parity Register 77.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR77_ASSERTDIAG
+fieldset/DIAGPAR78:
+  description: Diagnostic Parity Register 78.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR78_ASSERTDIAG
+fieldset/DIAGPAR79:
+  description: Diagnostic Parity Register 79.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR79_ASSERTDIAG
+fieldset/DIAGPAR8:
+  description: Diagnostic Parity Register 8.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR8_ASSERTDIAG
+fieldset/DIAGPAR80:
+  description: Diagnostic Parity Register 80.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR80_ASSERTDIAG
+fieldset/DIAGPAR81:
+  description: Diagnostic Parity Register 81.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR81_ASSERTDIAG
+fieldset/DIAGPAR82:
+  description: Diagnostic Parity Register 82.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR82_ASSERTDIAG
+fieldset/DIAGPAR83:
+  description: Diagnostic Parity Register 83.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR83_ASSERTDIAG
+fieldset/DIAGPAR84:
+  description: Diagnostic Parity Register 84.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR84_ASSERTDIAG
+fieldset/DIAGPAR85:
+  description: Diagnostic Parity Register 85.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR85_ASSERTDIAG
+fieldset/DIAGPAR86:
+  description: Diagnostic Parity Register 86.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR86_ASSERTDIAG
+fieldset/DIAGPAR87:
+  description: Diagnostic Parity Register 87.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR87_ASSERTDIAG
+fieldset/DIAGPAR88:
+  description: Diagnostic Parity Register 88.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR88_ASSERTDIAG
+fieldset/DIAGPAR89:
+  description: Diagnostic Parity Register 89.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR89_ASSERTDIAG
+fieldset/DIAGPAR9:
+  description: Diagnostic Parity Register 9.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR9_ASSERTDIAG
+fieldset/DIAGPAR90:
+  description: Diagnostic Parity Register 90.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR90_ASSERTDIAG
+fieldset/DIAGPAR91:
+  description: Diagnostic Parity Register 91.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR91_ASSERTDIAG
+fieldset/DIAGPAR92:
+  description: Diagnostic Parity Register 92.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR92_ASSERTDIAG
+fieldset/DIAGPAR93:
+  description: Diagnostic Parity Register 93.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR93_ASSERTDIAG
+fieldset/DIAGPAR94:
+  description: Diagnostic Parity Register 94.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR94_ASSERTDIAG
+fieldset/DIAGPAR95:
+  description: Diagnostic Parity Register 95.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR95_ASSERTDIAG
+fieldset/DIAGPAR96:
+  description: Diagnostic Parity Register 96.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR96_ASSERTDIAG
+fieldset/DIAGPAR97:
+  description: Diagnostic Parity Register 97.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR97_ASSERTDIAG
+fieldset/DIAGPAR98:
+  description: Diagnostic Parity Register 98.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR98_ASSERTDIAG
+fieldset/DIAGPAR99:
+  description: Diagnostic Parity Register 99.
+  fields:
+  - name: ASSERTDIAG
+    description: Writing a 1 will cause the safety diagnostic logic to generate a diagnostic check.
+    bit_offset: 0
+    bit_size: 1
+    enum: DIAGPAR99_ASSERTDIAG
+fieldset/DIAGPARFV:
+  description: Diagnostic Parity Fail Vector Register.
+  fields:
+  - name: INDEX
+    description: 'Index of DIAG MMR creating the failure. NOTE: INDEX value of 1 corresponds to DIAGPAR0, 2 corresponds to DIAGPAR1 and so on.'
+    bit_offset: 0
+    bit_size: 10
+  - name: DPINDEX
+    description: 'Index of DIAG PASS MMR. NOTE: DPINDEX value of 1 corresponds to DIAGPAR0, 2 corresponds to DIAGPAR1 and so on.'
+    bit_offset: 16
+    bit_size: 10
+fieldset/DIAGSTAT:
+  description: Diagnostic Status Register.
+  fields:
+  - name: STATE
+    description: Current diagnostic state.
+    bit_offset: 0
+    bit_size: 3
+    enum: STATE
+  - name: NUMDIAG
+    description: This is a hardware constant that indicates how many DIAGPAR registers are included in this SFTYDIAG sub-region.
+    bit_offset: 16
+    bit_size: 10
+fieldset/IMPEXPCFG_EXPORT_PORT:
+  description: Export channel ID register.
+  fields:
+  - name: CHANID
+    description: Channel ID for import side to connect to.
+    bit_offset: 0
+    bit_size: 8
+fieldset/IMPEXPCFG_IMPORT_PORT:
+  description: Import channel ID registe.
+  fields:
+  - name: CHANID
+    description: Channel ID for import side to connect to.
+    bit_offset: 0
+    bit_size: 8
+fieldset/PUBCFG_CPU_NUM:
+  description: CPU connect register.
+  fields:
+  - name: CPUSS0_CONN
+    description: CPUSS0 connect bit.
+    bit_offset: 1
+    bit_size: 1
+fieldset/PUBCFG_DESC:
+  description: Module Description.
+  fields:
+  - name: MINREV
+    description: Minor rev of the IP.
+    bit_offset: 0
+    bit_size: 4
+  - name: MAJREV
+    description: Major rev of the IP.
+    bit_offset: 4
+    bit_size: 4
+  - name: INSTNUM
+    description: Instance Number within the device. This will be a parameter to the RTL for modules that can have multiple instances.
+    bit_offset: 8
+    bit_size: 4
+  - name: FEATUREVER
+    description: Feature Set for the module *instance*.
+    bit_offset: 12
+    bit_size: 4
+  - name: MODULEID
+    description: Module identification contains a unique peripheral identification number. The assignments are maintained in a central database for all of the platform modules to ensure uniqueness.
+    bit_offset: 16
+    bit_size: 16
+fieldset/PUBCFG_DESC_EX:
+  description: Extended Module Description.
+  fields:
+  - name: NUM_SINGLE_CHANNEL
+    description: Number of single channels contained in this instance of event manager.
+    bit_offset: 0
+    bit_size: 8
+  - name: NUM_DUAL_CHANNEL
+    description: Number of dual channels contained in this instance of event manager.
+    bit_offset: 8
+    bit_size: 8
+  - name: NUM_IMPORT
+    description: Number of import ports available in this EventManager instantiation.
+    bit_offset: 16
+    bit_size: 8
+  - name: NUM_EXPORT
+    description: Number of export ports available in this EventManager instantiation.
+    bit_offset: 24
+    bit_size: 8
+fieldset/PUBCFG_EXPORT_PORT:
+  description: Export channel ID register.
+  fields:
+  - name: CHANID
+    description: Channel ID for export side to connect to.
+    bit_offset: 0
+    bit_size: 8
+fieldset/PUBCFG_FPUB_PORT:
+  description: Publisher channel ID register.
+  fields:
+  - name: CHANID
+    description: Channel ID for publisher to connect to.
+    bit_offset: 0
+    bit_size: 8
+fieldset/PUBCFG_FSUB_PORT:
+  description: Subscriber channel ID register.
+  fields:
+  - name: CHANID
+    description: Channel ID for subscriber to connect to.
+    bit_offset: 0
+    bit_size: 8
+fieldset/PUBCFG_IMPORT_PORT:
+  description: Import channel ID registe.
+  fields:
+  - name: CHANID
+    description: Channel ID for import side to connect to.
+    bit_offset: 0
+    bit_size: 8
+fieldset/SECCFG_CPU_NUM:
+  description: CPU connect register.
+  bit_size: 8
+  fields:
+  - name: CPUSS0_CONN
+    description: CPUSS0 connect bit.
+    bit_offset: 1
+    bit_size: 1
+fieldset/SECCFG_DESC:
+  description: Module Description.
+  fields:
+  - name: MINREV
+    description: Minor rev of the IP.
+    bit_offset: 0
+    bit_size: 4
+  - name: MAJREV
+    description: Major rev of the IP.
+    bit_offset: 4
+    bit_size: 4
+  - name: INSTNUM
+    description: Instance Number within the device. This will be a parameter to the RTL for modules that can have multiple instances.
+    bit_offset: 8
+    bit_size: 4
+  - name: FEATUREVER
+    description: Feature Set for the module *instance*.
+    bit_offset: 12
+    bit_size: 4
+  - name: MODULEID
+    description: Module identification contains a unique peripheral identification number. The assignments are maintained in a central database for all of the platform modules to ensure uniqueness.
+    bit_offset: 16
+    bit_size: 16
+fieldset/SECCFG_DESC_EX:
+  description: Extended Module Description.
+  fields:
+  - name: NUM_SINGLE_CHANNEL
+    description: Number of single channels contained in this instance of event manager.
+    bit_offset: 0
+    bit_size: 8
+  - name: NUM_DUAL_CHANNEL
+    description: Number of dual channels contained in this instance of event manager.
+    bit_offset: 8
+    bit_size: 8
+  - name: NUM_IMPORT
+    description: Number of import ports available in this EventManager instantiation.
+    bit_offset: 16
+    bit_size: 8
+  - name: NUM_EXPORT
+    description: Number of export ports available in this EventManager instantiation.
+    bit_offset: 24
+    bit_size: 8
+enum/DIAGPAR0_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR100_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR101_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR102_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR103_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR104_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR105_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR106_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR107_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR108_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR109_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR10_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR110_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR111_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR112_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR113_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR114_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR115_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR116_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR117_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR118_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR119_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR11_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR120_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR121_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR122_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR123_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR124_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR125_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR126_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR127_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR128_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR129_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR12_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR130_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR131_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR132_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR133_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR134_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR135_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR136_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR137_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR138_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR139_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR13_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR140_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR141_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR142_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR143_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR144_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR145_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR146_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR147_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR148_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR149_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR14_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR150_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR151_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR152_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR153_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR154_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR155_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR156_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR157_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR158_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR159_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR15_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR160_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR161_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR162_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR163_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR164_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR165_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR166_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR167_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR168_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR169_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR16_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR170_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR171_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR172_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR173_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR174_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR175_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR176_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR177_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR178_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR179_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR17_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR180_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR181_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR182_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR183_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR184_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR185_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR186_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR187_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR188_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR189_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR18_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR190_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR191_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR192_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR19_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR1_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR20_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR21_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR22_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR23_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR24_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR25_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR26_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR27_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR28_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR29_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR2_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR30_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR31_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR32_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR33_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR34_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR35_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR36_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR37_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR38_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR39_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR3_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR40_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR41_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR42_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR43_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR44_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR45_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR46_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR47_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR48_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR49_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR4_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR50_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR51_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR52_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR53_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR54_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR55_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR56_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR57_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR58_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR59_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR5_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR60_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR61_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR62_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR63_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR64_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR65_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR66_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR67_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR68_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR69_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR6_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR70_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR71_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR72_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR73_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR74_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR75_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR76_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR77_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR78_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR79_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR7_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR80_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR81_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR82_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR83_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR84_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR85_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR86_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR87_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR88_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR89_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR8_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR90_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR91_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR92_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR93_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR94_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR95_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR96_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR97_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR98_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR99_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/DIAGPAR9_ASSERTDIAG:
+  bit_size: 1
+  variants:
+  - name: NO_EFFECT
+    description: No Effect.
+    value: 0
+  - name: START
+    description: Generate diagnostic check.
+    value: 1
+enum/OVRWR_EN:
+  bit_size: 4
+  variants:
+  - name: DISABLE
+    description: Overwrite is disabled. Mode is same as in UNASG aperture.
+    value: 5
+  - name: ENABLED
+    description: Ovewrite is enabled.
+    value: 10
+enum/STATE:
+  bit_size: 3
+  variants:
+  - name: NONE
+    description: No failures and no diagnostic.
+    value: 0
+  - name: FUNC_FAIL
+    description: Functional Failure.
+    value: 1
+  - name: DIAG_FAIL
+    description: Diagnostic Failure.
+    value: 2
+  - name: DIAG_PASS
+    description: Diagnostic Pass.
+    value: 4
