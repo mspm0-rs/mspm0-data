@@ -143,7 +143,7 @@ pub fn interrupt_groups(chip: &Chip) -> TokenStream {
 }
 
 fn skip_peripheral(ty: PeripheralType) -> bool {
-    matches!(ty, PeripheralType::Unknown | PeripheralType::Sysctl)
+    matches!(ty, PeripheralType::Unknown)
 }
 
 fn generate_peripheral(
