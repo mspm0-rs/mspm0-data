@@ -532,6 +532,40 @@ families:
     - RHB
     - RTR
 
+- family: mspm0l111x
+  datasheet_url: https://www.ti.com/lit/gpn/mspm0l1117
+  reference_manual_url: https://www.ti.com/lit/pdf/slau847
+  errata_url: https://www.ti.com/lit/pdf/slaz741
+  adc_vrsel: VDD_INTREF_EXTREF
+  part_numbers:
+  - name: mspm0l1116
+    memory:
+    - name: FLASH
+      length: 64
+      address: 0x00000000
+    - name: RAM
+      length: 16
+      address: 0x20000000
+    packages:
+    - PT
+    - RGZ
+    - RHB
+    - RGE
+
+  - name: mspm0l1117
+    memory:
+    - name: FLASH
+      length: 128
+      address: 0x00000000
+    - name: RAM
+      length: 16
+      address: 0x20000000
+    packages:
+    - PT
+    - RGZ
+    - RHB
+    - RGE
+
 - family: mspm0l112x
   datasheet_url: https://www.ti.com/lit/gpn/mspm0l2117
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
