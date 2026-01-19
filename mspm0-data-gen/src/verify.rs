@@ -95,12 +95,20 @@ fn pin_names(chip: &Chip, name: &str) -> anyhow::Result<()> {
 }
 
 fn gpio_no_duplicates(chip: &Chip, name: &str) -> anyhow::Result<()> {
-    for (_, peripheral) in chip.peripherals.iter().filter(|(name, _)| name.starts_with("GPIO")) {
+    for (_, peripheral) in chip
+        .peripherals
+        .iter()
+        .filter(|(name, _)| name.starts_with("GPIO"))
+    {
         let mut signals = HashSet::new();
 
         for pin in peripheral.pins.iter() {
             if !signals.insert(&pin.pin) {
-                bail!("{name}: {} contains multiple pins of {}", peripheral.name, pin.pin);
+                bail!(
+                    "{name}: {} contains multiple pins of {}",
+                    peripheral.name,
+                    pin.pin
+                );
             }
         }
     }

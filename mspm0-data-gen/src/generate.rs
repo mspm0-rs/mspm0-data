@@ -1,4 +1,10 @@
-use std::{borrow::Cow, cmp::Ordering, collections::{BTreeMap, BTreeSet}, fs, sync::LazyLock};
+use std::{
+    borrow::Cow,
+    cmp::Ordering,
+    collections::{BTreeMap, BTreeSet},
+    fs,
+    sync::LazyLock,
+};
 
 use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
@@ -195,8 +201,7 @@ fn generate_peripherals2(
         LazyLock::new(|| Regex::new(r"(?m)^P(?<bank>[A-Z])\d+").unwrap());
     static DMA_CHANNEL: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"DMA_CH(?<channel>\d+)").unwrap());
-    static USB_EP: LazyLock<Regex> =
-        LazyLock::new(|| Regex::new(r"USBFS(\d+)_EP(\w+)").unwrap());
+    static USB_EP: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"USBFS(\d+)_EP(\w+)").unwrap());
 
     let mut peripherals = BTreeMap::new();
 
@@ -255,11 +260,7 @@ fn generate_peripherals2(
             // IWDT technically exists on G151x and G351x, but the SDK and datasheets do not define the address for IWDT.
             //
             // To prevent issues, we will only consider IWDT to exist on chips which define an address.
-            if name == "IWDT" && header
-                .peripheral_addresses
-                .get(&name)
-                .is_none()
-            {
+            if name == "IWDT" && header.peripheral_addresses.get(&name).is_none() {
                 continue;
             }
 
