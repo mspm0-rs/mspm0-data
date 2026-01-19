@@ -46,7 +46,7 @@ pub fn peripherals(chip: &Chip, package: &Package) -> TokenStream {
     let mut peripherals = Vec::<TokenStream>::new();
 
     for peri in chip.peripherals.values() {
-        if let Some(peri) = generate_peripheral(peri, &pins) {
+        if let Some(peri) = generate_peripheral(peri, &pins, package) {
             peripherals.push(peri);
         }
     }
@@ -149,6 +149,7 @@ fn skip_peripheral(ty: PeripheralType) -> bool {
 fn generate_peripheral(
     peripheral: &Peripheral,
     available_pins: &HashSet<String>,
+    package: &Package,
 ) -> Option<TokenStream> {
     // Exclude peripherals that don't really exist as singletons.
     if skip_peripheral(peripheral.ty) {
@@ -172,7 +173,23 @@ fn generate_peripheral(
             None => quote! { None },
         };
 
-        if available_pins.contains(name) {
+        if available_pins.contains(name) || name == "NRST" {
+            // If NRST is being used, figure out what pin it truly maps to.
+            let name = if name == "NRST" {
+                // Some packages share a GPIO with NRST.
+                let shared_pin = package
+                    .pins
+                    .iter()
+                    .find(|pin| pin.signals.iter().any(|s| s == "NRST") && pin.signals.len() > 1);
+
+                match shared_pin {
+                    Some(pin) => pin.signals.iter().find(|s| **s != "NRST").unwrap(),
+                    None => name,
+                }
+            } else {
+                name
+            };
+
             pins.push(quote! {
                 PeripheralPin {
                     pin: #name,
