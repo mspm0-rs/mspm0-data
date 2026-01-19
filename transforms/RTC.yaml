@@ -1,4 +1,4 @@
-# Transform for CANFD registers based on CANFD0 on G350x
+# Transform for RTC registers based on RTC on G350x
 transforms:
   - !DeleteUselessEnums
 
@@ -15,6 +15,11 @@ transforms:
     variants:
       0: CLEARED
       1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STOP
+      1: RUN
 
   - !DeleteEnumsWithVariants
     variants:
@@ -36,61 +41,24 @@ transforms:
       0: DISABLE
       1: EVAL
 
-  # Merge CANFD0 -> CANFD
-  - !MergeBlocks
-    from: CANFD0
-    main: CANFD0
-    to: CANFD
-
-  # Remove CANFD0_ prefixes
+  # Remove RTC_ prefixes
   - !RenameRegisters
     block: .*
-    from: CANFD0_(.+)
+    from: RTC_(.+)
     to: $1
 
   - !RenameFields
     fieldset: .*
-    from: CANFD0_(.+)
+    from: RTC_(.+)
     to: $1
 
   - !Rename
     type: All
-    from: CANFD0_(.+)
-    to: $1
-
-  # MCAN block - remove MCAN_ prefix from registers
-  - !RenameRegisters
-    block: MCAN
-    from: MCAN_(.+)
-    to: $1
-
-  - !RenameFields
-    fieldset: .*
-    from: MCAN_(.+)
-    to: $1
-
-  - !Rename
-    type: All
-    from: MCAN_(.+)
-    to: $1
-
-  # TI_WRAPPER block - remove TI_WRAPPER_ prefix
-  - !RenameRegisters
-    block: TI_WRAPPER
-    from: TI_WRAPPER_(.+)
-    to: $1
-
-  - !RenameFields
-    fieldset: .*
-    from: TI_WRAPPER_(.+)
-    to: $1
-
-  - !Rename
-    type: All
-    from: TI_WRAPPER_(.+)
+    from: RTC_(.+)
     to: $1
 
   ## Interrupts
+  ## INT_EVENT0 -> CPU_INT
   - !MergeBlocks
     from: INT_EVENT0
     main: INT_EVENT0
@@ -126,6 +94,42 @@ transforms:
     from: CPU_INT_(.+)
     to: $1
 
+  ## INT_EVENT1 -> EVT_OUT (RTC uses event output, not DMA)
+  - !MergeBlocks
+    from: INT_EVENT1
+    main: INT_EVENT1
+    to: EVT_OUT
+
+  - !RenameRegisters
+    block: .*
+    from: INT_EVENT1(.*)
+    to: EVT_OUT$1
+
+  - !RenameFields
+    fieldset: .*
+    from: INT_EVENT1(.+)
+    to: EVT_OUT$1
+
+  - !Rename
+    type: All
+    from: INT_EVENT1(.+)
+    to: EVT_OUT$1
+
+  - !MergeFieldsets
+    from: EVT_OUT_(IMASK|ISET|MIS|RIS|ICLR)
+    to: EVT_OUT
+    check: NoCheck
+
+  - !RenameRegisters
+    block: .*
+    from: EVT_OUT_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: EVT_OUT_(.+)
+    to: $1
+
   ## Add missing keys
   - !AddFields
     fieldset: RSTCTL
@@ -157,6 +161,20 @@ transforms:
         variants:
           - name: KEY
             value: 38
+
+  ## EVT_MODE
+  - !MergeEnums
+    from: (INT|EVT)(\d+)_CFG
+    to: EVT_CFG
+
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT0_CFG
+    to: CPU
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: EVT1_CFG
+    to: EVT_OUT
 
   ## Cleanup
   - !Sort

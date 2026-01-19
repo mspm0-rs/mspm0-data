@@ -1,0 +1,243 @@
+# Transform for AES registers based on AES on G350x
+transforms:
+  - !DeleteUselessEnums
+
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLEARED
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STOP
+      1: RUN
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: DISABLE
+      1: EVAL
+
+  # Remove AES_ prefixes
+  - !RenameRegisters
+    block: .*
+    from: AES_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: AES_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: AES_(.+)
+    to: $1
+
+  ## Interrupts - AES has INT_EVENT0-3
+  ## INT_EVENT0 -> CPU_INT
+  - !MergeBlocks
+    from: INT_EVENT0
+    main: INT_EVENT0
+    to: CPU_INT
+
+  - !RenameRegisters
+    block: .*
+    from: INT_EVENT0(.*)
+    to: CPU_INT$1
+
+  - !RenameFields
+    fieldset: .*
+    from: INT_EVENT0(.+)
+    to: CPU_INT$1
+
+  - !Rename
+    type: All
+    from: INT_EVENT0(.+)
+    to: CPU_INT$1
+
+  - !MergeFieldsets
+    from: CPU_INT_(IMASK|ISET|MIS|RIS|ICLR)
+    to: CPU_INT
+    check: NoCheck
+
+  - !RenameRegisters
+    block: .*
+    from: CPU_INT_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: CPU_INT_(.+)
+    to: $1
+
+  ## INT_EVENT1 -> DMA_TRIG0
+  - !MergeBlocks
+    from: INT_EVENT1
+    main: INT_EVENT1
+    to: DMA_TRIG0
+
+  - !RenameRegisters
+    block: .*
+    from: INT_EVENT1(.*)
+    to: DMA_TRIG0$1
+
+  - !RenameFields
+    fieldset: .*
+    from: INT_EVENT1(.+)
+    to: DMA_TRIG0$1
+
+  - !Rename
+    type: All
+    from: INT_EVENT1(.+)
+    to: DMA_TRIG0$1
+
+  - !MergeFieldsets
+    from: DMA_TRIG0_(IMASK|ISET|MIS|RIS|ICLR)
+    to: DMA_TRIG0
+    check: NoCheck
+
+  - !RenameRegisters
+    block: .*
+    from: DMA_TRIG0_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: DMA_TRIG0_(.+)
+    to: $1
+
+  ## INT_EVENT2 -> DMA_TRIG1
+  - !MergeBlocks
+    from: INT_EVENT2
+    main: INT_EVENT2
+    to: DMA_TRIG1
+
+  - !RenameRegisters
+    block: .*
+    from: INT_EVENT2(.*)
+    to: DMA_TRIG1$1
+
+  - !RenameFields
+    fieldset: .*
+    from: INT_EVENT2(.+)
+    to: DMA_TRIG1$1
+
+  - !Rename
+    type: All
+    from: INT_EVENT2(.+)
+    to: DMA_TRIG1$1
+
+  - !MergeFieldsets
+    from: DMA_TRIG1_(IMASK|ISET|MIS|RIS|ICLR)
+    to: DMA_TRIG1
+    check: NoCheck
+
+  - !RenameRegisters
+    block: .*
+    from: DMA_TRIG1_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: DMA_TRIG1_(.+)
+    to: $1
+
+  ## INT_EVENT3 -> DMA_TRIG2
+  - !MergeBlocks
+    from: INT_EVENT3
+    main: INT_EVENT3
+    to: DMA_TRIG2
+
+  - !RenameRegisters
+    block: .*
+    from: INT_EVENT3(.*)
+    to: DMA_TRIG2$1
+
+  - !RenameFields
+    fieldset: .*
+    from: INT_EVENT3(.+)
+    to: DMA_TRIG2$1
+
+  - !Rename
+    type: All
+    from: INT_EVENT3(.+)
+    to: DMA_TRIG2$1
+
+  - !MergeFieldsets
+    from: DMA_TRIG2_(IMASK|ISET|MIS|RIS|ICLR)
+    to: DMA_TRIG2
+    check: NoCheck
+
+  - !RenameRegisters
+    block: .*
+    from: DMA_TRIG2_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: DMA_TRIG2_(.+)
+    to: $1
+
+  ## Add missing keys
+  - !AddFields
+    fieldset: RSTCTL
+    fields:
+    - name: KEY
+      description: Unlock key B1h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: RESET_KEY
+
+  - !AddFields
+    fieldset: PWREN
+    fields:
+    - name: KEY
+      description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: PWREN_KEY
+
+  - !Add
+    ir:
+      enum/RESET_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 177
+      enum/PWREN_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 38
+
+  ## EVT_MODE
+  - !MergeEnums
+    from: (INT|EVT)(\d+)_CFG
+    to: EVT_CFG
+
+  ## Cleanup
+  - !Sort

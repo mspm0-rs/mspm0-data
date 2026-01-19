@@ -1,0 +1,160 @@
+block/CRC:
+  description: PERIPHERALREGION.
+  items:
+  - name: GPRCM
+    array:
+      len: 1
+      stride: 24
+    byte_offset: 2048
+    block: GPRCM
+  - name: DESC
+    description: Module Description.
+    byte_offset: 4348
+    access: Read
+    fieldset: DESC
+  - name: CRCCTRL
+    description: CRC Control Register.
+    byte_offset: 4352
+    fieldset: CRCCTRL
+  - name: CRCSEED
+    description: CRC Seed Register.
+    byte_offset: 4356
+    access: Write
+  - name: CRCIN
+    description: CRC Input Data Register.
+    byte_offset: 4360
+    access: Write
+  - name: CRCOUT
+    description: CRC Output Result Register.
+    byte_offset: 4364
+    access: Read
+  - name: CRCIN_IDX
+    description: CRC Input Data Array Register.
+    array:
+      len: 512
+      stride: 4
+    byte_offset: 6144
+    access: Write
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: STAT
+    description: Status Register.
+    byte_offset: 20
+    access: Read
+    fieldset: STAT
+fieldset/CRCCTRL:
+  description: CRC Control Register.
+  fields:
+  - name: POLYSIZE
+    description: This bit indicates which CRC calculation is performed by the generator.
+    bit_offset: 0
+    bit_size: 1
+    enum: POLYSIZE
+  - name: BITREVERSE
+    description: CRC Bit Input and output Reverse. This bit indictes that the bit order of each input byte used for the CRC calculation is reversed before it is passed to the generator, and that the bit order of the calculated CRC is be reversed when read from CRC_RESULT.
+    bit_offset: 1
+    bit_size: 1
+  - name: INPUT_ENDIANNESS
+    description: CRC Endian. This bit indicates the byte order within a word or half word of input data.
+    bit_offset: 2
+    bit_size: 1
+    enum: INPUT_ENDIANNESS
+  - name: OUTPUT_BYTESWAP
+    description: 'CRC Output Byteswap Enable. This bit controls whether the output is byte-swapped upon a read of the CRCOUT register. If CRCOUT is accessed as a half-word, and the OUTPUT_BYTESWAP is set to to 1, then the two bytes in the 16-bit access are swapped and returned. B1 is returned as B0 B0 is returned as B1 If CRCOUT is accessed as a word, and the OUTPUT_BYTESWAP is set to 1, then the four bytes in the 32-bit read are swapped. B3 is returned as B0 B2 is returned as B1 B1 is returned as B2 B0 is returned as B3 Note that if the CRC POLYSIZE is 16-bit and a 32-bit read of CRCOUT is performed with OUTPUT_BYTESWAP enabled, then the output is: MSB LSB 0x0 0x0 B0 B1 If the CRC POLYSIZE is 16-bit and a 32-bit read of CRCOUT is performed with OUTPUT_BYTESWAP disabled, then the output is: MSB LSB 0x0 0x0 B1 B0.'
+    bit_offset: 4
+    bit_size: 1
+fieldset/DESC:
+  description: Module Description.
+  fields:
+  - name: MINREV
+    description: Minor rev of the IP.
+    bit_offset: 0
+    bit_size: 4
+  - name: MAJREV
+    description: Major rev of the IP.
+    bit_offset: 4
+    bit_size: 4
+  - name: INSTNUM
+    description: Instance Number within the device. This will be a parameter to the RTL for modules that can have multiple instances.
+    bit_offset: 8
+    bit_size: 4
+  - name: FEATUREVER
+    description: Feature Set for the module *instance*.
+    bit_offset: 12
+    bit_size: 4
+  - name: MODULEID
+    description: Module identification contains a unique peripheral identification number. The assignments are maintained in a central database for all of the platform modules to ensure uniqueness.
+    bit_offset: 16
+    bit_size: 16
+fieldset/PWREN:
+  description: Power enable.
+  fields:
+  - name: ENABLE
+    description: Enable the power.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral.
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register.
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key B1h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/STAT:
+  description: Status Register.
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+enum/INPUT_ENDIANNESS:
+  bit_size: 1
+  variants:
+  - name: LITTLE_ENDIAN
+    description: LSB is lowest memory address and first to be processed.
+    value: 0
+  - name: BIG_ENDIAN
+    description: LSB is highest memory address and last to be processed.
+    value: 1
+enum/POLYSIZE:
+  bit_size: 1
+  variants:
+  - name: CRC32
+    description: CRC-32 ISO-3309 calulation is performed.
+    value: 0
+  - name: CRC16
+    description: CRC-16 CCITT is performed.
+    value: 1
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177

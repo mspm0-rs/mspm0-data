@@ -1,0 +1,56 @@
+# Transform for FLASHCTL registers based on FLASHCTL on G350x
+transforms:
+  - !DeleteUselessEnums
+
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLEARED
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: DISABLE
+      1: EVAL
+
+  # Remove FLASHCTL_ prefixes
+  - !RenameRegisters
+    block: .*
+    from: FLASHCTL_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: FLASHCTL_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: FLASHCTL_(.+)
+    to: $1
+
+  # Merge interrupt fieldsets
+  - !MergeFieldsets
+    from: (IMASK|ISET|MIS|RIS|ICLR)
+    to: INT
+    check: NoCheck
+
+  ## EVT_MODE
+  - !MergeEnums
+    from: (INT|EVT)(\d+)_CFG
+    to: EVT_CFG
+
+  ## Delete broken BANKNOTINRD enum - values don't fit bit size
+  - !DeleteEnums
+    from: BANKNOTINRD
+
+  ## Cleanup
+  - !Sort

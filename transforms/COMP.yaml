@@ -1,4 +1,4 @@
-# Transform for CANFD registers based on CANFD0 on G350x
+# Transform for COMP registers based on COMP0 on G350x
 transforms:
   - !DeleteUselessEnums
 
@@ -36,95 +36,53 @@ transforms:
       0: DISABLE
       1: EVAL
 
-  # Merge CANFD0 -> CANFD
+  # Merge COMP0 -> COMP
   - !MergeBlocks
-    from: CANFD0
-    main: CANFD0
-    to: CANFD
+    from: COMP0
+    main: COMP0
+    to: COMP
 
-  # Remove CANFD0_ prefixes
+  # Remove COMP0_ prefixes
   - !RenameRegisters
     block: .*
-    from: CANFD0_(.+)
+    from: COMP0_(.+)
     to: $1
 
   - !RenameFields
     fieldset: .*
-    from: CANFD0_(.+)
+    from: COMP0_(.+)
     to: $1
 
   - !Rename
     type: All
-    from: CANFD0_(.+)
+    from: COMP0_(.+)
     to: $1
 
-  # MCAN block - remove MCAN_ prefix from registers
-  - !RenameRegisters
-    block: MCAN
-    from: MCAN_(.+)
-    to: $1
-
-  - !RenameFields
-    fieldset: .*
-    from: MCAN_(.+)
-    to: $1
-
-  - !Rename
-    type: All
-    from: MCAN_(.+)
-    to: $1
-
-  # TI_WRAPPER block - remove TI_WRAPPER_ prefix
-  - !RenameRegisters
-    block: TI_WRAPPER
-    from: TI_WRAPPER_(.+)
-    to: $1
-
-  - !RenameFields
-    fieldset: .*
-    from: TI_WRAPPER_(.+)
-    to: $1
-
-  - !Rename
-    type: All
-    from: TI_WRAPPER_(.+)
-    to: $1
-
-  ## Interrupts
+  ## Interrupts - COMP has INT_EVENT[0..1]
   - !MergeBlocks
-    from: INT_EVENT0
-    main: INT_EVENT0
-    to: CPU_INT
+    from: INT_EVENT
+    main: INT_EVENT
+    to: INT_EVENT
 
   - !RenameRegisters
     block: .*
-    from: INT_EVENT0(.*)
-    to: CPU_INT$1
+    from: INT_EVENT_(.+)
+    to: $1
 
   - !RenameFields
     fieldset: .*
-    from: INT_EVENT0(.+)
-    to: CPU_INT$1
+    from: INT_EVENT_(.+)
+    to: $1
 
   - !Rename
     type: All
-    from: INT_EVENT0(.+)
-    to: CPU_INT$1
+    from: INT_EVENT_(.+)
+    to: $1
 
   - !MergeFieldsets
-    from: CPU_INT_(IMASK|ISET|MIS|RIS|ICLR)
-    to: CPU_INT
+    from: (IMASK|ISET|MIS|RIS|ICLR)
+    to: INT
     check: NoCheck
-
-  - !RenameRegisters
-    block: .*
-    from: CPU_INT_(.+)
-    to: $1
-
-  - !RenameFields
-    fieldset: .*
-    from: CPU_INT_(.+)
-    to: $1
 
   ## Add missing keys
   - !AddFields
@@ -157,6 +115,11 @@ transforms:
         variants:
           - name: KEY
             value: 38
+
+  ## EVT_MODE
+  - !MergeEnums
+    from: (INT|EVT)(\d+)_CFG
+    to: EVT_CFG
 
   ## Cleanup
   - !Sort

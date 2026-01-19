@@ -1,0 +1,918 @@
+block/AES:
+  description: PERIPHERALREGION.
+  items:
+  - name: GPRCM
+    array:
+      len: 1
+      stride: 24
+    byte_offset: 2048
+    block: GPRCM
+  - name: PDBGCTL
+    description: Peripheral Debug Control.
+    byte_offset: 4120
+    fieldset: PDBGCTL
+  - name: CPU_INT
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4128
+    block: CPU_INT
+  - name: DMA_TRIG0
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4176
+    block: DMA_TRIG0
+  - name: DMA_TRIG1
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4224
+    block: DMA_TRIG1
+  - name: DMA_TRIG2
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4272
+    block: DMA_TRIG2
+  - name: EVT_MODE
+    description: Event Mode.
+    byte_offset: 4320
+    fieldset: EVT_MODE
+  - name: AESACTL0
+    description: AES accelerator control register 0.
+    byte_offset: 4352
+    fieldset: AESACTL0
+  - name: AESACTL1
+    description: AES accelerator control register 1.
+    byte_offset: 4356
+    fieldset: AESACTL1
+  - name: AESASTAT
+    description: aes accelerator status register.
+    byte_offset: 4360
+    fieldset: AESASTAT
+  - name: AESAKEY
+    description: aes accelerator key register.
+    byte_offset: 4364
+    access: Write
+    fieldset: AESAKEY
+  - name: AESADIN
+    description: aes accelerator data in register.
+    byte_offset: 4368
+    access: Write
+    fieldset: AESADIN
+  - name: AESADOUT
+    description: aes accelerator data out register.
+    byte_offset: 4372
+    access: Read
+    fieldset: AESADOUT
+  - name: AESAXDIN
+    description: aes accelerator xored data in register.
+    byte_offset: 4376
+    access: Write
+    fieldset: AESAXDIN
+  - name: AESAXIN
+    description: aes accelerator xored data in register (no trigger).
+    byte_offset: 4380
+    access: Write
+    fieldset: AESAXIN
+block/CPU_INT:
+  items:
+  - name: IIDX
+    description: Interrupt Index Register.
+    byte_offset: 0
+    access: Read
+    fieldset: CPU_INT_IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: CPU_INT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: CPU_INT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: CPU_INT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: CPU_INT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: CPU_INT
+block/DMA_TRIG0:
+  items:
+  - name: IIDX
+    description: Interrupt Index Register.
+    byte_offset: 0
+    access: Read
+    fieldset: DMA_TRIG0_IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: DMA_TRIG0
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: DMA_TRIG0
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: DMA_TRIG0
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: DMA_TRIG0
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: DMA_TRIG0
+block/DMA_TRIG1:
+  items:
+  - name: IIDX
+    description: Interrupt Index Register.
+    byte_offset: 0
+    access: Read
+    fieldset: DMA_TRIG1_IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: DMA_TRIG1
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: DMA_TRIG1
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: DMA_TRIG1
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: DMA_TRIG1
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: DMA_TRIG1
+block/DMA_TRIG2:
+  items:
+  - name: IIDX
+    description: Interrupt Index Register.
+    byte_offset: 0
+    access: Read
+    fieldset: DMA_TRIG2_IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: DMA_TRIG2
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: DMA_TRIG2
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: DMA_TRIG2
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: DMA_TRIG2
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: DMA_TRIG2
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: STAT
+    description: Status Register.
+    byte_offset: 20
+    access: Read
+    fieldset: STAT
+fieldset/AESACTL0:
+  description: AES accelerator control register 0.
+  fields:
+  - name: OPx
+    description: AES operation. The AESOPx bits are not reset by AESSWRST = 1. Writes are ignored when AESCMEN = 1 and AESBLKCNTx > 0. 00b = Encryption. 01b = Decryption. The provided key is the same key used for encryption. 10b = Generate first round key required for decryption. 11b = Decryption. The provided key is the first round key required for decryption.
+    bit_offset: 0
+    bit_size: 2
+    enum: OPx
+  - name: KLx
+    description: AES key length. These bits define which of the 1 AES standards is performed. The AESKLx bits are not reset by AESSWRST = 1. Writes are ignored when AESCMEN = 1 and AESBLKCNTx > 0.
+    bit_offset: 2
+    bit_size: 2
+    enum: KLx
+  - name: CMx
+    description: AES cipher mode select. These bits are ignored for AESCMEN = 0. Writes are ignored when AESCMEN = 1 and AESBLKCNTx > 0. 00b = ECB 01b = CBC 10b = OFB 11b = CFB.
+    bit_offset: 5
+    bit_size: 2
+    enum: CMx
+  - name: SWRST
+    description: AES software reset. Immediately resets the complete AES accelerator module even when busy except for the AESRDYIE, the AESKLx and the AESOPx bits. It also clears the (internal) state memory. The AESSWRST bit is automatically reset and is always read as zero. 0b = No reset 1b = Reset AES accelerator module.
+    bit_offset: 7
+    bit_size: 1
+  - name: ERRFG
+    description: AES error flag. AESAKEY or AESADIN were written while an AES operation was in progress. The bit must be cleared by software. 0b = No error 1b = Error occurred.
+    bit_offset: 11
+    bit_size: 1
+  - name: CMEN
+    description: AESCMEN enables the support of the cipher modes ECB, CBC, OFB and CFB together with the DMA. Writes are ignored when AESCMEN = 1 and AESBLKCNTx > 0. 0 = No DMA triggers are generated. 1 = DMA cipher mode support operation is enabled and the corresponding DMA triggers are generated.
+    bit_offset: 15
+    bit_size: 1
+fieldset/AESACTL1:
+  description: AES accelerator control register 1.
+  fields:
+  - name: BLKCNTx
+    description: Cipher Block Counter. Number of blocks to be encrypted or decrypted with block cipher modes enabled (AESCMEN = 1). Ignored if AESCMEN = 0. The block counter decrements with each performed encryption or decryption. Writes are ignored when AESCMEN = 1 and AESBLKCNTx > 0.
+    bit_offset: 0
+    bit_size: 8
+    enum: BLKCNTx
+fieldset/AESADIN:
+  description: aes accelerator data in register.
+  fields:
+  - name: DIN0x
+    description: AES data in byte n when AESADIN is written as word. AES next data in byte when AESADIN is written as byte. Do not mix word and byte access. Always reads as zero.
+    bit_offset: 0
+    bit_size: 8
+    enum: DIN0x
+  - name: DIN1x
+    description: AES data in byte n+1 when AESADIN is written as word. Do not use these bits for byte access. Do not mix word and byte access. Always reads as zero.
+    bit_offset: 8
+    bit_size: 8
+    enum: DIN1x
+  - name: DIN2x
+    description: AES data in byte n+2 when AESADIN is written as word. Do not use these bits for byte access. Do not mix word and byte access. Always reads as zero.
+    bit_offset: 16
+    bit_size: 8
+    enum: DIN2x
+  - name: DIN3x
+    description: AES data in byte n+3 when AESADIN is written as word. Do not use these bits for byte access. Do not mix word and byte access. Always reads as zero.
+    bit_offset: 24
+    bit_size: 8
+    enum: DIN3x
+fieldset/AESADOUT:
+  description: aes accelerator data out register.
+  fields:
+  - name: DOUT0x
+    description: AES data out byte n when AESADOUT is read as word. AES next data out byte when AESADOUT is read as byte. Do not mix word and byte access.
+    bit_offset: 0
+    bit_size: 8
+    enum: DOUT0x
+  - name: DOUT1x
+    description: AES data out byte n+1 when AESADOUT is read as word. Do not use these bits for byte access. Do not mix word and byte access.
+    bit_offset: 8
+    bit_size: 8
+    enum: DOUT1x
+  - name: DOUT2x
+    description: AES data out byte n+2 when AESADOUT is read as word. Do not use these bits for byte access. Do not mix word and byte access.
+    bit_offset: 16
+    bit_size: 8
+    enum: DOUT2x
+  - name: DOUT3x
+    description: AES data out byte n+3 when AESADOUT is read as word. Do not use these bits for byte access. Do not mix word and byte access.
+    bit_offset: 24
+    bit_size: 8
+    enum: DOUT3x
+fieldset/AESAKEY:
+  description: aes accelerator key register.
+  fields:
+  - name: KEY0x
+    description: AES key byte n when AESAKEY is written as word. AES next key byte when AESAKEY is written as byte. Do not mix word and byte access. Always reads as zero. The key is reset by PUC or by AESSWRST = 1.
+    bit_offset: 0
+    bit_size: 8
+    enum: KEY0x
+  - name: KEY1x
+    description: AES key byte n+1 when AESAKEY is written as word. Do not use these bits for byte access. Do not mix word and byte access. Always reads as zero. The key is reset by PUC or by AESSWRST = 1.
+    bit_offset: 8
+    bit_size: 8
+    enum: KEY1x
+  - name: KEY2x
+    description: AES key byte n+2 when AESAKEY is written as word. Do not use these bits for byte access. Do not mix word and byte access. Always reads as zero. The key is reset by PUC or by AESSWRST = 1.
+    bit_offset: 16
+    bit_size: 8
+    enum: KEY2x
+  - name: KEY3x
+    description: AES key byte n+3 when AESAKEY is written as word. Do not use these bits for byte access. Do not mix word and byte access. Always reads as zero. The key is reset by PUC or by AESSWRST = 1.
+    bit_offset: 24
+    bit_size: 8
+    enum: KEY3x
+fieldset/AESASTAT:
+  description: aes accelerator status register.
+  fields:
+  - name: BUSY
+    description: AES accelerator module busy; encryption, decryption, or key generation in progress. 0 = Not busy 1 = Busy.
+    bit_offset: 0
+    bit_size: 1
+    enum: BUSY
+  - name: KEYWR
+    description: All bytes written to AESAKEY. This bit can be modified by software but it must not be reset by software (10) if AESCMEN=1. Changing its state by software also resets the AESKEYCNTx bits. AESKEYWR is reset by PUC, AESSWRST, an error condition, changing AESOPx, changing AESKLx, and the start to (over)write a new key. Because it is reset when AESOPx is changed it can be set by software again to indicate that the loaded key is still valid.
+    bit_offset: 1
+    bit_size: 1
+    enum: KEYWR
+  - name: DINWR
+    description: All 16 bytes written to AESADIN, AESAXDIN or AESAXIN. Changing its state by software also resets the AESDINCNTx bits. AESDINWR is reset by PUC, AESSWRST, an error condition, changing AESOPx, changing AESKLx, the start to (over)write the data, and when the AES accelerator is busy. Because it is reset when AESOPx or AESKLx is changed it can be set by software again to indicate that the current data is still valid. 0 = Not all bytes written 1 = All bytes written.
+    bit_offset: 2
+    bit_size: 1
+    enum: DINWR
+  - name: DOUTRD
+    description: All 16 bytes read from AESADOUT. AESDOUTRD is reset by PUC, AESSWRST, an error condition, changing AESOPx, changing AESKLx, when the AES accelerator is busy, and when the output data is read again. 0 = Not all bytes read 1 = All bytes read.
+    bit_offset: 3
+    bit_size: 1
+    enum: DOUTRD
+  - name: KEYCNTx
+    description: Bytes written to AESAKEY when AESKLx = 00, half-words written to AESAKEY if AESKLx = b10. Reset when AESKEYWR is reset. If AESKEYCNTx = 0 and AESKEYWR = 0, no bytes were written. If AESKEYCNTx = 0 and AESKEYWR = 1, all bytes were written.
+    bit_offset: 4
+    bit_size: 4
+    enum: KEYCNTx
+  - name: DINCNTx
+    description: Bytes written to AESADIN, AESAXDIN or AESAXIN. Reset when AESDINWR is reset. If AESDINCNTx = 0 and AESDINWR = 0, no bytes were written. If AESDINCNTx = 0 and AESDINWR = 1, all bytes were written.
+    bit_offset: 8
+    bit_size: 4
+    enum: DINCNTx
+  - name: DOUTCNTx
+    description: Bytes read from AESADOUT. Reset when AESDOUTRD is reset. If AESDOUTCNTx = 0 and AESDOUTRD = 0, no bytes were read. If AESDOUTCNTx = 0 and AESDOUTRD = 1, all bytes were read.
+    bit_offset: 12
+    bit_size: 4
+    enum: DOUTCNTx
+fieldset/AESAXDIN:
+  description: aes accelerator xored data in register.
+  fields:
+  - name: XDIN0x
+    description: AES data in byte n when AESAXDIN is written as word. AES next data in byte when AESAXDIN is written as byte. Do not mix word and byte access. Always reads as zero.
+    bit_offset: 0
+    bit_size: 8
+    enum: XDIN0x
+  - name: XDIN1x
+    description: AES data in byte n+1 when AESAXDIN is written as word. Do not use these bits for byte access. Do not mix word and byte access. Always reads as zero.
+    bit_offset: 8
+    bit_size: 8
+    enum: XDIN1x
+  - name: XDIN2x
+    description: AES data in byte n+2 when AESAXDIN is written as word. Do not use these bits for byte access. Do not mix word and byte access. Always reads as zero.
+    bit_offset: 16
+    bit_size: 8
+    enum: XDIN2x
+  - name: XDIN3x
+    description: AES data in byte n+3 when AESAXDIN is written as word. Do not use these bits for byte access. Do not mix word and byte access. Always reads as zero.
+    bit_offset: 24
+    bit_size: 8
+    enum: XDIN3x
+fieldset/AESAXIN:
+  description: aes accelerator xored data in register (no trigger).
+  fields:
+  - name: XIN0x
+    description: AES data in byte n when AESAXIN is written as word. AES next data in byte when AESAXIN is written as byte. Do not mix word and byte access. Always reads as zero.
+    bit_offset: 0
+    bit_size: 8
+    enum: XIN0x
+  - name: XIN1x
+    description: AES data in byte n+1 when AESAXIN is written as word. Do not use these bits for byte access. Do not mix word and byte access. Always reads as zero.
+    bit_offset: 8
+    bit_size: 8
+    enum: XIN1x
+  - name: XIN2x
+    description: AES data in byte n+2 when AESAXIN is written as word. Do not use these bits for byte access. Do not mix word and byte access. Always reads as zero.
+    bit_offset: 16
+    bit_size: 8
+    enum: XIN2x
+  - name: XIN3x
+    description: AES data in byte n+3 when AESAXIN is written as word. Do not use these bits for byte access. Do not mix word and byte access. Always reads as zero.
+    bit_offset: 24
+    bit_size: 8
+    enum: XIN3x
+fieldset/CPU_INT:
+  description: Interrupt clear.
+  fields:
+  - name: AESRDY
+    description: AES ready interrupt, set when the selected AES operation was completed and the result can be read from AESADOUT.
+    bit_offset: 0
+    bit_size: 1
+  - name: DMA0
+    description: DMA0.
+    bit_offset: 1
+    bit_size: 1
+  - name: DMA1
+    description: DMA1.
+    bit_offset: 2
+    bit_size: 1
+  - name: DMA2
+    description: DMA2.
+    bit_offset: 3
+    bit_size: 1
+fieldset/CPU_INT_IIDX:
+  description: Interrupt Index Register.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 8
+    enum: CPU_INT_IIDX_STAT
+fieldset/DMA_TRIG0:
+  description: Interrupt clear.
+  fields:
+  - name: DMA0
+    description: DMA0 event.
+    bit_offset: 1
+    bit_size: 1
+fieldset/DMA_TRIG0_IIDX:
+  description: Interrupt Index Register.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 8
+    enum: DMA_TRIG0_IIDX_STAT
+fieldset/DMA_TRIG1:
+  description: Interrupt clear.
+  fields:
+  - name: DMA1
+    description: DMA1 event.
+    bit_offset: 2
+    bit_size: 1
+fieldset/DMA_TRIG1_IIDX:
+  description: Interrupt Index Register.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 8
+    enum: DMA_TRIG1_IIDX_STAT
+fieldset/DMA_TRIG2:
+  description: Interrupt clear.
+  fields:
+  - name: DMA2
+    description: DMA2 event.
+    bit_offset: 3
+    bit_size: 1
+fieldset/DMA_TRIG2_IIDX:
+  description: Interrupt Index Register.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 8
+    enum: DMA_TRIG2_IIDX_STAT
+fieldset/EVT_MODE:
+  description: Event Mode.
+  fields:
+  - name: INT0_CFG
+    description: Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT0].
+    bit_offset: 0
+    bit_size: 2
+    enum: EVT_CFG
+  - name: EVT1_CFG
+    description: Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT1].
+    bit_offset: 2
+    bit_size: 2
+    enum: EVT_CFG
+  - name: EVT2_CFG
+    description: Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT2].
+    bit_offset: 4
+    bit_size: 2
+    enum: EVT_CFG
+  - name: EVT3_CFG
+    description: Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT2].
+    bit_offset: 6
+    bit_size: 2
+    enum: EVT_CFG
+fieldset/PDBGCTL:
+  description: Peripheral Debug Control.
+  fields:
+  - name: FREE
+    description: Free run control.
+    bit_offset: 0
+    bit_size: 1
+  - name: SOFT
+    description: Soft halt boundary control. This function is only available, if [FREE] is set to 'STOP'.
+    bit_offset: 1
+    bit_size: 1
+    enum: SOFT
+fieldset/PWREN:
+  description: Power enable.
+  fields:
+  - name: ENABLE
+    description: Enable the power.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral.
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register.
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key B1h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/STAT:
+  description: Status Register.
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+enum/BLKCNTx:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest value.
+    value: 0
+  - name: ENABLE
+    description: Highest possible value.
+    value: 255
+enum/BUSY:
+  bit_size: 1
+  variants:
+  - name: IDLE
+    description: Not busy.
+    value: 0
+  - name: BUSY
+    description: Busy.
+    value: 1
+enum/CMx:
+  bit_size: 2
+  variants:
+  - name: ECB
+    description: ECB.
+    value: 0
+  - name: CBC
+    description: CBC.
+    value: 1
+  - name: OFB
+    description: OFB.
+    value: 2
+  - name: CFB
+    description: CFB.
+    value: 3
+enum/CPU_INT_IIDX_STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No interrupt pending.
+    value: 0
+  - name: AESRDY
+    description: AES ready interrupt, set when the selected AES operation was completed and the result can be read from AESADOUT.
+    value: 1
+  - name: DMA0
+    description: AES trigger 0 DMA.
+    value: 2
+  - name: DMA1
+    description: AES trigger 1 DMA.
+    value: 3
+  - name: DMA2
+    description: AES trigger 2 DMA.
+    value: 4
+enum/DIN0x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/DIN1x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/DIN2x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/DIN3x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/DINCNTx:
+  bit_size: 4
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 15
+enum/DINWR:
+  bit_size: 1
+  variants:
+  - name: NALL
+    description: Not all bytes written.
+    value: 0
+  - name: ALL
+    description: All bytes written.
+    value: 1
+enum/DMA_TRIG0_IIDX_STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No interrupt pending.
+    value: 0
+  - name: DMA0
+    description: AES trigger 0 DMA.
+    value: 2
+enum/DMA_TRIG1_IIDX_STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No interrupt pending.
+    value: 0
+  - name: DMA1
+    description: AES trigger 1 DMA.
+    value: 3
+enum/DMA_TRIG2_IIDX_STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No interrupt pending.
+    value: 0
+  - name: DMA2
+    description: AES trigger 2 DMA.
+    value: 4
+enum/DOUT0x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/DOUT1x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/DOUT2x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/DOUT3x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/DOUTCNTx:
+  bit_size: 4
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 15
+enum/DOUTRD:
+  bit_size: 1
+  variants:
+  - name: NALL
+    description: Not all bytes read.
+    value: 0
+  - name: ALL
+    description: All bytes read.
+    value: 1
+enum/EVT_CFG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: The interrupt or event line is disabled.
+    value: 0
+  - name: SOFTWARE
+    description: The interrupt or event line is in software mode. Software must clear the RIS.
+    value: 1
+  - name: HARDWARE
+    description: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.
+    value: 2
+enum/KEY0x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/KEY1x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/KEY2x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/KEY3x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/KEYCNTx:
+  bit_size: 4
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 15
+enum/KEYWR:
+  bit_size: 1
+  variants:
+  - name: NALL
+    description: Not all bytes written.
+    value: 0
+  - name: ALL
+    description: All bytes written.
+    value: 1
+enum/KLx:
+  bit_size: 2
+  variants:
+  - name: AES128
+    description: The key size is 128 bit.
+    value: 0
+  - name: AES256
+    description: The key size is 256 bit.
+    value: 2
+enum/OPx:
+  bit_size: 2
+  variants:
+  - name: OP0
+    description: Encryption.
+    value: 0
+  - name: OP1
+    description: Decryption. The provided key is the same key used for encryption.
+    value: 1
+  - name: OP2
+    description: Generate first round key required for decryption.
+    value: 2
+  - name: OP3
+    description: Decryption. The provided key is the first round key required for decryption.
+    value: 3
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177
+enum/SOFT:
+  bit_size: 1
+  variants:
+  - name: IMMEDIATE
+    description: The peripheral will halt immediately, even if the resultant state will result in corruption if the system is restarted.
+    value: 0
+  - name: DELAYED
+    description: The peripheral blocks the debug freeze until it has reached a boundary where it can resume without corruption.
+    value: 1
+enum/XDIN0x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/XDIN1x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/XDIN2x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/XDIN3x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/XIN0x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/XIN1x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/XIN2x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255
+enum/XIN3x:
+  bit_size: 8
+  variants:
+  - name: MINNUM
+    description: Smallest possible value.
+    value: 0
+  - name: MAXNUM
+    description: Highest possible value.
+    value: 255

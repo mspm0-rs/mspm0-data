@@ -1,0 +1,79 @@
+# Transform for OPA registers based on OPA0 on G350x
+transforms:
+  - !DeleteUselessEnums
+
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  # Merge OPA0 -> OPA
+  - !MergeBlocks
+    from: OPA0
+    main: OPA0
+    to: OPA
+
+  # Remove OPA0_ prefixes
+  - !RenameRegisters
+    block: .*
+    from: OPA0_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: OPA0_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: OPA0_(.+)
+    to: $1
+
+  ## Add missing keys
+  - !AddFields
+    fieldset: RSTCTL
+    fields:
+    - name: KEY
+      description: Unlock key B1h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: RESET_KEY
+
+  - !AddFields
+    fieldset: PWREN
+    fields:
+    - name: KEY
+      description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: PWREN_KEY
+
+  - !Add
+    ir:
+      enum/RESET_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 177
+      enum/PWREN_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 38
+
+  ## Cleanup
+  - !Sort
