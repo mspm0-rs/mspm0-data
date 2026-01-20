@@ -1,0 +1,166 @@
+# Transform using FLASHCTL from L122x
+transforms:
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  - !DeleteUselessEnums
+
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
+  #
+  # TODO: Add this to chiptool
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLEARED
+      1: SET
+
+  # FREE is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STOP
+      1: RUN
+
+  # RESETASSERT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  # RESETSTKY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  # RESETSTKYCLR is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  # CMDDONE is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STATNOTDONE
+      1: STATDONE
+
+  # FAILWEPROT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STATNOFAIL
+      1: STATFAIL
+
+  # CMDPASS, CMDINPROGRESS useless enums
+  - !DeleteEnums
+    from: CMDPASS|CMDINPROGRESS
+
+  # Remove prefixes
+  - !RenameRegisters
+    block: .*
+    from: FLASHCTL_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: FLASHCTL_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: FLASHCTL_(.+)
+    to: $1
+
+  # All CMDDATA fields are same type
+  - !MakeRegisterArray
+    blocks: .*
+    from: CMDDATA(\d+)
+    to: CMDDATA
+
+  - !MergeFieldsets
+    from: CMDDATAECC(\d+)
+    to: CMDDATAECC
+
+  - !MakeRegisterArray
+    blocks: .*
+    from: CMDDATAECC(\d+)
+    to: CMDDATAECC
+
+  # BANKxINFO0/1 is all same type
+  - !MergeEnums
+    from: BANK(\d+)INFO0_MAINSIZE
+    to: BANKINFO_MAINSIZE
+
+  - !MergeEnums
+    from: BANK(\d+)INFO1_NONMAINSIZE
+    to: BANKINFO_NONMAINSIZE
+
+  - !MergeEnums
+    from: BANK(\d+)INFO1_TRIMSIZE
+    to: BANKINFO_TRIMSIZE
+
+  - !MergeEnums
+    from: BANK(\d+)INFO1_ENGRSIZE
+    to: BANKINFO_ENGRSIZE
+
+  - !MergeFieldsets
+    from: BANK(\d+)INFO0
+    to: BANKINFO0
+
+  - !MergeFieldsets
+    from: BANK(\d+)INFO1
+    to: BANKINFO1
+
+  - !MakeRegisterArray
+    blocks: .*
+    from: BANK(\d+)INFO0
+    to: BANKINFO0
+
+  - !MakeRegisterArray
+    blocks: .*
+    from: BANK(\d+)INFO1
+    to: BANKINFO1
+
+  # INT fields are all the same layout
+  - !MergeFieldsets
+    from: (IMASK|ISET|MIS|RIS|ICLR)
+    to: INT
+
+  # CMDWEPROTx fields are bit arrays where each bit manages write protection for a region of sectors.
+  - !Add
+    ir:
+      fieldset/CMDWEPROT:
+        description: Command write enable protection register
+        fields:
+        - name: REGION
+          description: Region of flash being write (un)protected
+          bit_offset: 0
+          bit_size: 1
+          array:
+            len: 32
+            stride: 1
+
+  - !ModifyRegisters
+    blocks: FLASHCTL
+    registers: CMDWEPROT(\w+)
+    fieldset: CMDWEPROT
+
+  # POSTVEREN, PREVEREN are missing from CMDCTL
+  - !AddFields
+    fieldset: CMDCTL
+    fields:
+    - name: PREVEREN
+      description: Enable verify before program or erase. For program, bits already programmed to the requests value will be masked. For erase, sectors already erased will be masked.
+      bit_offset: 14
+      bit_size: 1
+    - name: POSTVEREN
+      description: Enable verify after program or erase
+      bit_offset: 15
+      bit_size: 1
+
+  ## Cleanup
+  - !Sort
