@@ -1,0 +1,237 @@
+# Transform using FLASHCTL from L122x
+transforms:
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  - !DeleteUselessEnums
+
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
+  #
+  # TODO: Add this to chiptool
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLEARED
+      1: SET
+
+  # FREE is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STOP
+      1: RUN
+
+  # RESETASSERT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  # RESETSTKY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  # RESETSTKYCLR is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  # CMDDONE is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STATNOTDONE
+      1: STATDONE
+
+  # FAILWEPROT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STATNOFAIL
+      1: STATFAIL
+  
+  # MAXERSPCNTOVR, MAXPCNTOVR are useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: DEFAULT
+      1: OVERRIDE
+
+  # SSERASEDIS is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: ENABLE
+      1: DISABLE
+  
+  # CMDPASS, CMDINPROGRESS useless enums
+  - !DeleteEnums
+    from: CMDPASS|CMDINPROGRESS
+
+  # Remove prefixes
+  - !RenameRegisters
+    block: .*
+    from: FLASHCTL_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: FLASHCTL_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: FLASHCTL_STATCMD
+    from: CMD(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: FLASHCTL_(.+)
+    to: $1
+
+  # All CMDDATA fields are same type
+  - !MakeRegisterArray
+    blocks: .*
+    from: CMDDATA(\d+)
+    to: CMDDATA
+
+  - !MergeFieldsets
+    from: CMDDATAECC(\d+)
+    to: CMDDATAECC
+
+  - !MakeRegisterArray
+    blocks: .*
+    from: CMDDATAECC(\d+)
+    to: CMDDATAECC
+
+  # BANKMODE and MODESEL are the same
+  - !MergeEnums
+    from: (BANKMODE|MODESEL)
+    to: MODE
+  
+  # BANKNOTINRD and BANKSEL are just enumerating the banks
+  - !MergeEnums
+    from: (BANKNOTINRD|BANKSEL)
+    to: BANK
+
+  # BANKxINFO0/1 is all same type
+  - !MergeEnums
+    from: BANK(\d+)INFO0_MAINSIZE
+    to: BANKINFO_MAINSIZE
+
+  - !MergeEnums
+    from: BANK(\d+)INFO1_NONMAINSIZE
+    to: BANKINFO_NONMAINSIZE
+
+  - !MergeEnums
+    from: BANK(\d+)INFO1_TRIMSIZE
+    to: BANKINFO_TRIMSIZE
+
+  - !MergeEnums
+    from: BANK(\d+)INFO1_ENGRSIZE
+    to: BANKINFO_ENGRSIZE
+
+  - !MergeFieldsets
+    from: BANK(\d+)INFO0
+    to: BANKINFO0
+
+  - !MergeFieldsets
+    from: BANK(\d+)INFO1
+    to: BANKINFO1
+
+  - !MakeRegisterArray
+    blocks: .*
+    from: BANK(\d+)INFO0
+    to: BANKINFO0
+
+  - !MakeRegisterArray
+    blocks: .*
+    from: BANK(\d+)INFO1
+    to: BANKINFO1
+
+  # INT fields are all the same layout
+  - !MergeFieldsets
+    from: (IMASK|ISET|MIS|RIS|ICLR)
+    to: INT
+
+  # CMDBYTEEN controls which flash word bytes are enabled (8 bits for the content and 1 for ECC)
+  # TODO: g518x supports 128-bit mode, but the ECC handling seems fishy in the TI SDK, making the correct bits unclear.
+  - !Add
+    ir:
+      fieldset/CMDBYTEN:
+        description: Command Program Byte Enable Register. Controls which bytes of the flash word (including ECC) are active.
+        fields:
+        - name: DATA
+          description: Data byte enable. Each bit controls one flash byte within a flash word.
+          bit_offset: 0
+          bit_size: 1
+          array:
+            len: 8
+            stride: 1
+        - name: ECC
+          description: ECC byte enable. Controls if the ECC byte is active.
+          bit_offset: 8
+          bit_size: 1
+
+  # CMDWEPROTx fields are bit arrays where each bit manages write protection for a region of sectors.
+  - !Add
+    ir:
+      fieldset/CMDWEPROT:
+        description: Command write enable protection register
+        fields:
+        - name: REGION
+          description: Region of flash being write (un)protected
+          bit_offset: 0
+          bit_size: 1
+          array:
+            len: 32
+            stride: 1
+
+  # Add enum to specify min/max number of banks
+  - !Add 
+    ir:
+      enum/NUMBANKS:
+        bit_size: 3
+        variants:
+        - name: MINBANKS
+          value: 1
+        - name: MAXBANKS
+          value: 5
+  
+  # Attach said enum to NUMBANKS
+  - !ModifyFieldsEnum
+    fieldset: GBLINFO0
+    field: NUMBANKS
+    enum: NUMBANKS
+
+  - !ModifyRegisters
+    blocks: FLASHCTL
+    registers: CMDWEPROT(\w+)
+    fieldset: CMDWEPROT
+
+  # POSTVEREN, PREVEREN, PROGMASKDIS, ERASEMASKDIS are missing from CMDCTL
+  - !AddFields
+    fieldset: CMDCTL
+    fields:
+    - name: PREVEREN
+      description: Enable verify before program or erase. For program, bits already programmed to the requests value will be masked. For erase, sectors already erased will be masked.
+      bit_offset: 14
+      bit_size: 1
+    - name: POSTVEREN
+      description: Enable verify after program or erase
+      bit_offset: 15
+      bit_size: 1
+    - name: PROGMASKDIS
+      description: Disable use of program mask for programming. Bit masking will not be used during program verify. If any bits fail the verify either before (prever) or after (postver) the operation, then all specified flash entries will receive subsequent program pulse.
+      bit_offset: 18
+      bit_size: 1
+    - name: ERASEMASKDIS
+      description: Disable use of erase mask for erase Bit masking will not be used during erase verify. If any sectors fail the verify either before (prever) or after (postver) the operation, then all specified flash sectors will receive subsequent erase pulse.
+      bit_offset: 19
+      bit_size: 1
+
+  ## Cleanup
+  - !Sort

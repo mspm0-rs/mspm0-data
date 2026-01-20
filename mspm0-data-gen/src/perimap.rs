@@ -12,6 +12,7 @@ pub static PERIMAP: RegexMap<&str> = RegexMap::new(&[
     (".*:tim", "v1"),
     (".*:adc", "v1"),
     (".*:wwdt", "v1"),
+    (".*:flashctl", "v1"),
     (".*:trng", "v1"),
     (".*:canfd", "v1"),
     ("mspm0c110x:sysctl", "c110x"),
