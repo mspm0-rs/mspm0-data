@@ -1,0 +1,223 @@
+# Transforms for CANFD registers from G351x
+transforms:
+  - !DeleteUselessEnums
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: RESET
+      1: SET
+
+  # RESETASSERT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  # RESETSTKY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  # RESETSTKYCLR is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  - !Rename
+    type: Block
+    from: CANFD0
+    to: CANFD
+
+  # Remove CANFD0 prefixes
+  - !RenameRegisters
+    block: .*
+    from: CANFD0_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: CANFD0_(.+)
+    to: $1
+
+  - !Rename
+    type: Fieldset
+    from: CANFD0_(.+)
+    to: $1
+
+  - !Rename
+    type: Block
+    from: CANFD0_(.+)
+    to: $1
+
+  # Rename blocks
+
+  - !Rename
+    type: Block
+    from: MCANSS_REGS
+    to: SUBSYS
+
+  - !Rename
+    type: Block
+    from: MCAN_ECC_REGS
+    to: ECC
+
+  - !Rename
+    type: Block
+    from: MSP
+    to: MSP
+
+  - !Rename
+    type: Block
+    from: (CPU_INT|INT_EVENT0)
+    to: CPU_INT
+
+  # Remove MCAN prefixes
+  - !RenameRegisters
+    block: .*
+    from: MCAN_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: MCAN_(.+)
+    to: $1
+
+  - !Rename
+    type: Fieldset
+    from: MCAN_(.+)
+    to: $1
+
+  # Remove MCANSS prefixes
+  - !RenameRegisters
+    block: .*
+    from: MCANSS_(.+)
+    to: SUBSYS_$1
+
+  - !RenameFields
+    fieldset: .*
+    from: MCANSS_(.+)
+    to: SUBSYS_$1
+
+  - !Rename
+    type: Fieldset
+    from: MCANSS_(.+)
+    to: SUBSYS_$1
+
+  # Change MCANERR prefixes to ERR
+  - !RenameRegisters
+    block: .*
+    from: MCANERR_(.+)
+    to: ERR_$1
+
+  - !RenameFields
+    fieldset: .*
+    from: MCANERR_(.+)
+    to: ERR_$1
+
+  - !Rename
+    type: Fieldset
+    from: MCANERR_(.+)
+    to: ERR_$1
+
+  # NDAT1 and NDAT2 have the same layout
+  - !MergeFieldsets
+    from: (NDAT1|NDAT2)
+    to: NDAT
+    check: Layout
+
+  - !MakeFieldArray
+    fieldsets: NDAT
+    from: ND\d+
+    to: ND
+
+  - !MakeFieldArray
+    fieldsets: TXBAR
+    from: AR\d+
+    to: AR
+
+  - !MakeFieldArray
+    fieldsets: TXBCF
+    from: CF\d+
+    to: CF
+
+  - !MakeFieldArray
+    fieldsets: TXCBF
+    from: AR\d+
+    to: AR
+
+  - !MakeFieldArray
+    fieldsets: TXBCIE
+    from: CFIE\d+
+    to: CFIE
+
+  - !MakeFieldArray
+    fieldsets: TXBCR
+    from: CR\d+
+    to: CR
+
+  - !MakeFieldArray
+    fieldsets: TXBRP
+    from: TRP\d+
+    to: TRP
+
+  - !MakeFieldArray
+    fieldsets: TXBTIE
+    from: TIE\d+
+    to: TIE
+
+  - !MakeFieldArray
+    fieldsets: TXBTO
+    from: TO\d+
+    to: TO
+
+  # CPU_INT interrupt fields are all the same layout.
+  - !MergeFieldsets
+    from: (IMASK|ISET|MIS|RIS|ICLR)
+    to: CPU_INT
+
+  - !RenameRegisters
+    block: MSP
+    from: INT_EVENT0
+    to: CPU_INT
+
+  ## Add missing keys
+  - !AddFields
+    fieldset: PWREN
+    fields:
+    - name: KEY
+      description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: PWREN_KEY
+
+  - !AddFields
+    fieldset: RSTCTL
+    fields:
+    - name: KEY
+      description: Unlock key B1h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: RESET_KEY
+
+  - !Add
+    ir:
+      enum/PWREN_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 38
+      enum/RESET_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 177
+
+  # Cleanup
+  - !Sort
