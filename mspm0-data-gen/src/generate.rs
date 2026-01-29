@@ -444,13 +444,18 @@ fn get_power_domain(
                 || chip_name == "mspm0l122x"
                 || chip_name == "mspm0l130x"
                 || chip_name == "mspm0l134x"
-                || chip_name == "mspm0l222x")
+                || chip_name == "mspm0l222x"
+                || chip_name == "mspm0l112x"
+                || chip_name == "mspm0l211x")
                 && ty == PeripheralType::Cpuss =>
         {
             PowerDomain::Pd1
         }
         "PD_ULP_AON"
-            if (chip_name == "mspm0l122x" || chip_name == "mspm0l222x")
+            if (chip_name == "mspm0l122x"
+                || chip_name == "mspm0l222x"
+                || chip_name == "mspm0l112x"
+                || chip_name == "mspm0l211x")
                 && ty == PeripheralType::AesAdv =>
         {
             PowerDomain::Pd1

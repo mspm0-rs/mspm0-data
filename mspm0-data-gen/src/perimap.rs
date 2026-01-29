@@ -24,5 +24,8 @@ pub static PERIMAP: RegexMap<&str> = RegexMap::new(&[
     ("mspm0h321x:sysctl", "h321x"),
     ("mspm0l..0x:sysctl", "l110x_l130x_l134x"),
     ("mspm0l134x:sysctl", "l110x_l130x_l134x"),
-    ("mspm0l..2x:sysctl", "l122x_l222x"),
+    ("mspm0l.22x:sysctl", "l122x_l222x"),
+    // FIXME: When reference manual is updated for L112/L211x, update these if needed (split out).
+    ("mspm0l112x:sysctl", "l122x_l222x"),
+    ("mspm0l211x:sysctl", "l122x_l222x"),
 ]);

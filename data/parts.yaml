@@ -532,6 +532,52 @@ families:
     - RHB
     - RTR
 
+- family: mspm0l112x
+  datasheet_url: https://www.ti.com/lit/gpn/mspm0l2117
+  reference_manual_url: https://www.ti.com/lit/pdf/slau847
+  errata_url: https://www.ti.com/lit/pdf/slaz766
+  adc_vrsel: VDD_INTREF_EXTREF
+  part_numbers:
+  - name: mspm0l1126
+    memory:
+    - name: FLASH
+      length: 64
+      address: 0x00000000
+    - name: RAM
+      length: 12
+      address: 0x20200000
+    packages:
+    - PM
+    - RSK
+    - PT
+    - RGZ
+    - VFC
+    - RHB
+    - DGS28
+    - DGS32
+    - RUY
+    - RGE
+
+  - name: mspm0l1127
+    memory:
+    - name: FLASH
+      length: 128
+      address: 0x00000000
+    - name: RAM
+      length: 12
+      address: 0x20200000
+    packages:
+    - PM
+    - RSK
+    - PT
+    - RGZ
+    - VFC
+    - RHB
+    - DGS28
+    - DGS32
+    - RUY
+    - RGE
+
 - family: mspm0l122x
   datasheet_url: https://www.ti.com/lit/gpn/mspm0l1228
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
@@ -683,6 +729,52 @@ families:
       address: 0x20000000
     packages:
     - DGS28
+
+- family: mspm0l211x
+  datasheet_url: https://www.ti.com/lit/gpn/mspm0l2117
+  reference_manual_url: https://www.ti.com/lit/pdf/slau847
+  errata_url: https://www.ti.com/lit/pdf/slaz766
+  adc_vrsel: VDD_INTREF_EXTREF
+  part_numbers:
+  - name: mspm0l2116
+    memory:
+    - name: FLASH
+      length: 64
+      address: 0x00000000
+    - name: RAM
+      length: 12
+      address: 0x20200000
+    packages:
+    - PM
+    - RSK
+    - PT
+    - RGZ
+    - VFC
+    - RHB
+    - DGS28
+    - DGS32
+    - RUY
+    - RGE
+
+  - name: mspm0l2117
+    memory:
+    - name: FLASH
+      length: 128
+      address: 0x00000000
+    - name: RAM
+      length: 12
+      address: 0x20200000
+    packages:
+    - PM
+    - RSK
+    - PT
+    - RGZ
+    - VFC
+    - RHB
+    - DGS28
+    - DGS32
+    - RUY
+    - RGE
 
 - family: mspm0l222x
   datasheet_url: https://www.ti.com/lit/gpn/mspm0l2228
