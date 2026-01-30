@@ -21,6 +21,16 @@ transforms:
       0: DISABLE
       1: EVAL
 
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NO_EFFECT
+      1: START
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NO_EFFECT
+      1: CLR
+
   # Remove EVENTLP_ prefixes
   - !RenameRegisters
     block: .*
