@@ -6,6 +6,7 @@ transforms:
     from: .*
     useless: true
 
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
   - !DeleteEnumsWithVariants
     variants:
       0: CLR
@@ -16,6 +17,7 @@ transforms:
       0: CLEARED
       1: SET
 
+  # INTEVAL is useless
   - !DeleteEnumsWithVariants
     variants:
       0: DISABLE
@@ -37,7 +39,7 @@ transforms:
     from: FLASHCTL_(.+)
     to: $1
 
-  # Merge interrupt fieldsets
+  # These interrupt fields are all the same layout.
   - !MergeFieldsets
     from: (IMASK|ISET|MIS|RIS|ICLR)
     to: INT

@@ -6,16 +6,19 @@ transforms:
     from: .*
     useless: true
 
+  # RESETASSERT is useless
   - !DeleteEnumsWithVariants
     variants:
       0: NOP
       1: ASSERT
 
+  # RESETSTKY is useless
   - !DeleteEnumsWithVariants
     variants:
       0: NORES
       1: RESET
 
+  # RESETSTKYCLR is useless
   - !DeleteEnumsWithVariants
     variants:
       0: NOP

@@ -6,6 +6,7 @@ transforms:
     from: .*
     useless: true
 
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
   - !DeleteEnumsWithVariants
     variants:
       0: CLR
@@ -16,16 +17,19 @@ transforms:
       0: CLEARED
       1: SET
 
+  # INTEVAL is useless
   - !DeleteEnumsWithVariants
     variants:
       0: DISABLE
       1: EVAL
 
+  # DIAGPAR ASSERTDIAG is useless
   - !DeleteEnumsWithVariants
     variants:
       0: NO_EFFECT
       1: START
 
+  # DIAGPAR ASSERTDIAG CLR is useless
   - !DeleteEnumsWithVariants
     variants:
       0: NO_EFFECT

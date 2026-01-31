@@ -6,6 +6,7 @@ transforms:
     from: .*
     useless: true
 
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
   - !DeleteEnumsWithVariants
     variants:
       0: CLR
@@ -16,26 +17,31 @@ transforms:
       0: CLEARED
       1: SET
 
+  # FREE is useless
   - !DeleteEnumsWithVariants
     variants:
       0: STOP
       1: RUN
 
+  # RESETASSERT is useless
   - !DeleteEnumsWithVariants
     variants:
       0: NOP
       1: ASSERT
 
+  # RESETSTKY is useless
   - !DeleteEnumsWithVariants
     variants:
       0: NORES
       1: RESET
 
+  # RESETSTKYCLR is useless
   - !DeleteEnumsWithVariants
     variants:
       0: NOP
       1: CLR
 
+  # INTEVAL is useless
   - !DeleteEnumsWithVariants
     variants:
       0: DISABLE
@@ -79,6 +85,7 @@ transforms:
     from: INT_EVENT0(.+)
     to: CPU_INT$1
 
+  # These interrupt fields are all the same layout.
   - !MergeFieldsets
     from: CPU_INT_(IMASK|ISET|MIS|RIS|ICLR)
     to: CPU_INT
@@ -115,6 +122,7 @@ transforms:
     from: INT_EVENT1(.+)
     to: EVT_OUT$1
 
+  # These interrupt fields are all the same layout.
   - !MergeFieldsets
     from: EVT_OUT_(IMASK|ISET|MIS|RIS|ICLR)
     to: EVT_OUT
@@ -129,6 +137,12 @@ transforms:
     fieldset: .*
     from: EVT_OUT_(.+)
     to: $1
+
+  ## Publisher/Subscriber ports
+  # CHANID is an int
+  - !DeleteEnums
+    from: CHANID
+    bit_size: 4
 
   ## Add missing keys
   - !AddFields

@@ -1,39 +1,17 @@
 block/WUC:
   description: PERIPHERALREGION.
   items:
-  - name: FSUB_0
+  - name: FSUB
     description: Subscriber Port 0.
+    array:
+      len: 2
+      stride: 4
     byte_offset: 1024
-    fieldset: FSUB_0
-  - name: FSUB_1
-    description: Subscriber Port 1.
-    byte_offset: 1028
-    fieldset: FSUB_1
-fieldset/FSUB_0:
+    fieldset: FPORT
+fieldset/FPORT:
   description: Subscriber Port 0.
   fields:
   - name: CHANID
     description: 0 = disconnected. 1-15 = connected to channelID = CHANID.
     bit_offset: 0
     bit_size: 4
-    enum: FSUB_0_CHANID
-fieldset/FSUB_1:
-  description: Subscriber Port 1.
-  fields:
-  - name: CHANID
-    description: 0 = disconnected. 1-15 = connected to channelID = CHANID.
-    bit_offset: 0
-    bit_size: 4
-    enum: FSUB_1_CHANID
-enum/FSUB_0_CHANID:
-  bit_size: 4
-  variants:
-  - name: UNCONNECTED
-    description: A value of 0 specifies that the event is not connected.
-    value: 0
-enum/FSUB_1_CHANID:
-  bit_size: 4
-  variants:
-  - name: UNCONNECTED
-    description: A value of 0 specifies that the event is not connected.
-    value: 0

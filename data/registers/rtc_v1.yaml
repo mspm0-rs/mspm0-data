@@ -546,7 +546,6 @@ fieldset/FPUB_0:
     description: 0 = disconnected. 1-15 = connected to channelID = CHANID.
     bit_offset: 0
     bit_size: 4
-    enum: CHANID
 fieldset/HOUR:
   description: RTC Hours Register - Calendar Mode With Binary / BCD Format.
   fields:
@@ -709,12 +708,6 @@ fieldset/YEAR:
     description: Century BCD high digit (0 to 4). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
     bit_offset: 28
     bit_size: 3
-enum/CHANID:
-  bit_size: 4
-  variants:
-  - name: UNCONNECTED
-    description: A value of 0 specifies that the event is not connected.
-    value: 0
 enum/CPU_INT_IIDX_STAT:
   bit_size: 8
   variants:

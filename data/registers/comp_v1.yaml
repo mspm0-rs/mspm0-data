@@ -1,18 +1,17 @@
 block/COMP:
   description: PERIPHERALREGION.
   items:
-  - name: FSUB_0
+  - name: FSUB
     description: Subscriber Port 0.
+    array:
+      len: 2
+      stride: 4
     byte_offset: 1024
-    fieldset: FSUB_0
-  - name: FSUB_1
-    description: Subscriber Port 1.
-    byte_offset: 1028
-    fieldset: FSUB_1
+    fieldset: FPORT
   - name: FPUB_1
     description: Publisher port 1.
     byte_offset: 1092
-    fieldset: FPUB_1
+    fieldset: FPORT
   - name: GPRCM
     array:
       len: 1
@@ -262,30 +261,13 @@ fieldset/EVT_MODE:
     bit_offset: 2
     bit_size: 2
     enum: EVT_CFG
-fieldset/FPUB_1:
+fieldset/FPORT:
   description: Publisher port 1.
   fields:
   - name: CHANID
     description: 0 = disconnected. 1-15 = connected to channelID = CHANID.
     bit_offset: 0
     bit_size: 4
-    enum: FPUB_1_CHANID
-fieldset/FSUB_0:
-  description: Subscriber Port 0.
-  fields:
-  - name: CHANID
-    description: 0 = disconnected. 1-15 = connected to channelID = CHANID.
-    bit_offset: 0
-    bit_size: 4
-    enum: FSUB_0_CHANID
-fieldset/FSUB_1:
-  description: Subscriber Port 1.
-  fields:
-  - name: CHANID
-    description: 0 = disconnected. 1-15 = connected to channelID = CHANID.
-    bit_offset: 0
-    bit_size: 4
-    enum: FSUB_1_CHANID
 fieldset/GPRCM_STAT:
   description: Status Register.
   fields:
@@ -421,24 +403,6 @@ enum/FLTDLY:
   - name: DLY_3
     description: Typical filter delay of 2700 ns.
     value: 3
-enum/FPUB_1_CHANID:
-  bit_size: 4
-  variants:
-  - name: UNCONNECTED
-    description: A value of 0 specifies that the event is not connected.
-    value: 0
-enum/FSUB_0_CHANID:
-  bit_size: 4
-  variants:
-  - name: UNCONNECTED
-    description: A value of 0 specifies that the event is not connected.
-    value: 0
-enum/FSUB_1_CHANID:
-  bit_size: 4
-  variants:
-  - name: UNCONNECTED
-    description: A value of 0 specifies that the event is not connected.
-    value: 0
 enum/HYST:
   bit_size: 2
   variants:

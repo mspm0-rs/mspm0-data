@@ -22,5 +22,20 @@ transforms:
     from: WUC_(.+)
     to: $1
 
+  ## Publisher/Subscriber ports
+  # CHANID is an int
+  - !DeleteEnums
+    from: .*CHANID
+    bit_size: 4
+
+  - !MergeFieldsets
+    from: FSUB_\d+
+    to: FPORT
+
+  - !MakeRegisterArray
+    blocks: .*
+    from: FSUB_(\d+)
+    to: FSUB
+
   ## Cleanup
   - !Sort
