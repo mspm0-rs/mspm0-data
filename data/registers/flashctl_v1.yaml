@@ -144,7 +144,7 @@ block/FLASHCTL:
     access: Read
     fieldset: GBLINFO2
   - name: BANKINFO0
-    description: Bank Information Register 0 for Bank 0.
+    description: Bank Information Register 0.
     array:
       len: 5
       stride: 16
@@ -152,7 +152,7 @@ block/FLASHCTL:
     access: Read
     fieldset: BANKINFO0
   - name: BANKINFO1
-    description: Bank Information Register 1 for Bank 0.
+    description: Bank Information Register 1.
     array:
       len: 5
       stride: 16
@@ -160,7 +160,7 @@ block/FLASHCTL:
     access: Read
     fieldset: BANKINFO1
 fieldset/BANKINFO0:
-  description: Bank Information Register 0 for Bank 0.
+  description: Bank Information Register 0.
   fields:
   - name: MAINSIZE
     description: 'Main region size in sectors Minimum: 0x8 (8) Maximum: 0x200 (512).'
@@ -168,7 +168,7 @@ fieldset/BANKINFO0:
     bit_size: 12
     enum: BANKINFO_MAINSIZE
 fieldset/BANKINFO1:
-  description: Bank Information Register 1 for Bank 0.
+  description: Bank Information Register 1.
   fields:
   - name: NONMAINSIZE
     description: 'Non-main region size in sectors Minimum: 0x0 (0) Maximum: 0x10 (16).'
@@ -309,7 +309,7 @@ fieldset/CMDEXEC:
   description: Command Execute Register.
   fields:
   - name: VAL
-    description: Command Execute value Initiates execution of the command specified in the CMDTYPE register.
+    description: Command Execute value. Initiates execution of the command specified in the CMDTYPE register. This register is blocked for writes after being written to 1 and prior to STATCMD.DONE being set by the flash wrapper hardware. Flash wrapper hardware clears this register after the processing of the command has completed.
     bit_offset: 0
     bit_size: 1
 fieldset/CMDTYPE:
