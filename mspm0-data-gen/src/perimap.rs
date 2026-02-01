@@ -11,6 +11,7 @@ pub static PERIMAP: RegexMap<&str> = RegexMap::new(&[
     (".*:mathacl", "v1"),
     (".*:tim", "v1"),
     (".*:adc", "v1"),
+    (".*:usbfs", "v1"),
     (".*:wwdt", "v1"),
     (".*:trng", "v1"),
     (".*:canfd", "v1"),
