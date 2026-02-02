@@ -1,0 +1,248 @@
+block/DEBUGSS:
+  description: DSSM.
+  items:
+  - name: IIDX
+    description: Interrupt index.
+    byte_offset: 4128
+    access: Read
+    fieldset: IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 4136
+    fieldset: INT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 4144
+    access: Read
+    fieldset: INT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 4152
+    access: Read
+    fieldset: INT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 4160
+    access: Write
+    fieldset: INT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 4168
+    access: Write
+    fieldset: INT
+  - name: EVT_MODE
+    description: Event Mode.
+    byte_offset: 4320
+    access: Read
+    fieldset: EVT_MODE
+  - name: DESC
+    description: Module Description.
+    byte_offset: 4348
+    access: Read
+    fieldset: DESC
+  - name: TXD
+    description: Transmit data register.
+    byte_offset: 4352
+    access: Read
+  - name: TXCTL
+    description: Transmit control register.
+    byte_offset: 4356
+    access: Read
+    fieldset: TXCTL
+  - name: RXD
+    description: Receive data register.
+    byte_offset: 4360
+  - name: RXCTL
+    description: Receive control register.
+    byte_offset: 4364
+    fieldset: RXCTL
+  - name: SPECIAL_AUTH
+    description: Special enable authorization register.
+    byte_offset: 4608
+    access: Read
+    fieldset: SPECIAL_AUTH
+  - name: APP_AUTH
+    description: Application CPU0 authorization register.
+    byte_offset: 4624
+    access: Read
+    fieldset: APP_AUTH
+fieldset/APP_AUTH:
+  description: Application CPU0 authorization register.
+  fields:
+  - name: DBGEN
+    description: Controls invasive debug enable.
+    bit_offset: 0
+    bit_size: 1
+  - name: NIDEN
+    description: Controls non-invasive debug enable.
+    bit_offset: 1
+    bit_size: 1
+  - name: SPIDEN
+    description: Secure invasive debug enable.
+    bit_offset: 2
+    bit_size: 1
+  - name: SPNIDEN
+    description: Secure non-invasive debug enable.
+    bit_offset: 3
+    bit_size: 1
+fieldset/DESC:
+  description: Module Description.
+  fields:
+  - name: MINREV
+    description: Minor rev of the IP.
+    bit_offset: 0
+    bit_size: 4
+  - name: MAJREV
+    description: Major rev of the IP.
+    bit_offset: 4
+    bit_size: 4
+  - name: INSTNUM
+    description: Instance Number within the device. This will be a parameter to the RTL for modules that can have multiple instances.
+    bit_offset: 8
+    bit_size: 4
+  - name: FEATUREVER
+    description: Feature Set for the module *instance*.
+    bit_offset: 12
+    bit_size: 4
+  - name: MODULEID
+    description: Module identification contains a unique peripheral identification number. The assignments are maintained in a central database for all of the platform modules to ensure uniqueness.
+    bit_offset: 16
+    bit_size: 16
+fieldset/EVT_MODE:
+  description: Event Mode.
+  fields:
+  - name: INT0_CFG
+    description: Event line mode select for peripheral events.
+    bit_offset: 0
+    bit_size: 2
+    enum: INT0_CFG
+fieldset/IIDX:
+  description: Interrupt index.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 8
+    enum: STAT
+fieldset/INT:
+  description: Interrupt clear.
+  fields:
+  - name: TXIFG
+    description: Clears TXIFG in RIS register.
+    bit_offset: 0
+    bit_size: 1
+  - name: RXIFG
+    description: Clears RXIFG in RIS register.
+    bit_offset: 1
+    bit_size: 1
+  - name: PWRUPIFG
+    description: Clears PWRUPIFG in RIS register.
+    bit_offset: 2
+    bit_size: 1
+  - name: PWRDWNIFG
+    description: Clears PWRDWNIFG in RIS register.
+    bit_offset: 3
+    bit_size: 1
+fieldset/RXCTL:
+  description: Receive control register.
+  fields:
+  - name: RECEIVE
+    description: Indicates SW write to the DSSM.RXD register. A read of the DSSM.RXD register by SWD Access Port will clear the RX field.
+    bit_offset: 0
+    bit_size: 1
+    enum: RECEIVE
+  - name: RECEIVE_FLAGS
+    description: Generic RX flags that can be set by SW and read by external debug tool. Functionality is defined by SW.
+    bit_offset: 1
+    bit_size: 7
+fieldset/SPECIAL_AUTH:
+  description: Special enable authorization register.
+  fields:
+  - name: SECAPEN
+    description: An active high input. When asserted (and SWD access is also permitted), the debug tools can use the Security-AP to communicate with security control logic. When deasserted, a DAPBUS firewall will isolate the AP and prevent access to the Security-AP.
+    bit_offset: 0
+    bit_size: 1
+  - name: SWDPORTEN
+    description: When asserted, the SW-DP functions normally. When deasserted, the SW-DP effectively disables all external debug access.
+    bit_offset: 1
+    bit_size: 1
+  - name: DFTAPEN
+    description: An active high input. When asserted (and SWD access is also permitted), the debug tools can then access the DFT-AP external to the DebugSS lite. When deasserted, a DAPBUS firewall will isolate the AP and prevent access.
+    bit_offset: 2
+    bit_size: 1
+  - name: ETAPEN
+    description: An active high input. When asserted (and SWD access is also permitted), the debug tools can then access an ET-AP external to the DebugSS lite. When deasserted, a DAPBUS firewall will isolate the AP and prevent access.
+    bit_offset: 3
+    bit_size: 1
+  - name: CFGAPEN
+    description: An active high input. When asserted (and SWD access is also permitted), the debug tools can use the Config-AP to read device configuration information. When deasserted, a DAPBUS firewall will isolate the AP and prevent access to the Config-AP.
+    bit_offset: 4
+    bit_size: 1
+  - name: AHBAPEN
+    description: Disabling / enabling debug access to the M0+ Core via the AHB-AP DAP bus isolation.
+    bit_offset: 5
+    bit_size: 1
+  - name: PWRAPEN
+    description: An active high input. When asserted (and SWD access is also permitted), the debug tools can then access the PWR-AP to power and reset state of the CPU. When deasserted, a DAPBUS firewall will isolate the AP and prevent access.
+    bit_offset: 6
+    bit_size: 1
+fieldset/TXCTL:
+  description: Transmit control register.
+  fields:
+  - name: TRANSMIT
+    description: Indicates data request in DSSM.TXD, set on write via Debug AP to DSSM.TXD. A read of the DSSM.TXD register by SW will clear the TX field. The tool can check that TXD is empty by reading this field.
+    bit_offset: 0
+    bit_size: 1
+    enum: TRANSMIT
+  - name: TRANSMIT_FLAGS
+    description: Generic TX flags that can be set by external debug tool. Functionality is defined by SW.
+    bit_offset: 1
+    bit_size: 31
+enum/INT0_CFG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: The interrupt or event line is disabled.
+    value: 0
+  - name: SOFTWARE
+    description: The interrupt or event line is in software mode. Software must clear the RIS.
+    value: 1
+  - name: HARDWARE
+    description: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.
+    value: 2
+enum/RECEIVE:
+  bit_size: 1
+  variants:
+  - name: EMPTY
+    description: RXD empty.
+    value: 0
+  - name: FULL
+    description: RXD full.
+    value: 1
+enum/STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No pending interrupt request.
+    value: 0
+  - name: TXIFG
+    description: TX interrupt.
+    value: 1
+  - name: RXIFG
+    description: RX interrupt.
+    value: 2
+  - name: PWRUP
+    description: Power-up interrupt. A debug session has started.
+    value: 3
+  - name: PWRDWN
+    description: Power-up interrupt. A debug session has started.
+    value: 4
+enum/TRANSMIT:
+  bit_size: 1
+  variants:
+  - name: EMPTY
+    description: TXD is empty.
+    value: 0
+  - name: FULL
+    description: TXD is full.
+    value: 1

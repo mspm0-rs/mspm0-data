@@ -1,0 +1,54 @@
+# Transform for DEBUGSS registers based on DEBUGSS on G350x
+transforms:
+  - !DeleteUselessEnums
+
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLEARED
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NO_EFFECT
+      1: SET
+
+  # INTEVAL is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: DISABLE
+      1: EVAL
+
+  # Remove DEBUGSS_ prefixes
+  - !RenameRegisters
+    block: .*
+    from: DEBUGSS_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: DEBUGSS_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: DEBUGSS_(.+)
+    to: $1
+
+  # These interrupt fields are all the same layout.
+  - !MergeFieldsets
+    from: (IMASK|ISET|MIS|RIS|ICLR)
+    to: INT
+    check: NoCheck
+
+  ## Cleanup
+  - !Sort

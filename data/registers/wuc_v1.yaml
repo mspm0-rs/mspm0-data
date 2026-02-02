@@ -1,0 +1,17 @@
+block/WUC:
+  description: PERIPHERALREGION.
+  items:
+  - name: FSUB
+    description: Subscriber Port 0.
+    array:
+      len: 2
+      stride: 4
+    byte_offset: 1024
+    fieldset: FPORT
+fieldset/FPORT:
+  description: Subscriber Port 0.
+  fields:
+  - name: CHANID
+    description: 0 = disconnected. 1-15 = connected to channelID = CHANID.
+    bit_offset: 0
+    bit_size: 4

@@ -1,0 +1,273 @@
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: GPRCM_STAT
+    description: Status Register.
+    byte_offset: 20
+    access: Read
+    fieldset: GPRCM_STAT
+block/OPA:
+  description: PERIPHERALREGION.
+  items:
+  - name: GPRCM
+    array:
+      len: 1
+      stride: 24
+    byte_offset: 2048
+    block: GPRCM
+  - name: CLKOVR
+    description: Clock Override.
+    byte_offset: 4112
+    fieldset: CLKOVR
+  - name: PWRCTL
+    description: Power Control.
+    byte_offset: 4124
+    fieldset: PWRCTL
+  - name: CTL
+    description: Control Register.
+    byte_offset: 4352
+    fieldset: CTL
+  - name: CFGBASE
+    description: Configuration Base Register.
+    byte_offset: 4356
+    fieldset: CFGBASE
+  - name: CFG
+    description: Configuration Register.
+    byte_offset: 4360
+    fieldset: CFG
+  - name: STAT
+    description: Status Register.
+    byte_offset: 4376
+    access: Read
+    fieldset: STAT
+fieldset/CFG:
+  description: Configuration Register.
+  fields:
+  - name: CHOP
+    description: Chopping enable.
+    bit_offset: 0
+    bit_size: 2
+    enum: CHOP
+  - name: OUTPIN
+    description: Enable output pin.
+    bit_offset: 2
+    bit_size: 1
+  - name: PSEL
+    description: Positive OA input selection. Please refer to the device specific datasheet for exact channels available.
+    bit_offset: 3
+    bit_size: 4
+    enum: PSEL
+  - name: NSEL
+    description: Negative OA input selection. Please refer to the device specific datasheet for exact channels available.
+    bit_offset: 7
+    bit_size: 3
+    enum: NSEL
+  - name: MSEL
+    description: MSEL Mux selection. Please refer to the device specific datasheet for exact channels available.
+    bit_offset: 10
+    bit_size: 3
+    enum: MSEL
+  - name: GAIN
+    description: Gain setting. Refer to TRM for enumeration information.
+    bit_offset: 13
+    bit_size: 3
+fieldset/CFGBASE:
+  description: Configuration Base Register.
+  fields:
+  - name: GBW
+    description: Select gain bandwidth which affects current as well the gain bandwidth. The lower gain bandwidth has lower current. See device specific datasheet for values. Can only be modified when STAT.BUSY=0.
+    bit_offset: 0
+    bit_size: 1
+    enum: GBW
+  - name: RRI
+    description: Rail-to-rail input enable. Can only be modified when STAT.BUSY=0.
+    bit_offset: 2
+    bit_size: 1
+fieldset/CLKOVR:
+  description: Clock Override.
+  fields:
+  - name: OVERRIDE
+    description: Unlocks the functionality of [RUN_STOP] to override the automatic peripheral clock request.
+    bit_offset: 0
+    bit_size: 1
+  - name: RUN_STOP
+    description: If [OVERRIDE] is enabled, this register is used to manually control the peripheral's clock request to the system.
+    bit_offset: 1
+    bit_size: 1
+    enum: RUN_STOP
+fieldset/CTL:
+  description: Control Register.
+  fields:
+  - name: ENABLE
+    description: OAxn Enable.
+    bit_offset: 0
+    bit_size: 1
+fieldset/GPRCM_STAT:
+  description: Status Register.
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+fieldset/PWRCTL:
+  description: Power Control.
+  fields:
+  - name: AUTO_OFF
+    description: When set the peripheral will remove its local IP request for enable so that it can be disabled if no other entities in the system are requesting it to be enabled.
+    bit_offset: 0
+    bit_size: 1
+fieldset/PWREN:
+  description: Power enable.
+  fields:
+  - name: ENABLE
+    description: Enable the power.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral.
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register.
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key B1h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/STAT:
+  description: Status Register.
+  fields:
+  - name: RDY
+    description: OA ready status.
+    bit_offset: 0
+    bit_size: 1
+enum/CHOP:
+  bit_size: 2
+  variants:
+  - name: OFF
+    description: Chopping disable.
+    value: 0
+  - name: ON
+    description: Standard chopping enable.
+    value: 1
+  - name: AVGON
+    description: Chop with post average on. Requires output to be connect to ADC in average mode.
+    value: 2
+enum/GBW:
+  bit_size: 1
+  variants:
+  - name: LOWGAIN
+    description: Low gain bandwidth. See device specific datasheet for gain bandwidth.
+    value: 0
+  - name: HIGHGAIN
+    description: High gain bandwidth. See device specific datasheet for gain bandwidth.
+    value: 1
+enum/MSEL:
+  bit_size: 3
+  variants:
+  - name: NC
+    description: no connect.
+    value: 0
+  - name: EXTNPIN1
+    description: external pin OAn-1.
+    value: 1
+  - name: VSS
+    description: VSS.
+    value: 2
+  - name: DAC12OUT
+    description: DAC12 Output.
+    value: 3
+  - name: OANM1RTOP
+    description: OA[n-1]Rtop.
+    value: 4
+enum/NSEL:
+  bit_size: 3
+  variants:
+  - name: NC
+    description: no connect.
+    value: 0
+  - name: EXTPIN0
+    description: external pin OAn-0.
+    value: 1
+  - name: EXTPIN1
+    description: external pin OAn-1.
+    value: 2
+  - name: OANP1RBOT
+    description: OA[n+1]Rbot.
+    value: 3
+  - name: OANRTAP
+    description: OA[n]Rtap.
+    value: 4
+  - name: OANRTOP
+    description: OA[n]Rtop.
+    value: 5
+  - name: SPARE
+    description: Spare input.
+    value: 6
+enum/PSEL:
+  bit_size: 4
+  variants:
+  - name: NC
+    description: No connect.
+    value: 0
+  - name: EXTPIN0
+    description: external pin OA+0.
+    value: 1
+  - name: EXTPIN1
+    description: external pin OAn+1.
+    value: 2
+  - name: DAC12OUT
+    description: DAC12OUT.
+    value: 3
+  - name: DAC8OUT
+    description: DAC8OUT.
+    value: 4
+  - name: VREF
+    description: VREF Channel.
+    value: 5
+  - name: OANM1RTOP
+    description: OA[n-1]Rtop.
+    value: 6
+  - name: GPAMP_OUT_INT
+    description: GPAMP_OUT_INT Input.
+    value: 7
+  - name: VSS
+    description: Internal Grouund Connection.
+    value: 8
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177
+enum/RUN_STOP:
+  bit_size: 1
+  variants:
+  - name: RUN
+    description: Run/ungate functional clock.
+    value: 0
+  - name: STOP
+    description: Stop/gate functional clock.
+    value: 1

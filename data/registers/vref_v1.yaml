@@ -1,0 +1,155 @@
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: STAT
+    description: Status Register.
+    byte_offset: 20
+    access: Read
+    fieldset: STAT
+block/VREF:
+  description: PERIPHERALREGION.
+  items:
+  - name: GPRCM
+    array:
+      len: 1
+      stride: 24
+    byte_offset: 2048
+    block: GPRCM
+  - name: CLKDIV
+    description: Clock Divider.
+    byte_offset: 4096
+    fieldset: CLKDIV
+  - name: CLKSEL
+    description: Clock Selection.
+    byte_offset: 4104
+    fieldset: CLKSEL
+  - name: CTL0
+    description: Control 0.
+    byte_offset: 4352
+    fieldset: CTL0
+  - name: CTL1
+    description: Control 1.
+    byte_offset: 4356
+    fieldset: CTL1
+  - name: CTL2
+    description: Control 2.
+    byte_offset: 4360
+    fieldset: CTL2
+fieldset/CLKDIV:
+  description: Clock Divider.
+  fields:
+  - name: RATIO
+    description: Selects divide ratio of module clock to be used in sample and hold logic.
+    bit_offset: 0
+    bit_size: 3
+fieldset/CLKSEL:
+  description: Clock Selection.
+  fields:
+  - name: LFCLK_SEL
+    description: Selects LFCLK as clock source if enabled.
+    bit_offset: 1
+    bit_size: 1
+  - name: MFCLK_SEL
+    description: Selects MFCLK as clock source if enabled.
+    bit_offset: 2
+    bit_size: 1
+  - name: BUSCLK_SEL
+    description: Selects BUSCLK as clock source if enabled.
+    bit_offset: 3
+    bit_size: 1
+fieldset/CTL0:
+  description: Control 0.
+  fields:
+  - name: ENABLE
+    description: This bit enables the VREF module.
+    bit_offset: 0
+    bit_size: 1
+  - name: BUFCONFIG
+    description: These bits configure output buffer.
+    bit_offset: 7
+    bit_size: 1
+    enum: BUFCONFIG
+  - name: SHMODE
+    description: This bit enable sample and hold mode.
+    bit_offset: 8
+    bit_size: 1
+fieldset/CTL1:
+  description: Control 1.
+  fields:
+  - name: READY
+    description: These bits defines status of VREF.
+    bit_offset: 0
+    bit_size: 1
+fieldset/CTL2:
+  description: Control 2.
+  fields:
+  - name: SHCYCLE
+    description: Sample and Hold cycle count Total cycles of module clock for sample and hold phase when VREF is working in sample and hold mode in STANDBY to save power. This field should be greater than HCYCLE field. The difference between this field and HCYCLE gives the number of cycles of sample phase. Please refer VREF section of datasheet for recommended values of sample and hold times.
+    bit_offset: 0
+    bit_size: 16
+  - name: HCYCLE
+    description: Hold cycle count Total cycles of module clock for hold phase when VREF is working in sample and hold mode in STANDBY to save power. Please refer VREF section of datasheet for recommended values of sample and hold times.
+    bit_offset: 16
+    bit_size: 16
+fieldset/PWREN:
+  description: Power enable.
+  fields:
+  - name: ENABLE
+    description: Enable the power.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral.
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register.
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key B1h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/STAT:
+  description: Status Register.
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+enum/BUFCONFIG:
+  bit_size: 1
+  variants:
+  - name: OUTPUT2P5V
+    description: Configure Output Buffer to 2.5v.
+    value: 0
+  - name: OUTPUT1P4V
+    description: Configure Output Buffer to 1.4v.
+    value: 1
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177

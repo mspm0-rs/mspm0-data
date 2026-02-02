@@ -1,0 +1,900 @@
+block/CPU_INT:
+  items:
+  - name: IIDX
+    description: Interrupt Index Register.
+    byte_offset: 0
+    access: Read
+    fieldset: CPU_INT_IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: CPU_INT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: CPU_INT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: CPU_INT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: CPU_INT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: CPU_INT
+block/EVT_OUT:
+  items:
+  - name: IIDX
+    description: Interrupt Index Register.
+    byte_offset: 0
+    access: Read
+    fieldset: EVT_OUT_IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: EVT_OUT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: EVT_OUT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: EVT_OUT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: EVT_OUT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: EVT_OUT
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: CLKCFG
+    description: Peripheral Clock Configuration Register.
+    byte_offset: 8
+    fieldset: CLKCFG
+  - name: STAT
+    description: Status Register.
+    byte_offset: 20
+    access: Read
+    fieldset: STAT
+block/RTC:
+  description: PERIPHERALREGION.
+  items:
+  - name: FPUB_0
+    description: Publisher Port 0.
+    byte_offset: 1092
+    fieldset: FPUB_0
+  - name: GPRCM
+    array:
+      len: 1
+      stride: 24
+    byte_offset: 2048
+    block: GPRCM
+  - name: CLKSEL
+    description: Clock Select for Ultra Low Power peripherals.
+    byte_offset: 4100
+    access: Read
+    fieldset: CLKSEL
+  - name: CPU_INT
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4128
+    block: CPU_INT
+  - name: EVT_OUT
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4176
+    block: EVT_OUT
+  - name: EVT_MODE
+    description: Event Mode.
+    byte_offset: 4320
+    fieldset: EVT_MODE
+  - name: DESC
+    description: RTC Descriptor Register.
+    byte_offset: 4348
+    access: Read
+    fieldset: DESC
+  - name: CLKCTL
+    description: RTC Clock Control Register.
+    byte_offset: 4352
+    fieldset: CLKCTL
+  - name: DBGCTL
+    description: RTC Module Debug Control Register.
+    byte_offset: 4356
+    fieldset: DBGCTL
+  - name: CTL
+    description: RTC Control Register.
+    byte_offset: 4360
+    fieldset: CTL
+  - name: STA
+    description: RTC Status Register.
+    byte_offset: 4364
+    access: Read
+    fieldset: STA
+  - name: CAL
+    description: RTC Clock Offset Calibration Register.
+    byte_offset: 4368
+    fieldset: CAL
+  - name: TCMP
+    description: RTC Temperature Compensation Register.
+    byte_offset: 4372
+    fieldset: TCMP
+  - name: SEC
+    description: RTC Seconds Register - Calendar Mode With Binary / BCD Format.
+    byte_offset: 4376
+    fieldset: SEC
+  - name: MIN
+    description: RTC Minutes Register - Calendar Mode With Binary / BCD Format.
+    byte_offset: 4380
+    fieldset: MIN
+  - name: HOUR
+    description: RTC Hours Register - Calendar Mode With Binary / BCD Format.
+    byte_offset: 4384
+    fieldset: HOUR
+  - name: DAY
+    description: RTC Day Of Week / Month Register - Calendar Mode With Binary / BCD Format.
+    byte_offset: 4388
+    fieldset: DAY
+  - name: MON
+    description: RTC Month Register - Calendar Mode With Binary / BCD Format.
+    byte_offset: 4392
+    fieldset: MON
+  - name: YEAR
+    description: RTC Year Register - Calendar Mode With Binary / BCD Format.
+    byte_offset: 4396
+    fieldset: YEAR
+  - name: A1MIN
+    description: RTC Minute Alarm Register - Calendar Mode With Binary / BCD Format.
+    byte_offset: 4400
+    fieldset: A1MIN
+  - name: A1HOUR
+    description: RTC Hours Alarm Register - Calendar Mode With Binary / BCD Format.
+    byte_offset: 4404
+    fieldset: A1HOUR
+  - name: A1DAY
+    description: RTC Alarm Day Of Week / Month Register - Calendar Mode With Binary / BCD Format.
+    byte_offset: 4408
+    fieldset: A1DAY
+  - name: A2MIN
+    description: RTC Minute Alarm Register - Calendar Mode With Binary / BCD Format.
+    byte_offset: 4412
+    fieldset: A2MIN
+  - name: A2HOUR
+    description: RTC Hours Alarm Register - Calendar Mode With Binary / BCD Format.
+    byte_offset: 4416
+    fieldset: A2HOUR
+  - name: A2DAY
+    description: RTC Alarm Day Of Week / Month Register - Calendar Mode With Binary / BCD Format.
+    byte_offset: 4420
+    fieldset: A2DAY
+  - name: PSCTL
+    description: RTC Prescale Timer 0/1 Control Register.
+    byte_offset: 4424
+    fieldset: PSCTL
+fieldset/A1DAY:
+  description: RTC Alarm Day Of Week / Month Register - Calendar Mode With Binary / BCD Format.
+  fields:
+  - name: ADOW
+    description: Alarm Day of week (0 to 6). These bits are valid if RTCBCD=1 or RTCBCD=0.
+    bit_offset: 0
+    bit_size: 3
+  - name: ADOWAE
+    description: Alarm Day of week enable. This bit are valid if RTCBCD=1 or RTCBCD=0.
+    bit_offset: 7
+    bit_size: 1
+  - name: ADOMBIN
+    description: Alarm Day of month Binary (1 to 28, 29, 30, 31) If RTCBCD=1 write to these bits will be ignored and read give the value 0.
+    bit_offset: 8
+    bit_size: 5
+  - name: ADOMAEBIN
+    description: Alarm Day of month Binary enable. If RTCBCD=1 this bit is always 0. Write to this bit will be ignored.
+    bit_offset: 15
+    bit_size: 1
+  - name: ADOMLOWBCD
+    description: Alarm Day of month BCD low digit (0 to 9). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 16
+    bit_size: 4
+  - name: ADOMHIGHBCD
+    description: Alarm Day of month BCD high digit (0 to 3). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 20
+    bit_size: 2
+  - name: ADOMAEBCD
+    description: Alarm Day of month BCD enable. If RTCBCD=0 this bit is always 0. Write to this bit will be ignored.
+    bit_offset: 23
+    bit_size: 1
+fieldset/A1HOUR:
+  description: RTC Hours Alarm Register - Calendar Mode With Binary / BCD Format.
+  fields:
+  - name: AHOURBIN
+    description: Alarm Hours Binary (0 to 23). If RTCBCD=1 write to these bits will be ignored and read give the value 0.
+    bit_offset: 0
+    bit_size: 5
+  - name: AHOURAEBIN
+    description: Alarm Hours Binary enable. If RTCBCD=1 this bit is always 0. Write to this bit will be ignored.
+    bit_offset: 7
+    bit_size: 1
+  - name: AHOURLOWBCD
+    description: Alarm Hours BCD low digit (0 to 9). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 8
+    bit_size: 4
+  - name: AHOURHIGHBCD
+    description: Alarm Hours BCD high digit (0 to 2). If RTCBCD=0 write to these bits will be ignored and read give the value 0..
+    bit_offset: 12
+    bit_size: 2
+  - name: AHOURAEBCD
+    description: Alarm Hours BCD enable. If RTCBCD=0 this bit is always 0. Write to this bit will be ignored.
+    bit_offset: 15
+    bit_size: 1
+fieldset/A1MIN:
+  description: RTC Minute Alarm Register - Calendar Mode With Binary / BCD Format.
+  fields:
+  - name: AMINBIN
+    description: Alarm Minutes Binary (0 to 59). If RTCBCD=1 write to these bits will be ignored and read give the value 0.
+    bit_offset: 0
+    bit_size: 6
+  - name: AMINAEBIN
+    description: Alarm Minutes Binary enable. If RTCBCD=1 this bit is always 0. Write to this bit will be ignored.
+    bit_offset: 7
+    bit_size: 1
+  - name: AMINLOWBCD
+    description: Alarm Minutes BCD low digit (0 to 9). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 8
+    bit_size: 4
+  - name: AMINHIGHBCD
+    description: Alarm Minutes BCD high digit (0 to 5). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 12
+    bit_size: 3
+  - name: AMINAEBCD
+    description: Alarm Minutes BCD enable. If RTCBCD=0 this bit is always 0. Write to this bit will be ignored.
+    bit_offset: 15
+    bit_size: 1
+fieldset/A2DAY:
+  description: RTC Alarm Day Of Week / Month Register - Calendar Mode With Binary / BCD Format.
+  fields:
+  - name: ADOW
+    description: Alarm Day of week (0 to 6). These bits are valid if RTCBCD=1 or RTCBCD=0.
+    bit_offset: 0
+    bit_size: 3
+  - name: ADOWAE
+    description: Alarm Day of week enable. This bit are valid if RTCBCD=1 or RTCBCD=0.
+    bit_offset: 7
+    bit_size: 1
+  - name: ADOMBIN
+    description: Alarm Day of month Binary (1 to 28, 29, 30, 31) If RTCBCD=1 write to these bits will be ignored and read give the value 0.
+    bit_offset: 8
+    bit_size: 5
+  - name: ADOMAEBIN
+    description: Alarm Day of month Binary enable. If RTCBCD=1 this bit is always 0. Write to this bit will be ignored.
+    bit_offset: 15
+    bit_size: 1
+  - name: ADOMLOWBCD
+    description: Alarm Day of month BCD low digit (0 to 9). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 16
+    bit_size: 4
+  - name: ADOMHIGHBCD
+    description: Alarm Day of month BCD high digit (0 to 3). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 20
+    bit_size: 2
+  - name: ADOMAEBCD
+    description: Alarm Day of month BCD enable. If RTCBCD=0 this bit is always 0. Write to this bit will be ignored.
+    bit_offset: 23
+    bit_size: 1
+fieldset/A2HOUR:
+  description: RTC Hours Alarm Register - Calendar Mode With Binary / BCD Format.
+  fields:
+  - name: AHOURBIN
+    description: Alarm Hours Binary (0 to 23). If RTCBCD=1 write to these bits will be ignored and read give the value 0.
+    bit_offset: 0
+    bit_size: 5
+  - name: AHOURAEBIN
+    description: Alarm Hours Binary enable. If RTCBCD=1 this bit is always 0. Write to this bit will be ignored.
+    bit_offset: 7
+    bit_size: 1
+  - name: AHOURLOWBCD
+    description: Alarm Hours BCD low digit (0 to 9). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 8
+    bit_size: 4
+  - name: AHOURHIGHBCD
+    description: Alarm Hours BCD high digit (0 to 2). If RTCBCD=0 write to these bits will be ignored and read give the value 0..
+    bit_offset: 12
+    bit_size: 2
+  - name: AHOURAEBCD
+    description: Alarm Hours BCD enable. If RTCBCD=0 this bit is always 0. Write to this bit will be ignored.
+    bit_offset: 15
+    bit_size: 1
+fieldset/A2MIN:
+  description: RTC Minute Alarm Register - Calendar Mode With Binary / BCD Format.
+  fields:
+  - name: AMINBIN
+    description: Alarm Minutes Binary (0 to 59). If RTCBCD=1 write to these bits will be ignored and read give the value 0.
+    bit_offset: 0
+    bit_size: 6
+  - name: AMINAEBIN
+    description: Alarm Minutes Binary enable. If RTCBCD=1 this bit is always 0. Write to this bit will be ignored.
+    bit_offset: 7
+    bit_size: 1
+  - name: AMINLOWBCD
+    description: Alarm Minutes BCD low digit (0 to 9). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 8
+    bit_size: 4
+  - name: AMINHIGHBCD
+    description: Alarm Minutes BCD high digit (0 to 5). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 12
+    bit_size: 3
+  - name: AMINAEBCD
+    description: Alarm Minutes BCD enable. If RTCBCD=0 this bit is always 0. Write to this bit will be ignored.
+    bit_offset: 15
+    bit_size: 1
+fieldset/CAL:
+  description: RTC Clock Offset Calibration Register.
+  fields:
+  - name: RTCOCALX
+    description: Real-time clock offset error calibration. Each LSB represents approximately +1ppm (RTCOCALXS = 1) or -1ppm (RTCOCALXS = 0) adjustment in frequency. Maximum effective calibration value is +/-240ppm. Excess values written above +/-240ppm will be ignored by hardware.
+    bit_offset: 0
+    bit_size: 8
+  - name: RTCOCALS
+    description: Real-time clock offset error calibration sign. This bit decides the sign of offset error calibration.
+    bit_offset: 15
+    bit_size: 1
+    enum: RTCOCALS
+  - name: RTCCALFX
+    description: Real-time clock calibration frequency. Selects frequency output to RTC_OUT pin for calibration measurement. The corresponding port must be configured for the peripheral module function.
+    bit_offset: 16
+    bit_size: 2
+    enum: RTCCALFX
+fieldset/CLKCFG:
+  description: Peripheral Clock Configuration Register.
+  fields:
+  - name: BLOCKASYNC
+    description: Async Clock Request is blocked from starting SYSOSC or forcing bus clock to 32MHz.
+    bit_offset: 8
+    bit_size: 1
+fieldset/CLKCTL:
+  description: RTC Clock Control Register.
+  fields:
+  - name: MODCLKEN
+    description: This bit enables the supply of the 32kHz clock to the RTC. It will not power-up the 32kHz crystal oscillator this needs to be done in the Clock System Module.
+    bit_offset: 31
+    bit_size: 1
+fieldset/CLKSEL:
+  description: Clock Select for Ultra Low Power peripherals.
+  fields:
+  - name: LFCLK_SEL
+    description: Selects LFCLK as clock source if enabled.
+    bit_offset: 1
+    bit_size: 1
+fieldset/CPU_INT:
+  description: Interrupt clear.
+  fields:
+  - name: RTCRDY
+    description: Clear RTC-Ready interrupt.
+    bit_offset: 0
+    bit_size: 1
+  - name: RTCTEV
+    description: Clear Time-Event interrupt.
+    bit_offset: 1
+    bit_size: 1
+  - name: RTCA1
+    description: Clear Alarm-1 interrupt.
+    bit_offset: 2
+    bit_size: 1
+  - name: RTCA2
+    description: Clear Alarm-2 interrupt.
+    bit_offset: 3
+    bit_size: 1
+  - name: RT0PS
+    description: Clear Prescaler-0 interrupt.
+    bit_offset: 4
+    bit_size: 1
+  - name: RT1PS
+    description: Clear Prescaler-1 interrupt.
+    bit_offset: 5
+    bit_size: 1
+fieldset/CPU_INT_IIDX:
+  description: Interrupt Index Register.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 8
+    enum: CPU_INT_IIDX_STAT
+fieldset/CTL:
+  description: RTC Control Register.
+  fields:
+  - name: RTCTEVTX
+    description: Real-time clock time event.
+    bit_offset: 0
+    bit_size: 2
+    enum: RTCTEVTX
+  - name: RTCBCD
+    description: Real-time clock BCD select. Selects BCD counting for real-time clock.
+    bit_offset: 7
+    bit_size: 1
+    enum: RTCBCD
+fieldset/DAY:
+  description: RTC Day Of Week / Month Register - Calendar Mode With Binary / BCD Format.
+  fields:
+  - name: DOW
+    description: Day of week (0 to 6). These bits are valid if RTCBCD=1 or RTCBCD=0.
+    bit_offset: 0
+    bit_size: 3
+  - name: DOMBIN
+    description: Day of month Binary (1 to 28, 29, 30, 31). If RTCBCD=1 write to these bits will be ignored and read give the value 0.
+    bit_offset: 8
+    bit_size: 5
+  - name: DOMLOWBCD
+    description: Day of month BCD low digit (0 to 9). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 16
+    bit_size: 4
+  - name: DOMHIGHBCD
+    description: Day of month BCD high digit (0 to 3). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 20
+    bit_size: 2
+fieldset/DBGCTL:
+  description: RTC Module Debug Control Register.
+  fields:
+  - name: DBGRUN
+    description: Debug Run.
+    bit_offset: 0
+    bit_size: 1
+    enum: DBGRUN
+  - name: DBGINT
+    description: Debug Interrupt Enable.
+    bit_offset: 1
+    bit_size: 1
+fieldset/DESC:
+  description: RTC Descriptor Register.
+  fields:
+  - name: MINREV
+    description: Minor revision. This number holds the module revision and is incremented by the module developers. n = Minor module revision (see device-specific data sheet).
+    bit_offset: 0
+    bit_size: 4
+  - name: MAJREV
+    description: Major revision. This number holds the module revision and is incremented by the module developers. n = Major version (see device-specific data sheet).
+    bit_offset: 4
+    bit_size: 4
+  - name: INSTNUM
+    description: Instantiated version. Describes which instance of the module accessed.
+    bit_offset: 8
+    bit_size: 4
+    enum: INSTNUM
+  - name: FEATUREVER
+    description: Feature set of this module. Differentiates the complexity of the actually instantiated module if there are differences.
+    bit_offset: 12
+    bit_size: 4
+  - name: MODULEID
+    description: Module identifier. This ID is unique for each module. 0x0911 = Module ID of the RTC Module.
+    bit_offset: 16
+    bit_size: 16
+fieldset/EVT_MODE:
+  description: Event Mode.
+  fields:
+  - name: EVT0_CFG
+    description: Event line mode 0 select.
+    bit_offset: 0
+    bit_size: 2
+    enum: EVT_CFG
+  - name: EVT_OUT
+    description: Event line mode 1 select.
+    bit_offset: 2
+    bit_size: 2
+    enum: EVT_CFG
+fieldset/EVT_OUT:
+  description: Interrupt clear.
+  fields:
+  - name: RTCRDY
+    description: Clear RTC-Ready interrupt.
+    bit_offset: 0
+    bit_size: 1
+  - name: RTCTEV
+    description: Clear Time-Event interrupt.
+    bit_offset: 1
+    bit_size: 1
+  - name: RTCA1
+    description: Clear Alarm-1 interrupt.
+    bit_offset: 2
+    bit_size: 1
+  - name: RTCA2
+    description: Clear Alarm-2 interrupt.
+    bit_offset: 3
+    bit_size: 1
+  - name: RT0PS
+    description: Clear Prescaler-0 interrupt.
+    bit_offset: 4
+    bit_size: 1
+  - name: RT1PS
+    description: Clear Prescaler-1 interrupt.
+    bit_offset: 5
+    bit_size: 1
+fieldset/EVT_OUT_IIDX:
+  description: Interrupt Index Register.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 8
+    enum: EVT_OUT_IIDX_STAT
+fieldset/FPUB_0:
+  description: Publisher Port 0.
+  fields:
+  - name: CHANID
+    description: 0 = disconnected. 1-15 = connected to channelID = CHANID.
+    bit_offset: 0
+    bit_size: 4
+fieldset/HOUR:
+  description: RTC Hours Register - Calendar Mode With Binary / BCD Format.
+  fields:
+  - name: HOURBIN
+    description: Hours Binary (0 to 23). If RTCBCD=1 write to these bits will be ignored and read give the value 0.
+    bit_offset: 0
+    bit_size: 5
+  - name: HOURLOWBCD
+    description: Hours BCD low digit (0 to 9). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 8
+    bit_size: 4
+  - name: HOURHIGHBCD
+    description: Hours BCD high digit (0 to 2). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 12
+    bit_size: 2
+fieldset/MIN:
+  description: RTC Minutes Register - Calendar Mode With Binary / BCD Format.
+  fields:
+  - name: MINBIN
+    description: Minutes Binary (0 to 59). If RTCBCD=1 write to these bits will be ignored and read give the value 0.
+    bit_offset: 0
+    bit_size: 6
+  - name: MINLOWBCD
+    description: Minutes BCD low digit (0 to 9). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 8
+    bit_size: 4
+  - name: MINHIGHBCD
+    description: Minutes BCD high digit (0 to 5). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 12
+    bit_size: 3
+fieldset/MON:
+  description: RTC Month Register - Calendar Mode With Binary / BCD Format.
+  fields:
+  - name: MONBIN
+    description: Month Binary (1 to 12). If RTCBCD=1 write to these bits will be ignored and read give the value 0.
+    bit_offset: 0
+    bit_size: 4
+  - name: MONLOWBCD
+    description: Month BCD low digit (0 to 9). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 8
+    bit_size: 4
+  - name: MONHIGHBCD
+    description: Month BCD high digit (0 or 1). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 12
+    bit_size: 1
+fieldset/PSCTL:
+  description: RTC Prescale Timer 0/1 Control Register.
+  fields:
+  - name: RT0IP
+    description: Prescale timer 0 interrupt interval.
+    bit_offset: 2
+    bit_size: 3
+    enum: RT0IP
+  - name: RT1IP
+    description: Prescale timer 1 interrupt interval.
+    bit_offset: 18
+    bit_size: 3
+    enum: RT1IP
+fieldset/PWREN:
+  description: Power enable.
+  fields:
+  - name: ENABLE
+    description: Enable the power.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral.
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register.
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key B1h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/SEC:
+  description: RTC Seconds Register - Calendar Mode With Binary / BCD Format.
+  fields:
+  - name: SECBIN
+    description: Seconds Binary (0 to 59). If RTCBCD=1 write to these bits will be ignored and read give the value 0.
+    bit_offset: 0
+    bit_size: 6
+  - name: SECLOWBCD
+    description: Seconds BCD low digit (0 to 9). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 8
+    bit_size: 4
+  - name: SECHIGHBCD
+    description: Seconds BCD high digit (0 to 5). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 12
+    bit_size: 3
+fieldset/STA:
+  description: RTC Status Register.
+  fields:
+  - name: RTCRDY
+    description: Real-time clock ready. This bit indicates when the real-time clock time values are safe for reading.
+    bit_offset: 0
+    bit_size: 1
+  - name: RTCTCRDY
+    description: Real-time clock temperature compensation ready. This is a read only bit that indicates when the RTCTCMPx can be written. Write to RTCTCMPx should be avoided when RTCTCRDY is reset.
+    bit_offset: 1
+    bit_size: 1
+  - name: RTCTCOK
+    description: Real-time clock temperature compensation write OK. This is a read-only bit that indicates if the write to RTCTCMP is successful or not.
+    bit_offset: 2
+    bit_size: 1
+fieldset/STAT:
+  description: Status Register.
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+fieldset/TCMP:
+  description: RTC Temperature Compensation Register.
+  fields:
+  - name: RTCTCMPX
+    description: Real-time clock temperature compensation. Value written into this register is used for temperature compensation of RTC. Each LSB represents approximately +1ppm (RTCTCMPS = 1) or -1ppm (RTCTCMPS = 0) adjustment in frequency. Maximum effective calibration value is +/-240ppm. Excess values written above +/-240ppm are ignored by hardware. Reading from RTCTCMP register at any time returns the cumulative value which is the signed addition of RTCOCALx and RTCTCMPX values, and the updated sign bit (RTCTCMPS) of the addition result.
+    bit_offset: 0
+    bit_size: 8
+  - name: RTCTCMPS
+    description: Real-time clock temperature compensation sign. This bit decides the sign of temperature compensation.
+    bit_offset: 15
+    bit_size: 1
+    enum: RTCTCMPS
+fieldset/YEAR:
+  description: RTC Year Register - Calendar Mode With Binary / BCD Format.
+  fields:
+  - name: YEARLOWBIN
+    description: Year Binary low byte. Valid values for Year are 0 to 4095. If RTCBCD=1 write to these bits will be ignored and read give the value 0.
+    bit_offset: 0
+    bit_size: 8
+  - name: YEARHIGHBIN
+    description: Year Binary high byte. Valid values for Year are 0 to 4095. If RTCBCD=1 write to these bits will be ignored and read give the value 0.
+    bit_offset: 8
+    bit_size: 4
+  - name: YEARLOWESTBCD
+    description: Year BCD lowest digit (0 to 9). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 16
+    bit_size: 4
+  - name: DECADEBCD
+    description: Decade BCD (0 to 9). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 20
+    bit_size: 4
+  - name: CENTLOWBCD
+    description: Century BCD low digit (0 to 9). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 24
+    bit_size: 4
+  - name: CENTHIGHBCD
+    description: Century BCD high digit (0 to 4). If RTCBCD=0 write to these bits will be ignored and read give the value 0.
+    bit_offset: 28
+    bit_size: 3
+enum/CPU_INT_IIDX_STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No interrupt pending.
+    value: 0
+  - name: RTCRDY
+    description: 'RTC-Ready interrupt; Interrupt flag: RTCRDY.'
+    value: 1
+  - name: RTCTEV
+    description: 'Time-Event interrupt; Interrupt flag: RTCTEV.'
+    value: 2
+  - name: RTCA1
+    description: 'Alarm-1 interrupt; Interrupt flag: RTCA1.'
+    value: 3
+  - name: RTCA2
+    description: 'Alarm-2 interrupt; Interrupt flag: RTCA2.'
+    value: 4
+  - name: RT0PS
+    description: 'Prescaler-0 interrupt; Interrupt flag: RT0PS.'
+    value: 5
+  - name: RT1PS
+    description: 'Prescaler-1 interrupt; Interrupt flag: RT1PS.'
+    value: 6
+enum/DBGRUN:
+  bit_size: 1
+  variants:
+  - name: HALT
+    description: Counter is halted if CPU is in debug state.
+    value: 0
+  - name: RUN
+    description: Continue to operate normally ignoring the debug state of the CPU.
+    value: 1
+enum/EVT_CFG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: The interrupt or event line is disabled.
+    value: 0
+  - name: SOFTWARE
+    description: The interrupt or event line is in software mode. The software ISR clears the associated RIS flag.
+    value: 1
+  - name: HARDWARE
+    description: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.
+    value: 2
+enum/EVT_OUT_IIDX_STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No interrupt pending.
+    value: 0
+  - name: RTCRDY
+    description: 'RTC-Ready interrupt; Interrupt flag: RTCRDY.'
+    value: 1
+  - name: RTCTEV
+    description: 'Time-Event interrupt; Interrupt flag: RTCTEV.'
+    value: 2
+  - name: RTCA1
+    description: 'Alarm-1 interrupt; Interrupt flag: RTCA1.'
+    value: 3
+  - name: RTCA2
+    description: 'Alarm-2 interrupt; Interrupt flag: RTCA2.'
+    value: 4
+  - name: RT0PS
+    description: 'Prescaler-0 interrupt; Interrupt flag: RT0PS.'
+    value: 5
+  - name: RT1PS
+    description: 'Prescaler-1 interrupt; Interrupt flag: RT1PS.'
+    value: 6
+enum/INSTNUM:
+  bit_size: 4
+  variants:
+  - name: INST0
+    description: This is the default, if there is only one instance - like for SSIM.
+    value: 0
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177
+enum/RT0IP:
+  bit_size: 3
+  variants:
+  - name: DIV8
+    description: Divide by 8 - 244 microsecond interval.
+    value: 2
+  - name: DIV16
+    description: Divide by 16 - 488 microsecond interval.
+    value: 3
+  - name: DIV32
+    description: Divide by 32 - 976 microsecond interval.
+    value: 4
+  - name: DIV64
+    description: Divide by 64 - 1.95 millisecond interval.
+    value: 5
+  - name: DIV128
+    description: Divide by 128 - 3.90 millisecond interval.
+    value: 6
+  - name: DIV256
+    description: Divide by 256 - 7.81 millisecond interval.
+    value: 7
+enum/RT1IP:
+  bit_size: 3
+  variants:
+  - name: DIV2
+    description: Divide by 2 - 15.6 millisecond interval.
+    value: 0
+  - name: DIV4
+    description: Divide by 4 - 31.2 millisecond interval.
+    value: 1
+  - name: DIV8
+    description: Divide by 8 - 62.5 millisecond interval.
+    value: 2
+  - name: DIV16
+    description: Divide by 16 - 125 millisecond interval.
+    value: 3
+  - name: DIV32
+    description: Divide by 32 - 250 millisecond interval.
+    value: 4
+  - name: DIV64
+    description: Divide by 64 - 500 millisecond interval.
+    value: 5
+  - name: DIV128
+    description: Divide by 128 - 1 second interval.
+    value: 6
+  - name: DIV256
+    description: Divide by 256 - 2 second interval.
+    value: 7
+enum/RTCBCD:
+  bit_size: 1
+  variants:
+  - name: BINARY
+    description: Binary code selected.
+    value: 0
+  - name: BCD
+    description: Binary coded decimal (BCD) code selected.
+    value: 1
+enum/RTCCALFX:
+  bit_size: 2
+  variants:
+  - name: OFF
+    description: No frequency output to RTC_OUT pin.
+    value: 0
+  - name: F512HZ
+    description: 512 Hz.
+    value: 1
+  - name: F256HZ
+    description: 256 Hz.
+    value: 2
+  - name: F1HZ
+    description: 1 Hz.
+    value: 3
+enum/RTCOCALS:
+  bit_size: 1
+  variants:
+  - name: DOWN
+    description: Down calibration. Frequency adjusted down.
+    value: 0
+  - name: UP
+    description: Up calibration. Frequency adjusted up.
+    value: 1
+enum/RTCTCMPS:
+  bit_size: 1
+  variants:
+  - name: DOWN
+    description: Down calibration. Frequency adjusted down.
+    value: 0
+  - name: UP
+    description: Up calibration. Frequency adjusted up.
+    value: 1
+enum/RTCTEVTX:
+  bit_size: 2
+  variants:
+  - name: MINUTE
+    description: Minute changed.
+    value: 0
+  - name: HOUR
+    description: Hour changed.
+    value: 1
+  - name: MIDNIGHT
+    description: Every day at midnight (00:00).
+    value: 2
+  - name: NOON
+    description: Every day at noon (12:00).
+    value: 3

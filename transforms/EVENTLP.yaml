@@ -1,0 +1,55 @@
+# Transform for EVENTLP registers based on EVENTLP on G350x
+transforms:
+  - !DeleteUselessEnums
+
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLEARED
+      1: SET
+
+  # INTEVAL is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: DISABLE
+      1: EVAL
+
+  # DIAGPAR ASSERTDIAG is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NO_EFFECT
+      1: START
+
+  # DIAGPAR ASSERTDIAG CLR is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NO_EFFECT
+      1: CLR
+
+  # Remove EVENTLP_ prefixes
+  - !RenameRegisters
+    block: .*
+    from: EVENTLP_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: EVENTLP_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: EVENTLP_(.+)
+    to: $1
+
+  ## Cleanup
+  - !Sort

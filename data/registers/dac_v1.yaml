@@ -1,0 +1,509 @@
+block/DAC:
+  description: PERIPHERALREGION.
+  items:
+  - name: FSUB
+    description: Subscriber Port 0.
+    array:
+      len: 2
+      stride: 4
+    byte_offset: 1024
+    fieldset: FPORT
+  - name: FPUB_1
+    description: Publisher port 1.
+    byte_offset: 1092
+    fieldset: FPORT
+  - name: GPRCM
+    array:
+      len: 1
+      stride: 24
+    byte_offset: 2048
+    block: GPRCM
+  - name: INT_EVENT
+    array:
+      len: 2
+      stride: 44
+    byte_offset: 4128
+    block: INT_EVENT
+  - name: EVT_MODE
+    description: Event Mode.
+    byte_offset: 4320
+    fieldset: EVT_MODE
+  - name: DESC
+    description: Module Description.
+    byte_offset: 4348
+    access: Read
+    fieldset: DESC
+  - name: CTL0
+    description: Control 0.
+    byte_offset: 4352
+    fieldset: CTL0
+  - name: CTL1
+    description: Control 1.
+    byte_offset: 4368
+    fieldset: CTL1
+  - name: CTL2
+    description: Control 2.
+    byte_offset: 4384
+    fieldset: CTL2
+  - name: CTL3
+    description: Control 3.
+    byte_offset: 4400
+    fieldset: CTL3
+  - name: CALCTL
+    description: Calibration control.
+    byte_offset: 4416
+    fieldset: CALCTL
+  - name: CALDATA
+    description: Calibration data.
+    byte_offset: 4448
+    access: Read
+    fieldset: CALDATA
+  - name: DATA0
+    description: Data 0.
+    byte_offset: 4608
+    fieldset: DATA0
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: STAT
+    description: Status Register.
+    byte_offset: 20
+    access: Read
+    fieldset: STAT
+block/INT_EVENT:
+  items:
+  - name: IIDX
+    description: Interrupt index.
+    byte_offset: 0
+    access: Read
+    fieldset: IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: INT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: INT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: INT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: INT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: INT
+fieldset/CALCTL:
+  description: Calibration control.
+  fields:
+  - name: CALON
+    description: This bit when set initiates the DAC offset error calibration sequence and is automatically reset when the offset error calibration completes.
+    bit_offset: 0
+    bit_size: 1
+  - name: CALSEL
+    description: This bit is used to select between factory trim or self calibration trim.
+    bit_offset: 1
+    bit_size: 1
+    enum: CALSEL
+fieldset/CALDATA:
+  description: Calibration data.
+  fields:
+  - name: DATA
+    description: DAC offset error calibration data. The DAC offset error calibration data is represented in twos complement format providing a range of 64 to +63. This is read-only bit, reflecting the calibration data. Writing to this register will have no effect, it will not change the calibration value.
+    bit_offset: 0
+    bit_size: 7
+fieldset/CTL0:
+  description: Control 0.
+  fields:
+  - name: ENABLE
+    description: This bit enables the DAC module.
+    bit_offset: 0
+    bit_size: 1
+  - name: RES
+    description: These bits define the DAC output voltage resolution.
+    bit_offset: 8
+    bit_size: 1
+    enum: RES
+  - name: DFM
+    description: This bit defines the DAC input data format.
+    bit_offset: 16
+    bit_size: 1
+    enum: DFM
+fieldset/CTL1:
+  description: Control 1.
+  fields:
+  - name: AMPEN
+    description: 'AMP_EN - output amplifier enabled or disabled 0 : disabled 1 : enabled.'
+    bit_offset: 0
+    bit_size: 1
+  - name: AMPHIZ
+    description: 'AMPHIZ - amplifier output value 0 : amplifier output is high impedance 1 : amplifier output is pulled down to ground.'
+    bit_offset: 1
+    bit_size: 1
+    enum: AMPHIZ
+  - name: REFSP
+    description: This bit selects the DAC voltage reference source + input.
+    bit_offset: 8
+    bit_size: 1
+    enum: REFSP
+  - name: REFSN
+    description: This bit selects the DAC voltage reference source + input.
+    bit_offset: 9
+    bit_size: 1
+    enum: REFSN
+  - name: OPS
+    description: These bits select the DAC output on device pin.
+    bit_offset: 24
+    bit_size: 1
+    enum: OPS
+fieldset/CTL2:
+  description: Control 2.
+  fields:
+  - name: FIFOEN
+    description: This bit enables the FIFO and the FIFO hardware control state machine.
+    bit_offset: 0
+    bit_size: 1
+  - name: FIFOTH
+    description: These bits determine the FIFO threshold. In case of DMA based operation, DAC generates new DMA trigger when the number of empty locations in FIFO match the selected FIFO threshold level. In case of CPU based operation, the FIFO threshold bits are don't care and FIFO level is directly indicated through the respective bits in the RIS register.
+    bit_offset: 8
+    bit_size: 2
+    enum: FIFOTH
+  - name: FIFOTRIGSEL
+    description: These bits select the source for FIFO read trigger. When the selected FIFO read trigger is asserted, the data from FIFO (as indicated by read pointer) is moved into internal DAC data register.
+    bit_offset: 16
+    bit_size: 2
+    enum: FIFOTRIGSEL
+  - name: DMATRIGEN
+    description: This bit enables the DMA trigger generation mechanism. When this bit is set along with FIFOEN, the DMA trigger is generated based on the empty FIFO locations qualified by FIFOTH settings. This bit needs to be cleared by SW to stop further DMA triggers.
+    bit_offset: 24
+    bit_size: 1
+fieldset/CTL3:
+  description: Control 3.
+  fields:
+  - name: STIMEN
+    description: This bit enables the sample time generator.
+    bit_offset: 0
+    bit_size: 1
+  - name: STIMCONFIG
+    description: These bits are used to configure the trigger rate from the sample time generator. The STIMCONFIG values 10 to 15 are reserved and default to same effect as value 0 (500SPS).
+    bit_offset: 8
+    bit_size: 4
+    enum: STIMCONFIG
+fieldset/DATA0:
+  description: Data 0.
+  fields:
+  - name: DATA_VALUE
+    description: This is the data written for digital to analog conversion.
+    bit_offset: 0
+    bit_size: 12
+fieldset/DESC:
+  description: Module Description.
+  fields:
+  - name: MINREV
+    description: Minor rev of the IP.
+    bit_offset: 0
+    bit_size: 4
+  - name: MAJREV
+    description: Major rev of the IP.
+    bit_offset: 4
+    bit_size: 4
+  - name: FEATUREVER
+    description: Feature Set for the module *instance*.
+    bit_offset: 12
+    bit_size: 4
+  - name: MODULEID
+    description: Module identification contains a unique peripheral identification number. The assignments are maintained in a central database for all of the platform modules to ensure uniqueness.
+    bit_offset: 16
+    bit_size: 16
+fieldset/EVT_MODE:
+  description: Event Mode.
+  fields:
+  - name: INT0_CFG
+    description: Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT][0].
+    bit_offset: 0
+    bit_size: 2
+    enum: EVT_CFG
+  - name: EVT1_CFG
+    description: Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT][0].
+    bit_offset: 2
+    bit_size: 2
+    enum: EVT_CFG
+fieldset/FPORT:
+  description: Publisher port 1.
+  fields:
+  - name: CHANID
+    description: 0 = disconnected. others = connected to channel_ID = CHANID.
+    bit_offset: 0
+    bit_size: 4
+fieldset/IIDX:
+  description: Interrupt index.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 4
+    enum: STAT
+fieldset/INT:
+  description: Interrupt clear.
+  fields:
+  - name: MODRDYIFG
+    description: Clears MODRDYIFG in RIS register.
+    bit_offset: 1
+    bit_size: 1
+  - name: FIFOFULLIFG
+    description: Clears FIFOFULLIFG in RIS register.
+    bit_offset: 8
+    bit_size: 1
+  - name: FIFO1B4IFG
+    description: Clears FIFO1B4IFG in RIS register.
+    bit_offset: 9
+    bit_size: 1
+  - name: FIFO1B2IFG
+    description: Clears FIFO1B2IFG in RIS register.
+    bit_offset: 10
+    bit_size: 1
+  - name: FIFO3B4IFG
+    description: Clears FIFO3B4IFG in RIS register.
+    bit_offset: 11
+    bit_size: 1
+  - name: FIFOEMPTYIFG
+    description: Clears FIFOEMPTYIFG in RIS register.
+    bit_offset: 12
+    bit_size: 1
+  - name: FIFOURUNIFG
+    description: Clears FIFOURUNIFG in RIS register.
+    bit_offset: 13
+    bit_size: 1
+  - name: DMADONEIFG
+    description: Clears DMADONEIFG in RIS register.
+    bit_offset: 14
+    bit_size: 1
+fieldset/PWREN:
+  description: Power enable.
+  fields:
+  - name: ENABLE
+    description: Enable the power.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral.
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register.
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key B1h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/STAT:
+  description: Status Register.
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+enum/AMPHIZ:
+  bit_size: 1
+  variants:
+  - name: HIZ
+    description: HiZ when disable.
+    value: 0
+  - name: PULLDOWN
+    description: dacout pulldown when disable.
+    value: 1
+enum/CALSEL:
+  bit_size: 1
+  variants:
+  - name: FACTORYTRIM
+    description: Factory Trim Calibration Values are used when calibration is enabled.
+    value: 0
+  - name: SELFCALIBRATIONTRIM
+    description: Self Calibration Trim Values are used when calibration is enabled.
+    value: 1
+enum/DFM:
+  bit_size: 1
+  variants:
+  - name: BINARY
+    description: Straight binary.
+    value: 0
+  - name: TWOS_COMP
+    description: Twos complement.
+    value: 1
+enum/EVT_CFG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: The interrupt or event line is disabled.
+    value: 0
+  - name: SOFTWARE
+    description: Event handled by software. Software must clear the associated RIS flag.
+    value: 1
+  - name: HARDWARE
+    description: Event handled by hardware. The hardware (another module) clears automatically the associated RIS flag.
+    value: 2
+enum/FIFOTH:
+  bit_size: 2
+  variants:
+  - name: LOW
+    description: One fourth of the FIFO locations are empty.
+    value: 0
+  - name: MED
+    description: Half of the FIFO locations are empty.
+    value: 1
+  - name: HIGH
+    description: Three fourth of the FIFO locations are empty.
+    value: 2
+  - name: SPARE
+    description: Reserved value. Defaults to same effect as FIFOTH = 0 (One fourth of the FIFO locations are empty).
+    value: 3
+enum/FIFOTRIGSEL:
+  bit_size: 2
+  variants:
+  - name: STIM
+    description: Sample time generator output.
+    value: 0
+  - name: TRIG0
+    description: Hardware trigger-0 from event fabric.
+    value: 1
+  - name: TRIG1
+    description: Hardware trigger-1 from event fabric.
+    value: 2
+  - name: SPARE
+    description: Reserved - unimplemented.
+    value: 3
+enum/OPS:
+  bit_size: 1
+  variants:
+  - name: NOC0
+    description: No connect. Both DAC output switches are open.
+    value: 0
+  - name: OUT0
+    description: OUT0 output is selected.
+    value: 1
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/REFSN:
+  bit_size: 1
+  variants:
+  - name: VEREFN
+    description: VEREFN pin as VR-.
+    value: 0
+  - name: VSSA
+    description: Analog supply (VSSA) as VR-.
+    value: 1
+enum/REFSP:
+  bit_size: 1
+  variants:
+  - name: VDDA
+    description: Analog supply (VDDA) as VR+.
+    value: 0
+  - name: VEREFP
+    description: VEREFP pin as VR+.
+    value: 1
+enum/RES:
+  bit_size: 1
+  variants:
+  - name: _8BITS
+    description: 8-bits resolution.
+    value: 0
+  - name: _12BITS
+    description: 12-bit resolution.
+    value: 1
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177
+enum/STAT:
+  bit_size: 4
+  variants:
+  - name: NO_INTR
+    description: No pending interrupt.
+    value: 0
+  - name: MODRDYIFG
+    description: Module ready interrupt.
+    value: 2
+  - name: FIFOFULLIFG
+    description: FIFO full interrupt.
+    value: 9
+  - name: FIFO1B4IFG
+    description: FIFO one fourth empty interrupt.
+    value: 10
+  - name: FIFO1B2IFG
+    description: FIFO half empty interrupt.
+    value: 11
+  - name: FIFO3B4IFG
+    description: FIFO three fourth empty interrupt.
+    value: 12
+  - name: FIFOEMPTYIFG
+    description: FIFO empty interrupt.
+    value: 13
+  - name: FIFOURUNIFG
+    description: FIFO underrun interrupt.
+    value: 14
+  - name: DMADONEIFG
+    description: DMA done interrupt.
+    value: 15
+enum/STIMCONFIG:
+  bit_size: 4
+  variants:
+  - name: _500SPS
+    description: Trigger rate is 500 sps (clock divide value is 4000).
+    value: 0
+  - name: _1KSPS
+    description: Trigger rate is 1 ksps (clock divide value is 2000).
+    value: 1
+  - name: _2KSPS
+    description: Trigger rate is 2 ksps (clock divide value is 1000).
+    value: 2
+  - name: _4KSPS
+    description: Trigger rate is 4 ksps (clock divide value is 500).
+    value: 3
+  - name: _8KSPS
+    description: Trigger rate is 8 ksps (clock divide value is 250).
+    value: 4
+  - name: _16KSPS
+    description: Trigger rate is 16 ksps (clock divide value is 125).
+    value: 5
+  - name: _100KSPS
+    description: Trigger rate is 100 ksps (clock divide value is 20).
+    value: 6
+  - name: _200KSPS
+    description: Trigger rate is 200 ksps (clock divide value is 10).
+    value: 7
+  - name: _500KSPS
+    description: Trigger rate is 500 ksps (clock divide value is 4).
+    value: 8
+  - name: _1MSPS
+    description: Trigger rate is 1 Msps (clock divide value is 2).
+    value: 9

@@ -1,4 +1,4 @@
-# Transform for CANFD registers based on CANFD0 on G350x
+# Transform for RTC registers based on RTC on G350x
 transforms:
   - !DeleteUselessEnums
 
@@ -6,6 +6,7 @@ transforms:
     from: .*
     useless: true
 
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
   - !DeleteEnumsWithVariants
     variants:
       0: CLR
@@ -16,81 +17,54 @@ transforms:
       0: CLEARED
       1: SET
 
+  # FREE is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STOP
+      1: RUN
+
+  # RESETASSERT is useless
   - !DeleteEnumsWithVariants
     variants:
       0: NOP
       1: ASSERT
 
+  # RESETSTKY is useless
   - !DeleteEnumsWithVariants
     variants:
       0: NORES
       1: RESET
 
+  # RESETSTKYCLR is useless
   - !DeleteEnumsWithVariants
     variants:
       0: NOP
       1: CLR
 
+  # INTEVAL is useless
   - !DeleteEnumsWithVariants
     variants:
       0: DISABLE
       1: EVAL
 
-  # Merge CANFD0 -> CANFD
-  - !MergeBlocks
-    from: CANFD0
-    main: CANFD0
-    to: CANFD
-
-  # Remove CANFD0_ prefixes
+  # Remove RTC_ prefixes
   - !RenameRegisters
     block: .*
-    from: CANFD0_(.+)
+    from: RTC_(.+)
     to: $1
 
   - !RenameFields
     fieldset: .*
-    from: CANFD0_(.+)
+    from: RTC_(.+)
     to: $1
 
   - !Rename
     type: All
-    from: CANFD0_(.+)
-    to: $1
-
-  # MCAN block - remove MCAN_ prefix from registers
-  - !RenameRegisters
-    block: MCAN
-    from: MCAN_(.+)
-    to: $1
-
-  - !RenameFields
-    fieldset: .*
-    from: MCAN_(.+)
-    to: $1
-
-  - !Rename
-    type: All
-    from: MCAN_(.+)
-    to: $1
-
-  # TI_WRAPPER block - remove TI_WRAPPER_ prefix
-  - !RenameRegisters
-    block: TI_WRAPPER
-    from: TI_WRAPPER_(.+)
-    to: $1
-
-  - !RenameFields
-    fieldset: .*
-    from: TI_WRAPPER_(.+)
-    to: $1
-
-  - !Rename
-    type: All
-    from: TI_WRAPPER_(.+)
+    from: RTC_(.+)
     to: $1
 
   ## Interrupts
+  ## INT_EVENT0 -> CPU_INT
   - !MergeBlocks
     from: INT_EVENT0
     main: INT_EVENT0
@@ -111,6 +85,7 @@ transforms:
     from: INT_EVENT0(.+)
     to: CPU_INT$1
 
+  # These interrupt fields are all the same layout.
   - !MergeFieldsets
     from: CPU_INT_(IMASK|ISET|MIS|RIS|ICLR)
     to: CPU_INT
@@ -125,6 +100,49 @@ transforms:
     fieldset: .*
     from: CPU_INT_(.+)
     to: $1
+
+  ## INT_EVENT1 -> EVT_OUT (RTC uses event output, not DMA)
+  - !MergeBlocks
+    from: INT_EVENT1
+    main: INT_EVENT1
+    to: EVT_OUT
+
+  - !RenameRegisters
+    block: .*
+    from: INT_EVENT1(.*)
+    to: EVT_OUT$1
+
+  - !RenameFields
+    fieldset: .*
+    from: INT_EVENT1(.+)
+    to: EVT_OUT$1
+
+  - !Rename
+    type: All
+    from: INT_EVENT1(.+)
+    to: EVT_OUT$1
+
+  # These interrupt fields are all the same layout.
+  - !MergeFieldsets
+    from: EVT_OUT_(IMASK|ISET|MIS|RIS|ICLR)
+    to: EVT_OUT
+    check: NoCheck
+
+  - !RenameRegisters
+    block: .*
+    from: EVT_OUT_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: EVT_OUT_(.+)
+    to: $1
+
+  ## Publisher/Subscriber ports
+  # CHANID is an int
+  - !DeleteEnums
+    from: CHANID
+    bit_size: 4
 
   ## Add missing keys
   - !AddFields
@@ -157,6 +175,20 @@ transforms:
         variants:
           - name: KEY
             value: 38
+
+  ## EVT_MODE
+  - !MergeEnums
+    from: (INT|EVT)(\d+)_CFG
+    to: EVT_CFG
+
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT0_CFG
+    to: CPU
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: EVT1_CFG
+    to: EVT_OUT
 
   ## Cleanup
   - !Sort

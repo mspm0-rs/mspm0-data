@@ -1,0 +1,41 @@
+# Transform for WUC (Wake Up Controller) registers based on WUC on G350x
+transforms:
+  - !DeleteUselessEnums
+
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  # Remove WUC_ prefixes
+  - !RenameRegisters
+    block: .*
+    from: WUC_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: WUC_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: WUC_(.+)
+    to: $1
+
+  ## Publisher/Subscriber ports
+  # CHANID is an int
+  - !DeleteEnums
+    from: .*CHANID
+    bit_size: 4
+
+  - !MergeFieldsets
+    from: FSUB_\d+
+    to: FPORT
+
+  - !MakeRegisterArray
+    blocks: .*
+    from: FSUB_(\d+)
+    to: FSUB
+
+  ## Cleanup
+  - !Sort

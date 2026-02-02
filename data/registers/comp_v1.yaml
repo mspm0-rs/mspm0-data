@@ -1,0 +1,568 @@
+block/COMP:
+  description: PERIPHERALREGION.
+  items:
+  - name: FSUB
+    description: Subscriber Port 0.
+    array:
+      len: 2
+      stride: 4
+    byte_offset: 1024
+    fieldset: FPORT
+  - name: FPUB_1
+    description: Publisher port 1.
+    byte_offset: 1092
+    fieldset: FPORT
+  - name: GPRCM
+    array:
+      len: 1
+      stride: 24
+    byte_offset: 2048
+    block: GPRCM
+  - name: INT_EVENT
+    array:
+      len: 2
+      stride: 44
+    byte_offset: 4128
+    block: INT_EVENT
+  - name: EVT_MODE
+    description: Event Mode.
+    byte_offset: 4320
+    fieldset: EVT_MODE
+  - name: DESC
+    description: Module Description.
+    byte_offset: 4348
+    access: Read
+    fieldset: DESC
+  - name: CTL0
+    description: Control 0.
+    byte_offset: 4352
+    fieldset: CTL0
+  - name: CTL1
+    description: Control 1.
+    byte_offset: 4356
+    fieldset: CTL1
+  - name: CTL2
+    description: Control 2.
+    byte_offset: 4360
+    fieldset: CTL2
+  - name: CTL3
+    description: Control 3.
+    byte_offset: 4364
+    fieldset: CTL3
+  - name: STAT
+    description: Status.
+    byte_offset: 4384
+    access: Read
+    fieldset: STAT
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: CLKCFG
+    description: Peripheral Clock Configuration Register.
+    byte_offset: 8
+    fieldset: CLKCFG
+  - name: GPRCM_STAT
+    description: Status Register.
+    byte_offset: 20
+    access: Read
+    fieldset: GPRCM_STAT
+block/INT_EVENT:
+  items:
+  - name: IIDX
+    description: Interrupt index.
+    byte_offset: 0
+    access: Read
+    fieldset: IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: INT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: INT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: INT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: INT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: INT
+fieldset/CLKCFG:
+  description: Peripheral Clock Configuration Register.
+  fields:
+  - name: BLOCKASYNC
+    description: Async Clock Request is blocked from starting SYSOSC or forcing bus clock to 32MHz.
+    bit_offset: 8
+    bit_size: 1
+fieldset/CTL0:
+  description: Control 0.
+  fields:
+  - name: IPSEL
+    description: Channel input selected for the positive terminal of the comparator if IPEN is set to 1.
+    bit_offset: 0
+    bit_size: 3
+    enum: IPSEL
+  - name: IPEN
+    description: Channel input enable for the positive terminal of the comparator.
+    bit_offset: 15
+    bit_size: 1
+  - name: IMSEL
+    description: Channel input selected for the negative terminal of the comparator if IMEN is set to 1.
+    bit_offset: 16
+    bit_size: 3
+    enum: IMSEL
+  - name: IMEN
+    description: Channel input enable for the negative terminal of the comparator.
+    bit_offset: 31
+    bit_size: 1
+fieldset/CTL1:
+  description: Control 1.
+  fields:
+  - name: ENABLE
+    description: This bit turns on the comparator. When the comparator is turned off it consumes no power.
+    bit_offset: 0
+    bit_size: 1
+  - name: MODE
+    description: This bit selects the comparator operating mode.
+    bit_offset: 1
+    bit_size: 1
+    enum: MODE
+  - name: EXCH
+    description: This bit exchanges the comparator inputs and inverts the comparator output.
+    bit_offset: 2
+    bit_size: 1
+  - name: SHORT
+    description: This bit shorts the positive and negative input terminals of the comparator.
+    bit_offset: 3
+    bit_size: 1
+  - name: IES
+    description: This bit selected the interrupt edge for COMPIFG and COMPINVIFG.
+    bit_offset: 4
+    bit_size: 1
+    enum: IES
+  - name: HYST
+    description: These bits select the hysteresis setting of the comparator.
+    bit_offset: 5
+    bit_size: 2
+    enum: HYST
+  - name: OUTPOL
+    description: This bit selects the comparator output polarity.
+    bit_offset: 7
+    bit_size: 1
+    enum: OUTPOL
+  - name: FLTEN
+    description: This bit enables the analog filter at comparator output.
+    bit_offset: 8
+    bit_size: 1
+  - name: FLTDLY
+    description: These bits select the comparator output filter delay. See the device-specific data sheet for specific values on comparator propagation delay for different filter delay settings.
+    bit_offset: 9
+    bit_size: 2
+    enum: FLTDLY
+  - name: WINCOMPEN
+    description: This bit enables window comparator operation of comparator.
+    bit_offset: 12
+    bit_size: 1
+fieldset/CTL2:
+  description: Control 2.
+  fields:
+  - name: REFMODE
+    description: This bit requests ULP_REF bandgap operation in static mode or sampled mode. The local reference buffer and 8-bit DAC inside comparator module are also configured accordingly. Static mode operation offers higher accuracy but consumes higher current. Sampled mode operation consumes lower current but with relaxed reference voltage accuracy. Comparator requests for reference voltage from ULP_REF only when REFLVL > 0.
+    bit_offset: 0
+    bit_size: 1
+    enum: REFMODE
+  - name: REFSRC
+    description: These bits select the reference source for the comparator.
+    bit_offset: 3
+    bit_size: 2
+    enum: REFSRC
+  - name: REFSEL
+    description: This bit selects if the selected reference voltage is applied to positive or negative terminal of the comparator.
+    bit_offset: 7
+    bit_size: 1
+    enum: REFSEL
+  - name: BLANKSRC
+    description: These bits select the blanking source for the comparator.
+    bit_offset: 8
+    bit_size: 3
+    enum: BLANKSRC
+  - name: DACCTL
+    description: This bit determines if the comparator output or DACSW bit controls the selection between DACCODE0 and DACCODE1.
+    bit_offset: 16
+    bit_size: 1
+    enum: DACCTL
+  - name: DACSW
+    description: This bit selects between DACCODE0 and DACCODE1 to 8-bit DAC when DACCTL bit is 1.
+    bit_offset: 17
+    bit_size: 1
+    enum: DACSW
+  - name: SAMPMODE
+    description: Enable sampled mode of comparator.
+    bit_offset: 24
+    bit_size: 1
+fieldset/CTL3:
+  description: Control 3.
+  fields:
+  - name: DACCODE0
+    description: This is the first 8-bit DAC code. When the DAC code is 0x0 the DAC output will be 0 V. When the DAC code is 0xFF the DAC output will be selected reference voltage x 255/256.
+    bit_offset: 0
+    bit_size: 8
+  - name: DACCODE1
+    description: This is the second 8-bit DAC code. When the DAC code is 0x0 the DAC output will be 0 V. When the DAC code is 0xFF the DAC output will be selected reference voltage x 255/256.
+    bit_offset: 16
+    bit_size: 8
+fieldset/DESC:
+  description: Module Description.
+  fields:
+  - name: MINREV
+    description: Minor rev of the IP.
+    bit_offset: 0
+    bit_size: 4
+  - name: MAJREV
+    description: Major rev of the IP.
+    bit_offset: 4
+    bit_size: 4
+  - name: FEATUREVER
+    description: Feature Set for the module *instance*.
+    bit_offset: 12
+    bit_size: 4
+  - name: MODULEID
+    description: Module identification contains a unique peripheral identification number. The assignments are maintained in a central database for all of the platform modules to ensure uniqueness.
+    bit_offset: 16
+    bit_size: 16
+fieldset/EVT_MODE:
+  description: Event Mode.
+  fields:
+  - name: INT0_CFG
+    description: Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT][0].
+    bit_offset: 0
+    bit_size: 2
+    enum: EVT_CFG
+  - name: EVT1_CFG
+    description: Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT][0].
+    bit_offset: 2
+    bit_size: 2
+    enum: EVT_CFG
+fieldset/FPORT:
+  description: Publisher port 1.
+  fields:
+  - name: CHANID
+    description: 0 = disconnected. 1-15 = connected to channelID = CHANID.
+    bit_offset: 0
+    bit_size: 4
+fieldset/GPRCM_STAT:
+  description: Status Register.
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+fieldset/IIDX:
+  description: Interrupt index.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 2
+    enum: STAT
+fieldset/INT:
+  description: Interrupt clear.
+  fields:
+  - name: COMPIFG
+    description: Clears COMPIFG in RIS register.
+    bit_offset: 1
+    bit_size: 1
+  - name: COMPINVIFG
+    description: Clears COMPINVIFG in RIS register.
+    bit_offset: 2
+    bit_size: 1
+  - name: OUTRDYIFG
+    description: Clears OUTRDYIFG in RIS register.
+    bit_offset: 3
+    bit_size: 1
+fieldset/PWREN:
+  description: Power enable.
+  fields:
+  - name: ENABLE
+    description: Enable the power.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral.
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register.
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key B1h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/STAT:
+  description: Status.
+  fields:
+  - name: OUT
+    description: This bit reflects the value of the comparator output. Writing to this bit has no effect on the comparator output.
+    bit_offset: 0
+    bit_size: 1
+    enum: OUT
+enum/BLANKSRC:
+  bit_size: 3
+  variants:
+  - name: DISABLE
+    description: Blanking source disabled.
+    value: 0
+  - name: BLANKSRC1
+    description: Select Blanking Source 1.
+    value: 1
+  - name: BLANKSRC2
+    description: Select Blanking Source 2.
+    value: 2
+  - name: BLANKSRC3
+    description: Select Blanking Source 3.
+    value: 3
+  - name: BLANKSRC4
+    description: Select Blanking Source 4.
+    value: 4
+  - name: BLANKSRC5
+    description: Select Blanking Source 5.
+    value: 5
+  - name: BLANKSRC6
+    description: Select Blanking Source 6.
+    value: 6
+enum/DACCTL:
+  bit_size: 1
+  variants:
+  - name: COMPOUT_SEL
+    description: Comparator output controls selection between DACCODE0 and DACCODE1.
+    value: 0
+  - name: DACSW_SEL
+    description: DACSW bit controls selection between DACCODE0 and DACCODE1.
+    value: 1
+enum/DACSW:
+  bit_size: 1
+  variants:
+  - name: DACCODE0_SEL
+    description: DACCODE0 selected for 8-bit DAC.
+    value: 0
+  - name: DACCODE1_SEL
+    description: DACCODE1 selected for 8-bit DAC.
+    value: 1
+enum/EVT_CFG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: The interrupt or event line is disabled.
+    value: 0
+  - name: SOFTWARE
+    description: Event handled by software. Software must clear the associated RIS flag.
+    value: 1
+  - name: HARDWARE
+    description: Event handled by hardware. The hardware (another module) clears automatically the associated RIS flag.
+    value: 2
+enum/FLTDLY:
+  bit_size: 2
+  variants:
+  - name: DLY_0
+    description: Typical filter delay of 70 ns.
+    value: 0
+  - name: DLY_1
+    description: Typical filter delay of 500 ns.
+    value: 1
+  - name: DLY_2
+    description: Typical filter delay of 1200 ns.
+    value: 2
+  - name: DLY_3
+    description: Typical filter delay of 2700 ns.
+    value: 3
+enum/HYST:
+  bit_size: 2
+  variants:
+  - name: NO_HYS
+    description: No hysteresis.
+    value: 0
+  - name: LOW_HYS
+    description: Low hysteresis, typical 10mV.
+    value: 1
+  - name: MED_HYS
+    description: Medium hysteresis, typical 20mV.
+    value: 2
+  - name: HIGH_HYS
+    description: High hysteresis, typical 30mV.
+    value: 3
+enum/IES:
+  bit_size: 1
+  variants:
+  - name: RISING
+    description: Rising edge sets COMPIFG and falling edge sets COMPINVIFG.
+    value: 0
+  - name: FALLING
+    description: Falling edge sets COMPIFG and rising edge sets COMPINVIFG.
+    value: 1
+enum/IMSEL:
+  bit_size: 3
+  variants:
+  - name: CH_0
+    description: Channel 0 selected.
+    value: 0
+  - name: CH_1
+    description: Channel 1 selected.
+    value: 1
+  - name: CH_2
+    description: Channel 2 selected.
+    value: 2
+  - name: CH_3
+    description: Channel 3 selected.
+    value: 3
+  - name: CH_4
+    description: Channel 4 selected.
+    value: 4
+  - name: CH_5
+    description: Channel 5 selected.
+    value: 5
+  - name: CH_6
+    description: Channel 6 selected.
+    value: 6
+  - name: CH_7
+    description: Channel 7 selected.
+    value: 7
+enum/IPSEL:
+  bit_size: 3
+  variants:
+  - name: CH_0
+    description: Channel 0 selected.
+    value: 0
+  - name: CH_1
+    description: Channel 1 selected.
+    value: 1
+  - name: CH_2
+    description: Channel 2 selected.
+    value: 2
+  - name: CH_3
+    description: Channel 3 selected.
+    value: 3
+  - name: CH_4
+    description: Channel 4 selected.
+    value: 4
+  - name: CH_5
+    description: Channel 5 selected.
+    value: 5
+  - name: CH_6
+    description: Channel 6 selected.
+    value: 6
+  - name: CH_7
+    description: Channel 7 selected.
+    value: 7
+enum/MODE:
+  bit_size: 1
+  variants:
+  - name: FAST
+    description: Comparator is in fast mode.
+    value: 0
+  - name: ULP
+    description: Comparator is in ultra-low power mode.
+    value: 1
+enum/OUT:
+  bit_size: 1
+  variants:
+  - name: LOW
+    description: Comparator output is low.
+    value: 0
+  - name: HIGH
+    description: Comparator output is high.
+    value: 1
+enum/OUTPOL:
+  bit_size: 1
+  variants:
+  - name: NON_INV
+    description: Comparator output is non-inverted.
+    value: 0
+  - name: INV
+    description: Comparator output is inverted.
+    value: 1
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/REFMODE:
+  bit_size: 1
+  variants:
+  - name: STATIC
+    description: ULP_REF bandgap, local reference buffer and 8-bit DAC inside comparator operate in static mode.
+    value: 0
+  - name: SAMPLED
+    description: ULP_REF bandgap, local reference buffer and 8-bit DAC inside comparator operate in sampled mode.
+    value: 1
+enum/REFSEL:
+  bit_size: 1
+  variants:
+  - name: POSITIVE
+    description: If EXCH bit is 0, the selected reference is applied to positive terminal. If EXCH bit is 1, the selected reference is applied to negative terminal.
+    value: 0
+  - name: NEGATIVE
+    description: If EXCH bit is 0, the selected reference is applied to negative terminal. If EXCH bit is 1, the selected reference is applied to positive terminal.
+    value: 1
+enum/REFSRC:
+  bit_size: 2
+  variants:
+  - name: OFF
+    description: Reference voltage generator is disabled (local reference buffer as well as DAC).
+    value: 0
+  - name: VDDA_DAC
+    description: VDDA selected as the reference source to DAC and DAC output applied as reference to comparator.
+    value: 1
+  - name: VREF_DAC
+    description: VREF selected as reference to DAC and DAC output applied as reference to comparator.
+    value: 2
+  - name: VREF
+    description: VREF applied as reference to comparator. DAC is switched off.
+    value: 3
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177
+enum/STAT:
+  bit_size: 2
+  variants:
+  - name: NO_INTR
+    description: No pending interrupt.
+    value: 0
+  - name: OUTRDYIFG
+    description: Comparator output ready interrupt.
+    value: 1
+  - name: COMPIFG
+    description: Comparator output interrupt.
+    value: 2
+  - name: COMPINVIFG
+    description: Comparator output inverted interrupt.
+    value: 3
