@@ -4,7 +4,7 @@ members = [
     "mspm0-data-types",
     "mspm0-metapac-gen",
     # "mspm0-metapac",
-    "mspm0-data-gen",
+    "mspm0-data-gen", "metadata-gen", "metadata-types",
 ]
 exclude = [
     "build"
@@ -16,13 +16,15 @@ chiptool = { git = "https://github.com/embassy-rs/chiptool", rev = "a349968cd740
 glob = "0.3.1"
 heck = "0.5.0"
 quote = "1.0.37"
-lopdf = "0.34.0"
+rayon = "1.11.0"
 regex = "1.11.0"
 serde = "1.0.210"
 serde_json = "1.0.128"
 serde_yaml = "0.9.33"
 proc-macro2 = "1.0.86"
 walkdir = "2.5.0"
+
+metadata-types = { path = "metadata-types" }
 
 # Optimize for dev experience: shortest "build+run" time after making a small change.
 [profile.release]

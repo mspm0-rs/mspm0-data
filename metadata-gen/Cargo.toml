@@ -1,0 +1,15 @@
+[package]
+name = "metadata-gen"
+version = "0.1.0"
+description = "Metadata generator for TI MCUs"
+edition = "2024"
+publish = false
+
+[dependencies]
+anyhow.workspace = true
+chiptool.workspace = true
+metadata-types.workspace = true
+rayon.workspace = true
+regex.workspace = true
+serde.workspace = true
+serde_json.workspace = true
