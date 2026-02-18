@@ -1,0 +1,758 @@
+block/FLASHCTL:
+  description: NVMNW_GANDALF.
+  items:
+  - name: IIDX
+    description: Interrupt Index Register.
+    byte_offset: 4128
+    access: Read
+    fieldset: IIDX
+  - name: IMASK
+    description: Interrupt Mask Register.
+    byte_offset: 4136
+    fieldset: INT
+  - name: RIS
+    description: Raw Interrupt Status Register.
+    byte_offset: 4144
+    access: Read
+    fieldset: INT
+  - name: MIS
+    description: Masked Interrupt Status Register.
+    byte_offset: 4152
+    access: Read
+    fieldset: INT
+  - name: ISET
+    description: Interrupt Set Register.
+    byte_offset: 4160
+    access: Write
+    fieldset: INT
+  - name: ICLR
+    description: Interrupt Clear Register.
+    byte_offset: 4168
+    access: Write
+    fieldset: INT
+  - name: EVT_MODE
+    description: Event Mode.
+    byte_offset: 4320
+    access: Read
+    fieldset: EVT_MODE
+  - name: DESC
+    description: Hardware Version Description Register.
+    byte_offset: 4348
+    access: Read
+    fieldset: DESC
+  - name: CMDEXEC
+    description: Command Execute Register.
+    byte_offset: 4352
+    fieldset: CMDEXEC
+  - name: CMDTYPE
+    description: Command Type Register.
+    byte_offset: 4356
+    fieldset: CMDTYPE
+  - name: CMDCTL
+    description: Command Control Register.
+    byte_offset: 4360
+    fieldset: CMDCTL
+  - name: CMDADDR
+    description: Command Address Register.
+    byte_offset: 4384
+  - name: CMDBYTEN
+    description: Command Program Byte Enable Register.
+    byte_offset: 4388
+    fieldset: CMDBYTEN
+  - name: CMDDATAINDEX
+    description: Command Data Index Register.
+    byte_offset: 4396
+    fieldset: CMDDATAINDEX
+  - name: CMDDATA
+    description: Command Data Register 0.
+    array:
+      len: 32
+      stride: 4
+    byte_offset: 4400
+  - name: CMDDATAECC
+    description: Command Data Register ECC 0.
+    array:
+      len: 8
+      stride: 4
+    byte_offset: 4528
+    fieldset: CMDDATAECC
+  - name: CMDWEPROTA
+    description: Command Write Erase Protect A Register.
+    byte_offset: 4560
+    fieldset: CMDWEPROT
+  - name: CMDWEPROTB
+    description: Command Write Erase Protect B Register.
+    byte_offset: 4564
+    fieldset: CMDWEPROT
+  - name: CMDWEPROTC
+    description: Command Write Erase Protect C Register.
+    byte_offset: 4568
+    fieldset: CMDWEPROT
+  - name: CMDWEPROTNM
+    description: Command Write Erase Protect Non-Main Register.
+    byte_offset: 4624
+    fieldset: CMDWEPROT
+  - name: CMDWEPROTTR
+    description: Command Write Erase Protect Trim Register.
+    byte_offset: 4628
+    fieldset: CMDWEPROT
+  - name: CMDWEPROTEN
+    description: Command Write Erase Protect Engr Register.
+    byte_offset: 4632
+    fieldset: CMDWEPROT
+  - name: CFGCMD
+    description: Command Configuration Register.
+    byte_offset: 5040
+    fieldset: CFGCMD
+  - name: CFGPCNT
+    description: Pulse Counter Configuration Register.
+    byte_offset: 5044
+    fieldset: CFGPCNT
+  - name: STATCMD
+    description: Command Status Register.
+    byte_offset: 5072
+    access: Read
+    fieldset: STATCMD
+  - name: STATADDR
+    description: Address Status Register.
+    byte_offset: 5076
+    access: Read
+    fieldset: STATADDR
+  - name: STATPCNT
+    description: Pulse Count Status Register.
+    byte_offset: 5080
+    access: Read
+    fieldset: STATPCNT
+  - name: STATMODE
+    description: Mode Status Register.
+    byte_offset: 5084
+    access: Read
+    fieldset: STATMODE
+  - name: GBLINFO0
+    description: Global Information Register 0.
+    byte_offset: 5104
+    access: Read
+    fieldset: GBLINFO0
+  - name: GBLINFO1
+    description: Global Information Register 1.
+    byte_offset: 5108
+    access: Read
+    fieldset: GBLINFO1
+  - name: GBLINFO2
+    description: Global Information Register 2.
+    byte_offset: 5112
+    access: Read
+    fieldset: GBLINFO2
+  - name: BANKINFO0
+    description: Bank Information Register 0.
+    array:
+      len: 5
+      stride: 16
+    byte_offset: 5120
+    access: Read
+    fieldset: BANKINFO0
+  - name: BANKINFO1
+    description: Bank Information Register 1.
+    array:
+      len: 5
+      stride: 16
+    byte_offset: 5124
+    access: Read
+    fieldset: BANKINFO1
+fieldset/BANKINFO0:
+  description: Bank Information Register 0.
+  fields:
+  - name: MAINSIZE
+    description: 'Main region size in sectors Minimum: 0x8 (8) Maximum: 0x200 (512).'
+    bit_offset: 0
+    bit_size: 12
+    enum: BANKINFO_MAINSIZE
+fieldset/BANKINFO1:
+  description: Bank Information Register 1.
+  fields:
+  - name: NONMAINSIZE
+    description: 'Non-main region size in sectors Minimum: 0x0 (0) Maximum: 0x10 (16).'
+    bit_offset: 0
+    bit_size: 8
+    enum: BANKINFO_NONMAINSIZE
+  - name: TRIMSIZE
+    description: 'Trim region size in sectors Minimum: 0x0 (0) Maximum: 0x10 (16).'
+    bit_offset: 8
+    bit_size: 8
+    enum: BANKINFO_TRIMSIZE
+  - name: ENGRSIZE
+    description: 'Engr region size in sectors Minimum: 0x0 (0) Maximum: 0x10 (16).'
+    bit_offset: 16
+    bit_size: 8
+    enum: BANKINFO_ENGRSIZE
+fieldset/CFGCMD:
+  description: Command Configuration Register.
+  fields:
+  - name: WAITSTATE
+    description: Wait State setting for program verify, erase verify and read verify.
+    bit_offset: 0
+    bit_size: 4
+  - name: RDCLKSTREN
+    description: Enable pulse stretching when generating a read clock to the flash bank from the flash wrapper. This effectively divides the read clock driven to the bank in order to avoid minimum pulse width requirements at the bank.
+    bit_offset: 4
+    bit_size: 1
+  - name: CTRLCLKSTREN
+    description: Enable pulse stretching when generating a control clock to the flash bank from the flash wrapper. This effectively divides the control clock driven to the bank in order to avoid minimum pulse width requirements at the bank.
+    bit_offset: 5
+    bit_size: 1
+  - name: HOLDCLKSTREN
+    description: Enable pulse stretching for the clocking of the hold latches for inputs to the flash bank. This effectively divides the flash controller internal clock in order to create a 50/50 duty cycle clock for hold latching.
+    bit_offset: 6
+    bit_size: 1
+fieldset/CFGPCNT:
+  description: Pulse Counter Configuration Register.
+  fields:
+  - name: MAXPCNTOVR
+    description: Override hard-wired maximum pulse count. If MAXERSPCNTOVR is not set, then setting this value alone will override the max pulse count for both program and erase. If MAXERSPCNTOVR is set, then this bit will only control the max pulse count setting for program. By default, this bit is 0, and a hard-wired max pulse count is used.
+    bit_offset: 0
+    bit_size: 1
+  - name: MAXPCNTVAL
+    description: Override maximum pulse counter with this value. If MAXPCNTOVR = 0, then this field is ignored. If MAXPCNTOVR = 1 and MAXERSPCNTOVR = 0, then this value will be used to override the max pulse count for both program and erase. Full max value will be {4'h0, MAXPCNTVAL} . If MAXPCNTOVR = 1 and MAXERSPCNTOVR = 1, then this value will be used to override the max pulse count for program only. Full max value will be {4'h0, MAXPCNTVAL}.
+    bit_offset: 4
+    bit_size: 8
+  - name: MAXERSPCNTOVR
+    description: Override hard-wired maximum pulse count for erase. If set, then the value in MAXERSPCNTVAL will be used as the max pulse count for erase operations. By default, this bit is 0, and a hard-wired max pulse count is used.
+    bit_offset: 16
+    bit_size: 1
+  - name: MAXERSPCNTVAL
+    description: Override maximum pulse count for erase with this value. If MAXERSPCNTOVR = 0, then this field is ignored. If MAXERSPCNTOVR = 1, then this value will be used to override the max pulse count for erase.
+    bit_offset: 20
+    bit_size: 12
+fieldset/CMDBYTEN:
+  description: Command Program Byte Enable Register. Controls which bytes of the flash word (including ECC) are active.
+  fields:
+  - name: DATA
+    description: Data byte enable. Each bit controls one flash byte within a flash word.
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 8
+      stride: 1
+  - name: ECC
+    description: ECC byte enable. Controls if the ECC byte is active.
+    bit_offset: 8
+    bit_size: 1
+fieldset/CMDCTL:
+  description: Command Control Register.
+  fields:
+  - name: MODESEL
+    description: Mode This field is only used for the Mode Change command type. Otherwise, bank and pump modes are set automaticlly through the NW hardware.
+    bit_offset: 0
+    bit_size: 4
+    enum: MODE
+  - name: BANKSEL
+    description: Bank Select A specific Bank ID can be written to this field to indicate to which bank an operation is to be applied if CMDCTL.ADDRXLATEOVR is set.
+    bit_offset: 4
+    bit_size: 5
+    enum: BANK
+  - name: REGIONSEL
+    description: Bank Region A specific region ID can be written to this field to indicate to which region an operation is to be applied if CMDCTL.ADDRXLATEOVR is set.
+    bit_offset: 9
+    bit_size: 4
+    enum: REGIONSEL
+  - name: PREVEREN
+    description: Enable verify before program or erase. For program, bits already programmed to the requests value will be masked. For erase, sectors already erased will be masked.
+    bit_offset: 14
+    bit_size: 1
+  - name: POSTVEREN
+    description: Enable verify after program or erase
+    bit_offset: 15
+    bit_size: 1
+  - name: ADDRXLATEOVR
+    description: Override hardware address translation of address in CMDADDR from a system address to a bank address and bank ID. Use data written to CMDADDR directly as the bank address. Use the value written to CMDCTL.BANKSEL directly as the bank ID. Use the value written to CMDCTL.REGIONSEL directly as the region ID.
+    bit_offset: 16
+    bit_size: 1
+  - name: ECCGENOVR
+    description: Override hardware generation of ECC data for program. Use data written to CMDDATAECC*.
+    bit_offset: 17
+    bit_size: 1
+  - name: PROGMASKDIS
+    description: Disable use of program mask for programming. Bit masking will not be used during program verify. If any bits fail the verify either before (prever) or after (postver) the operation, then all specified flash entries will receive subsequent program pulse.
+    bit_offset: 18
+    bit_size: 1
+  - name: ERASEMASKDIS
+    description: Disable use of erase mask for erase Bit masking will not be used during erase verify. If any sectors fail the verify either before (prever) or after (postver) the operation, then all specified flash sectors will receive subsequent erase pulse.
+    bit_offset: 19
+    bit_size: 1
+  - name: SSERASEDIS
+    description: Disable Stair-Step Erase. If set, the default VHV trim voltage setting will be used for all erase pulses. By default, this bit is reset, meaning that the VHV voltage will be stepped during successive erase pulses. The step count, step voltage, begin and end voltages are all hard-wired.
+    bit_offset: 20
+    bit_size: 1
+  - name: DATAVEREN
+    description: Enable invalid data verify. This checks for 0->1 transitions in the memory when a program operation is initiated. If such a transition is found, the program will fail with an error without executing the program.
+    bit_offset: 21
+    bit_size: 1
+fieldset/CMDDATAECC:
+  description: Command Data Register ECC 0.
+  fields:
+  - name: VAL0
+    description: ECC data for bits 63:0 of the data is placed here.
+    bit_offset: 0
+    bit_size: 8
+  - name: VAL1
+    description: ECC data for bits 127:64 of the data is placed here.
+    bit_offset: 8
+    bit_size: 8
+fieldset/CMDDATAINDEX:
+  description: Command Data Index Register.
+  fields:
+  - name: VAL
+    description: Data register index.
+    bit_offset: 0
+    bit_size: 3
+fieldset/CMDEXEC:
+  description: Command Execute Register.
+  fields:
+  - name: VAL
+    description: Command Execute value. Initiates execution of the command specified in the CMDTYPE register. This register is blocked for writes after being written to 1 and prior to STATCMD.DONE being set by the flash wrapper hardware. Flash wrapper hardware clears this register after the processing of the command has completed.
+    bit_offset: 0
+    bit_size: 1
+fieldset/CMDTYPE:
+  description: Command Type Register.
+  fields:
+  - name: COMMAND
+    description: Command type.
+    bit_offset: 0
+    bit_size: 3
+    enum: COMMAND
+  - name: SIZE
+    description: Command size.
+    bit_offset: 4
+    bit_size: 3
+    enum: SIZE
+fieldset/CMDWEPROT:
+  description: Command write enable protection register
+  fields:
+  - name: REGION
+    description: Region of flash being write (un)protected
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 32
+      stride: 1
+fieldset/DESC:
+  description: Hardware Version Description Register.
+  fields:
+  - name: MINREV
+    description: Minor Revision.
+    bit_offset: 0
+    bit_size: 4
+  - name: MAJREV
+    description: Major Revision.
+    bit_offset: 4
+    bit_size: 4
+  - name: INSTNUM
+    description: Instance number.
+    bit_offset: 8
+    bit_size: 4
+  - name: FEATUREVER
+    description: Feature set.
+    bit_offset: 12
+    bit_size: 4
+  - name: MODULEID
+    description: Module ID.
+    bit_offset: 16
+    bit_size: 16
+fieldset/EVT_MODE:
+  description: Event Mode.
+  fields:
+  - name: INT0_CFG
+    description: Event line mode select for peripheral event.
+    bit_offset: 0
+    bit_size: 2
+    enum: INT0_CFG
+fieldset/GBLINFO0:
+  description: Global Information Register 0.
+  fields:
+  - name: SECTORSIZE
+    description: Sector size in bytes.
+    bit_offset: 0
+    bit_size: 16
+    enum: SECTORSIZE
+  - name: NUMBANKS
+    description: 'Number of banks instantiated Minimum: 1 Maximum: 5.'
+    bit_offset: 16
+    bit_size: 3
+    enum: NUMBANKS
+fieldset/GBLINFO1:
+  description: Global Information Register 1.
+  fields:
+  - name: DATAWIDTH
+    description: Data width in bits.
+    bit_offset: 0
+    bit_size: 8
+    enum: DATAWIDTH
+  - name: ECCWIDTH
+    description: ECC data width in bits.
+    bit_offset: 8
+    bit_size: 5
+    enum: ECCWIDTH
+  - name: REDWIDTH
+    description: Redundant data width in bits.
+    bit_offset: 16
+    bit_size: 3
+    enum: REDWIDTH
+fieldset/GBLINFO2:
+  description: Global Information Register 2.
+  fields:
+  - name: DATAREGISTERS
+    description: Number of data registers present.
+    bit_offset: 0
+    bit_size: 4
+fieldset/IIDX:
+  description: Interrupt Index Register.
+  fields:
+  - name: STAT
+    description: Indicates which interrupt has fired. 0x0 means no event pending. The priority order is fixed. On each read, only one interrupt is indicated. On a read, the current interrupt (highest priority) is automatically cleared by the hardware and the corresponding interrupt flags in the RIS and MIS are cleared as well. After a read from the CPU (not from the debug interface), the register must be updated with the next highest priority interrupt.
+    bit_offset: 0
+    bit_size: 1
+    enum: STAT
+fieldset/INT:
+  description: Interrupt Clear Register.
+  fields:
+  - name: DONE
+    description: '0: No effect 1: Clear the DONE interrupt in the RIS register.'
+    bit_offset: 0
+    bit_size: 1
+fieldset/STATADDR:
+  description: Address Status Register.
+  fields:
+  - name: BANKADDR
+    description: Current Bank Address A bank offset address is stored in this register.
+    bit_offset: 0
+    bit_size: 16
+  - name: REGIONID
+    description: Current Region ID A region indicator is stored in this register which represents the current flash region on which the state machine is operating.
+    bit_offset: 16
+    bit_size: 5
+    enum: REGIONID
+  - name: BANKID
+    description: Current Bank ID A bank indicator is stored in this register which represents the current bank on which the state machine is operating. There is 1 bit per bank.
+    bit_offset: 21
+    bit_size: 5
+    enum: BANKID
+fieldset/STATCMD:
+  description: Command Status Register.
+  fields:
+  - name: DONE
+    description: Command Done.
+    bit_offset: 0
+    bit_size: 1
+  - name: PASS
+    description: Command Pass - valid when CMD_DONE field is 1.
+    bit_offset: 1
+    bit_size: 1
+  - name: INPROGRESS
+    description: Command In Progress.
+    bit_offset: 2
+    bit_size: 1
+  - name: FAILWEPROT
+    description: Command failed due to Write/Erase Protect Sector Violation.
+    bit_offset: 4
+    bit_size: 1
+  - name: FAILVERIFY
+    description: Command failed due to verify error.
+    bit_offset: 5
+    bit_size: 1
+  - name: FAILILLADDR
+    description: Command failed due to the use of an illegal address.
+    bit_offset: 6
+    bit_size: 1
+  - name: FAILMODE
+    description: Command failed because a bank has been set to a mode other than READ. Program and Erase commands cannot be initiated unless all banks are in READ mode.
+    bit_offset: 7
+    bit_size: 1
+  - name: FAILINVDATA
+    description: Program command failed because an attempt was made to program a stored 0 value to a 1.
+    bit_offset: 8
+    bit_size: 1
+  - name: FAILMISC
+    description: Command failed due to error other than write/erase protect violation or verify error. This is an extra bit in case a new failure mechanism is added which requires a status bit.
+    bit_offset: 12
+    bit_size: 1
+fieldset/STATMODE:
+  description: Mode Status Register.
+  fields:
+  - name: BANKNOTINRD
+    description: Bank not in read mode. Indicates which banks are not in READ mode. There is 1 bit per bank.
+    bit_offset: 0
+    bit_size: 5
+    enum: BANK
+  - name: BANKMODE
+    description: Indicates mode of bank(s) that are not in READ mode.
+    bit_offset: 8
+    bit_size: 4
+    enum: MODE
+  - name: BANK2TRDY
+    description: Bank 2T Ready. Bank(s) are ready for 2T access. This is accomplished when the pump has fully driven power rails to the bank(s).
+    bit_offset: 16
+    bit_size: 1
+  - name: BANK1TRDY
+    description: Bank 1T Ready. Bank(s) are ready for 1T access. This is accomplished when the bank and pump have been trimmed.
+    bit_offset: 17
+    bit_size: 1
+fieldset/STATPCNT:
+  description: Pulse Count Status Register.
+  fields:
+  - name: PULSECNT
+    description: Current Pulse Counter Value.
+    bit_offset: 0
+    bit_size: 12
+enum/BANK:
+  bit_size: 5
+  variants:
+  - name: BANK0
+    description: Bank 0.
+    value: 1
+  - name: BANK1
+    description: Bank 1.
+    value: 2
+  - name: BANK2
+    description: Bank 2.
+    value: 4
+  - name: BANK3
+    description: Bank 3.
+    value: 8
+  - name: BANK4
+    description: Bank 4.
+    value: 16
+enum/BANKID:
+  bit_size: 5
+  variants:
+  - name: BANK0
+    description: Bank 0.
+    value: 1
+  - name: BANK1
+    description: Bank 1.
+    value: 2
+  - name: BANK2
+    description: Bank 2.
+    value: 4
+  - name: BANK3
+    description: Bank 3.
+    value: 8
+  - name: BANK4
+    description: Bank 4.
+    value: 16
+enum/BANKINFO_ENGRSIZE:
+  bit_size: 8
+  variants:
+  - name: MINSECTORS
+    description: Minimum value of [ENGRSIZE].
+    value: 0
+  - name: MAXSECTORS
+    description: Maximum value of [ENGRSIZE].
+    value: 32
+enum/BANKINFO_MAINSIZE:
+  bit_size: 12
+  variants:
+  - name: MINSECTORS
+    description: Minimum value of [MAINSIZE].
+    value: 8
+  - name: MAXSECTORS
+    description: Maximum value of [MAINSIZE].
+    value: 512
+enum/BANKINFO_NONMAINSIZE:
+  bit_size: 8
+  variants:
+  - name: MINSECTORS
+    description: Minimum value of [NONMAINSIZE].
+    value: 0
+  - name: MAXSECTORS
+    description: Maximum value of [NONMAINSIZE].
+    value: 32
+enum/BANKINFO_TRIMSIZE:
+  bit_size: 8
+  variants:
+  - name: MINSECTORS
+    description: Minimum value of [TRIMSIZE].
+    value: 0
+  - name: MAXSECTORS
+    description: Maximum value of [TRIMSIZE].
+    value: 32
+enum/COMMAND:
+  bit_size: 3
+  variants:
+  - name: NOOP
+    description: No Operation.
+    value: 0
+  - name: PROGRAM
+    description: Program.
+    value: 1
+  - name: ERASE
+    description: Erase.
+    value: 2
+  - name: READVERIFY
+    description: Read Verify - Perform a standalone read verify operation.
+    value: 3
+  - name: MODECHANGE
+    description: Mode Change - Perform a mode change only, no other operation.
+    value: 4
+  - name: CLEARSTATUS
+    description: Clear Status - Clear status bits in FW_SMSTAT only.
+    value: 5
+  - name: BLANKVERIFY
+    description: Blank Verify - Check whether a flash word is in the erased state. This command may only be used with CMDTYPE.SIZE = ONEWORD.
+    value: 6
+enum/DATAWIDTH:
+  bit_size: 8
+  variants:
+  - name: W64BIT
+    description: Data width is 64 bits.
+    value: 64
+  - name: W128BIT
+    description: Data width is 128 bits.
+    value: 128
+enum/ECCWIDTH:
+  bit_size: 5
+  variants:
+  - name: W0BIT
+    description: ECC data width is 0. ECC not used.
+    value: 0
+  - name: W8BIT
+    description: ECC data width is 8 bits.
+    value: 8
+  - name: W16BIT
+    description: ECC data width is 16 bits.
+    value: 16
+enum/INT0_CFG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: The interrupt or event line is disabled.
+    value: 0
+  - name: SOFTWARE
+    description: The interrupt or event line is in software mode. Software must clear the RIS.
+    value: 1
+  - name: HARDWARE
+    description: The interrupt or event line is in hardware mode. Hardware must clear the RIS.
+    value: 2
+enum/MODE:
+  bit_size: 4
+  variants:
+  - name: READ
+    description: Read Mode.
+    value: 0
+  - name: RDMARG0
+    description: Read Margin 0 Mode.
+    value: 2
+  - name: RDMARG1
+    description: Read Margin 1 Mode.
+    value: 4
+  - name: RDMARG0B
+    description: Read Margin 0B Mode.
+    value: 6
+  - name: RDMARG1B
+    description: Read Margin 1B Mode.
+    value: 7
+  - name: PGMVER
+    description: Program Verify Mode.
+    value: 9
+  - name: PGMSW
+    description: Program Single Word.
+    value: 10
+  - name: ERASEVER
+    description: Erase Verify Mode.
+    value: 11
+  - name: ERASESECT
+    description: Erase Sector.
+    value: 12
+  - name: PGMMW
+    description: Program Multiple Word.
+    value: 14
+  - name: ERASEBNK
+    description: Erase Bank.
+    value: 15
+enum/NUMBANKS:
+  bit_size: 3
+  variants:
+  - name: MINBANKS
+    value: 1
+  - name: MAXBANKS
+    value: 5
+enum/REDWIDTH:
+  bit_size: 3
+  variants:
+  - name: W0BIT
+    description: Redundant data width is 0. Redundancy/Repair not present.
+    value: 0
+  - name: W2BIT
+    description: Redundant data width is 2 bits.
+    value: 2
+  - name: W4BIT
+    description: Redundant data width is 4 bits.
+    value: 4
+enum/REGIONID:
+  bit_size: 5
+  variants:
+  - name: MAIN
+    description: Main Region.
+    value: 1
+  - name: NONMAIN
+    description: Non-Main Region.
+    value: 2
+  - name: TRIM
+    description: Trim Region.
+    value: 4
+  - name: ENGR
+    description: Engr Region.
+    value: 8
+enum/REGIONSEL:
+  bit_size: 4
+  variants:
+  - name: MAIN
+    description: Main Region.
+    value: 1
+  - name: NONMAIN
+    description: Non-Main Region.
+    value: 2
+  - name: TRIM
+    description: Trim Region.
+    value: 4
+  - name: ENGR
+    description: Engr Region.
+    value: 8
+enum/SECTORSIZE:
+  bit_size: 16
+  variants:
+  - name: ONEKB
+    description: Sector size is ONEKB.
+    value: 1024
+  - name: TWOKB
+    description: Sector size is TWOKB.
+    value: 2048
+enum/SIZE:
+  bit_size: 3
+  variants:
+  - name: ONEWORD
+    description: Operate on 1 flash word.
+    value: 0
+  - name: TWOWORD
+    description: Operate on 2 flash words.
+    value: 1
+  - name: FOURWORD
+    description: Operate on 4 flash words.
+    value: 2
+  - name: EIGHTWORD
+    description: Operate on 8 flash words.
+    value: 3
+  - name: SECTOR
+    description: Operate on a flash sector.
+    value: 4
+  - name: BANK
+    description: Operate on an entire flash bank.
+    value: 5
+enum/STAT:
+  bit_size: 1
+  variants:
+  - name: NO_INTR
+    description: No Interrupt Pending.
+    value: 0
+  - name: DONE
+    description: DONE Interrupt Pending.
+    value: 1

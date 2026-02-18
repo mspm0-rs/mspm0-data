@@ -13,6 +13,7 @@ const GENERATE_PERIPHERALS: &[PeripheralType] = &[
     PeripheralType::Cpuss,
     PeripheralType::Dma,
     PeripheralType::Canfd,
+    PeripheralType::FlashCtl,
     PeripheralType::Gpio,
     PeripheralType::I2c,
     PeripheralType::Iomux,
