@@ -1,0 +1,13 @@
+[package]
+name = "data-gen"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow.workspace = true
+natural-sort-rs = "0.2.1"
+rayon = "1.12.0"
+regex.workspace = true
+schemars.workspace = true
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
