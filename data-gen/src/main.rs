@@ -1,10 +1,14 @@
-mod sysconfig;
 mod serde_helper;
+mod sysconfig;
 
-use std::{fs, path::{Path, PathBuf}};
+use std::{
+    collections::BTreeMap,
+    fs,
+    path::{Path, PathBuf},
+};
 
 use anyhow::Context;
-use data_gen::Package;
+use data_gen::{Chip, Core, Cpu, Package};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator as _};
 use serde_json::Value;
 
@@ -12,14 +16,91 @@ fn main() -> anyhow::Result<()> {
     let sources = PathBuf::from("./sources/");
     let parts = get_parts(&sources)?;
 
-    let data2 = sources.join("build").join("data2");
-    fs::remove_dir_all(&data2)?;
+    let data2 = PathBuf::from("./build/").join("data2");
+    let _ = fs::remove_dir_all(&data2);
+    fs::create_dir_all(&data2)?;
 
     for part in parts {
+        let path = data2.join(&part.part_number).with_extension("json");
+        let chip = make_chip(part)?;
 
+        fs::write(path, serde_json::to_string_pretty(&chip)?)?;
     }
 
     Ok(())
+}
+
+fn make_chip(part: PartData) -> anyhow::Result<Chip> {
+    let cpu = cpu_for_part(&part.part_number)
+        .with_context(|| format!("part number {} did not have CPU mapping", &part.part_number))?;
+    let peripherals =
+        sysconfig::get_peripherals(&part.part_number, &part.device_family, &part.data)?;
+
+    // No existing parts are dual core, we just generate one.
+    let core = Core { cpu, peripherals };
+
+    Ok(Chip {
+        // TODO: Get datasheet, RM, errata URLs
+        name: part.part_number,
+        datasheet: String::new(),
+        reference_manual: String::new(),
+        errata: String::new(),
+        cores: vec![core],
+        package: part.package,
+    })
+}
+
+/// TODO: Is there a nicer way to get this information?
+fn cpu_for_part(part_number: &str) -> Option<Cpu> {
+    // Must put M33 first to avoid matching M33 as M0
+    if part_number.starts_with("MSPM33") {
+        return Some(Cpu::CortexM33);
+    }
+
+    if part_number.starts_with("MSP")
+        || part_number.starts_with("CC2340")
+        // FIXME: Is this M0P?
+        || part_number.starts_with("CC2341")
+    {
+        return Some(Cpu::CortexM0P);
+    }
+
+    if part_number.starts_with("CC1310")
+        || part_number.starts_with("CC1350")
+        || part_number.starts_with("CC2640")
+    {
+        return Some(Cpu::CortexM3);
+    }
+
+    if part_number.starts_with("CC1311") || part_number.starts_with("CC2651") {
+        return Some(Cpu::CortexM4);
+    }
+
+    if part_number.starts_with("CC1312")
+        || part_number.starts_with("CC1352")
+        || part_number.starts_with("CC2642")
+        || part_number.starts_with("CC2652")
+        // FIXME: Is this M4F?
+        || part_number.starts_with("CC2653")
+        || part_number.starts_with("CC2662")
+    {
+        return Some(Cpu::CortexM4F);
+    }
+
+    if part_number.starts_with("CC1314")
+        || part_number.starts_with("CC1354")
+        || part_number.starts_with("CC2674")
+        || part_number.starts_with("CC2744")
+        || part_number.starts_with("CC2745")
+        // FIXME: Is this M33?
+        || part_number.starts_with("CC2765")
+        || part_number.starts_with("CC2755")
+        || part_number.starts_with("CC3551E")
+    {
+        return Some(Cpu::CortexM33);
+    }
+
+    None
 }
 
 #[derive(Debug)]
@@ -44,8 +125,7 @@ fn get_parts(sources: &Path) -> anyhow::Result<Vec<PartData>> {
     // Remove the duplicate CC3551 entries.
     gpns.dedup_by(|a, b| a.part_group == b.part_group && a.package_name == b.package_name);
 
-    gpns
-        .par_iter()
+    gpns.par_iter()
         .map(|gpn| {
             let path = sources.join("sysconfig").join(&gpn.device_family);
             let data = sysconfig::read_data(&path)
@@ -74,7 +154,11 @@ fn get_parts(sources: &Path) -> anyhow::Result<Vec<PartData>> {
                     found
                 })
                 .with_context(|| {
-                    let tys = packages.iter().map(|p| p.package.clone()).collect::<Vec<_>>().join(", ");
+                    let tys = packages
+                        .iter()
+                        .map(|p| p.package.clone())
+                        .collect::<Vec<_>>()
+                        .join(", ");
 
                     format!(
                         "No package of type {gpn_package_ty} for {gpn} (available: {tys})",
@@ -93,7 +177,12 @@ fn get_parts(sources: &Path) -> anyhow::Result<Vec<PartData>> {
                 gpn.part_group.clone()
             };
 
-            Ok(PartData { part_number, device_family: gpn.device_family.clone(), package: package.clone(), data })
+            Ok(PartData {
+                part_number,
+                device_family: gpn.device_family.clone(),
+                package: package.clone(),
+                data,
+            })
         })
         .collect::<anyhow::Result<Vec<PartData>>>()
 }

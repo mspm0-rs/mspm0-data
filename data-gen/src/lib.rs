@@ -13,6 +13,8 @@
 //!
 //! Additional MCU families may be considered on a case by case basis as long as rustc supports the target.
 
+use std::collections::BTreeMap;
+
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -24,6 +26,9 @@ pub enum Cpu {
 
     /// Cortex-M3.
     CortexM3,
+
+    /// Cortex-M4.
+    CortexM4,
 
     /// Cortex-M4F.
     CortexM4F,
@@ -62,12 +67,11 @@ pub struct Chip {
 pub struct Core {
     /// CPU core type.
     pub cpu: Cpu,
+
     // TODO: NVIC priority bits
 
     // TODO: Clock info
-
-    // TODO: Peripherals
-
+    pub peripherals: BTreeMap<String, Peripheral>,
     // TODO: Memory map
 
     // TODO: Interrupts
@@ -108,4 +112,47 @@ pub struct PackagePin {
     /// - `PA0`
     /// - `NRST`
     pub signals: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct Peripheral {
+    /// Peripheral name.
+    pub name: String,
+
+    /// Signals provided by this peripheral.
+    pub signals: Vec<PeripheralSignal>,
+}
+
+/// A signal provided by a peripheral.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct PeripheralSignal {
+    /// The signal name.
+    pub name: String,
+
+    /// The signal routing.
+    #[serde(flatten)]
+    pub routing: Routing,
+}
+
+/// A signal routing to a pin.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum Routing {
+    /// A number of fixed pin routings.
+    Pins(Vec<PinRouting>),
+
+    /// A port id routing.
+    ///
+    /// This is used on chips where signals can be assigned (almost) arbitrarily.
+    PortId(u32),
+}
+
+/// A fixed pin routing.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct PinRouting {
+    /// The pin this signal is routed to.
+    pub pin: String,
+
+    /// The function used to route the signal to the pin.
+    pub function: u32,
 }

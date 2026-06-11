@@ -1,4 +1,5 @@
 use std::{
+    collections::BTreeMap,
     convert::identity,
     fs,
     path::{Path, PathBuf},
@@ -6,12 +7,15 @@ use std::{
 };
 
 use anyhow::{Context, bail};
-use data_gen::{Package, PackagePin};
+use data_gen::{Package, PackagePin, Peripheral};
 use natural_sort_rs::NaturalSort;
 use regex::Regex;
 use serde_json::{Map, Value};
 
-use crate::serde_helper::{map_get_and_parse_str, map_get_array, map_get_bool, map_get_object, map_get_string};
+use crate::serde_helper::{
+    map_get_and_parse_str, map_get_array, map_get_bool, map_get_object, map_get_string,
+    map_get_uint,
+};
 
 /// These parts do not technically exist or are broken.
 const SKIP: &[&str] = &[
@@ -125,10 +129,7 @@ pub fn read_data(path: &PathBuf) -> anyhow::Result<Value> {
     Ok(data)
 }
 
-pub fn get_packages(
-    sysconfig_name: &str,
-    sysconfig: &Value,
-) -> anyhow::Result<Vec<Package>> {
+pub fn get_packages(sysconfig_name: &str, sysconfig: &Value) -> anyhow::Result<Vec<Package>> {
     let packages_json = sysconfig
         .get("packages")
         .context("has no packages field")?
@@ -141,6 +142,72 @@ pub fn get_packages(
         .map(Result::transpose)
         .filter_map(identity)
         .collect()
+}
+
+pub fn get_peripherals(
+    part: &str,
+    family: &str,
+    sysconfig: &Value,
+) -> anyhow::Result<BTreeMap<String, Peripheral>> {
+    let mut peripherals = BTreeMap::new();
+
+    let object = sysconfig.as_object().context("sysconfig is not object")?;
+    let peripherals_sys = map_get_object(object, "peripherals")?;
+
+    for (id, object) in peripherals_sys {
+        let peripheral_object = object
+            .as_object()
+            .with_context(|| format!("peripheral with id \"{id}\" is not object"))?;
+        let name = map_get_string(peripheral_object, "name")?;
+
+        // TODO: GPAMP exists on some chips where it really does not exist.
+        let include = !is_useless_peripheral(part, &name) && does_peripheral_exist(family, &name);
+
+        if include {
+            peripherals.insert(
+                name.clone(),
+                Peripheral {
+                    name,
+                    signals: Vec::new(),
+                },
+            );
+        }
+    }
+
+    Ok(peripherals)
+}
+
+fn does_peripheral_exist(family: &str, name: &str) -> bool {
+    // dbg!(family);
+
+    // GPAMP does not exist on these parts
+    if name == "GPAMP"
+        && (family.eq_ignore_ascii_case("MSPS003FX")
+            || family.starts_with("MSP32")
+            || family.eq_ignore_ascii_case("MSPM0C110X")
+            || family.eq_ignore_ascii_case("MSPM0C1105_C1106")
+            || family.eq_ignore_ascii_case("MSPM0G151X"))
+    {
+        return false;
+    }
+
+    true
+}
+
+fn is_useless_peripheral(part: &str, name: &str) -> bool {
+    // CC3551, this is just a DMA mode
+    name.starts_with("MEM2MEM")
+        || name.starts_with("FASTCLK")
+        || (part.starts_with("CC3551") && name.starts_with("ANT"))
+        // USB EP singletons are not useful
+        || name.contains("EP_IN")
+        || name.contains("EP_OUT")
+        // DMA channels are generated in a different step
+        || name.starts_with("DMA_CH")
+        || name.starts_with("DMA0_CH")
+        || name.starts_with("DMA1_CH")
+        // FLASHCTL exists on MSP parts, no need to generate a duplicate.
+        || (part.starts_with("MSP") && name == "FLASH")
 }
 
 fn parse_package(
@@ -319,4 +386,3 @@ fn missing_cc3551_pins(pins: &mut Vec<PackagePin>) {
         make("56", "PA_LDO_IN1"),
     ]);
 }
-
