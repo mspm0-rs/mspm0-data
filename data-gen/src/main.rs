@@ -1,8 +1,9 @@
+mod docs;
 mod serde_helper;
 mod sysconfig;
+mod util;
 
 use std::{
-    collections::BTreeMap,
     fs,
     path::{Path, PathBuf},
 };
@@ -12,6 +13,8 @@ use data_gen::{Chip, Core, Cpu, Package};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator as _};
 use serde_json::Value;
 
+use crate::docs::{DOCS, Links};
+
 fn main() -> anyhow::Result<()> {
     let sources = PathBuf::from("./sources/");
     let parts = get_parts(&sources)?;
@@ -20,9 +23,11 @@ fn main() -> anyhow::Result<()> {
     let _ = fs::remove_dir_all(&data2);
     fs::create_dir_all(&data2)?;
 
+    // TODO: Parallelize with rayon
     for part in parts {
         let path = data2.join(&part.part_number).with_extension("json");
-        let chip = make_chip(part)?;
+        let chip = make_chip(&part)
+            .with_context(|| format!("Could not make chip {part}", part = &part.part_number))?;
 
         fs::write(path, serde_json::to_string_pretty(&chip)?)?;
     }
@@ -30,23 +35,41 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn make_chip(part: PartData) -> anyhow::Result<Chip> {
+fn make_chip(part: &PartData) -> anyhow::Result<Chip> {
     let cpu = cpu_for_part(&part.part_number)
         .with_context(|| format!("part number {} did not have CPU mapping", &part.part_number))?;
-    let peripherals =
-        sysconfig::get_peripherals(&part.part_number, &part.device_family, &part.data)?;
+    let peripherals = sysconfig::get_peripherals(
+        &part.part_number,
+        &part.device_family,
+        &part.data,
+        &part.package,
+    )?;
 
     // No existing parts are dual core, we just generate one.
     let core = Core { cpu, peripherals };
 
+    let Links {
+        datasheet,
+        reference,
+        errata,
+    } = DOCS
+        .get(&part.part_number.to_lowercase())
+        .unwrap_or_else(|| {
+            println!("{part} has no doc links", part = &part.part_number);
+            &Links {
+                datasheet: "",
+                reference: "",
+                errata: "",
+            }
+        });
+
     Ok(Chip {
-        // TODO: Get datasheet, RM, errata URLs
-        name: part.part_number,
-        datasheet: String::new(),
-        reference_manual: String::new(),
-        errata: String::new(),
+        name: part.part_number.clone(),
+        datasheet: datasheet.to_string(),
+        reference_manual: reference.to_string(),
+        errata: errata.to_string(),
         cores: vec![core],
-        package: part.package,
+        package: part.package.clone(),
     })
 }
 

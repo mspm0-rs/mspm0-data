@@ -7,14 +7,13 @@ use std::{
 };
 
 use anyhow::{Context, bail};
-use data_gen::{Package, PackagePin, Peripheral};
+use data_gen::{Package, PackagePin, Peripheral, PeripheralSignal, PinRouting, Routing};
 use natural_sort_rs::NaturalSort;
 use regex::Regex;
 use serde_json::{Map, Value};
 
 use crate::serde_helper::{
     map_get_and_parse_str, map_get_array, map_get_bool, map_get_object, map_get_string,
-    map_get_uint,
 };
 
 /// These parts do not technically exist or are broken.
@@ -22,6 +21,9 @@ const SKIP: &[&str] = &[
     // Broken
     "CC3500",
 ];
+
+static MSP_GPIO_PIN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?m)^P(?<bank>[A-Z])\d+").unwrap());
 
 #[derive(Debug, Clone)]
 pub struct Part {
@@ -148,11 +150,12 @@ pub fn get_peripherals(
     part: &str,
     family: &str,
     sysconfig: &Value,
+    package: &Package,
 ) -> anyhow::Result<BTreeMap<String, Peripheral>> {
     let mut peripherals = BTreeMap::new();
 
-    let object = sysconfig.as_object().context("sysconfig is not object")?;
-    let peripherals_sys = map_get_object(object, "peripherals")?;
+    let sysconfig_object = sysconfig.as_object().context("sysconfig is not object")?;
+    let peripherals_sys = map_get_object(sysconfig_object, "peripherals")?;
 
     for (id, object) in peripherals_sys {
         let peripheral_object = object
@@ -160,19 +163,54 @@ pub fn get_peripherals(
             .with_context(|| format!("peripheral with id \"{id}\" is not object"))?;
         let name = map_get_string(peripheral_object, "name")?;
 
-        // TODO: GPAMP exists on some chips where it really does not exist.
         let include = !is_useless_peripheral(part, &name) && does_peripheral_exist(family, &name);
 
         if include {
-            peripherals.insert(
-                name.clone(),
-                Peripheral {
-                    name,
-                    signals: Vec::new(),
-                },
-            );
+            let signals =
+                get_peripheral_signals(part, sysconfig_object, peripheral_object, &name, package)
+                    .with_context(|| format!("get peripheral signals for {name}"))?;
+
+            peripherals.insert(name.clone(), Peripheral { name, signals });
         }
     }
+
+    // For MSP, generate each GPIO peripheral and attach its signals manually.
+    if part.starts_with("MSP") {
+        let mut gpio_peripherals = BTreeMap::<String, Vec<PeripheralSignal>>::new();
+
+        for pin in package.pins.iter() {
+            for signal in pin.signals.iter() {
+                if let Some(captures) = MSP_GPIO_PIN.captures(signal) {
+                    let bank = &captures["bank"];
+                    let peripheral_signals =
+                        gpio_peripherals.entry(format!("GPIO{bank}")).or_default();
+
+                    peripheral_signals.push(PeripheralSignal {
+                        name: signal.clone(),
+                        // GPIO on MSP always uses function 1
+                        routing: Routing::Pins(vec![PinRouting {
+                            pin: signal.clone(),
+                            function: 1,
+                        }]),
+                    });
+                }
+            }
+        }
+
+        for (name, mut signals) in gpio_peripherals {
+            // Sort signals from GPIO for neatness
+            signals.natural_sort_by_key::<str, _, _>(|s| s.name.to_string());
+
+            peripherals.insert(name.clone(), Peripheral { name, signals });
+        }
+    }
+
+    // For CC13xx/26xx generate a single GPIO peripheral with each GPIO pin as a signal.
+    if part.starts_with("CC13") || part.starts_with("CC26") {
+        // TODO
+    }
+
+    // TODO: CC23xx/27xx/35xx?
 
     Ok(peripherals)
 }
@@ -188,6 +226,11 @@ fn does_peripheral_exist(family: &str, name: &str) -> bool {
             || family.eq_ignore_ascii_case("MSPM0C1105_C1106")
             || family.eq_ignore_ascii_case("MSPM0G151X"))
     {
+        return false;
+    }
+
+    // CC1310 has no GPIO31
+    if family.starts_with("CC1310") && name == "GPIO31" {
         return false;
     }
 
@@ -208,6 +251,175 @@ fn is_useless_peripheral(part: &str, name: &str) -> bool {
         || name.starts_with("DMA1_CH")
         // FLASHCTL exists on MSP parts, no need to generate a duplicate.
         || (part.starts_with("MSP") && name == "FLASH")
+        // P<bank>x is useless on MSP, we will make the signals and peripheral manually.
+        || (part.starts_with("MSP") && MSP_GPIO_PIN.is_match(&name))
+        || (
+            // CC13xx/26xx
+            (part.starts_with("CC13") || part.starts_with("CC26"))
+            // GPIOx is useless on CC13xx/25xx, we will make the signals and peripheral manually.
+            && name.starts_with("GPIO")
+        )
+}
+
+fn get_peripheral_signals(
+    part: &str,
+    sysconfig: &Map<String, Value>,
+    peripheral: &Map<String, Value>,
+    peripheral_name: &str,
+    package: &Package,
+) -> anyhow::Result<Vec<PeripheralSignal>> {
+    let mut signals = Vec::new();
+    let peripheral_pins = map_get_object(sysconfig, "peripheralPins")?;
+    let interface_pins = map_get_object(sysconfig, "interfacePins")?;
+    let muxes = map_get_array(sysconfig, "muxes")?;
+    let device_pins = map_get_object(sysconfig, "devicePins")?;
+
+    let peripheral_pin_ids = map_get_array(peripheral, "peripheralPinWrapper")?
+        .iter()
+        .map(|peripheral_pin_wrapper| {
+            let object = peripheral_pin_wrapper
+                .as_object()
+                .context("peripheralPinWrapper entry is not an object")?;
+            map_get_string(object, "peripheralPinID")
+        })
+        .collect::<anyhow::Result<Vec<_>>>()?;
+
+    for peripheral_pin_id in peripheral_pin_ids {
+        let peripheral_pin = peripheral_pins
+            .get(&peripheral_pin_id)
+            .with_context(|| {
+                format!("Peripheral pin with id \"{peripheral_pin_id}\" does not exist")
+            })?
+            .as_object()
+            .with_context(|| {
+                format!("Peripheral pin with id \"{peripheral_pin_id}\" is not an object")
+            })?;
+
+        // This tells us the name of the interface.
+        let interface_pin_id = map_get_string(peripheral_pin, "interfacePinID")?;
+        let interface_pin =
+            map_get_object(interface_pins, &interface_pin_id).with_context(|| {
+                format!("Interface pin with id \"{interface_pin_id}\" does not exist")
+            })?;
+
+        let signal_name = map_get_string(interface_pin, "name")?;
+
+        // Nonsense signal in MSPM33C321
+        if signal_name.starts_with("va_msp_comp") {
+            continue;
+        }
+
+        // DMA channels for CC13xx/26xx are virtual.
+        if peripheral_name.starts_with("DMA") {
+            continue;
+        }
+
+        // CC13xx/26xx also defines signals on each peripheral for DMA. These separately.
+        if signal_name.starts_with("DMA") {
+            continue;
+        }
+
+        #[derive(Debug)]
+        struct RawRouting {
+            peripheral_pin_id: String,
+            device_pin_name: String,
+            mode: String,
+        }
+        let mut routings = Vec::new();
+
+        // While the peripheral claims to have this pin, we can't be truly sure unless a mux option exists.
+        for mux in muxes.iter() {
+            let mux = mux.as_object().context("mux in muxes is not object")?;
+            let device_pin_id = map_get_string(mux, "devicePinID")?;
+            let mux_settings = map_get_array(mux, "muxSetting")?;
+
+            for mux_setting in mux_settings {
+                let mux_setting = mux_setting
+                    .as_object()
+                    .context("mux setting is not object")?;
+                let mux_peripheral_pin_id = map_get_string(mux_setting, "peripheralPinID")?;
+                let mode = map_get_string(mux_setting, "mode")?;
+
+                if mux_peripheral_pin_id != peripheral_pin_id {
+                    continue;
+                }
+
+                // We know the mux is valid. Check if this is a real pin per the package. Because not every package
+                // contains every pin and some pins are virtual (why is a DMA channel a pin?) this must be done.
+                let Some(device_pin) = device_pins.get(&device_pin_id) else {
+                    println!("{part}: skipping non-existent device pin id, \"{device_pin_id}\"");
+                    continue;
+                };
+                let device_pin = device_pin.as_object().context("")?;
+                let device_pin_name = map_get_string(device_pin, "name")?;
+
+                if package.pins.iter().any(|pin| {
+                    pin.signals
+                        .iter()
+                        .any(|pin_signal| pin_signal == &device_pin_name)
+                }) {
+                    // The pin is confirmed to have a mux, now actually resolve the mode and pin.
+                    routings.push(RawRouting {
+                        peripheral_pin_id: peripheral_pin_id.clone(),
+                        device_pin_name: device_pin_name.clone(),
+                        mode,
+                    });
+                }
+            }
+        }
+
+        routings.sort_by(|a, b| a.device_pin_name.cmp(&b.device_pin_name));
+
+        // All routings must be same for a port id routing.
+        //
+        // On CC1354 GPTM signals are a special case. The signals are routed to the port
+        // using EVENT routing. Because of the event indirection this will never be a valid
+        // port id routing.
+        let all_same = match routings.first() {
+            Some(first) => routings.iter().all(|r| r.mode == first.mode),
+            // A signal with no routes should not become a port id routing.
+            None => false,
+        };
+
+        // Only CC13xx and CC26xx allow port id routing.
+        //
+        // If only 1 routing exists (e.g. cJTAG) then this should be a pin routing.
+        let port_id_routing = (part.starts_with("CC13") || part.starts_with("CC26"))
+            && routings.len() > 1
+            && all_same;
+
+        let routing = if port_id_routing {
+            let id = routings.first().unwrap().mode.parse().unwrap();
+            Routing::PortId(id)
+        } else {
+            let mut pin_routings = Vec::new();
+
+            for RawRouting {
+                device_pin_name,
+                mode,
+                ..
+            } in routings
+            {
+                pin_routings.push(PinRouting {
+                    pin: device_pin_name,
+                    function: mode.parse().unwrap(),
+                });
+            }
+
+            // Sometimes duplicate pin routings exist.
+            pin_routings.dedup_by(|a, b| a.pin == b.pin && a.function == b.function);
+
+            // Fixed routing on each pin.
+            Routing::Pins(pin_routings)
+        };
+
+        signals.push(PeripheralSignal {
+            name: signal_name,
+            routing,
+        });
+    }
+
+    Ok(signals)
 }
 
 fn parse_package(
@@ -255,7 +467,7 @@ fn parse_package(
         }
     };
 
-    let mut pins = read_package_pins(sysconfig_data, &package_object)?;
+    let mut pins = read_package_pins(sysconfig_name, sysconfig_data, &package_object, &package)?;
 
     if sysconfig_name == "CC3551E" {
         missing_cc3551_pins(&mut pins);
@@ -311,20 +523,32 @@ fn sysconfig_package_name_to_human_type(ty: &str, count: usize) -> anyhow::Resul
 }
 
 fn read_package_pins(
+    sysconfig_name: &str,
     sysconfig_data: &Value,
     packages_object: &Map<String, Value>,
+    package: &str,
 ) -> anyhow::Result<Vec<PackagePin>> {
     let package_pins = map_get_array(packages_object, "packagePin")?;
     let mut pins = Vec::with_capacity(package_pins.len());
 
     for package_pin in package_pins {
-        pins.push(read_package_pin(sysconfig_data, package_pin)?);
+        pins.push(read_package_pin(
+            sysconfig_name,
+            sysconfig_data,
+            package_pin,
+            package,
+        )?);
     }
 
     Ok(pins)
 }
 
-fn read_package_pin(sysconfig_data: &Value, package_pin: &Value) -> anyhow::Result<PackagePin> {
+fn read_package_pin(
+    sysconfig_name: &str,
+    sysconfig_data: &Value,
+    package_pin: &Value,
+    package: &str,
+) -> anyhow::Result<PackagePin> {
     let object = package_pin
         .as_object()
         .context("package pin is not an object")?;
@@ -334,12 +558,17 @@ fn read_package_pin(sysconfig_data: &Value, package_pin: &Value) -> anyhow::Resu
 
     Ok(PackagePin {
         position,
-        signals: get_device_pin_signals(sysconfig_data, &device_pin_id)?,
+        signals: get_device_pin_signals(sysconfig_name, sysconfig_data, &device_pin_id, package)?,
     })
 }
 
 // TODO: Normalize for CCxxxx
-fn get_device_pin_signals(sysconfig: &Value, device_pin_id: &str) -> anyhow::Result<Vec<String>> {
+fn get_device_pin_signals(
+    sysconfig_name: &str,
+    sysconfig: &Value,
+    device_pin_id: &str,
+    package: &str,
+) -> anyhow::Result<Vec<String>> {
     let device_pins = sysconfig.get("devicePins").context("no devicePins")?;
 
     let device_pin = device_pins
@@ -348,7 +577,20 @@ fn get_device_pin_signals(sysconfig: &Value, device_pin_id: &str) -> anyhow::Res
         .as_object()
         .with_context(|| format!("{} is not an object", device_pin_id))?;
 
-    let signals = map_get_string(device_pin, "name")?;
+    let mut signals = map_get_string(device_pin, "name")?;
+
+    // L130X in RTR package is missing some hardwired pin combinations (e.g. PA10/PA14).
+    //
+    // These need to be revised by hand.
+    if sysconfig_name == "MSPM0L130X" && package == "RTR" {
+        if signals == "PA10" {
+            signals = String::from("PA10/PA14");
+        }
+
+        if signals == "PA23" {
+            signals = String::from("PA23/PA25");
+        }
+    }
 
     Ok(signals.split('/').map(String::from).collect())
 }
