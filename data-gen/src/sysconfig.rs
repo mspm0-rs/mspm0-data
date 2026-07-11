@@ -18,7 +18,12 @@ use crate::serde_helper::{
 
 /// These parts do not technically exist or are broken.
 const SKIP: &[&str] = &[
-    // Broken
+    // Unreleased parts
+    "CC2341R10",
+    "CC2341R7-Q1",
+    "CC2653P10",
+    "CC2745R10-Q1",
+    // Broken (CC3551E already covers this)
     "CC3500",
 ];
 
@@ -170,13 +175,24 @@ pub fn get_peripherals(
                 get_peripheral_signals(part, sysconfig_object, peripheral_object, &name, package)
                     .with_context(|| format!("get peripheral signals for {name}"))?;
 
-            peripherals.insert(name.clone(), Peripheral { name, signals });
+            peripherals.insert(
+                name.clone(),
+                Peripheral {
+                    name,
+                    signals,
+                    address: None,
+                    address_secure: None,
+                    version: None,
+                    dma: BTreeMap::new(),
+                    extra: Map::new(),
+                },
+            );
         }
     }
 
     // For MSP, generate each GPIO peripheral and attach its signals manually.
     if part.starts_with("MSP") {
-        let mut gpio_peripherals = BTreeMap::<String, Vec<PeripheralSignal>>::new();
+        let mut gpio_peripherals = BTreeMap::<String, BTreeMap<String, PeripheralSignal>>::new();
 
         for pin in package.pins.iter() {
             for signal in pin.signals.iter() {
@@ -185,23 +201,33 @@ pub fn get_peripherals(
                     let peripheral_signals =
                         gpio_peripherals.entry(format!("GPIO{bank}")).or_default();
 
-                    peripheral_signals.push(PeripheralSignal {
-                        name: signal.clone(),
-                        // GPIO on MSP always uses function 1
-                        routing: Routing::Pins(vec![PinRouting {
-                            pin: signal.clone(),
-                            function: 1,
-                        }]),
-                    });
+                    peripheral_signals.insert(
+                        signal.clone(),
+                        PeripheralSignal {
+                            // GPIO on MSP always uses function 1
+                            routing: Routing::Pins(vec![PinRouting {
+                                pin: signal.clone(),
+                                function: 1,
+                            }]),
+                        },
+                    );
                 }
             }
         }
 
-        for (name, mut signals) in gpio_peripherals {
-            // Sort signals from GPIO for neatness
-            signals.natural_sort_by_key::<str, _, _>(|s| s.name.to_string());
-
-            peripherals.insert(name.clone(), Peripheral { name, signals });
+        for (name, signals) in gpio_peripherals {
+            peripherals.insert(
+                name.clone(),
+                Peripheral {
+                    name,
+                    signals,
+                    address: None,
+                    address_secure: None,
+                    version: None,
+                    dma: BTreeMap::new(),
+                    extra: Map::new(),
+                },
+            );
         }
     }
 
@@ -267,8 +293,8 @@ fn get_peripheral_signals(
     peripheral: &Map<String, Value>,
     peripheral_name: &str,
     package: &Package,
-) -> anyhow::Result<Vec<PeripheralSignal>> {
-    let mut signals = Vec::new();
+) -> anyhow::Result<BTreeMap<String, PeripheralSignal>> {
+    let mut signals = BTreeMap::new();
     let peripheral_pins = map_get_object(sysconfig, "peripheralPins")?;
     let interface_pins = map_get_object(sysconfig, "interfacePins")?;
     let muxes = map_get_array(sysconfig, "muxes")?;
@@ -388,7 +414,7 @@ fn get_peripheral_signals(
             && routings.len() > 1
             && all_same;
 
-        let routing = if port_id_routing {
+        let mut routing = if port_id_routing {
             let id = routings.first().unwrap().mode.parse().unwrap();
             Routing::PortId(id)
         } else {
@@ -413,10 +439,30 @@ fn get_peripheral_signals(
             Routing::Pins(pin_routings)
         };
 
-        signals.push(PeripheralSignal {
-            name: signal_name,
-            routing,
-        });
+        match routing {
+            Routing::Pins(ref mut pin_routings) => {
+                let entry =
+                    signals
+                        .entry(signal_name.clone())
+                        .or_insert_with(|| PeripheralSignal {
+                            routing: Routing::Pins(vec![]),
+                        });
+
+                let Routing::Pins(ref mut routings) = entry.routing else {
+                    bail!("Tried to merge 2 different route types");
+                };
+
+                routings.extend(pin_routings.drain(..));
+            }
+            Routing::PortId(_) => {
+                if signals
+                    .insert(signal_name.clone(), PeripheralSignal { routing })
+                    .is_some()
+                {
+                    bail!("Duplicate port id routing with name {signal_name}");
+                }
+            }
+        }
     }
 
     Ok(signals)

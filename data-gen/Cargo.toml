@@ -9,5 +9,5 @@ natural-sort-rs = "0.2.1"
 rayon = "1.12.0"
 regex.workspace = true
 schemars.workspace = true
-serde = { workspace = true, features = ["derive"] }
+serde = { workspace = true, features = ["std", "derive"] }
 serde_json.workspace = true

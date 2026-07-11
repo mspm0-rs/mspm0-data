@@ -17,6 +17,7 @@ use std::collections::BTreeMap;
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use serde_json::{Map, Value};
 
 /// The type of CPU used.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -120,15 +121,45 @@ pub struct Peripheral {
     pub name: String,
 
     /// Signals provided by this peripheral.
-    pub signals: Vec<PeripheralSignal>,
+    pub signals: BTreeMap<String, PeripheralSignal>,
+
+    /// The address of this peripheral block.
+    ///
+    /// For some peripherals this is not defined.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub address: Option<u32>,
+
+    /// The address of this peripheral block in secure mode.
+    ///
+    /// [`Self::address`] must be defined if this is.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub address_secure: Option<u32>,
+
+    /// The version of this peripheral block.
+    ///
+    /// This must be [`Some`] if [`Self::address`] is [`Some`].
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version: Option<String>,
+
+    /// Peripheral DMA connections.
+    ///
+    /// This maps a DMA signal to a DMA instance + request/channel id.
+    ///
+    /// For example a key may be `TX`.
+    pub dma: BTreeMap<String, Vec<DmaConnection>>,
+
+    /// Extra data associated with this peripheral block.
+    ///
+    /// This is usually chip dependent.
+    #[serde(skip_serializing_if = "Map::is_empty")]
+    pub extra: Map<String, Value>,
 }
 
 /// A signal provided by a peripheral.
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct PeripheralSignal {
-    /// The signal name.
-    pub name: String,
-
+    // /// The signal name.
+    // pub name: String,
     /// The signal routing.
     #[serde(flatten)]
     pub routing: Routing,
@@ -155,4 +186,18 @@ pub struct PinRouting {
 
     /// The function used to route the signal to the pin.
     pub function: u32,
+}
+
+/// A DMA connection.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct DmaConnection {
+    /// The DMA peripheral instance for this connection.
+    pub dma: String,
+
+    /// The request number for this connection.
+    ///
+    /// On MSPM0/33 this is the DMA trigger.
+    ///
+    /// On a device using uDMA this is the channel number.
+    pub request: u32,
 }

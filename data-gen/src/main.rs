@@ -1,4 +1,5 @@
 mod docs;
+mod header;
 mod serde_helper;
 mod sysconfig;
 mod util;
@@ -8,12 +9,15 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::Context;
+use anyhow::{Context, bail};
 use data_gen::{Chip, Core, Cpu, Package};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator as _};
 use serde_json::Value;
 
-use crate::docs::{DOCS, Links};
+use crate::{
+    docs::{DOCS, Links},
+    header::msp::CHIP_TO_HEADER_AND_FAMILY,
+};
 
 fn main() -> anyhow::Result<()> {
     let sources = PathBuf::from("./sources/");
@@ -26,7 +30,7 @@ fn main() -> anyhow::Result<()> {
     // TODO: Parallelize with rayon
     for part in parts {
         let path = data2.join(&part.part_number).with_extension("json");
-        let chip = make_chip(&part)
+        let chip = make_chip(&sources, &part)
             .with_context(|| format!("Could not make chip {part}", part = &part.part_number))?;
 
         fs::write(path, serde_json::to_string_pretty(&chip)?)?;
@@ -35,7 +39,7 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn make_chip(part: &PartData) -> anyhow::Result<Chip> {
+fn make_chip(sources: &Path, part: &PartData) -> anyhow::Result<Chip> {
     let cpu = cpu_for_part(&part.part_number)
         .with_context(|| format!("part number {} did not have CPU mapping", &part.part_number))?;
     let peripherals = sysconfig::get_peripherals(
@@ -44,6 +48,40 @@ fn make_chip(part: &PartData) -> anyhow::Result<Chip> {
         &part.data,
         &part.package,
     )?;
+
+    // Resolve addressees and
+    if part.part_number.starts_with("MSP") {
+        let header_name = CHIP_TO_HEADER_AND_FAMILY
+            .get(&part.part_number.to_lowercase())
+            .with_context(|| format!("Cannot find header for {}", part.part_number))?;
+
+        let header_path = if header_name.starts_with("mspm0") {
+            sources
+                .join("mspm0-sdk")
+                .join("source")
+                .join("ti")
+                .join("devices")
+                .join("msp")
+                .join("m0p")
+                .join(header_name)
+                .with_extension("h")
+        } else if header_name.starts_with("mspm33") {
+            sources
+                .join("mspm33-sdk")
+                .join("source")
+                .join("ti")
+                .join("devices")
+                .join("msp")
+                .join("m33")
+                .join(header_name)
+                .with_extension("h")
+        } else {
+            bail!("path");
+        };
+
+        let _header = fs::read_to_string(&header_path)
+            .with_context(|| format!("Reading {}", header_path.display()))?;
+    }
 
     // No existing parts are dual core, we just generate one.
     let core = Core { cpu, peripherals };
@@ -80,11 +118,7 @@ fn cpu_for_part(part_number: &str) -> Option<Cpu> {
         return Some(Cpu::CortexM33);
     }
 
-    if part_number.starts_with("MSP")
-        || part_number.starts_with("CC2340")
-        // FIXME: Is this M0P?
-        || part_number.starts_with("CC2341")
-    {
+    if part_number.starts_with("MSP") || part_number.starts_with("CC2340") {
         return Some(Cpu::CortexM0P);
     }
 
