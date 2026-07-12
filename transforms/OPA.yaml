@@ -1,0 +1,115 @@
+# Transform for OPA registers, based on OPA0 on G350x. The OPA0/OPA1 blocks
+# are identical across G150x, G350x, L130x and L134x.
+transforms:
+  - !DeleteUselessEnums
+
+  # Remove specific enum patterns found in the OPA SVD
+  # RESETASSERT
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  # RESETSTKY
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  # RESETSTKYCLR
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  # STAT.RDY
+  - !DeleteEnumsWithVariants
+    variants:
+      0: 'FALSE'
+      1: 'TRUE'
+
+  # CTL.ENABLE
+  - !DeleteEnumsWithVariants
+    variants:
+      0: 'OFF'
+      1: 'ON'
+
+  # CFG.OUTPIN, CLKOVR.OVERRIDE
+  - !DeleteEnumsWithVariants
+    variants:
+      0: DISABLED
+      1: ENABLED
+
+  # PWREN.ENABLE, PWRCTL.AUTO_OFF
+  - !DeleteEnumsWithVariants
+    variants:
+      0: DISABLE
+      1: ENABLE
+
+  # Remove useless prefixes
+  - !Rename
+    type: All
+    from: OPA0_(.+)
+    to: $1
+
+  - !RenameRegisters
+    block: .*
+    from: OPA0_(.+)
+    to: $1
+
+  - !RenameRegisters
+    block: GPRCM
+    from: GPRCM_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: OPA0
+    to: OPA
+
+  # Remove useless array in GPRCM
+  - !DeleteRegisters
+    block: OPA
+    from: GPRCM
+
+  - !AddRegisters
+    block: OPA
+    registers:
+    - name: GPRCM
+      byte_offset: 2048
+      block: GPRCM
+
+  # Add missing KEY fields
+  - !Add
+    ir:
+      enum/PWREN_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 38 #26h
+      enum/RSTCTL_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 177 #B1h
+
+  - !AddFields
+    fieldset: PWREN
+    fields:
+    - name: KEY
+      description: KEY to allow Power State Change.
+      bit_offset: 24
+      bit_size: 8
+      enum: PWREN_KEY
+
+  - !AddFields
+    fieldset: RSTCTL
+    fields:
+    - name: KEY
+      description: Unlock key.
+      bit_offset: 24
+      bit_size: 8
+      enum: RSTCTL_KEY
+
+  # Cleanup
+  - !Sort
