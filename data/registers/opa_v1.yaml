@@ -80,12 +80,12 @@ fieldset/CFGBASE:
   description: Configuration Base Register.
   fields:
   - name: GBW
-    description: Select gain bandwidth which affects current as well the gain bandwidth. The lower gain bandwidth has lower current. See device specific datasheet for values. Can only be modified when STAT.BUSY=0.
+    description: Select gain bandwidth which affects current as well the gain bandwidth. The lower gain bandwidth has lower current. See device specific datasheet for values. Can only be modified when STAT.RDY=0.
     bit_offset: 0
     bit_size: 1
     enum: GBW
   - name: RRI
-    description: Rail-to-rail input enable. Can only be modified when STAT.BUSY=0.
+    description: Rail-to-rail input enable. Can only be modified when STAT.RDY=0.
     bit_offset: 2
     bit_size: 1
 fieldset/CLKOVR:
@@ -111,7 +111,7 @@ fieldset/GPRCM_STAT:
   description: Status Register.
   fields:
   - name: RESETSTKY
-    description: This bit indicates if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
     bit_offset: 16
     bit_size: 1
 fieldset/PWRCTL:
@@ -148,7 +148,7 @@ fieldset/RSTCTL:
     description: Unlock key.
     bit_offset: 24
     bit_size: 8
-    enum: RSTCTL_KEY
+    enum: RESET_KEY
 fieldset/STAT:
   description: Status Register.
   fields:
@@ -166,7 +166,7 @@ enum/CHOP:
     description: Standard chopping enable.
     value: 1
   - name: AVGON
-    description: Chop with post average on. Requires output to be connect to ADC in average mode.
+    description: Chop with post average on. Requires output to be connected to ADC in average mode.
     value: 2
 enum/GBW:
   bit_size: 1
@@ -254,7 +254,7 @@ enum/PWREN_KEY:
   variants:
   - name: KEY
     value: 38
-enum/RSTCTL_KEY:
+enum/RESET_KEY:
   bit_size: 8
   variants:
   - name: KEY
