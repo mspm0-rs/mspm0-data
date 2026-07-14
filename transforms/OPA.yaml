@@ -1,0 +1,183 @@
+# Transform for OPA registers, based on OPA0 on G350x. The OPA0/OPA1 blocks
+# are identical across G150x, G350x, L130x and L134x.
+transforms:
+  - !DeleteUselessEnums
+
+  # Enum patterns DeleteUselessEnums does not catch (same set as TRNG):
+  # RESETASSERT
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  # RESETSTKY
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  # RESETSTKYCLR
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  # Remove useless prefixes
+  - !Rename
+    type: All
+    from: OPA0_(.+)
+    to: $1
+
+  - !RenameRegisters
+    block: .*
+    from: OPA0_(.+)
+    to: $1
+
+  - !RenameRegisters
+    block: GPRCM
+    from: GPRCM_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: OPA0
+    to: OPA
+
+  # Remove useless array in GPRCM
+  - !DeleteRegisters
+    block: OPA
+    from: GPRCM
+
+  - !AddRegisters
+    block: OPA
+    registers:
+    - name: GPRCM
+      byte_offset: 2048
+      block: GPRCM
+
+  # Add missing KEY fields (not present in the SVDs)
+  - !Add
+    ir:
+      enum/PWREN_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 38 #26h
+      enum/RESET_KEY:
+        bit_size: 8
+        variants:
+        - name: KEY
+          value: 177 #B1h
+
+  - !AddFields
+    fieldset: PWREN
+    fields:
+    - name: KEY
+      description: KEY to allow Power State Change.
+      bit_offset: 24
+      bit_size: 8
+      enum: PWREN_KEY
+
+  - !AddFields
+    fieldset: RSTCTL
+    fields:
+    - name: KEY
+      description: Unlock key.
+      bit_offset: 24
+      bit_size: 8
+      enum: RESET_KEY
+
+  # SVD description fixes. The GBW/RRI descriptions reference a STAT.BUSY
+  # bit that does not exist; the TRM shows the busy/ready status is STAT.RDY.
+  - !DeleteFields
+    fieldset: CFGBASE
+    from: GBW
+
+  - !AddFields
+    fieldset: CFGBASE
+    fields:
+    - name: GBW
+      description: Select gain bandwidth which affects current as well the gain bandwidth. The lower gain bandwidth has lower current. See device specific datasheet for values. Can only be modified when STAT.RDY=0.
+      bit_offset: 0
+      bit_size: 1
+      enum: GBW
+
+  - !DeleteFields
+    fieldset: CFGBASE
+    from: RRI
+
+  - !AddFields
+    fieldset: CFGBASE
+    fields:
+    - name: RRI
+      description: Rail-to-rail input enable. Can only be modified when STAT.RDY=0.
+      bit_offset: 2
+      bit_size: 1
+
+  # More SVD description typos ("connect" -> "connected", "Grouund").
+  - !DeleteEnums
+    from: CHOP
+
+  - !Add
+    ir:
+      enum/CHOP:
+        bit_size: 2
+        variants:
+        - name: OFF
+          description: Chopping disable.
+          value: 0
+        - name: 'ON'
+          description: Standard chopping enable.
+          value: 1
+        - name: AVGON
+          description: Chop with post average on. Requires output to be connected to ADC in average mode.
+          value: 2
+
+  - !ModifyFieldsEnum
+    fieldset: CFG
+    field: CHOP
+    enum: CHOP
+
+  - !DeleteEnums
+    from: PSEL
+
+  - !Add
+    ir:
+      enum/PSEL:
+        bit_size: 4
+        variants:
+        - name: NC
+          description: No connect.
+          value: 0
+        - name: EXTPIN0
+          description: external pin OA+0.
+          value: 1
+        - name: EXTPIN1
+          description: external pin OAn+1.
+          value: 2
+        - name: DAC12OUT
+          description: DAC12OUT.
+          value: 3
+        - name: DAC8OUT
+          description: DAC8OUT.
+          value: 4
+        - name: VREF
+          description: VREF Channel.
+          value: 5
+        - name: OANM1RTOP
+          description: OA[n-1]Rtop.
+          value: 6
+        - name: GPAMP_OUT_INT
+          description: GPAMP_OUT_INT Input.
+          value: 7
+        - name: VSS
+          description: Internal Ground Connection.
+          value: 8
+
+  - !ModifyFieldsEnum
+    fieldset: CFG
+    field: PSEL
+    enum: PSEL
+
+  # Cleanup
+  - !Sort
