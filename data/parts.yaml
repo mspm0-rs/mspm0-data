@@ -513,7 +513,7 @@ families:
     - DGS28
     - DYY
     - RGE
-    - RGB
+    - RHB
     - RTR
 
   - name: mspm0l1106
@@ -662,7 +662,7 @@ families:
     - DGS28
     - DYY
     - RGE
-    - RGB
+    - RHB
     - RTR
 
   - name: mspm0l1306
