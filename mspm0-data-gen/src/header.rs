@@ -23,7 +23,7 @@ impl Headers {
         for header in glob::glob(&format!("{}/mspm0*.h", header_path.display())).unwrap() {
             let header = header.unwrap();
             // Two assignments to make the borrow checker happy
-            let name = header.components().last().unwrap().as_os_str();
+            let name = header.components().next_back().unwrap().as_os_str();
             let name = name.to_string_lossy();
 
             let name = name.split(".h").next().unwrap();

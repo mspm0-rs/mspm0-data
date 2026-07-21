@@ -13,7 +13,7 @@ pub fn generate_device_x(name: &str, chip: &Chip, out_dir: &Path) -> anyhow::Res
     let path = dir.join("device.x");
     let mut file = File::create(&path)?;
 
-    for (_, interrupt) in chip.interrupts.iter() {
+    for interrupt in chip.interrupts.values() {
         if interrupt.num < 0 {
             continue;
         }

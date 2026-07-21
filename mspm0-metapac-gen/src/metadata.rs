@@ -77,7 +77,7 @@ pub fn dma_channels(chip: &Chip) -> TokenStream {
 pub fn interrupts(chip: &Chip) -> TokenStream {
     let mut interrupts = Vec::new();
 
-    for (_, interrupt) in chip.interrupts.iter() {
+    for interrupt in chip.interrupts.values() {
         // Skip interrupts handled by cortex-m
         if interrupt.num < 0 {
             continue;
@@ -102,7 +102,7 @@ pub fn interrupts(chip: &Chip) -> TokenStream {
 pub fn interrupt_groups(chip: &Chip) -> TokenStream {
     let mut groups = Vec::new();
 
-    for (_, interrupt) in chip.interrupts.iter() {
+    for interrupt in chip.interrupts.values() {
         // Skip interrupts handled by cortex-m
         if interrupt.num < 0 {
             continue;

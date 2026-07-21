@@ -34,10 +34,7 @@ pub fn generate(
         let sysconfig = sysconfig
             .files
             .get(&family.family.to_uppercase())
-            .context(format!(
-                "No sysconfig data available for {}",
-                &family.family
-            ))?;
+            .context(format!("No sysconfig data available for {}", family.family))?;
 
         // MSPS003FX is the same as C110X except for package options and some pins.
         let header_name = if family.family == "msps003fx" {
@@ -118,7 +115,7 @@ fn generate_family(
         let data = serde_json::to_string_pretty(&chip)
             .context(format!("Serializing chip {}", part_number.name))?;
 
-        fs::write(format!("./build/data/{}.json", &part_number.name), data)
+        fs::write(format!("./build/data/{}.json", part_number.name), data)
             .context(format!("Error writing data for {}", part_number.name))?;
     }
 
@@ -260,7 +257,7 @@ fn generate_peripherals2(
             // IWDT technically exists on G151x and G351x, but the SDK and datasheets do not define the address for IWDT.
             //
             // To prevent issues, we will only consider IWDT to exist on chips which define an address.
-            if name == "IWDT" && header.peripheral_addresses.get(&name).is_none() {
+            if name == "IWDT" && !header.peripheral_addresses.contains_key(&name) {
                 continue;
             }
 
@@ -836,13 +833,15 @@ fn generate_adc_memctl_dim(chip_name: &str, sysconfig: &SysconfigFile) -> anyhow
         // make names consistent sometimes
         let name = maybe_rename(name);
 
-        let raw_memctl_dim = &peripheral.attributes.get("SYS_ADC_MEMCTL_DIM").expect(
-            format!(
-                "SYS_ADC_MEMCTL_DIM should exist for {} in {}",
-                name, chip_name
-            )
-            .as_str(),
-        );
+        let raw_memctl_dim = &peripheral
+            .attributes
+            .get("SYS_ADC_MEMCTL_DIM")
+            .unwrap_or_else(|| {
+                panic!(
+                    "SYS_ADC_MEMCTL_DIM should exist for {} in {}",
+                    name, chip_name
+                )
+            });
         let memctl_error = format!(
             "SYS_ADC_MEMCTL_DIM: {} should be an u32 as string for {} in {}",
             raw_memctl_dim, name, chip_name
