@@ -29,6 +29,8 @@ pub fn generate(out_dir: &Path) -> anyhow::Result<()> {
         common_module: CommonModule::External(TokenStream::from_str("crate::common").unwrap()),
     };
 
+    let re = Regex::new("# *! *\\[.*\\]").unwrap();
+
     for f in glob::glob("data/registers/*").unwrap() {
         let f = f.unwrap();
 
@@ -87,7 +89,6 @@ pub fn generate(out_dir: &Path) -> anyhow::Result<()> {
         .unwrap();
 
         let items = items.to_string().replace("] ", "]\n");
-        let re = Regex::new("# *! *\\[.*\\]").unwrap();
         let items = re.replace_all(&items, "");
         writeln!(file, "{items}").unwrap();
 

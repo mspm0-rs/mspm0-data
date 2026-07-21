@@ -42,8 +42,8 @@ fn generate_peripheral_imports(
 ) -> TokenStream {
     // Sort the peripherals by type for generation.
     let mut peripheral_types = chip.peripherals.iter().collect::<Vec<_>>();
-    peripheral_types.sort_by(|(a, _), (b, _)| a.cmp(b));
-    peripheral_types.dedup_by(|(_, a), (_, b)| a.ty == b.ty);
+    peripheral_types.sort_by_key(|(a, _)| *a);
+    peripheral_types.dedup_by_key(|(_, v)| v.ty);
 
     peripheral_types
         .iter()
