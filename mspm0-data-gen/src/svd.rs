@@ -1,0 +1,111 @@
+//! Facts which only the SVDs carry.
+//!
+//! The SVDs are normally consumed offline by chiptool to produce `data/registers/*.yaml`, and the
+//! register YAMLs are shared between chips of the same peripheral version. That makes them useless
+//! for facts which vary between *instances* of the same peripheral version, which is why this reads
+//! the SVDs directly.
+//!
+//! Only one fact is read, and it is a presence test on a single field name, so the SVDs are scanned
+//! textually rather than parsed. Parsing them properly would mean depending on `svd-parser`
+//! directly: chiptool does not re-export it, and it is a pinned fork rather than a release, so it
+//! would have to track chiptool's exact revision.
+
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fs,
+    path::Path,
+    sync::LazyLock,
+};
+
+use anyhow::Context;
+use regex::Regex;
+
+/// The field which gates a peripheral's asynchronous fast clock request.
+///
+/// Only peripherals which can raise such a request have it. Note that this is distinct from
+/// `SYSCTL.SYSOSCCFG.BLOCKASYNCALL`, which masks the requests of every peripheral at once.
+const BLOCK_ASYNC: &str = "BLOCKASYNC";
+
+/// One `<peripheral>` element, capturing its `derivedFrom` if it has one.
+static PERIPHERAL: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r#"(?s)<peripheral(?:\s+derivedFrom="(?<derived>[^"]*)")?\s*>(?<body>.*?)</peripheral>"#,
+    )
+    .unwrap()
+});
+
+/// The first `<name>` of a peripheral, which is its instance name.
+static NAME: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"<name>([^<]+)</name>").unwrap());
+
+#[derive(Debug)]
+pub struct Svds {
+    /// Keyed by family name, lowercase (e.g. `mspm0g350x`).
+    pub files: BTreeMap<String, Svd>,
+}
+
+impl Svds {
+    pub fn parse(data_sources: &Path) -> anyhow::Result<Self> {
+        let mut files = BTreeMap::new();
+
+        for path in glob::glob(&format!("{}/svd/*.svd", data_sources.display()))
+            .unwrap()
+            .flatten()
+        {
+            let name = path.file_stem().unwrap().to_string_lossy().to_lowercase();
+            let svd = Svd::read(&path).context(format!("Error reading SVD for {name}"))?;
+
+            files.insert(name, svd);
+        }
+
+        Ok(Self { files })
+    }
+}
+
+#[derive(Debug)]
+pub struct Svd {
+    /// Peripheral instances which have their own `CLKCFG.BLOCKASYNC` bit, masking the asynchronous
+    /// fast clock request they raise.
+    ///
+    /// This varies per instance rather than per peripheral type: on mspm0g120x only `UC0`, `UC2`,
+    /// `UC4`, `UC5` and `UC9` have the bit, despite every `UC` instance being the same IP.
+    pub block_async: BTreeSet<String>,
+}
+
+impl Svd {
+    fn read(path: &Path) -> anyhow::Result<Self> {
+        let content = fs::read_to_string(path)?;
+
+        let mut own = BTreeMap::new();
+        let mut derived_from = BTreeMap::new();
+
+        for peripheral in PERIPHERAL.captures_iter(&content) {
+            let body = &peripheral["body"];
+            let name = NAME
+                .captures(body)
+                .context(format!("{path:?}: peripheral without a name"))?[1]
+                .to_string();
+
+            // The field name only ever appears as a `<name>`, so a substring test over the
+            // peripheral's body is enough to tell whether one of its registers has the field.
+            let tag = format!("<name>{BLOCK_ASYNC}</name>");
+            own.insert(name.clone(), body.contains(&tag));
+
+            // Peripherals in these SVDs are always fully expanded, but resolve `derivedFrom`
+            // anyway so a source bump which starts using it does not silently drop instances.
+            if let Some(base) = peripheral.name("derived") {
+                derived_from.insert(name, base.as_str().to_string());
+            }
+        }
+
+        let block_async = own
+            .keys()
+            .filter(|name| match derived_from.get(*name) {
+                Some(base) => own.get(base).copied().unwrap_or(false),
+                None => own[*name],
+            })
+            .cloned()
+            .collect::<BTreeSet<_>>();
+
+        Ok(Self { block_async })
+    }
+}

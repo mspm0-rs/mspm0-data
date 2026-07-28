@@ -4,6 +4,7 @@ mod header;
 mod int_group;
 mod parts;
 mod perimap;
+mod svd;
 mod sysconfig;
 mod util;
 mod verify;
@@ -60,6 +61,10 @@ fn main() -> anyhow::Result<()> {
     let sysconfig = sysconfig::Sysconfig::parse(&data_sources)?;
     let _clock_trees = clock_tree::ClockTree::read_clock_trees(&data_sources)?;
 
+    stopwatch.section("Parsing SVDs");
+
+    let svds = svd::Svds::parse(&data_sources)?;
+
     stopwatch.section("Read interrupt group mappings");
 
     let int_groups = int_group::Groups::parse()?;
@@ -68,7 +73,7 @@ fn main() -> anyhow::Result<()> {
     // TODO: Expanded family names (ex. C110X -> C1103 & C1104)
 
     stopwatch.section("Generate data");
-    generate::generate(&parts, &headers, &sysconfig, &int_groups)?;
+    generate::generate(&parts, &headers, &sysconfig, &svds, &int_groups)?;
 
     stopwatch.stop();
 

@@ -18,6 +18,7 @@ use crate::{
     int_group::Groups,
     parts::{PartFamily, PartMemory, PartsFile},
     perimap::PERIMAP,
+    svd::{Svd, Svds},
     sysconfig::{self, PartPeripheralWrapper, Sysconfig, SysconfigFile},
     verify,
 };
@@ -26,6 +27,7 @@ pub fn generate(
     parts: &PartsFile,
     headers: &Headers,
     sysconfig: &Sysconfig,
+    svds: &Svds,
     int_groups: &BTreeMap<String, Groups>,
 ) -> anyhow::Result<()> {
     fs::create_dir_all("./build/data/").unwrap();
@@ -48,7 +50,12 @@ pub fn generate(
             .get(&header_name.to_lowercase())
             .context(format!("Could not lookup header for {}", header_name))?;
 
-        generate_family(family, header, sysconfig, int_groups)
+        // SVDs are named after the family, but TI does not publish one for every family: as of
+        // the pinned data sources mspm0c1105_c1106, mspm0l112x and mspm0l211x have none. The
+        // facts taken from the SVD are optional for that reason, and `verify` reports the gap.
+        let svd = svds.files.get(&family.family);
+
+        generate_family(family, header, sysconfig, svd, int_groups)
             .context(format!("Error when generating family: {}", family.family))?;
     }
 
@@ -59,6 +66,7 @@ fn generate_family(
     family: &PartFamily,
     header: &Header,
     sysconfig: &SysconfigFile,
+    svd: Option<&Svd>,
     int_groups: &BTreeMap<String, Groups>,
 ) -> anyhow::Result<()> {
     // Data shared across all chips in a family.
@@ -73,6 +81,7 @@ fn generate_family(
 
     // Facts which are easier to attach once every peripheral is known.
     apply_peripheral_interrupts(&mut peripherals, &interrupts);
+    apply_block_async(&mut peripherals, svd);
 
     for part_number in family.part_numbers.iter() {
         // Filter for package types available on the part number.
@@ -294,6 +303,7 @@ fn generate_peripherals2(
                 pins: vec![],
                 sys_fentries,
                 interrupt: None,
+                block_async: None,
             };
 
             // Lookup the pins
@@ -543,6 +553,7 @@ fn generate_missing(
             pins: vec![],
             sys_fentries: None,
             interrupt: None,
+            block_async: None,
         },
     );
 
@@ -575,6 +586,7 @@ fn generate_missing(
                     pins: vec![],
                     sys_fentries: None,
                     interrupt: None,
+                    block_async: None,
                 });
 
             let pin = device_pin
@@ -980,6 +992,19 @@ fn apply_peripheral_interrupts(
                     })
                 })
             });
+    }
+}
+
+/// Mark the peripheral instances which have their own `CLKCFG.BLOCKASYNC` bit.
+fn apply_block_async(peripherals: &mut BTreeMap<String, Peripheral>, svd: Option<&Svd>) {
+    let Some(svd) = svd else {
+        // No SVD for this family, so leave every instance unknown rather than claiming that none of
+        // them can be masked. `verify` reports this.
+        return;
+    };
+
+    for (name, peripheral) in peripherals.iter_mut() {
+        peripheral.block_async = Some(svd.block_async.contains(name));
     }
 }
 

@@ -41,6 +41,19 @@ pub struct Peripheral {
 
     /// The interrupt raised by this peripheral, if it has one.
     pub interrupt: Option<PeripheralInterrupt>,
+
+    /// Whether this peripheral instance has its own `CLKCFG.BLOCKASYNC` bit.
+    ///
+    /// An asynchronous fast clock request temporarily suspends a low-power mode and brings MCLK and
+    /// ULPCLK back to full rate, which is how a PD0 peripheral wakes the system on an external
+    /// event while not being clocked. `BLOCKASYNC` masks the request for one instance and must be
+    /// clear to arm such a wake; `SYSCTL.SYSOSCCFG.BLOCKASYNCALL` masks every request at once.
+    ///
+    /// `false` does not mean the peripheral cannot raise a request: GPIO, the general purpose
+    /// timers and the ADC all can, but have no per-instance mask and are gated only by
+    /// `BLOCKASYNCALL`. `None` means no SVD is published for this family yet, so the answer is
+    /// unknown rather than negative.
+    pub block_async: Option<bool>,
 }
 
 /// The interrupt raised by a peripheral.

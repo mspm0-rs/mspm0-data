@@ -14,6 +14,9 @@ pub fn verify(chip: &Chip, name: &str) -> anyhow::Result<()> {
     // Peripherals which don't actually exist
     no_gpamp_c110x_l151x(chip, name)?;
 
+    // Low power data which is only as complete as the data sources
+    block_async_known(chip, name)?;
+
     // Power domains
     verify_aesadv_power_domain(chip, name)?;
     verify_cpuss_power_domain(chip, name)?;
@@ -64,6 +67,27 @@ fn core_peripherals(chip: &Chip, name: &str) -> anyhow::Result<()> {
 
     if !chip.peripherals.contains_key("WWDT0") {
         bail!("{name}: does not have WWDT0");
+    }
+
+    Ok(())
+}
+
+/// Report families for which no SVD is published, and whose `BLOCKASYNC` bits are therefore
+/// unknown.
+///
+/// This is not an error: TI publishes SVDs later than the rest of the metadata, so a newly added
+/// family legitimately has none. It is reported so the gap is visible and gets closed on the next
+/// data source bump rather than silently persisting.
+fn block_async_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    if chip
+        .peripherals
+        .values()
+        .all(|peripheral| peripheral.block_async.is_none())
+    {
+        bail!(
+            "{name}: no SVD for family {}, so CLKCFG.BLOCKASYNC is unknown for every peripheral",
+            chip.family
+        );
     }
 
     Ok(())

@@ -259,6 +259,11 @@ fn generate_peripheral(
         None => quote! { None },
     };
 
+    let block_async = match peripheral.block_async {
+        Some(block_async) => quote! { Some(#block_async) },
+        None => quote! { None },
+    };
+
     Some(quote! {
         Peripheral {
             name: #name,
@@ -268,6 +273,7 @@ fn generate_peripheral(
             power_domain: #power_domain,
             sys_fentries: #sys_fentries,
             interrupt: #interrupt,
+            block_async: #block_async,
         }
     })
 }
