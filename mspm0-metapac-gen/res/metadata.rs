@@ -13,7 +13,7 @@ pub struct Metadata {
     pub adc_vrsel: u8,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub struct Peripheral {
     pub name: &'static str,
     pub kind: &'static str,
@@ -23,20 +23,20 @@ pub struct Peripheral {
     pub sys_fentries: Option<usize>,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub struct Pin {
     pub pin: &'static str,
     pub pincm: u8,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub struct PeripheralPin {
     pub pin: &'static str,
     pub signal: &'static str,
     pub pf: Option<u8>,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub enum PowerDomain {
     /// "low speed" power domain. This power domain is powered in RUN, SLEEP, STOP and STANDBY modes.
     Pd0,
@@ -50,26 +50,26 @@ pub enum PowerDomain {
     Backup,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub struct Interrupt {
     pub name: &'static str,
     pub number: u32,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub struct InterruptGroup {
     pub name: &'static str,
     pub number: u32,
     pub interrupts: &'static [GroupInterrupt],
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub struct GroupInterrupt {
     pub name: &'static str,
     pub number: u32,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub struct DmaChannel {
     /// The number of the dma channel.
     pub number: u8,
