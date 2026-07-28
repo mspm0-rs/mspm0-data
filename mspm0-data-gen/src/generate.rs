@@ -69,6 +69,7 @@ fn generate_family(
     let interrupts = generate_irqs(&family.family, header, int_groups)?;
     let dma_channels = generate_dma_channels(&family.family, sysconfig)?;
     let adc_memctl = generate_adc_memctl_dim(&family.family, sysconfig)?;
+    let backup_domain = has_backup_domain(&family.family, sysconfig, &peripherals)?;
 
     // Facts which are easier to attach once every peripheral is known.
     apply_peripheral_interrupts(&mut peripherals, &interrupts);
@@ -116,6 +117,7 @@ fn generate_family(
             adc_memctl,
             adc_vrsel: adc_vrsel_mapping(&family.adc_vrsel)?,
             nvic_priority_bits: header.nvic_priority_bits,
+            backup_domain,
         };
 
         if let Err(err) = verify::verify(&chip, &part_number.name) {
@@ -901,6 +903,37 @@ fn skip_peripheral_pin(pin_name: &String, chip_name: &str) -> bool {
     }
 
     false
+}
+
+/// Whether the chip has an independent `VBAT` supply, and therefore a real backup power domain.
+///
+/// The presence of a `VBAT` device pin is the authoritative answer: TRM §30 distinguishes the RTC
+/// variants by exactly this ("In devices for which the LFSS is powered by an independent VBAT supply
+/// pin to support the backup-battery power domain (PDB), the RTC variant has extended features and
+/// is referred to as RTC_A").
+fn has_backup_domain(
+    chip_name: &str,
+    sysconfig: &SysconfigFile,
+    peripherals: &BTreeMap<String, Peripheral>,
+) -> anyhow::Result<bool> {
+    let vbat = sysconfig
+        .device_pins
+        .values()
+        .any(|pin| pin.name.split('/').any(|signal| signal == "VBAT"));
+
+    // Cross-check against the power domain sysconfig assigns to the peripherals. A chip with a VBAT
+    // pin must place something in the backup domain and vice versa; if the two disagree then one of
+    // the two sources has changed meaning and the flag cannot be trusted.
+    let backup_peripherals = peripherals
+        .values()
+        .any(|peripheral| peripheral.power_domain == PowerDomain::Backup);
+
+    ensure!(
+        vbat == backup_peripherals,
+        "{chip_name}: VBAT pin present is {vbat} but a peripheral in the backup power domain          present is {backup_peripherals}"
+    );
+
+    Ok(vbat)
 }
 
 /// Device pins which have wakeup logic, and can therefore wake the device from SHUTDOWN.

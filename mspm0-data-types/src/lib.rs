@@ -59,6 +59,12 @@ pub struct Chip {
 
     /// Number of bits used by the NVIC for interrupt priority levels.
     pub nvic_priority_bits: u8,
+
+    /// Whether the chip has an independent `VBAT` supply and therefore a real backup power domain
+    /// (PDB).
+    ///
+    /// Peripherals in the backup power domain are the only wake sources which survive SHUTDOWN.
+    pub backup_domain: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

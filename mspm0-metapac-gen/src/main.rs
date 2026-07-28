@@ -151,6 +151,7 @@ fn generate_chip_metadata(
     let adc_memctl = &chip.adc_memctl;
     let adc_vrsel = &chip.adc_vrsel;
     let nvic_priority_bits = &chip.nvic_priority_bits;
+    let backup_domain = &chip.backup_domain;
 
     // Memory is the one part of the metadata which varies by part number rather than by family, so
     // it is emitted here instead of in the deduplicated body above.
@@ -175,6 +176,7 @@ fn generate_chip_metadata(
             dma_channels: DMA_CHANNELS,
             adc_memctl: {adc_memctl},
             adc_vrsel: {adc_vrsel},
+            backup_domain: {backup_domain},
         }};
         ",
     )

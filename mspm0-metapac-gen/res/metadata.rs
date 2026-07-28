@@ -11,6 +11,12 @@ pub struct Metadata {
     pub dma_channels: &'static [DmaChannel],
     pub adc_memctl: u8,
     pub adc_vrsel: u8,
+
+    /// Whether the chip has an independent `VBAT` supply and therefore a real backup power domain
+    /// (PDB).
+    ///
+    /// Peripherals in the backup power domain are the only wake sources which survive SHUTDOWN.
+    pub backup_domain: bool,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
