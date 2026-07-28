@@ -25,9 +25,9 @@ pub fn generate(out_dir: &Path) -> anyhow::Result<()> {
     // Common module
     fs::write(common, generate::COMMON_MODULE).unwrap();
 
-    let options = generate::Options {
-        common_module: CommonModule::External(TokenStream::from_str("crate::common").unwrap()),
-    };
+    let options = generate::Options::new().with_common_module(CommonModule::External(
+        TokenStream::from_str("crate::common").unwrap(),
+    ));
 
     let re = Regex::new("# *! *\\[.*\\]").unwrap();
 
@@ -64,7 +64,9 @@ pub fn generate(out_dir: &Path) -> anyhow::Result<()> {
         });
 
         transform::sort::Sort {}.run(&mut ir).unwrap();
-        transform::Sanitize {}.run(&mut ir).unwrap();
+        transform::sanitize::Sanitize::default()
+            .run(&mut ir)
+            .unwrap();
 
         let items = generate::render(&ir, &options)
             .context(ctx)
