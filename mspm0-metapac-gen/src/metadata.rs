@@ -1,6 +1,6 @@
 use std::{collections::HashSet, sync::LazyLock};
 
-use mspm0_data_types::{Chip, Package, Peripheral, PeripheralType, PowerDomain};
+use mspm0_data_types::{Chip, MemoryKind, Package, Peripheral, PeripheralType, PowerDomain};
 use proc_macro2::{Literal, TokenStream};
 use quote::quote;
 use regex::Regex;
@@ -30,6 +30,30 @@ pub fn pins(chip: &Chip, package: &Package) -> TokenStream {
     });
 
     quote! { &[#(#pins),*] }
+}
+
+pub fn memory(chip: &Chip) -> TokenStream {
+    let regions = chip.memory.iter().map(|region| {
+        let name = &region.name;
+        let kind = match region.kind {
+            MemoryKind::Flash => quote! { MemoryKind::Flash },
+            MemoryKind::Ram => quote! { MemoryKind::Ram },
+        };
+        let address = Literal::u32_unsuffixed(region.address);
+        // Sizes are in KB in the chip data, but bytes are what consumers need.
+        let size = Literal::u32_unsuffixed(region.length * 1024);
+
+        quote! {
+            MemoryRegion {
+                name: #name,
+                kind: #kind,
+                address: #address,
+                size: #size,
+            }
+        }
+    });
+
+    quote! { &[#(#regions),*] }
 }
 
 pub fn peripherals(chip: &Chip, package: &Package) -> TokenStream {

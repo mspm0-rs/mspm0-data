@@ -39,6 +39,9 @@ pub struct Header {
     pub peripheral_addresses: BTreeMap<String, u32>,
 
     pub irq_numbers: BTreeMap<i32, Vec<String>>,
+
+    /// Number of bits the NVIC uses for interrupt priority levels.
+    pub nvic_priority_bits: u8,
     // TODO: flash info
     // TODO: Available IOMUX indices
     // TODO: PF values (for non-analog)
@@ -54,11 +57,37 @@ impl Header {
         // The Cortex-M0 only has 32 IRQs. This means that "interrupt groups" need to be resolved
         // for truly handling IRQs.
         let irq_numbers = Self::get_irq_numbers(chip_name, &content)?;
+        let nvic_priority_bits = Self::get_nvic_priority_bits(chip_name, &content)?;
 
         Ok(Self {
             peripheral_addresses,
             irq_numbers,
+            nvic_priority_bits,
         })
+    }
+
+    /// Read the NVIC priority bit count from the CMSIS device header.
+    ///
+    /// Deliberately *not* taken from the SVD, which also carries this as `<nvicPrioBits>`: the SVDs
+    /// say 3 for every MSPM0, which is wrong. The CMSIS header says 2, and the datasheets agree
+    /// ("Nested vectored interrupt controller (NVIC) with four programmable priority levels" — four
+    /// levels is two bits). Taking the SVD's value would give consumers twice the priority levels
+    /// the hardware has.
+    fn get_nvic_priority_bits(chip_name: &str, content: &str) -> anyhow::Result<u8> {
+        /// Example:
+        /// ```c,no_run
+        /// #define __NVIC_PRIO_BITS        0x0002U    /* Number of bits used for Priority Levels */
+        /// ```
+        static NVIC_PRIO_BITS: LazyLock<Regex> = LazyLock::new(|| {
+            Regex::new(r"(?m)#define\s+__NVIC_PRIO_BITS\s+0x(?<bits>\w+)U").unwrap()
+        });
+
+        let capture = NVIC_PRIO_BITS
+            .captures(content)
+            .context(format!("{chip_name}: no __NVIC_PRIO_BITS in header"))?;
+
+        u8::from_str_radix(&capture["bits"], 16)
+            .context(format!("{chip_name}: __NVIC_PRIO_BITS is not a valid u8"))
     }
 
     fn get_peripheral_addresses(

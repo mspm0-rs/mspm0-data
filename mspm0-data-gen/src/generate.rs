@@ -8,8 +8,8 @@ use std::{
 
 use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
-    Chip, DmaChannel, Interrupt, Memory, Package, PackagePin, Peripheral, PeripheralPin,
-    PeripheralType, PowerDomain,
+    Chip, DmaChannel, Interrupt, Memory, MemoryKind, Package, PackagePin, Peripheral,
+    PeripheralPin, PeripheralType, PowerDomain,
 };
 use regex::Regex;
 
@@ -98,7 +98,11 @@ fn generate_family(
             datasheet_url: family.datasheet_url.clone(),
             reference_manual_url: family.reference_manual_url.clone(),
             errata_url: family.errata_url.clone(),
-            memory: part_number.memory.iter().map(convert_memory).collect(),
+            memory: part_number
+                .memory
+                .iter()
+                .map(convert_memory)
+                .collect::<anyhow::Result<_>>()?,
             packages: packages.collect(),
             iomux: iomux.clone(),
             peripherals: peripherals.clone(),
@@ -106,6 +110,7 @@ fn generate_family(
             dma_channels: dma_channels.clone(),
             adc_memctl,
             adc_vrsel: adc_vrsel_mapping(&family.adc_vrsel)?,
+            nvic_priority_bits: header.nvic_priority_bits,
         };
 
         if let Err(err) = verify::verify(&chip, &part_number.name) {
@@ -890,10 +895,17 @@ fn skip_peripheral_pin(pin_name: &String, chip_name: &str) -> bool {
     false
 }
 
-fn convert_memory(memory: &PartMemory) -> Memory {
-    Memory {
+fn convert_memory(memory: &PartMemory) -> anyhow::Result<Memory> {
+    let kind = match memory.name.as_str() {
+        "FLASH" => MemoryKind::Flash,
+        "RAM" | "RAM_BANK" => MemoryKind::Ram,
+        name => bail!("Unknown memory partition `{name}`, cannot tell what kind of memory it is"),
+    };
+
+    Ok(Memory {
         name: memory.name.clone(),
+        kind,
         length: memory.length,
         address: memory.address,
-    }
+    })
 }

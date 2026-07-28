@@ -47,6 +47,9 @@ pub struct Chip {
     ///
     /// This is requried because we use a single adc_v1 pac for all chips.
     pub adc_vrsel: u8,
+
+    /// Number of bits used by the NVIC for interrupt priority levels.
+    pub nvic_priority_bits: u8,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -283,9 +286,18 @@ pub struct Memory {
     /// The memory partition.
     pub name: String,
 
+    /// What kind of memory this partition is.
+    pub kind: MemoryKind,
+
     /// Amount of memory in KB.
     pub length: u32,
 
     /// Address of the memory.
     pub address: u32,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum MemoryKind {
+    Flash,
+    Ram,
 }

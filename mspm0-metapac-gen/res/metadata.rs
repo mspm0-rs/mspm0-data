@@ -2,10 +2,10 @@
 pub struct Metadata {
     pub name: &'static str,
     pub family: &'static str,
-    // pub memory: &'static [MemoryRegion],
+    pub memory: &'static [MemoryRegion],
     pub peripherals: &'static [Peripheral],
     pub pins: &'static [Pin],
-    // pub nvic_priority_bits: Option<u8>,
+    pub nvic_priority_bits: u8,
     pub interrupts: &'static [Interrupt],
     pub interrupt_groups: &'static [InterruptGroup],
     pub dma_channels: &'static [DmaChannel],
@@ -21,6 +21,22 @@ pub struct Peripheral {
     pub pins: &'static [PeripheralPin],
     pub power_domain: PowerDomain,
     pub sys_fentries: Option<usize>,
+}
+
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct MemoryRegion {
+    pub name: &'static str,
+    pub kind: MemoryKind,
+    pub address: u32,
+
+    /// Size of the region in bytes.
+    pub size: u32,
+}
+
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub enum MemoryKind {
+    Flash,
+    Ram,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
