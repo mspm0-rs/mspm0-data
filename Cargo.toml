@@ -12,7 +12,7 @@ exclude = [
 
 [workspace.dependencies]
 anyhow = "1.0.89"
-chiptool = { git = "https://github.com/embassy-rs/chiptool", rev = "a349968cd740c03f1aa6bfbecc49c80db1e19fda" }
+chiptool = { git = "https://github.com/embassy-rs/chiptool", rev = "bcf538a2e7b8584ae874ee9ab72efb1576fc6152" }
 glob = "0.3.1"
 heck = "0.5.0"
 quote = "1.0.37"
@@ -20,7 +20,8 @@ lopdf = "0.34.0"
 regex = "1.11.0"
 serde = "1.0.210"
 serde_json = "1.0.128"
-serde_yaml = "0.9.33"
+# Pinned to match chiptool, which requires this exact version.
+serde_yaml = "=0.9.34-deprecated"
 proc-macro2 = "1.0.86"
 walkdir = "2.5.0"
 
