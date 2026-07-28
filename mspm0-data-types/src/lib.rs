@@ -60,6 +60,17 @@ pub struct Chip {
     /// Number of bits used by the NVIC for interrupt priority levels.
     pub nvic_priority_bits: u8,
 
+    /// Maximum frequency of MCLK, in Hz.
+    ///
+    /// MCLK sources the CPU and the PD1 peripherals.
+    pub max_mclk_hz: u32,
+
+    /// Maximum frequency of ULPCLK, in Hz.
+    ///
+    /// ULPCLK sources the PD0 peripherals. Note that this is the ceiling in RUN and SLEEP modes;
+    /// entering STOP throttles ULPCLK to 4MHz and STANDBY to 32kHz on every device.
+    pub max_ulpclk_hz: u32,
+
     /// Whether the chip has an independent `VBAT` supply and therefore a real backup power domain
     /// (PDB).
     ///

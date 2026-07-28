@@ -16,6 +16,9 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau893
   errata_url: https://www.ti.com/lit/pdf/slaz753
   adc_vrsel: VDD_INTREF
+  # Clock ceilings and STANDBY1 timers come from the MSPM0C1104 datasheet.
+  max_mclk_hz: 24000000
+  max_ulpclk_hz: 24000000
   part_numbers:
   - name: msps003f3 # Part number
     memory:
@@ -45,6 +48,9 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau893
   errata_url: https://www.ti.com/lit/pdf/slaz753
   adc_vrsel: VDD_INTREF
+  # Clock ceilings and STANDBY1 timers come from the MSPM0C1104 datasheet.
+  max_mclk_hz: 24000000
+  max_ulpclk_hz: 24000000
   part_numbers:
   - name: mspm0c1103
     memory:
@@ -80,6 +86,9 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau893
   errata_url: https://www.ti.com/lit/pdf/slaz761
   adc_vrsel: VDD_INTREF
+  # Clock ceilings and STANDBY1 timers come from the MSPM0C1106 datasheet.
+  max_mclk_hz: 32000000
+  max_ulpclk_hz: 32000000
   part_numbers:
   - name: mspm0c1105
     memory:
@@ -127,6 +136,9 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slaz742
   adc_vrsel: VDD_INTREF_EXTREF
+  # Clock ceilings and STANDBY1 timers come from the MSPM0G1107 datasheet.
+  max_mclk_hz: 80000000
+  max_ulpclk_hz: 40000000
   part_numbers:
   - name: mspm0g1105
     memory:
@@ -182,6 +194,9 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slaz742
   adc_vrsel: VDD_INTREF_EXTREF
+  # Clock ceilings and STANDBY1 timers come from the MSPM0G1507 datasheet.
+  max_mclk_hz: 80000000
+  max_ulpclk_hz: 40000000
   part_numbers:
   - name: mspm0g1505
     memory:
@@ -237,6 +252,9 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slaz758
   adc_vrsel: VDD_INTREF_EXTREF
+  # Clock ceilings and STANDBY1 timers come from the MSPM0G1519 datasheet.
+  max_mclk_hz: 80000000
+  max_ulpclk_hz: 40000000
   part_numbers:
   - name: mspm0g1518
     memory:
@@ -293,6 +311,9 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slaz742
   adc_vrsel: VDD_INTREF_EXTREF
+  # Clock ceilings and STANDBY1 timers come from the MSPM0G3107 datasheet.
+  max_mclk_hz: 80000000
+  max_ulpclk_hz: 40000000
   part_numbers:
   - name: mspm0g3105
     memory:
@@ -338,6 +359,9 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slaz742
   adc_vrsel: VDD_INTREF_EXTREF
+  # Clock ceilings and STANDBY1 timers come from the MSPM0G3507 datasheet.
+  max_mclk_hz: 80000000
+  max_ulpclk_hz: 40000000
   part_numbers:
   - name: mspm0g3505
     memory:
@@ -389,6 +413,9 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slaz758
   adc_vrsel: VDD_INTREF_EXTREF
+  # Clock ceilings and STANDBY1 timers come from the MSPM0G3519 datasheet.
+  max_mclk_hz: 80000000
+  max_ulpclk_hz: 40000000
   part_numbers:
   - name: mspm0g3518
     memory:
@@ -445,6 +472,9 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slvsjm6
   adc_vrsel: VDD_INTREF
+  # Clock ceilings and STANDBY1 timers come from the MSPM0G5187 datasheet.
+  max_mclk_hz: 80000000
+  max_ulpclk_hz: 40000000
   part_numbers:
   - name: mspm0g5187
     memory:
@@ -470,6 +500,9 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau923
   errata_url: https://www.ti.com/lit/pdf/slaz763
   adc_vrsel: VDD_INTREF
+  # Clock ceilings and STANDBY1 timers come from the MSPM0H3216 datasheet.
+  max_mclk_hz: 32000000
+  max_ulpclk_hz: 32000000
   part_numbers:
   - name: mspm0h3215
     memory:
@@ -499,6 +532,9 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz741
   adc_vrsel: VDD_INTREF_EXTREF
+  # Clock ceilings and STANDBY1 timers come from the MSPM0L1106 datasheet.
+  max_mclk_hz: 32000000
+  max_ulpclk_hz: 32000000
   part_numbers:
   - name: mspm0l1105
     memory:
@@ -537,6 +573,9 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz766
   adc_vrsel: VDD_INTREF_EXTREF
+  # Clock ceilings and STANDBY1 timers come from the MSPM0L2117 datasheet.
+  max_mclk_hz: 32000000
+  max_ulpclk_hz: 32000000
   part_numbers:
   - name: mspm0l1126
     memory:
@@ -583,6 +622,9 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz755
   adc_vrsel: VDD_INTREF_EXTREF
+  # Clock ceilings and STANDBY1 timers come from the MSPM0L1228 datasheet.
+  max_mclk_hz: 32000000
+  max_ulpclk_hz: 32000000
   part_numbers:
   - name: mspm0l1227
     memory:
@@ -621,6 +663,9 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz741
   adc_vrsel: VDD_INTREF_EXTREF
+  # Clock ceilings and STANDBY1 timers come from the MSPM0L1306 datasheet.
+  max_mclk_hz: 32000000
+  max_ulpclk_hz: 32000000
   part_numbers:
   - name: mspm0l1303
     memory:
@@ -685,6 +730,9 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz741
   adc_vrsel: VDD_INTREF_EXTREF
+  # Clock ceilings and STANDBY1 timers come from the MSPM0L1346 datasheet.
+  max_mclk_hz: 32000000
+  max_ulpclk_hz: 32000000
   part_numbers:
   - name: mspm0l1343
     memory:
@@ -735,6 +783,9 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz766
   adc_vrsel: VDD_INTREF_EXTREF
+  # Clock ceilings and STANDBY1 timers come from the MSPM0L2117 datasheet.
+  max_mclk_hz: 32000000
+  max_ulpclk_hz: 32000000
   part_numbers:
   - name: mspm0l2116
     memory:
@@ -781,6 +832,9 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz755
   adc_vrsel: VDD_INTREF_EXTREF
+  # Clock ceilings and STANDBY1 timers come from the MSPM0L2228 datasheet.
+  max_mclk_hz: 32000000
+  max_ulpclk_hz: 32000000
   part_numbers:
   - name: mspm0l2227
     memory:

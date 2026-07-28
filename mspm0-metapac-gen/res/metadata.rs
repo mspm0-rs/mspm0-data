@@ -12,6 +12,17 @@ pub struct Metadata {
     pub adc_memctl: u8,
     pub adc_vrsel: u8,
 
+    /// Maximum frequency of MCLK, in Hz.
+    ///
+    /// MCLK sources the CPU and the PD1 peripherals.
+    pub max_mclk_hz: u32,
+
+    /// Maximum frequency of ULPCLK, in Hz.
+    ///
+    /// ULPCLK sources the PD0 peripherals. This is the ceiling in RUN and SLEEP; entering STOP
+    /// throttles ULPCLK to 4MHz and STANDBY to 32kHz on every device.
+    pub max_ulpclk_hz: u32,
+
     /// Whether the chip has an independent `VBAT` supply and therefore a real backup power domain
     /// (PDB).
     ///

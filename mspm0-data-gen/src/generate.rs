@@ -117,6 +117,8 @@ fn generate_family(
             adc_memctl,
             adc_vrsel: adc_vrsel_mapping(&family.adc_vrsel)?,
             nvic_priority_bits: header.nvic_priority_bits,
+            max_mclk_hz: family.max_mclk_hz,
+            max_ulpclk_hz: family.max_ulpclk_hz,
             backup_domain,
         };
 

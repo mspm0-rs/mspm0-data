@@ -33,6 +33,12 @@ pub struct PartFamily {
     /// The number of options for VRSEL of the ADC peripheral.
     pub adc_vrsel: String,
 
+    /// Maximum frequency of MCLK, in Hz.
+    pub max_mclk_hz: u32,
+
+    /// Maximum frequency of ULPCLK, in Hz.
+    pub max_ulpclk_hz: u32,
+
     /// Part numbers in this family.
     pub part_numbers: Vec<PartNumber>,
 }
