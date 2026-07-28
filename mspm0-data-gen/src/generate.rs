@@ -64,6 +64,7 @@ fn generate_family(
     // Data shared across all chips in a family.
     let packages = get_packages(&family.family, sysconfig)?;
     let iomux = generate_pincm(&family.family, sysconfig)?;
+    let wakeup_pins = generate_wakeup_pins(sysconfig);
     let mut peripherals = generate_peripherals2(&family.family, header, sysconfig)?;
     let interrupts = generate_irqs(&family.family, header, int_groups)?;
     let dma_channels = generate_dma_channels(&family.family, sysconfig)?;
@@ -108,6 +109,7 @@ fn generate_family(
                 .collect::<anyhow::Result<_>>()?,
             packages: packages.collect(),
             iomux: iomux.clone(),
+            wakeup_pins: wakeup_pins.clone(),
             peripherals: peripherals.clone(),
             interrupts: interrupts.clone(),
             dma_channels: dma_channels.clone(),
@@ -899,6 +901,18 @@ fn skip_peripheral_pin(pin_name: &String, chip_name: &str) -> bool {
     }
 
     false
+}
+
+/// Device pins which have wakeup logic, and can therefore wake the device from SHUTDOWN.
+fn generate_wakeup_pins(sysconfig: &SysconfigFile) -> BTreeSet<String> {
+    sysconfig
+        .device_pins
+        .values()
+        .filter(|pin| pin.attributes.io_wakeup.unwrap_or(false))
+        // Multi-bonded pins are excluded everywhere else too, see `generate_pincm`.
+        .filter(|pin| !pin.name.contains('/'))
+        .map(|pin| pin.name.clone())
+        .collect()
 }
 
 /// Attach each peripheral to the interrupt it raises.

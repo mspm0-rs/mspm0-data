@@ -25,8 +25,9 @@ pub fn pins(chip: &Chip, package: &Package) -> TokenStream {
             .get(signal)
             .expect("Signal did not have an iomux pincm entry");
         let pincm = Literal::u8_suffixed(*pincm as u8);
+        let wakeup = chip.wakeup_pins.contains(signal);
 
-        Some(quote! { Pin { pin: #signal, pincm: #pincm } })
+        Some(quote! { Pin { pin: #signal, pincm: #pincm, wakeup: #wakeup } })
     });
 
     quote! { &[#(#pins),*] }

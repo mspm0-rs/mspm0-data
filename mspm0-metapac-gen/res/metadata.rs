@@ -64,6 +64,12 @@ pub enum MemoryKind {
 pub struct Pin {
     pub pin: &'static str,
     pub pincm: u8,
+
+    /// Whether the pin has wakeup logic, and can therefore wake the device from SHUTDOWN.
+    ///
+    /// This is not the same as the pin being able to wake the device at all: `FASTWAKE` works on
+    /// any GPIO pin, but only down to STANDBY.
+    pub wakeup: bool,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]

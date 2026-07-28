@@ -1,5 +1,8 @@
 use serde::{Deserialize, Serialize};
-use std::{collections::BTreeMap, fmt};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fmt,
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Chip {
@@ -30,6 +33,12 @@ pub struct Chip {
 
     /// Mapping from device pin to IOMUX register index.
     pub iomux: BTreeMap<String, u32>,
+
+    /// Device pins which have wakeup logic and can therefore wake the device from SHUTDOWN.
+    ///
+    /// The `FASTWAKE` mechanism, which wakes the device from STOP and STANDBY, works on any GPIO
+    /// pin and is therefore not described here.
+    pub wakeup_pins: BTreeSet<String>,
 
     /// The peripherals available on the chip.
     pub peripherals: BTreeMap<String, Peripheral>,
