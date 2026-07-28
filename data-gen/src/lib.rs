@@ -74,10 +74,15 @@ pub struct Core {
     // TODO: Clock info
     pub peripherals: BTreeMap<String, Peripheral>,
     // TODO: Memory map
-
-    // TODO: Interrupts
+    /// NVIC interrupts.
+    pub interrupts: BTreeMap<i16, String>,
 
     // TODO: chip-specific ADC/DMA/EVENT/INTERRUPT/IOMUX info
+    /// Extra data associated with this chip.
+    ///
+    /// This is usually chip dependent.
+    #[serde(skip_serializing_if = "Map::is_empty")]
+    pub extra: Map<String, Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -148,6 +153,9 @@ pub struct Peripheral {
     /// For example a key may be `TX`.
     pub dma: BTreeMap<String, Vec<DmaConnection>>,
 
+    /// Peripheral interrupts.
+    pub interrupts: Vec<PeripheralInterrupt>,
+
     /// Extra data associated with this peripheral block.
     ///
     /// This is usually chip dependent.
@@ -200,4 +208,17 @@ pub struct DmaConnection {
     ///
     /// On a device using uDMA this is the channel number.
     pub request: u32,
+}
+
+/// A peripheral interrupt.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct PeripheralInterrupt {
+    /// The physical interrupt.
+    pub interrupt: String,
+
+    /// The interrupt signal.
+    ///
+    /// Depending on the peripheral this may be one of the interrupts the peripheral could
+    /// generate or the signal from an interrupt group.
+    pub signal: String,
 }

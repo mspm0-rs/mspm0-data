@@ -184,6 +184,7 @@ pub fn get_peripherals(
                     address_secure: None,
                     version: None,
                     dma: BTreeMap::new(),
+                    interrupts: Vec::new(),
                     extra: Map::new(),
                 },
             );
@@ -225,9 +226,24 @@ pub fn get_peripherals(
                     address_secure: None,
                     version: None,
                     dma: BTreeMap::new(),
+                    interrupts: Vec::new(),
                     extra: Map::new(),
                 },
             );
+        }
+
+        // Must also create DMA for M0 parts (M33 has both instances) if it does not exist
+        if part.starts_with("MSPM0") {
+            peripherals.entry("DMA".into()).or_insert(Peripheral {
+                name: "DMA".into(),
+                signals: BTreeMap::new(),
+                address: None,
+                address_secure: None,
+                version: None,
+                dma: BTreeMap::new(),
+                interrupts: Vec::new(),
+                extra: Map::new(),
+            });
         }
     }
 
@@ -241,16 +257,37 @@ pub fn get_peripherals(
     Ok(peripherals)
 }
 
-fn does_peripheral_exist(family: &str, name: &str) -> bool {
-    // dbg!(family);
+pub fn get_peripheral_attributes<'a>(
+    sysconfig: &'a Value,
+    peripheral_name: &str,
+) -> anyhow::Result<&'a Map<String, Value>> {
+    let object = sysconfig.as_object().context("sysconfig is not object")?;
+    let sysconfig_peripherals = map_get_object(object, "peripherals")?;
 
+    let peripheral = sysconfig_peripherals
+        .values()
+        .filter_map(Value::as_object)
+        .find_map(|sys| match map_get_string(sys, "name") {
+            Ok(name) if name == peripheral_name => Some(Ok(sys)),
+            Ok(_) => None,
+            Err(e) => Some(Err(e)),
+        })
+        .transpose()?
+        .with_context(|| format!("Peripheral with name {peripheral_name} does not exist"))?;
+
+    map_get_object(peripheral, "attributes")
+}
+
+fn does_peripheral_exist(family: &str, name: &str) -> bool {
     // GPAMP does not exist on these parts
     if name == "GPAMP"
         && (family.eq_ignore_ascii_case("MSPS003FX")
             || family.starts_with("MSP32")
             || family.eq_ignore_ascii_case("MSPM0C110X")
             || family.eq_ignore_ascii_case("MSPM0C1105_C1106")
-            || family.eq_ignore_ascii_case("MSPM0G151X"))
+            || family.eq_ignore_ascii_case("MSPM0G151X")
+            || family.eq_ignore_ascii_case("MSPM0L112X")
+            || family.eq_ignore_ascii_case("MSPM0L211X"))
     {
         return false;
     }
@@ -347,7 +384,6 @@ fn get_peripheral_signals(
 
         #[derive(Debug)]
         struct RawRouting {
-            peripheral_pin_id: String,
             device_pin_name: String,
             mode: String,
         }
@@ -386,7 +422,6 @@ fn get_peripheral_signals(
                 }) {
                     // The pin is confirmed to have a mux, now actually resolve the mode and pin.
                     routings.push(RawRouting {
-                        peripheral_pin_id: peripheral_pin_id.clone(),
                         device_pin_name: device_pin_name.clone(),
                         mode,
                     });
@@ -441,18 +476,20 @@ fn get_peripheral_signals(
 
         match routing {
             Routing::Pins(ref mut pin_routings) => {
-                let entry =
-                    signals
-                        .entry(signal_name.clone())
-                        .or_insert_with(|| PeripheralSignal {
-                            routing: Routing::Pins(vec![]),
-                        });
+                if !pin_routings.is_empty() {
+                    let entry =
+                        signals
+                            .entry(signal_name.clone())
+                            .or_insert_with(|| PeripheralSignal {
+                                routing: Routing::Pins(vec![]),
+                            });
 
-                let Routing::Pins(ref mut routings) = entry.routing else {
-                    bail!("Tried to merge 2 different route types");
-                };
+                    let Routing::Pins(ref mut routings) = entry.routing else {
+                        bail!("Tried to merge 2 different route types");
+                    };
 
-                routings.extend(pin_routings.drain(..));
+                    routings.extend(pin_routings.drain(..));
+                }
             }
             Routing::PortId(_) => {
                 if signals

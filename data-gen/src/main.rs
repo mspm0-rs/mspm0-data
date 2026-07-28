@@ -5,6 +5,7 @@ mod sysconfig;
 mod util;
 
 use std::{
+    collections::BTreeMap,
     fs,
     path::{Path, PathBuf},
 };
@@ -12,11 +13,11 @@ use std::{
 use anyhow::{Context, bail};
 use data_gen::{Chip, Core, Cpu, Package};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator as _};
-use serde_json::Value;
+use serde_json::{Map, Value};
 
 use crate::{
     docs::{DOCS, Links},
-    header::msp::CHIP_TO_HEADER_AND_FAMILY,
+    header::msp::{self, CHIP_TO_HEADER_AND_FAMILY},
 };
 
 fn main() -> anyhow::Result<()> {
@@ -42,12 +43,14 @@ fn main() -> anyhow::Result<()> {
 fn make_chip(sources: &Path, part: &PartData) -> anyhow::Result<Chip> {
     let cpu = cpu_for_part(&part.part_number)
         .with_context(|| format!("part number {} did not have CPU mapping", &part.part_number))?;
-    let peripherals = sysconfig::get_peripherals(
+    let mut peripherals = sysconfig::get_peripherals(
         &part.part_number,
         &part.device_family,
         &part.data,
         &part.package,
     )?;
+
+    let mut interrupts = BTreeMap::new();
 
     // Resolve addressees and
     if part.part_number.starts_with("MSP") {
@@ -79,12 +82,28 @@ fn make_chip(sources: &Path, part: &PartData) -> anyhow::Result<Chip> {
             bail!("path");
         };
 
-        let _header = fs::read_to_string(&header_path)
+        let header = fs::read_to_string(&header_path)
             .with_context(|| format!("Reading {}", header_path.display()))?;
+        let peripheral_addresses = msp::get_peripheral_addresses(&header)?;
+        let dma_triggers = msp::get_dma_triggers(&part.part_number, &header)?;
+        let raw_interrupts = msp::get_interrupts(&part.part_number, &header)?;
+
+        msp::set_core_interrupts(&part.part_number, &mut interrupts, &raw_interrupts)?;
+        msp::set_peripheral_interrupts(&part.part_number, &mut peripherals, &raw_interrupts)?;
+
+        // TODO: Set addressees and DMA trigger channels.
+        // TODO: Get power domain info
+
+        msp::get_peripheral_extras(&part.part_number, &mut peripherals, &part.data)?;
     }
 
     // No existing parts are dual core, we just generate one.
-    let core = Core { cpu, peripherals };
+    let core = Core {
+        cpu,
+        peripherals,
+        interrupts,
+        extra: Map::new(),
+    };
 
     let Links {
         datasheet,
@@ -100,6 +119,13 @@ fn make_chip(sources: &Path, part: &PartData) -> anyhow::Result<Chip> {
                 errata: "",
             }
         });
+
+    if part.part_number.starts_with("MSP") {
+        // TODO: Common ADC info
+        // TODO: IOMUX tables
+        // TODO: Interrupts
+        // TODO: Interrupt groups
+    }
 
     Ok(Chip {
         name: part.part_number.clone(),
