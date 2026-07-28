@@ -235,6 +235,29 @@ fn generate_peripheral(
         None => quote! { None },
     };
 
+    let interrupt = match &peripheral.interrupt {
+        Some(interrupt) => {
+            let name = &interrupt.name;
+            let number = Literal::u32_unsuffixed(interrupt.num as u32);
+            let group_iidx = match interrupt.group_iidx {
+                Some(iidx) => {
+                    let iidx = Literal::u32_unsuffixed(iidx);
+                    quote! { Some(#iidx) }
+                }
+                None => quote! { None },
+            };
+
+            quote! {
+                Some(PeripheralInterrupt {
+                    name: #name,
+                    number: #number,
+                    group_iidx: #group_iidx,
+                })
+            }
+        }
+        None => quote! { None },
+    };
+
     Some(quote! {
         Peripheral {
             name: #name,
@@ -243,6 +266,7 @@ fn generate_peripheral(
             pins: &[#(#pins),*],
             power_domain: #power_domain,
             sys_fentries: #sys_fentries,
+            interrupt: #interrupt,
         }
     })
 }

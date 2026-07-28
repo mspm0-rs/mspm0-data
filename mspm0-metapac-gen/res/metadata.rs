@@ -21,6 +21,27 @@ pub struct Peripheral {
     pub pins: &'static [PeripheralPin],
     pub power_domain: PowerDomain,
     pub sys_fentries: Option<usize>,
+
+    /// The interrupt raised by this peripheral, if it has one.
+    pub interrupt: Option<PeripheralInterrupt>,
+}
+
+/// The interrupt raised by a peripheral.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct PeripheralInterrupt {
+    /// Name of the NVIC interrupt.
+    ///
+    /// For a peripheral inside an `INT_GROUP` this is the name of the group (e.g. `GROUP1`), not
+    /// the name of the peripheral.
+    pub name: &'static str,
+
+    /// Number of the NVIC interrupt.
+    pub number: u32,
+
+    /// The peripheral's `IIDX` value within its `INT_GROUP`.
+    ///
+    /// `None` if the peripheral has an NVIC interrupt of its own rather than sharing a group.
+    pub group_iidx: Option<u32>,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]

@@ -249,6 +249,31 @@ pub struct Peripheral {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sys_fentries: Option<usize>,
+
+    /// The interrupt raised by this peripheral.
+    ///
+    /// `None` if the peripheral has no interrupt of its own.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub interrupt: Option<PeripheralInterrupt>,
+}
+
+/// The interrupt raised by a peripheral.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct PeripheralInterrupt {
+    /// Name of the NVIC interrupt.
+    ///
+    /// For a peripheral inside an `INT_GROUP` this is the name of the group (e.g. `GROUP1`), not
+    /// the name of the peripheral.
+    pub name: String,
+
+    /// Number of the NVIC interrupt.
+    pub num: i32,
+
+    /// The peripheral's `IIDX` value within its `INT_GROUP`.
+    ///
+    /// `None` if the peripheral has an NVIC interrupt of its own rather than sharing a group.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub group_iidx: Option<u32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
