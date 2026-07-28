@@ -9,13 +9,14 @@ use std::{
 use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
     Chip, DmaChannel, Interrupt, Memory, MemoryKind, Package, PackagePin, Peripheral,
-    PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain,
+    PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain, PowerMode,
 };
 use regex::Regex;
 
 use crate::{
     header::{Header, Headers},
     int_group::Groups,
+    operating_modes::OperatingModes,
     parts::{PartFamily, PartMemory, PartsFile},
     perimap::PERIMAP,
     svd::{Svd, Svds},
@@ -28,6 +29,7 @@ pub fn generate(
     headers: &Headers,
     sysconfig: &Sysconfig,
     svds: &Svds,
+    operating_modes: &BTreeMap<String, OperatingModes>,
     int_groups: &BTreeMap<String, Groups>,
 ) -> anyhow::Result<()> {
     fs::create_dir_all("./build/data/").unwrap();
@@ -50,13 +52,20 @@ pub fn generate(
             .get(&header_name.to_lowercase())
             .context(format!("Could not lookup header for {}", header_name))?;
 
-        // SVDs are named after the family, but TI does not publish one for every family: as of
-        // the pinned data sources mspm0c1105_c1106, mspm0l112x and mspm0l211x have none. The
-        // facts taken from the SVD are optional for that reason, and `verify` reports the gap.
+        // SVDs are named after the family, but TI does not publish one for every family: as of the
+        // pinned data sources mspm0c1105_c1106, mspm0l112x and mspm0l211x have none. The facts taken
+        // from the SVD are optional for that reason, and `verify` reports the gap.
         let svd = svds.files.get(&family.family);
 
-        generate_family(family, header, sysconfig, svd, int_groups)
-            .context(format!("Error when generating family: {}", family.family))?;
+        generate_family(
+            family,
+            header,
+            sysconfig,
+            svd,
+            operating_modes.get(&family.family),
+            int_groups,
+        )
+        .context(format!("Error when generating family: {}", family.family))?;
     }
 
     Ok(())
@@ -67,6 +76,7 @@ fn generate_family(
     header: &Header,
     sysconfig: &SysconfigFile,
     svd: Option<&Svd>,
+    operating_modes: Option<&OperatingModes>,
     int_groups: &BTreeMap<String, Groups>,
 ) -> anyhow::Result<()> {
     // Data shared across all chips in a family.
@@ -79,9 +89,11 @@ fn generate_family(
     let adc_memctl = generate_adc_memctl_dim(&family.family, sysconfig)?;
     let backup_domain = has_backup_domain(&family.family, sysconfig, &peripherals)?;
 
-    // Facts which are easier to attach once every peripheral is known.
+    // Low power facts which are easier to attach once every peripheral is known.
     apply_peripheral_interrupts(&mut peripherals, &interrupts);
     apply_block_async(&mut peripherals, svd);
+    apply_operating_modes(operating_modes, &mut peripherals);
+    apply_standby1_timers(family, &mut peripherals)?;
 
     for part_number in family.part_numbers.iter() {
         // Filter for package types available on the part number.
@@ -302,8 +314,12 @@ fn generate_peripherals2(
                 power_domain,
                 pins: vec![],
                 sys_fentries,
+                // Filled in by the `apply_*` passes once every peripheral is known.
                 interrupt: None,
                 block_async: None,
+                retained_through: None,
+                usable_through: None,
+                clocked_in_standby1: None,
             };
 
             // Lookup the pins
@@ -554,6 +570,9 @@ fn generate_missing(
             sys_fentries: None,
             interrupt: None,
             block_async: None,
+            retained_through: None,
+            usable_through: None,
+            clocked_in_standby1: None,
         },
     );
 
@@ -587,6 +606,9 @@ fn generate_missing(
                     sys_fentries: None,
                     interrupt: None,
                     block_async: None,
+                    retained_through: None,
+                    usable_through: None,
+                    clocked_in_standby1: None,
                 });
 
             let pin = device_pin
@@ -919,6 +941,41 @@ fn skip_peripheral_pin(pin_name: &String, chip_name: &str) -> bool {
     false
 }
 
+fn convert_memory(memory: &PartMemory) -> anyhow::Result<Memory> {
+    let kind = match memory.name.as_str() {
+        "FLASH" => MemoryKind::Flash,
+        "RAM" | "RAM_BANK" => MemoryKind::Ram,
+        name => bail!("Unknown memory partition `{name}`, cannot tell what kind of memory it is"),
+    };
+
+    // Flash is non-volatile, and SRAM survives everything short of SHUTDOWN. Only the parts with a
+    // second RAM bank differ, and they say so in parts.yaml.
+    let retained_through = memory.retained_through.unwrap_or(match kind {
+        MemoryKind::Flash => PowerMode::Shutdown,
+        MemoryKind::Ram => PowerMode::Standby,
+    });
+
+    Ok(Memory {
+        name: memory.name.clone(),
+        kind,
+        length: memory.length,
+        address: memory.address,
+        retained_through,
+    })
+}
+
+/// Device pins which have wakeup logic, and can therefore wake the device from SHUTDOWN.
+fn generate_wakeup_pins(sysconfig: &SysconfigFile) -> BTreeSet<String> {
+    sysconfig
+        .device_pins
+        .values()
+        .filter(|pin| pin.attributes.io_wakeup.unwrap_or(false))
+        // Multi-bonded pins are excluded everywhere else too, see `generate_pincm`.
+        .filter(|pin| !pin.name.contains('/'))
+        .map(|pin| pin.name.clone())
+        .collect()
+}
+
 /// Whether the chip has an independent `VBAT` supply, and therefore a real backup power domain.
 ///
 /// The presence of a `VBAT` device pin is the authoritative answer: TRM §30 distinguishes the RTC
@@ -944,22 +1001,11 @@ fn has_backup_domain(
 
     ensure!(
         vbat == backup_peripherals,
-        "{chip_name}: VBAT pin present is {vbat} but a peripheral in the backup power domain          present is {backup_peripherals}"
+        "{chip_name}: VBAT pin present is {vbat} but a peripheral in the backup power domain \
+         present is {backup_peripherals}"
     );
 
     Ok(vbat)
-}
-
-/// Device pins which have wakeup logic, and can therefore wake the device from SHUTDOWN.
-fn generate_wakeup_pins(sysconfig: &SysconfigFile) -> BTreeSet<String> {
-    sysconfig
-        .device_pins
-        .values()
-        .filter(|pin| pin.attributes.io_wakeup.unwrap_or(false))
-        // Multi-bonded pins are excluded everywhere else too, see `generate_pincm`.
-        .filter(|pin| !pin.name.contains('/'))
-        .map(|pin| pin.name.clone())
-        .collect()
 }
 
 /// Attach each peripheral to the interrupt it raises.
@@ -1008,17 +1054,57 @@ fn apply_block_async(peripherals: &mut BTreeMap<String, Peripheral>, svd: Option
     }
 }
 
-fn convert_memory(memory: &PartMemory) -> anyhow::Result<Memory> {
-    let kind = match memory.name.as_str() {
-        "FLASH" => MemoryKind::Flash,
-        "RAM" | "RAM_BANK" => MemoryKind::Ram,
-        name => bail!("Unknown memory partition `{name}`, cannot tell what kind of memory it is"),
+/// Record how deep a sleep each PD1 peripheral keeps its configuration through.
+///
+/// Only PD1 peripherals are automatically disabled by SYSCTL, so the question does not arise
+/// anywhere else and the field stays `None`.
+
+/// Record what the datasheet's operating-mode table says about each peripheral.
+///
+/// Retention applies only to PD1, since nothing else is automatically disabled by SYSCTL. Usability
+/// applies to any peripheral the table has a row for.
+fn apply_operating_modes(
+    modes: Option<&OperatingModes>,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) {
+    let Some(modes) = modes else {
+        return;
     };
 
-    Ok(Memory {
-        name: memory.name.clone(),
-        kind,
-        length: memory.length,
-        address: memory.address,
-    })
+    for (name, peripheral) in peripherals.iter_mut() {
+        if peripheral.power_domain == PowerDomain::Pd1 {
+            peripheral.retained_through = modes.retained_through.get(name).copied();
+        }
+
+        peripheral.usable_through = modes.usable_through.get(name).copied();
+    }
+}
+
+/// Record which timers keep receiving a clock in STANDBY1.
+fn apply_standby1_timers(
+    family: &PartFamily,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) -> anyhow::Result<()> {
+    for timer in family.standby1_timers.iter() {
+        let peripheral = peripherals.get(timer).context(format!(
+            "{}: standby1_timers names {timer}, which is not a peripheral of this family",
+            family.family
+        ))?;
+
+        ensure!(
+            peripheral.ty == PeripheralType::Tim,
+            "{}: standby1_timers names {timer}, which is not a timer",
+            family.family
+        );
+    }
+
+    for (name, peripheral) in peripherals.iter_mut() {
+        if peripheral.ty != PeripheralType::Tim {
+            continue;
+        }
+
+        peripheral.clocked_in_standby1 = Some(family.standby1_timers.contains(name));
+    }
+
+    Ok(())
 }

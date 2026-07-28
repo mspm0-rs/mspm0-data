@@ -54,6 +54,52 @@ pub struct Peripheral {
     /// `BLOCKASYNCALL`. `None` means no SVD is published for this family yet, so the answer is
     /// unknown rather than negative.
     pub block_async: Option<bool>,
+
+    /// The deepest mode through which this peripheral keeps its configuration.
+    ///
+    /// `Standby` means the configuration survives everything short of SHUTDOWN; `Sleep` means it is
+    /// already gone in STOP, so the peripheral must be fully reconfigured on wake.
+    ///
+    /// SYSCTL forces *every* PD1 peripheral to a disabled state on entry to STOP or STANDBY (TRM
+    /// §2.2.6.1), so a driver must re-enable it on wake either way; that is a property of PD1, not
+    /// of any one peripheral, and is not encoded here.
+    ///
+    /// `None` when `power_domain` is not `Pd1`, where the question does not arise. `None` on a PD1
+    /// peripheral means the answer is not known — the vendor data does not say, or sources disagree.
+    pub retained_through: Option<PowerMode>,
+
+    /// The deepest mode in which the datasheet says this peripheral can be used.
+    ///
+    /// From the same table as `retained_through`, reading `EN` and `OPT` as usable and `DIS`, `OFF`
+    /// and `NS` as not. `NS` matters here: it means the peripheral is not automatically disabled
+    /// but its use in that mode is unsupported, which a boolean would hide.
+    ///
+    /// `None` where the table cannot answer at the resolution it can be read.
+    pub usable_through: Option<PowerMode>,
+
+    /// Whether this timer keeps receiving ULPCLK or LFCLK in STANDBY1.
+    ///
+    /// STANDBY1 unclocks all of PD0 except a handful of general purpose timers, so these are the
+    /// only timers which can wake the core from the deepest sleep. `None` for peripherals which are
+    /// not timers.
+    pub clocked_in_standby1: Option<bool>,
+}
+
+/// An operating mode, ordered from shallowest to deepest.
+///
+/// Ordering is meaningful and is what makes retention comparable: something retained through
+/// `PowerMode::Standby` is also retained in every shallower mode, so a consumer can ask
+/// `retained_through >= PowerMode::Stop` rather than enumerating cases.
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Clone, Copy)]
+pub enum PowerMode {
+    Run,
+    Sleep,
+    Stop,
+    Standby,
+
+    /// Nothing but the `SHUTDNSTORE` bytes in SYSCTL survives this, so it appears only for
+    /// non-volatile memory.
+    Shutdown,
 }
 
 /// The interrupt raised by a peripheral.
@@ -82,6 +128,12 @@ pub struct MemoryRegion {
 
     /// Size of the region in bytes.
     pub size: u32,
+
+    /// The deepest mode through which the contents of this region survive.
+    ///
+    /// Flash is non-volatile, so it is `Shutdown`. SRAM is normally `Standby`, since only the
+    /// `SHUTDNSTORE` bytes in SYSCTL survive SHUTDOWN.
+    pub retained_through: PowerMode,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]

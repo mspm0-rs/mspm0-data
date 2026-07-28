@@ -12,6 +12,14 @@
 - 🚧 DMA mappings
 - ✔️ Per package pinouts
 - 🚧 Links to applicable technical reference manual and datasheet PDFs.
+- ✔️ Low power data
+  - Power domain per peripheral
+  - How deep a sleep each peripheral and memory region is retained through
+  - How deep a sleep each peripheral stays usable in (the datasheet `EN`/`DIS`/`OPT`/`NS`/`OFF` table)
+  - Which timers stay clocked in STANDBY1
+  - Which peripheral instances have a `CLKCFG.BLOCKASYNC` bit
+  - Which pins can wake the device from SHUTDOWN
+  - MCLK and ULPCLK ceilings, backup power domain presence
 
 ✔️ = done, 🚧 = work in progress, ❌ = to do
 
@@ -30,19 +38,33 @@ These are the data sources currently used.
   * Mapping from GPIO pin to IOMUX::PINCM register.
   * Peripheral PF (pin function) mappings.
   * Peripheral pin names.
+  * Which pins have wakeup logic (`io_wakeup`).
 * mspm0-sdk header files
   * Interrupt number, name
   * Peripheral addresses
-* mspm0 SVDs: register blocks
+  * NVIC interrupt priority bits
+* mspm0 SVDs
+  * Register blocks
+  * Which peripheral instances have a `CLKCFG.BLOCKASYNC` bit. TI does not publish an SVD for every
+    family, so this is optional per family.
+* Device datasheets, from the "Supported Functionality by Operating Mode" table and its footnotes
+  * How deep a sleep each PD1 peripheral is retained through, and how deep each peripheral
+    stays usable ([`data/operating_modes/`](./data/operating_modes))
+  * Which timers stay clocked in STANDBY1 (`standby1_timers` in [`parts.yaml`](./data/parts.yaml))
+  * MCLK and ULPCLK ceilings
 * Manually entered
   * IIDX values for interrupts within a `INT_GROUP`
 
 # Adding a new chip
 
 1. Update the data sources to include the new chip. You will need to get the SVD and sysconfig metadata.
-2. Add the new chip family and part numbers to [`parts.yaml`](./data/parts.yaml)
+2. Add the new chip family and part numbers to [`parts.yaml`](./data/parts.yaml). Besides the part
+   numbers and memory this needs the clock ceilings and `standby1_timers` from the datasheet.
 3. If needed, add any chip specific register blocks like `sysctl`.
 4. Check the peripheral mapping in [`perimap.rs`](./mspm0-data-gen/src/perimap.rs) to use the correct peripherals.
+5. Generate `data/operating_modes/<family>.yaml` with
+   [`tools/operating_modes.py`](./tools/operating_modes.py), which reads the datasheet's per-mode
+   table.
 
 # Adding support for a new peripheral
 

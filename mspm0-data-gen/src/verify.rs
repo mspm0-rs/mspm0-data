@@ -1,7 +1,7 @@
 use std::{collections::HashSet, sync::LazyLock};
 
 use anyhow::{bail, Context};
-use mspm0_data_types::{Chip, PowerDomain};
+use mspm0_data_types::{Chip, PeripheralType, PowerDomain};
 use regex::Regex;
 
 pub fn verify(chip: &Chip, name: &str) -> anyhow::Result<()> {
@@ -16,6 +16,8 @@ pub fn verify(chip: &Chip, name: &str) -> anyhow::Result<()> {
 
     // Low power data which is only as complete as the data sources
     block_async_known(chip, name)?;
+    standby1_timer_exists(chip, name)?;
+    retention_known(chip, name)?;
 
     // Power domains
     verify_aesadv_power_domain(chip, name)?;
@@ -88,6 +90,65 @@ fn block_async_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
             "{name}: no SVD for family {}, so CLKCFG.BLOCKASYNC is unknown for every peripheral",
             chip.family
         );
+    }
+
+    Ok(())
+}
+
+/// Report PD1 peripherals which do not say how deep a sleep they are retained through.
+///
+/// Only PD1 peripherals are forced to a disabled state by SYSCTL, so they are the only ones for
+/// which the question arises. Reported rather than fatal, because some of these gaps are genuine
+/// disagreements between the datasheet and sysconfig rather than something this repo can fix.
+fn retention_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    let unknown = chip
+        .peripherals
+        .values()
+        .filter(|peripheral| peripheral.power_domain == PowerDomain::Pd1)
+        .filter(|peripheral| peripheral.retained_through.is_none())
+        .map(|peripheral| peripheral.name.as_str())
+        .collect::<Vec<_>>();
+
+    if !unknown.is_empty() {
+        bail!(
+            "{name}: PD1 peripherals missing from data/operating_modes/{}.yaml: {}",
+            chip.family,
+            unknown.join(", ")
+        );
+    }
+
+    Ok(())
+}
+
+/// Verify that every timer knows whether it is clocked in STANDBY1, and that at least one is.
+///
+/// A family with no STANDBY1 timer at all would mean nothing can wake the core from the deepest
+/// sleep, which is true of no MSPM0 device and therefore means the data is missing.
+fn standby1_timer_exists(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    let timers = chip
+        .peripherals
+        .values()
+        .filter(|peripheral| peripheral.ty == PeripheralType::Tim)
+        .collect::<Vec<_>>();
+
+    if timers.is_empty() {
+        return Ok(());
+    }
+
+    for timer in timers.iter() {
+        if timer.clocked_in_standby1.is_none() {
+            bail!(
+                "{name}, {}: timer does not say whether it is clocked in STANDBY1",
+                timer.name
+            );
+        }
+    }
+
+    if !timers
+        .iter()
+        .any(|timer| timer.clocked_in_standby1 == Some(true))
+    {
+        bail!("{name}: no timer is clocked in STANDBY1, so nothing can wake the core from it");
     }
 
     Ok(())

@@ -19,6 +19,10 @@ families:
   # Clock ceilings and STANDBY1 timers come from the MSPM0C1104 datasheet.
   max_mclk_hz: 24000000
   max_ulpclk_hz: 24000000
+  standby1_timers:
+  - TIMA0
+  - TIMG8
+  - TIMG14
   part_numbers:
   - name: msps003f3 # Part number
     memory:
@@ -51,6 +55,10 @@ families:
   # Clock ceilings and STANDBY1 timers come from the MSPM0C1104 datasheet.
   max_mclk_hz: 24000000
   max_ulpclk_hz: 24000000
+  standby1_timers:
+  - TIMA0
+  - TIMG8
+  - TIMG14
   part_numbers:
   - name: mspm0c1103
     memory:
@@ -89,6 +97,9 @@ families:
   # Clock ceilings and STANDBY1 timers come from the MSPM0C1106 datasheet.
   max_mclk_hz: 32000000
   max_ulpclk_hz: 32000000
+  standby1_timers:
+  - TIMG8
+  - TIMG14
   part_numbers:
   - name: mspm0c1105
     memory:
@@ -139,6 +150,9 @@ families:
   # Clock ceilings and STANDBY1 timers come from the MSPM0G1107 datasheet.
   max_mclk_hz: 80000000
   max_ulpclk_hz: 40000000
+  standby1_timers:
+  - TIMG0
+  - TIMG8
   part_numbers:
   - name: mspm0g1105
     memory:
@@ -197,6 +211,9 @@ families:
   # Clock ceilings and STANDBY1 timers come from the MSPM0G1507 datasheet.
   max_mclk_hz: 80000000
   max_ulpclk_hz: 40000000
+  standby1_timers:
+  - TIMG0
+  - TIMG8
   part_numbers:
   - name: mspm0g1505
     memory:
@@ -255,6 +272,11 @@ families:
   # Clock ceilings and STANDBY1 timers come from the MSPM0G1519 datasheet.
   max_mclk_hz: 80000000
   max_ulpclk_hz: 40000000
+  standby1_timers:
+  - TIMG0
+  - TIMG8
+  - TIMG9
+  - TIMG14
   part_numbers:
   - name: mspm0g1518
     memory:
@@ -272,6 +294,11 @@ families:
     - name: RAM_BANK
       length: 64
       address: 0x20210000
+      # The upper RAM bank is wiped out when the device enters any low-power mode stronger than
+      # SLEEP. The datasheet is finer grained than this -- Table 8-1 gives `DIS / OFF` for STOP,
+      # meaning it depends on the configured SRAM power level, and `OFF` for STANDBY -- so this is
+      # the conservative reading.
+      retained_through: Sleep
     packages:
     - PM
     - PN
@@ -297,6 +324,11 @@ families:
     - name: RAM_BANK
       length: 64
       address: 0x20210000
+      # The upper RAM bank is wiped out when the device enters any low-power mode stronger than
+      # SLEEP. The datasheet is finer grained than this -- Table 8-1 gives `DIS / OFF` for STOP,
+      # meaning it depends on the configured SRAM power level, and `OFF` for STANDBY -- so this is
+      # the conservative reading.
+      retained_through: Sleep
     packages:
     - PM
     - PN
@@ -314,6 +346,9 @@ families:
   # Clock ceilings and STANDBY1 timers come from the MSPM0G3107 datasheet.
   max_mclk_hz: 80000000
   max_ulpclk_hz: 40000000
+  standby1_timers:
+  - TIMG0
+  - TIMG8
   part_numbers:
   - name: mspm0g3105
     memory:
@@ -362,6 +397,9 @@ families:
   # Clock ceilings and STANDBY1 timers come from the MSPM0G3507 datasheet.
   max_mclk_hz: 80000000
   max_ulpclk_hz: 40000000
+  standby1_timers:
+  - TIMG0
+  - TIMG8
   part_numbers:
   - name: mspm0g3505
     memory:
@@ -416,6 +454,11 @@ families:
   # Clock ceilings and STANDBY1 timers come from the MSPM0G3519 datasheet.
   max_mclk_hz: 80000000
   max_ulpclk_hz: 40000000
+  standby1_timers:
+  - TIMG0
+  - TIMG8
+  - TIMG9
+  - TIMG14
   part_numbers:
   - name: mspm0g3518
     memory:
@@ -433,6 +476,11 @@ families:
     - name: RAM_BANK
       length: 64
       address: 0x20210000
+      # The upper RAM bank is wiped out when the device enters any low-power mode stronger than
+      # SLEEP. The datasheet is finer grained than this -- Table 8-1 gives `DIS / OFF` for STOP,
+      # meaning it depends on the configured SRAM power level, and `OFF` for STANDBY -- so this is
+      # the conservative reading.
+      retained_through: Sleep
     packages:
     - PM
     - PN
@@ -457,6 +505,11 @@ families:
     - name: RAM_BANK
       length: 64
       address: 0x20210000
+      # The upper RAM bank is wiped out when the device enters any low-power mode stronger than
+      # SLEEP. The datasheet is finer grained than this -- Table 8-1 gives `DIS / OFF` for STOP,
+      # meaning it depends on the configured SRAM power level, and `OFF` for STANDBY -- so this is
+      # the conservative reading.
+      retained_through: Sleep
     packages:
     - PM
     - PN
@@ -475,6 +528,9 @@ families:
   # Clock ceilings and STANDBY1 timers come from the MSPM0G5187 datasheet.
   max_mclk_hz: 80000000
   max_ulpclk_hz: 40000000
+  standby1_timers:
+  - TIMG0
+  - TIMB0
   part_numbers:
   - name: mspm0g5187
     memory:
@@ -503,6 +559,8 @@ families:
   # Clock ceilings and STANDBY1 timers come from the MSPM0H3216 datasheet.
   max_mclk_hz: 32000000
   max_ulpclk_hz: 32000000
+  standby1_timers:
+  - TIMG14
   part_numbers:
   - name: mspm0h3215
     memory:
@@ -535,6 +593,9 @@ families:
   # Clock ceilings and STANDBY1 timers come from the MSPM0L1106 datasheet.
   max_mclk_hz: 32000000
   max_ulpclk_hz: 32000000
+  standby1_timers:
+  - TIMG0
+  - TIMG1
   part_numbers:
   - name: mspm0l1105
     memory:
@@ -576,6 +637,12 @@ families:
   # Clock ceilings and STANDBY1 timers come from the MSPM0L2117 datasheet.
   max_mclk_hz: 32000000
   max_ulpclk_hz: 32000000
+  standby1_timers:
+  - TIMG14
+  - TIMB0
+  - TIMB1
+  - TIMB2
+  - TIMB3
   part_numbers:
   - name: mspm0l1126
     memory:
@@ -625,6 +692,13 @@ families:
   # Clock ceilings and STANDBY1 timers come from the MSPM0L1228 datasheet.
   max_mclk_hz: 32000000
   max_ulpclk_hz: 32000000
+  standby1_timers:
+  - TIMA0
+  - TIMG0
+  - TIMG4
+  - TIMG5
+  - TIMG8
+  - TIMG12
   part_numbers:
   - name: mspm0l1227
     memory:
@@ -666,6 +740,9 @@ families:
   # Clock ceilings and STANDBY1 timers come from the MSPM0L1306 datasheet.
   max_mclk_hz: 32000000
   max_ulpclk_hz: 32000000
+  standby1_timers:
+  - TIMG0
+  - TIMG1
   part_numbers:
   - name: mspm0l1303
     memory:
@@ -733,6 +810,9 @@ families:
   # Clock ceilings and STANDBY1 timers come from the MSPM0L1346 datasheet.
   max_mclk_hz: 32000000
   max_ulpclk_hz: 32000000
+  standby1_timers:
+  - TIMG0
+  - TIMG1
   part_numbers:
   - name: mspm0l1343
     memory:
@@ -786,6 +866,12 @@ families:
   # Clock ceilings and STANDBY1 timers come from the MSPM0L2117 datasheet.
   max_mclk_hz: 32000000
   max_ulpclk_hz: 32000000
+  standby1_timers:
+  - TIMG14
+  - TIMB0
+  - TIMB1
+  - TIMB2
+  - TIMB3
   part_numbers:
   - name: mspm0l2116
     memory:
@@ -835,6 +921,13 @@ families:
   # Clock ceilings and STANDBY1 timers come from the MSPM0L2228 datasheet.
   max_mclk_hz: 32000000
   max_ulpclk_hz: 32000000
+  standby1_timers:
+  - TIMA0
+  - TIMG0
+  - TIMG4
+  - TIMG5
+  - TIMG8
+  - TIMG12
   part_numbers:
   - name: mspm0l2227
     memory:

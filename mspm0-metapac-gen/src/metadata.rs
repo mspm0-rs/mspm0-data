@@ -1,6 +1,8 @@
 use std::{collections::HashSet, sync::LazyLock};
 
-use mspm0_data_types::{Chip, MemoryKind, Package, Peripheral, PeripheralType, PowerDomain};
+use mspm0_data_types::{
+    Chip, MemoryKind, Package, Peripheral, PeripheralType, PowerDomain, PowerMode,
+};
 use proc_macro2::{Literal, TokenStream};
 use quote::quote;
 use regex::Regex;
@@ -43,6 +45,7 @@ pub fn memory(chip: &Chip) -> TokenStream {
         let address = Literal::u32_unsuffixed(region.address);
         // Sizes are in KB in the chip data, but bytes are what consumers need.
         let size = Literal::u32_unsuffixed(region.length * 1024);
+        let retained_through = power_mode(region.retained_through);
 
         quote! {
             MemoryRegion {
@@ -50,6 +53,7 @@ pub fn memory(chip: &Chip) -> TokenStream {
                 kind: #kind,
                 address: #address,
                 size: #size,
+                retained_through: #retained_through,
             }
         }
     });
@@ -167,6 +171,16 @@ pub fn interrupt_groups(chip: &Chip) -> TokenStream {
     }
 }
 
+fn power_mode(mode: PowerMode) -> TokenStream {
+    match mode {
+        PowerMode::Run => quote! { PowerMode::Run },
+        PowerMode::Sleep => quote! { PowerMode::Sleep },
+        PowerMode::Stop => quote! { PowerMode::Stop },
+        PowerMode::Standby => quote! { PowerMode::Standby },
+        PowerMode::Shutdown => quote! { PowerMode::Shutdown },
+    }
+}
+
 fn skip_peripheral(ty: PeripheralType) -> bool {
     matches!(ty, PeripheralType::Unknown)
 }
@@ -264,6 +278,27 @@ fn generate_peripheral(
         None => quote! { None },
     };
 
+    let retained_through = match peripheral.retained_through {
+        Some(mode) => {
+            let mode = power_mode(mode);
+            quote! { Some(#mode) }
+        }
+        None => quote! { None },
+    };
+
+    let usable_through = match peripheral.usable_through {
+        Some(mode) => {
+            let mode = power_mode(mode);
+            quote! { Some(#mode) }
+        }
+        None => quote! { None },
+    };
+
+    let clocked_in_standby1 = match peripheral.clocked_in_standby1 {
+        Some(clocked) => quote! { Some(#clocked) },
+        None => quote! { None },
+    };
+
     Some(quote! {
         Peripheral {
             name: #name,
@@ -274,6 +309,9 @@ fn generate_peripheral(
             sys_fentries: #sys_fentries,
             interrupt: #interrupt,
             block_async: #block_async,
+            retained_through: #retained_through,
+            usable_through: #usable_through,
+            clocked_in_standby1: #clocked_in_standby1,
         }
     })
 }

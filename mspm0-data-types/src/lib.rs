@@ -292,10 +292,62 @@ pub struct Peripheral {
     /// `false` does not mean the peripheral cannot raise a request: GPIO, the general purpose
     /// timers and the ADC all can, but have no per-instance mask and are gated only by
     /// `BLOCKASYNCALL`. `None` means no SVD is published for this family yet, so the answer is
-    /// unknown rather than negative.
-    /// This is deliberately per-instance: on mspm0g120x only `UC0`, `UC2`, `UC4`, `UC5` and
-    /// `UC9` have the bit despite every `UC` being the same IP.
+    /// unknown rather than negative. This is deliberately per-instance: on mspm0g120x only `UC0`,
+    /// `UC2`, `UC4`, `UC5` and `UC9` have the bit despite every `UC` being the same IP.
     pub block_async: Option<bool>,
+
+    /// The deepest mode through which this peripheral keeps its configuration.
+    ///
+    /// [`PowerMode::Standby`] means the configuration survives everything short of SHUTDOWN;
+    /// [`PowerMode::Sleep`] means it is already gone in STOP, so the peripheral must be fully
+    /// reconfigured on wake, either by re-running its init or by saving and restoring its registers
+    /// around the low-power mode.
+    ///
+    /// Note that SYSCTL forces *every* PD1 peripheral to a disabled state on entry to STOP or
+    /// STANDBY (TRM §2.2.6.1), so a driver has to re-enable the peripheral on wake either way. That
+    /// is a property of PD1 rather than of any one peripheral, and is not encoded here.
+    ///
+    /// `None` when `power_domain` is not [`PowerDomain::Pd1`], where the question does not arise:
+    /// only PD1 peripherals are automatically disabled. `None` on a PD1 peripheral means the answer
+    /// is not known — the vendor data does not say, or its sources disagree.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub retained_through: Option<PowerMode>,
+
+    /// The deepest mode in which the datasheet says this peripheral can be used.
+    ///
+    /// Derived from the same table as [`Peripheral::retained_through`], reading `EN` and `OPT` as
+    /// usable and `DIS`, `OFF` and `NS` as not. `NS` matters here: it means the peripheral is not
+    /// automatically disabled but its use in that mode is unsupported, which a boolean would hide.
+    ///
+    /// `None` where the table cannot answer at the resolution it can be read — either the row is
+    /// not uniform across the policies of a mode group, or it gives one value spanning every column.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub usable_through: Option<PowerMode>,
+
+    /// Whether this timer keeps receiving ULPCLK or LFCLK in STANDBY1.
+    ///
+    /// STANDBY1 unclocks all of PD0 except a handful of general purpose timers, so these are the
+    /// only timers which can wake the core from the deepest sleep. `None` for peripherals which are
+    /// not timers.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub clocked_in_standby1: Option<bool>,
+}
+
+/// An operating mode, ordered from shallowest to deepest.
+///
+/// Ordering is meaningful and is what makes retention comparable: a peripheral retained through
+/// [`PowerMode::Standby`] is also retained in every shallower mode, so a consumer can ask
+/// `retained_through >= PowerMode::Stop` rather than enumerating cases.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum PowerMode {
+    Run,
+    Sleep,
+    Stop,
+    Standby,
+
+    /// Nothing but the `SHUTDNSTORE` bytes in SYSCTL survives this, so it appears only for
+    /// non-volatile memory.
+    Shutdown,
 }
 
 /// The interrupt raised by a peripheral.
@@ -360,6 +412,13 @@ pub struct Memory {
 
     /// Address of the memory.
     pub address: u32,
+
+    /// The deepest mode through which the contents of this partition survive.
+    ///
+    /// Flash is non-volatile, so it is [`PowerMode::Shutdown`]. SRAM is normally
+    /// [`PowerMode::Standby`], since only the `SHUTDNSTORE` bytes in SYSCTL survive SHUTDOWN. The
+    /// upper SRAM bank of the parts which have one is the exception.
+    pub retained_through: PowerMode,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

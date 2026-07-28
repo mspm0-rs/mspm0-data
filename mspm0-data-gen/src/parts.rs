@@ -1,5 +1,6 @@
 use std::fs;
 
+use mspm0_data_types::PowerMode;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
@@ -39,6 +40,13 @@ pub struct PartFamily {
     /// Maximum frequency of ULPCLK, in Hz.
     pub max_ulpclk_hz: u32,
 
+    /// Timers which keep receiving ULPCLK or LFCLK in STANDBY1.
+    ///
+    /// Only the timers named here can wake the core from STANDBY1. This comes from the footnote to
+    /// the "Supported Functionality by Operating Mode" table in the device datasheet; there is no
+    /// machine-readable source for it.
+    pub standby1_timers: Vec<String>,
+
     /// Part numbers in this family.
     pub part_numbers: Vec<PartNumber>,
 }
@@ -65,4 +73,11 @@ pub struct PartMemory {
 
     /// Address of the memory.
     pub address: u32,
+
+    /// The deepest mode through which the contents of this partition survive.
+    ///
+    /// Defaults by kind — flash is non-volatile and SRAM survives to STANDBY — so only the parts
+    /// with a second RAM bank need to say anything.
+    #[serde(default)]
+    pub retained_through: Option<PowerMode>,
 }
