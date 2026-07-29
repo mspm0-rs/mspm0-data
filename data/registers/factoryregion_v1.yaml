@@ -1,0 +1,257 @@
+block/FACTORYREGION:
+  description: Customer-visible factory constants (IDs, PLL trims, calibration).
+  items:
+  - name: TRACEID
+    description: Defined by TI, during ATE, based on wafer.
+    byte_offset: 0
+    access: Read
+  - name: DEVICEID
+    description: This is the JTAGIDCODE that comes from the Ramp system.
+    byte_offset: 4
+    access: Read
+    fieldset: DEVICEID
+  - name: USERID
+    description: Defined by TI, depending on device spin.
+    byte_offset: 8
+    access: Read
+    fieldset: USERID
+  - name: BSLPIN_UART
+    description: BSL UART Pin Configuration.
+    byte_offset: 12
+    access: Read
+    fieldset: BSLPIN_UART
+  - name: BSLPIN_I2C
+    description: BSL I2C Pin Configuration.
+    byte_offset: 16
+    access: Read
+    fieldset: BSLPIN_I2C
+  - name: BSLPIN_INVOKE
+    description: BSL Pin Invocation Configuration.
+    byte_offset: 20
+    access: Read
+    fieldset: BSLPIN_INVOKE
+  - name: SRAMFLASH
+    description: SRAM and flash sizes.
+    byte_offset: 24
+    access: Read
+    fieldset: SRAMFLASH
+  - name: PLLSTARTUP0_4_8MHZ
+    description: System PLL Parameter 0 MMR for a 4 to 8 MHz reference clock.
+    byte_offset: 28
+    access: Read
+    fieldset: PLLSTARTUP0
+  - name: PLLSTARTUP1_4_8MHZ
+    description: System PLL Parameter 1 MMR for a 4 to 8 MHz reference clock.
+    byte_offset: 32
+    access: Read
+    fieldset: PLLSTARTUP1
+  - name: PLLSTARTUP0_8_16MHZ
+    description: System PLL Parameter 0 MMR for a 8 to 16 MHz reference clock.
+    byte_offset: 36
+    access: Read
+    fieldset: PLLSTARTUP0
+  - name: PLLSTARTUP1_8_16MHZ
+    description: System PLL Parameter 1 MMR for a 8 to 16 MHz reference clock.
+    byte_offset: 40
+    access: Read
+    fieldset: PLLSTARTUP1
+  - name: PLLSTARTUP0_16_32MHZ
+    description: System PLL Parameter 0 MMR for a 16 to 32 MHz reference clock.
+    byte_offset: 44
+    access: Read
+    fieldset: PLLSTARTUP0
+  - name: PLLSTARTUP1_16_32MHZ
+    description: System PLL Parameter 1 MMR for a 16 to 32 MHz reference clock.
+    byte_offset: 48
+    access: Read
+    fieldset: PLLSTARTUP1
+  - name: PLLSTARTUP0_32_48MHZ
+    description: System PLL Parameter 0 MMR for a 32 to 48 MHz reference clock.
+    byte_offset: 52
+    access: Read
+    fieldset: PLLSTARTUP0
+  - name: PLLSTARTUP1_32_48MHZ
+    description: System PLL Parameter 1 MMR for a 32 to 48 MHz reference clock.
+    byte_offset: 56
+    access: Read
+    fieldset: PLLSTARTUP1
+  - name: TEMP_SENSE0
+    description: Temperature sensor room temperature calibration code. This is the ADC conversion result of the temperature sensor output voltage. Included in BOOTCRC calculation.
+    byte_offset: 60
+    access: Read
+  - name: BOOTCRC
+    description: BOOTCRC records the 32-bit CRC of all locations in OPEN including reserved locations.
+    byte_offset: 124
+    access: Read
+fieldset/BSLPIN_I2C:
+  description: BSL I2C Pin Configuration.
+  fields:
+  - name: I2C_SDA_PAD
+    description: I2C SDA Pin used by BSL.
+    bit_offset: 0
+    bit_size: 8
+  - name: I2C_SDA_PF
+    description: I2C SDA Pin Function Selection Value.
+    bit_offset: 8
+    bit_size: 8
+  - name: I2C_SCL_PAD
+    description: I2C SCL Pin used by BSL.
+    bit_offset: 16
+    bit_size: 8
+  - name: I2C_SCL_PF
+    description: I2C SCL Pin Function Selection Value.
+    bit_offset: 24
+    bit_size: 8
+fieldset/BSLPIN_INVOKE:
+  description: BSL Pin Invocation Configuration.
+  fields:
+  - name: BSL_PAD
+    description: BSL Invocation Pin Number.
+    bit_offset: 0
+    bit_size: 7
+  - name: GPIO_LEVEL
+    description: GPIO Level Configuration for BSL Invocation.
+    bit_offset: 7
+    bit_size: 1
+  - name: GPIO_PIN_SEL
+    description: GPIO Pin Number in GPIO Module.
+    bit_offset: 8
+    bit_size: 5
+  - name: GPIO_REG_SEL
+    description: GPIO Module Selection.
+    bit_offset: 13
+    bit_size: 2
+fieldset/BSLPIN_UART:
+  description: BSL UART Pin Configuration.
+  fields:
+  - name: UART_RXD_PAD
+    description: UART RXD Pad used by BSL.
+    bit_offset: 0
+    bit_size: 8
+  - name: UART_RXD_PF
+    description: UART RXD Pin Function Selection Value.
+    bit_offset: 8
+    bit_size: 8
+  - name: UART_TXD_PAD
+    description: UART TXD Pin used by BSL.
+    bit_offset: 16
+    bit_size: 8
+  - name: UART_TXD_PF
+    description: UART TXD Pin Function Selection Value.
+    bit_offset: 24
+    bit_size: 8
+fieldset/DEVICEID:
+  description: This is the JTAGIDCODE that comes from the Ramp system.
+  fields:
+  - name: ALWAYS_1
+    description: This is always 1.
+    bit_offset: 0
+    bit_size: 1
+  - name: MANUFACTURER
+    description: TI's JEDEC bank and company code.
+    bit_offset: 1
+    bit_size: 11
+  - name: PARTNUM
+    description: Part number of the device.
+    bit_offset: 12
+    bit_size: 16
+  - name: VERSION
+    description: Revision of the device.
+    bit_offset: 28
+    bit_size: 4
+fieldset/PLLSTARTUP0:
+  description: System PLL Parameter 0 MMR.
+  fields:
+  - name: STARTTIME
+    description: Startup time from Enable to Locked Clock in resolution of 1usec.
+    bit_offset: 0
+    bit_size: 6
+  - name: STARTTIMELP
+    description: Startup time from Low Power Exit to Locked Clock in resolution of 1usec.
+    bit_offset: 8
+    bit_size: 6
+  - name: CPCURRENT
+    description: Charge Pump Current.
+    bit_offset: 16
+    bit_size: 6
+  - name: CAPBVAL
+    description: Override Value for Cap B.
+    bit_offset: 24
+    bit_size: 5
+  - name: CAPBOVERRIDE
+    description: Override Enable For Cap B.
+    bit_offset: 31
+    bit_size: 1
+fieldset/PLLSTARTUP1:
+  description: System PLL Parameter 1 MMR.
+  fields:
+  - name: LPFCAPA
+    description: Loop Filter Cap A.
+    bit_offset: 0
+    bit_size: 5
+  - name: LPFRESA
+    description: Loop Filter Res A.
+    bit_offset: 8
+    bit_size: 10
+  - name: LPFRESC
+    description: Loop Filter Res C.
+    bit_offset: 24
+    bit_size: 8
+fieldset/SRAMFLASH:
+  description: SRAM and flash sizes.
+  fields:
+  - name: MAINFLASH_SZ
+    description: Size of main flash in KB.
+    bit_offset: 0
+    bit_size: 12
+  - name: MAINNUMBANKS
+    description: Number of banks in main flash.
+    bit_offset: 12
+    bit_size: 2
+    enum: MAINNUMBANKS
+  - name: SRAM_SZ
+    description: Size of SRAM in KB.
+    bit_offset: 16
+    bit_size: 10
+  - name: DATAFLASH_SZ
+    description: Size of data flash in KB.
+    bit_offset: 26
+    bit_size: 6
+fieldset/USERID:
+  description: Defined by TI, depending on device spin.
+  fields:
+  - name: PART
+    description: Bit pattern that uniquely identifies the part number of the device.
+    bit_offset: 0
+    bit_size: 16
+  - name: VARIANT
+    description: Bit pattern uniquely identifying a variant of the part number.
+    bit_offset: 16
+    bit_size: 8
+  - name: MINORREV
+    description: Monotonic increasing value indicating the minor revision of the device.
+    bit_offset: 24
+    bit_size: 4
+  - name: MAJORREV
+    description: Monotonic increasing value indicating the major revision of the device.
+    bit_offset: 28
+    bit_size: 3
+  - name: START
+    description: Start bit.
+    bit_offset: 31
+    bit_size: 1
+enum/MAINNUMBANKS:
+  bit_size: 2
+  variants:
+  - name: ONEBANK
+    description: One bank.
+    value: 0
+  - name: TWOBANKS
+    description: Two banks.
+    value: 1
+  - name: THREEBANKS
+    description: Three banks.
+    value: 2
+  - name: FOURBANKS
+    description: Four banks.
+    value: 3

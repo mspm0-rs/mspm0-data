@@ -117,6 +117,10 @@ pub enum PeripheralType {
 
     Event,
 
+    /// This region contains read-only device constants such as the device id, flash and SRAM
+    /// sizes and calibration values.
+    FactoryRegion,
+
     FlashCtl,
 
     GpAmp,
@@ -185,6 +189,7 @@ impl fmt::Display for PeripheralType {
             PeripheralType::Debugss => "debugss",
             PeripheralType::Dma => "dma",
             PeripheralType::Event => "event",
+            PeripheralType::FactoryRegion => "factoryregion",
             PeripheralType::FlashCtl => "flashctl",
             PeripheralType::GpAmp => "gpamp",
             PeripheralType::Gpio => "gpio",
