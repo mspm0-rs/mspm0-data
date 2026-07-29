@@ -4,32 +4,36 @@ use anyhow::{bail, Context};
 use mspm0_data_types::{Chip, PeripheralType, PowerDomain};
 use regex::Regex;
 
-pub fn verify(chip: &Chip, name: &str) -> anyhow::Result<()> {
-    core_peripherals(chip, name)?;
+/// Run every check, returning one error per failure.
+///
+/// Every check runs: a failing one must not mask those after it, or the families with a gap in their
+/// data sources would go otherwise unverified.
+pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
+    const CHECKS: &[fn(&Chip, &str) -> anyhow::Result<()>] = &[
+        core_peripherals,
+        pin_names,
+        gpio_no_duplicates,
+        // Peripherals which don't actually exist
+        no_gpamp_c110x_l151x,
+        // Low power data which is only as complete as the data sources
+        block_async_known,
+        standby1_timer_exists,
+        retention_known,
+        // Power domains
+        verify_aesadv_power_domain,
+        verify_cpuss_power_domain,
+        verify_crc_power_domain,
+        verify_gpamp_power_domain,
+        verify_spi_power_domain,
+        // Timers may be in either power domain: add checks if something is wrong
+        verify_trng_power_domain,
+        // UART may be in either power domain: add checks if something is wrong
+    ];
 
-    pin_names(chip, name)?;
-
-    gpio_no_duplicates(chip, name)?;
-
-    // Peripherals which don't actually exist
-    no_gpamp_c110x_l151x(chip, name)?;
-
-    // Low power data which is only as complete as the data sources
-    block_async_known(chip, name)?;
-    standby1_timer_exists(chip, name)?;
-    retention_known(chip, name)?;
-
-    // Power domains
-    verify_aesadv_power_domain(chip, name)?;
-    verify_cpuss_power_domain(chip, name)?;
-    verify_crc_power_domain(chip, name)?;
-    verify_gpamp_power_domain(chip, name)?;
-    verify_spi_power_domain(chip, name)?;
-    // Timers may be in either power domain: add checks if something is wrong
-    verify_trng_power_domain(chip, name)?;
-    // UART may be in either power domain: add checks if something is wrong
-
-    Ok(())
+    CHECKS
+        .iter()
+        .filter_map(|check| check(chip, name).err())
+        .collect()
 }
 
 /// Verify all core peripherals are present.

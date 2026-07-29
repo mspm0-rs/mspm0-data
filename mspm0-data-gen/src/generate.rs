@@ -143,9 +143,9 @@ fn generate_family(
             backup_domain,
         };
 
-        if let Err(err) = verify::verify(&chip, &part_number.name) {
+        for err in verify::verify(&chip, &part_number.name) {
             eprintln!("{err}");
-        };
+        }
 
         let data = serde_json::to_string_pretty(&chip)
             .context(format!("Serializing chip {}", part_number.name))?;
@@ -978,7 +978,7 @@ fn generate_wakeup_pins(sysconfig: &SysconfigFile) -> BTreeSet<String> {
 
 /// Whether the chip has an independent `VBAT` supply, and therefore a real backup power domain.
 ///
-/// The presence of a `VBAT` device pin is the authoritative answer: TRM §30 distinguishes the RTC
+/// The presence of a `VBAT` device pin is the authoritative answer: TRM Â§30 distinguishes the RTC
 /// variants by exactly this ("In devices for which the LFSS is powered by an independent VBAT supply
 /// pin to support the backup-battery power domain (PDB), the RTC variant has extended features and
 /// is referred to as RTC_A").
