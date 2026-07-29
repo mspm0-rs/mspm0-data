@@ -5,9 +5,6 @@ use mspm0_data_types::{Chip, PeripheralType, PowerDomain};
 use regex::Regex;
 
 /// Run every check, returning one error per failure.
-///
-/// Every check runs: a failing one must not mask those after it, or the families with a gap in their
-/// data sources would go otherwise unverified.
 pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
     const CHECKS: &[fn(&Chip, &str) -> anyhow::Result<()>] = &[
         core_peripherals,
@@ -81,10 +78,6 @@ fn core_peripherals(chip: &Chip, name: &str) -> anyhow::Result<()> {
 
 /// Report families for which no SVD is published, and whose `BLOCKASYNC` bits are therefore
 /// unknown.
-///
-/// This is not an error: TI publishes SVDs later than the rest of the metadata, so a newly added
-/// family legitimately has none. It is reported so the gap is visible and gets closed on the next
-/// data source bump rather than silently persisting.
 fn block_async_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
     if chip
         .peripherals
@@ -102,9 +95,8 @@ fn block_async_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
 
 /// Report PD1 peripherals which do not say how deep a sleep they are retained through.
 ///
-/// Only PD1 peripherals are forced to a disabled state by SYSCTL, so they are the only ones for
-/// which the question arises. Not fatal, because some of these gaps are genuine disagreements
-/// between the datasheet and sysconfig rather than something we can fix.
+/// Not fatal, because some of these gaps are genuine disagreements between the
+/// datasheet and sysconfig rather than something we can fix.
 fn retention_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
     let unknown = chip
         .peripherals
@@ -139,9 +131,6 @@ fn wakeup_pins_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
 }
 
 /// Verify that every timer knows whether it is clocked in STANDBY1, and that at least one is.
-///
-/// A family with no STANDBY1 timer at all would mean nothing can wake the core from the deepest
-/// sleep, which is true of no MSPM0 device and means the data is missing.
 fn standby1_timer_exists(chip: &Chip, name: &str) -> anyhow::Result<()> {
     let timers = chip
         .peripherals

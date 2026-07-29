@@ -1,14 +1,9 @@
-//! Facts which only the SVDs carry.
+//! Reads the SVDs for facts which vary between instances of one peripheral version, and so cannot
+//! come from the register YAMLs.
 //!
-//! The SVDs are normally consumed offline by chiptool to produce `data/registers/*.yaml`, and the
-//! register YAMLs are shared between chips of the same peripheral version. That makes them useless
-//! for facts which vary between *instances* of the same peripheral version, which is why this reads
-//! the SVDs directly.
-//!
-//! Only one fact is read, and it is a presence test on a single field name, so the SVDs are scanned
-//! textually rather than parsed. Parsing them properly would mean depending on `svd-parser`
-//! directly: chiptool does not re-export it, and it is a pinned fork rather than a release, so it
-//! would have to track chiptool's exact revision.
+//! The SVDs are scanned textually rather than parsed, since every fact read here is a presence test
+//! on a field name. Parsing properly would mean depending on `svd-parser` directly: chiptool does not
+//! re-export it, and is itself pinned to a commit, so the dependency would have to track that commit.
 
 use std::{
     collections::{BTreeMap, BTreeSet},

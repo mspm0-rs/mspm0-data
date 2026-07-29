@@ -155,8 +155,7 @@ fn generate_chip_metadata(
     let max_ulpclk_hz = &chip.max_ulpclk_hz;
     let backup_domain = &chip.backup_domain;
 
-    // Memory is the one part of the metadata which varies by part number rather than by family, so
-    // it is emitted here instead of in the deduplicated body above.
+    // Memory is the one part of the metadata which varies by part number rather than by family
     let memory = metadata::memory(chip);
 
     write!(

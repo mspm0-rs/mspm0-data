@@ -68,11 +68,8 @@ impl Header {
 
     /// Read the NVIC priority bit count from the CMSIS device header.
     ///
-    /// Deliberately *not* taken from the SVD, which also carries this as `<nvicPrioBits>`: the SVDs
-    /// say 3 for every MSPM0, which is wrong. The CMSIS header says 2, and the datasheets agree
-    /// ("Nested vectored interrupt controller (NVIC) with four programmable priority levels" — four
-    /// levels is two bits). Taking the SVD's value would give consumers twice the priority levels
-    /// the hardware has.
+    /// Deliberately *not* taken from the SVDs, whose `<nvicPrioBits>` says 3 for every MSPM0 and is
+    /// wrong; the header and the datasheets agree on 2.
     fn get_nvic_priority_bits(chip_name: &str, content: &str) -> anyhow::Result<u8> {
         /// Example:
         /// ```c,no_run

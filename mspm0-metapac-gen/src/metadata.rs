@@ -49,8 +49,7 @@ pub fn memory(chip: &Chip) -> TokenStream {
             MemoryKind::Ram => quote! { MemoryKind::Ram },
         };
         let address = Literal::u32_unsuffixed(region.address);
-        // Sizes are in KB in the chip data, but bytes are what consumers need.
-        let size = Literal::u32_unsuffixed(region.length * 1024);
+        let size = Literal::u32_unsuffixed(region.length * 1024); // Convert from KB to B
         let retained_through = power_mode(region.retained_through);
 
         quote! {

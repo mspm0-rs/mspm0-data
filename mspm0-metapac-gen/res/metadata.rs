@@ -60,9 +60,7 @@ pub struct Peripheral {
     /// `Standby` means the configuration survives everything short of SHUTDOWN; `Sleep` means it is
     /// already gone in STOP, so the peripheral must be fully reconfigured on wake.
     ///
-    /// SYSCTL forces *every* PD1 peripheral to a disabled state on entry to STOP or STANDBY (TRM
-    /// §2.2.6.1), so a driver must re-enable it on wake either way; that is a property of PD1, not
-    /// of any one peripheral, and is not encoded here.
+    /// All PD1 peripherals need re-enabling after STOP or STANDBY regardless (TRM §2.2.6.1).
     ///
     /// `None` when `power_domain` is not `Pd1`.
     pub retained_through: Option<PowerMode>,
@@ -72,7 +70,7 @@ pub struct Peripheral {
     /// From the same table as `retained_through`, reading `EN` and `OPT` as usable and `DIS`, `OFF`
     /// and `NS` as not.
     ///
-    /// `None` where the table cannot answer at the resolution it can be read.
+    /// `None` when the row does not resolve to a single mode.
     pub usable_through: Option<PowerMode>,
 
     /// Whether this timer keeps receiving ULPCLK or LFCLK in STANDBY1.
