@@ -6,9 +6,11 @@
 # `retained_through` is how deep a sleep a PD1 peripheral keeps its configuration through. SYSCTL
 # forces every PD1 peripheral to a disabled state on entry to STOP or STANDBY (TRM 2.2.6.1), so a
 # driver must re-enable any of them on wake regardless; what differs is whether the rest of the
-# configuration is still there. `OFF` in the table loses it (`Sleep` here, meaning it is already gone
-# in STOP); `DIS` keeps it (`Standby`, surviving everything short of SHUTDOWN). Only PD1 peripherals
-# appear: nothing else is automatically disabled, so the question does not arise.
+# configuration is still there. `OFF` in the table loses it, and the STOP and STANDBY column groups
+# are read separately: `OFF` under STOP means the configuration is already gone there (`Sleep`), `OFF`
+# under STANDBY alone means it survives STOP but not STANDBY (`Stop`), and `EN`/`OPT`/`DIS` throughout
+# means it survives everything short of SHUTDOWN (`Standby`). Only PD1 peripherals appear: nothing
+# else is automatically disabled, so the question does not arise.
 #
 # `usable_through` is the deepest mode the table marks the peripheral usable in, reading `EN` and
 # `OPT` as usable and `DIS`, `OFF` and `NS` as not. `NS` is "not automatically disabled in the

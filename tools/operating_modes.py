@@ -147,12 +147,22 @@ def group_states(column_group, states):
 def retained_through(by_group):
     """Deepest mode a PD1 peripheral's configuration survives, or None if the table is silent.
 
-    `OFF` is the only state which loses configuration; `EN`, `OPT` and `DIS` all keep it.
+    `OFF` is the only state which loses configuration; `EN`, `OPT` and `DIS` all keep it. STOP and
+    STANDBY are read separately, so losing it only in STANDBY reports `Stop` rather than `Sleep`.
+
+    A blank group is answered conservatively: retention in a deeper mode implies it in a shallower one,
+    but not the reverse.
     """
-    low = {s for g in ("STOP", "STANDBY") for s in by_group.get(g, set())}
-    if not low:
+    stop = by_group.get("STOP", set())
+    standby = by_group.get("STANDBY", set())
+    if not stop and not standby:
         return None
-    return "Sleep" if "OFF" in low else "Standby"
+
+    if "OFF" in stop:
+        return "Sleep"
+    if "OFF" in standby:
+        return "Stop" if stop else "Sleep"
+    return "Standby" if standby else "Stop"
 
 
 def usable_through(by_group):
@@ -215,9 +225,9 @@ HEADER = """\
 # `retained_through` is how deep a sleep a PD1 peripheral keeps its configuration through. SYSCTL
 # forces every PD1 peripheral to a disabled state on entry to STOP or STANDBY (TRM 2.2.6.1), so a
 # driver must re-enable any of them on wake regardless; what differs is whether the rest of the
-# configuration is still there. `OFF` in the table loses it (`Sleep` here, meaning it is already gone
-# in STOP); `DIS` keeps it (`Standby`, surviving everything short of SHUTDOWN). Only PD1 peripherals
-# appear: nothing else is automatically disabled, so the question does not arise.
+# configuration is still there. `OFF` loses it: under STOP that is `Sleep`, under STANDBY alone
+# `Stop`, and `EN`/`OPT`/`DIS` throughout is `Standby`, surviving everything short of SHUTDOWN. Only
+# PD1 peripherals appear: nothing else is automatically disabled, so the question does not arise.
 #
 # `usable_through` is the deepest mode the table marks the peripheral usable in, reading `EN` and
 # `OPT` as usable and `DIS`, `OFF` and `NS` as not. `NS` is "not automatically disabled in the
