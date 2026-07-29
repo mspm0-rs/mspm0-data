@@ -19,6 +19,7 @@ pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
         block_async_known,
         standby1_timer_exists,
         retention_known,
+        wakeup_pins_known,
         // Power domains
         verify_aesadv_power_domain,
         verify_cpuss_power_domain,
@@ -118,6 +119,19 @@ fn retention_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
             "{name}: PD1 peripherals missing from data/operating_modes/{}.yaml: {}",
             chip.family,
             unknown.join(", ")
+        );
+    }
+
+    Ok(())
+}
+
+/// Report families whose sysconfig does not describe pin wakeup logic, which is not the same as the
+/// family having no wake-capable pin.
+fn wakeup_pins_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    if chip.wakeup_pins.is_none() {
+        bail!(
+            "{name}: sysconfig has no io_wakeup attribute for family {}, so wake-capable pins are unknown",
+            chip.family
         );
     }
 

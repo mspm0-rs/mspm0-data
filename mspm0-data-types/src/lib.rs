@@ -38,7 +38,11 @@ pub struct Chip {
     ///
     /// The `FASTWAKE` mechanism, which wakes the device from STOP and STANDBY, works on any GPIO
     /// pin and is therefore not described here.
-    pub wakeup_pins: BTreeSet<String>,
+    ///
+    /// `None` when sysconfig does not describe wakeup logic for this family, which is not the same as
+    /// the family having no wake-capable pin.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub wakeup_pins: Option<BTreeSet<String>>,
 
     /// The peripherals available on the chip.
     pub peripherals: BTreeMap<String, Peripheral>,

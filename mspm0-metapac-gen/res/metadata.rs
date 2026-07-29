@@ -149,7 +149,10 @@ pub struct Pin {
     ///
     /// This is not the same as the pin being able to wake the device at all: `FASTWAKE` works on
     /// any GPIO pin, but only down to STANDBY.
-    pub wakeup: bool,
+    ///
+    /// `None` when the vendor data does not describe wakeup logic for this chip, which is not the
+    /// same as `Some(false)`.
+    pub wakeup: Option<bool>,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]

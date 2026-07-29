@@ -965,20 +965,33 @@ fn convert_memory(memory: &PartMemory) -> anyhow::Result<Memory> {
 }
 
 /// Device pins which have wakeup logic, and can therefore wake the device from SHUTDOWN.
-fn generate_wakeup_pins(sysconfig: &SysconfigFile) -> BTreeSet<String> {
-    sysconfig
+///
+/// `None` when the family's sysconfig omits `io_wakeup` entirely, which is a gap in the vendor data
+/// rather than a device with no wake-capable pin.
+fn generate_wakeup_pins(sysconfig: &SysconfigFile) -> Option<BTreeSet<String>> {
+    let pins = sysconfig
         .device_pins
         .values()
-        .filter(|pin| pin.attributes.io_wakeup.unwrap_or(false))
         // Multi-bonded pins are excluded everywhere else too, see `generate_pincm`.
         .filter(|pin| !pin.name.contains('/'))
-        .map(|pin| pin.name.clone())
-        .collect()
+        .collect::<Vec<_>>();
+
+    // Missing and `false` are different answers, and only GPIO pins carry the attribute at all.
+    if pins.iter().all(|pin| pin.attributes.io_wakeup.is_none()) {
+        return None;
+    }
+
+    Some(
+        pins.iter()
+            .filter(|pin| pin.attributes.io_wakeup.unwrap_or(false))
+            .map(|pin| pin.name.clone())
+            .collect(),
+    )
 }
 
 /// Whether the chip has an independent `VBAT` supply, and therefore a real backup power domain.
 ///
-/// The presence of a `VBAT` device pin is the authoritative answer: TRM Â§30 distinguishes the RTC
+/// The presence of a `VBAT` device pin is the authoritative answer: TRM §30 distinguishes the RTC
 /// variants by exactly this ("In devices for which the LFSS is powered by an independent VBAT supply
 /// pin to support the backup-battery power domain (PDB), the RTC variant has extended features and
 /// is referred to as RTC_A").
