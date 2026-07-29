@@ -108,9 +108,9 @@ fn generate_family(
             adc_vrsel: adc_vrsel_mapping(&family.adc_vrsel)?,
         };
 
-        if let Err(err) = verify::verify(&chip, &part_number.name) {
+        for err in verify::verify(&chip, &part_number.name) {
             eprintln!("{err}");
-        };
+        }
 
         let data = serde_json::to_string_pretty(&chip)
             .context(format!("Serializing chip {}", part_number.name))?;
