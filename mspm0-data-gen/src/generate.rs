@@ -1054,11 +1054,6 @@ fn apply_block_async(peripherals: &mut BTreeMap<String, Peripheral>, svd: Option
     }
 }
 
-/// Record how deep a sleep each PD1 peripheral keeps its configuration through.
-///
-/// Only PD1 peripherals are automatically disabled by SYSCTL, so the question does not arise
-/// anywhere else and the field stays `None`.
-
 /// Record what the datasheet's operating-mode table says about each peripheral.
 ///
 /// Retention applies only to PD1, since nothing else is automatically disabled by SYSCTL. Usability

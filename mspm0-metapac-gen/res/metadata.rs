@@ -64,15 +64,13 @@ pub struct Peripheral {
     /// §2.2.6.1), so a driver must re-enable it on wake either way; that is a property of PD1, not
     /// of any one peripheral, and is not encoded here.
     ///
-    /// `None` when `power_domain` is not `Pd1`, where the question does not arise. `None` on a PD1
-    /// peripheral means the answer is not known — the vendor data does not say, or sources disagree.
+    /// `None` when `power_domain` is not `Pd1`.
     pub retained_through: Option<PowerMode>,
 
     /// The deepest mode in which the datasheet says this peripheral can be used.
     ///
     /// From the same table as `retained_through`, reading `EN` and `OPT` as usable and `DIS`, `OFF`
-    /// and `NS` as not. `NS` matters here: it means the peripheral is not automatically disabled
-    /// but its use in that mode is unsupported, which a boolean would hide.
+    /// and `NS` as not.
     ///
     /// `None` where the table cannot answer at the resolution it can be read.
     pub usable_through: Option<PowerMode>,

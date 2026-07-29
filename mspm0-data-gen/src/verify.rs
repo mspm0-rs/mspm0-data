@@ -98,8 +98,8 @@ fn block_async_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
 /// Report PD1 peripherals which do not say how deep a sleep they are retained through.
 ///
 /// Only PD1 peripherals are forced to a disabled state by SYSCTL, so they are the only ones for
-/// which the question arises. Reported rather than fatal, because some of these gaps are genuine
-/// disagreements between the datasheet and sysconfig rather than something this repo can fix.
+/// which the question arises. Not fatal, because some of these gaps are genuine disagreements
+/// between the datasheet and sysconfig rather than something we can fix.
 fn retention_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
     let unknown = chip
         .peripherals
@@ -123,7 +123,7 @@ fn retention_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
 /// Verify that every timer knows whether it is clocked in STANDBY1, and that at least one is.
 ///
 /// A family with no STANDBY1 timer at all would mean nothing can wake the core from the deepest
-/// sleep, which is true of no MSPM0 device and therefore means the data is missing.
+/// sleep, which is true of no MSPM0 device and means the data is missing.
 fn standby1_timer_exists(chip: &Chip, name: &str) -> anyhow::Result<()> {
     let timers = chip
         .peripherals

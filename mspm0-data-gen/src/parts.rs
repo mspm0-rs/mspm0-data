@@ -42,9 +42,7 @@ pub struct PartFamily {
 
     /// Timers which keep receiving ULPCLK or LFCLK in STANDBY1.
     ///
-    /// Only the timers named here can wake the core from STANDBY1. This comes from the footnote to
-    /// the "Supported Functionality by Operating Mode" table in the device datasheet; there is no
-    /// machine-readable source for it.
+    /// Only the timers named here can wake the core from STANDBY1.
     pub standby1_timers: Vec<String>,
 
     /// Part numbers in this family.
@@ -75,9 +73,6 @@ pub struct PartMemory {
     pub address: u32,
 
     /// The deepest mode through which the contents of this partition survive.
-    ///
-    /// Defaults by kind — flash is non-volatile and SRAM survives to STANDBY — so only the parts
-    /// with a second RAM bank need to say anything.
     #[serde(default)]
     pub retained_through: Option<PowerMode>,
 }

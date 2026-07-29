@@ -277,8 +277,6 @@ pub struct Peripheral {
     pub sys_fentries: Option<usize>,
 
     /// The interrupt raised by this peripheral.
-    ///
-    /// `None` if the peripheral has no interrupt of its own.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub interrupt: Option<PeripheralInterrupt>,
 
@@ -292,8 +290,7 @@ pub struct Peripheral {
     /// `false` does not mean the peripheral cannot raise a request: GPIO, the general purpose
     /// timers and the ADC all can, but have no per-instance mask and are gated only by
     /// `BLOCKASYNCALL`. `None` means no SVD is published for this family yet, so the answer is
-    /// unknown rather than negative. This is deliberately per-instance: on mspm0g120x only `UC0`,
-    /// `UC2`, `UC4`, `UC5` and `UC9` have the bit despite every `UC` being the same IP.
+    /// unknown rather than negative.
     pub block_async: Option<bool>,
 
     /// The deepest mode through which this peripheral keeps its configuration.
@@ -307,9 +304,7 @@ pub struct Peripheral {
     /// STANDBY (TRM §2.2.6.1), so a driver has to re-enable the peripheral on wake either way. That
     /// is a property of PD1 rather than of any one peripheral, and is not encoded here.
     ///
-    /// `None` when `power_domain` is not [`PowerDomain::Pd1`], where the question does not arise:
-    /// only PD1 peripherals are automatically disabled. `None` on a PD1 peripheral means the answer
-    /// is not known — the vendor data does not say, or its sources disagree.
+    /// `None` when `power_domain` is not [`PowerDomain::Pd1`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub retained_through: Option<PowerMode>,
 
