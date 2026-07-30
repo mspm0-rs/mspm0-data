@@ -9,10 +9,10 @@ Like `transforms/`, this is an offline aid rather than part of the build. Re-run
 source bump rather than editing the YAML by hand.
 
 Usage:
-    python tools/operating_modes.py <datasheet.pdf> [...]          # print the table
-    python tools/operating_modes.py --write <dir-of-datasheets>    # regenerate data/operating_modes
+    uv run tools/operating_modes.py <datasheet.pdf> [...]          # print the table
+    uv run tools/operating_modes.py --write <dir-of-datasheets>    # regenerate data/operating_modes
 
-Requires `pdfplumber`.
+`uv run` installs the dependencies below on its own; a bare `python` needs them on the path.
 
 Cells spanning several rows or columns mean the table needs lattice reconstruction from its ruling
 lines; reading extracted text instead silently loses the spans.
@@ -20,16 +20,30 @@ lines; reading extracted text instead silently loses the spans.
     row.cells[i] is None  <=>  column i is covered by a merge that began earlier
 """
 
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["pdfplumber", "pypdfium2", "pyyaml"]
+# ///
+
 import glob
 import json
 import re
 import sys
+from collections.abc import Iterator
 from pathlib import Path
 
 try:
     import pdfplumber
-except ImportError:  # pragma: no cover
-    raise SystemExit("pdfplumber is required: python -m pip install pdfplumber")
+    import pypdfium2
+    import yaml
+except ImportError as e:  # pragma: no cover
+    raise SystemExit(f"{e.name} is missing; run this with `uv run` instead of `python`")
+
+ColumnGroups = dict[int, str]                      # column index -> mode group
+States = dict[int, str | None]                     # column index -> state, merges resolved
+Rows = list[tuple[str, States]]                    # (row label, states)
+ByGroup = dict[str, set[str]]                      # mode group -> states seen in it
+Overrides = dict[str, dict[str, dict[str, str]]]   # family -> field -> name -> value
 
 CAPTION = "Supported Functionality by Operating Mode"
 
@@ -57,17 +71,31 @@ ALIASES = {
 }
 
 
-def read_tables(path):
+def caption_pages(path: Path) -> list[int]:
+    """Indices of the pages carrying the table's caption.
+
+    Located with PDFium rather than pdfplumber: pdfminer's content-stream parse costs ~90ms a page,
+    and only the two or three pages found here need it.
+    """
+    doc = pypdfium2.PdfDocument(str(path))
+    try:
+        return [i for i in range(len(doc)) if CAPTION in doc[i].get_textpage().get_text_range()]
+    finally:
+        doc.close()
+
+
+def read_tables(path: Path) -> Iterator[tuple[ColumnGroups, Rows]]:
     """Yield (column_groups, rows) for each page of the operating-mode table.
 
     `column_groups` maps a column index to its mode group; `rows` is a list of (label, states) where
     `states` is one entry per mode column, merges already resolved.
     """
-    with pdfplumber.open(str(path)) as pdf:
-        for page in pdf.pages:
-            if CAPTION not in (page.extract_text() or ""):
-                continue
+    pages = caption_pages(path)
+    if not pages:
+        return
 
+    with pdfplumber.open(str(path)) as pdf:
+        for page in (pdf.pages[i] for i in pages):
             for table in page.find_tables(LATTICE):
                 if len(table.rows) < 6 or max(len(r.cells) for r in table.rows) < 10:
                     continue
@@ -77,7 +105,8 @@ def read_tables(path):
                 # follow as `None` cells. Anything past the last named group is SHUTDOWN, which some
                 # datasheets leave unlabelled.
                 header = [(c or "").replace("\n", "").strip() for c in data[0]]
-                column_group, current = {}, None
+                column_group: ColumnGroups = {}
+                current: str | None = None
                 for i, cell in enumerate(header):
                     if i < 2:
                         continue                     # group label and row label columns
@@ -93,7 +122,7 @@ def read_tables(path):
                 if column_group.get(tail) == "STANDBY" and tail == len(header) - 1:
                     column_group[tail] = "SHUTDOWN"
 
-                rows = []
+                rows: Rows = []
                 for ri, row in enumerate(table.rows[1:], start=1):
                     # A label wrapped inside its cell breaks mid-word ("MATHA"/"CL", "SYSOS"/"C",
                     # "TIMG6/7"/"/12"), so the lines join with no separator. Comma-separated lists
@@ -102,7 +131,8 @@ def read_tables(path):
                     if not label:
                         continue
 
-                    states, held = {}, None
+                    states: States = {}
+                    held: str | None = None
                     for ci in sorted(column_group):
                         if ci >= len(row.cells):
                             continue
@@ -117,9 +147,9 @@ def read_tables(path):
                 yield column_group, rows
 
 
-def group_states(column_group, states):
+def group_states(column_group: ColumnGroups, states: States) -> ByGroup:
     """States seen in each mode group, as {group: set of states}."""
-    out = {}
+    out: ByGroup = {}
     for ci, group in column_group.items():
         s = states.get(ci)
         if s:
@@ -127,7 +157,7 @@ def group_states(column_group, states):
     return out
 
 
-def retained_through(by_group):
+def retained_through(by_group: ByGroup) -> str | None:
     """Deepest mode a PD1 peripheral's configuration survives, or None if the table is silent.
 
     `OFF` is the only state which loses configuration; `EN`, `OPT` and `DIS` all keep it. STOP and
@@ -148,9 +178,9 @@ def retained_through(by_group):
     return "Standby" if standby else "Stop"
 
 
-def usable_through(by_group):
+def usable_through(by_group: ByGroup) -> str | None:
     """Deepest mode group in which every policy is usable, or None if the table is silent."""
-    deepest = None
+    deepest: str | None = None
     for group in ("RUN", "SLEEP", "STOP", "STANDBY"):
         seen = by_group.get(group)
         if not seen:
@@ -161,7 +191,7 @@ def usable_through(by_group):
     return {"RUN": "Run", "SLEEP": "Sleep", "STOP": "Stop", "STANDBY": "Standby"}.get(deepest)
 
 
-def expand(label):
+def expand(label: str) -> list[str]:
     """Instance names a row label refers to.
 
     Rows cover several instances at once, written as a shared prefix with the varying suffixes
@@ -210,41 +240,25 @@ HEADER = """\
 """
 
 
-def load_overrides():
-    """Values from `data/operating_mode_overrides.yaml`, where a better source beats the table.
-
-    Parsed without a YAML library to keep this script dependency-light; the file is a fixed
-    two-level shape (family -> field -> name: value).
-    """
+def load_overrides() -> Overrides:
+    """Values from `data/operating_mode_overrides.yaml`, where a better source beats the table."""
     path = Path("data/operating_mode_overrides.yaml")
     if not path.exists():
         return {}
-
-    out, family, field = {}, None, None
-    for line in path.read_text(encoding="utf-8").splitlines():
-        if not line.strip() or line.lstrip().startswith("#"):
-            continue
-        indent = len(line) - len(line.lstrip())
-        key = line.strip().rstrip(":")
-        if indent == 0:
-            family, field = key, None
-        elif indent == 2:
-            field = key
-        elif indent == 4 and family and field:
-            name, _, value = key.partition(":")
-            out.setdefault(family, {}).setdefault(field, {})[name.strip()] = value.strip()
-    return out
+    return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
 
 
-def write(datasheets):
+def write(datasheets: str) -> int:
     """Regenerate data/operating_modes/*.yaml. Returns the number of problems reported."""
-    families = re.findall(
-        r"^- family: (\S+)\n(?:.*\n)*?  datasheet_url: \S+/(\S+)$",
-        Path("data/parts.yaml").read_text(encoding="utf-8"),
-        re.M,
-    )
+    parts = yaml.safe_load(Path("data/parts.yaml").read_text(encoding="utf-8"))
+    families = [
+        (f["family"], f["datasheet_url"].rsplit("/", 1)[-1])
+        for f in parts["families"]
+        if f.get("datasheet_url")
+    ]
 
-    pd1, known = {}, {}
+    pd1: dict[str, set[str]] = {}
+    known: dict[str, set[str]] = {}
     for f in glob.glob("build/data/*.json"):
         chip = json.loads(Path(f).read_text(encoding="utf-8"))
         pd1.setdefault(chip["family"], set()).update(
@@ -265,7 +279,8 @@ def write(datasheets):
             problems += 1
             continue
 
-        retained, usable = {}, {}
+        retained: dict[str, str] = {}
+        usable: dict[str, str] = {}
         for column_group, rows in read_tables(pdf):
             for label, states in rows:
                 by_group = group_states(column_group, states)
@@ -288,10 +303,10 @@ def write(datasheets):
         # Entries the table cannot answer are reasoned out elsewhere; keep whatever is already
         # recorded rather than dropping it.
         path = Path(f"data/operating_modes/{family}.yaml")
-        existing = (
-            dict(re.findall(r"^  (\w+): (\w+)$", path.read_text(encoding="utf-8"), re.M))
-            if path.exists() else {}
-        )
+        existing: dict[str, str] = {}
+        if path.exists():
+            loaded = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            existing = loaded.get("retained_through") or {}
         missing = sorted(set(pd1.get(family, ())) - set(retained))
         carried = {n: existing[n] for n in missing if n in existing}
         for name in missing:
@@ -320,7 +335,7 @@ def write(datasheets):
     return problems
 
 
-def main(argv):
+def main(argv: list[str]) -> None:
     if "--write" in argv:
         i = argv.index("--write")
         raise SystemExit(1 if write(argv[i + 1] if i + 1 < len(argv) else ".") else 0)
