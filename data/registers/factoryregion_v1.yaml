@@ -143,10 +143,6 @@ fieldset/BSLPIN_UART:
 fieldset/DEVICEID:
   description: This is the JTAGIDCODE that comes from the Ramp system.
   fields:
-  - name: ALWAYS_1
-    description: This is always 1.
-    bit_offset: 0
-    bit_size: 1
   - name: MANUFACTURER
     description: TI's JEDEC bank and company code.
     bit_offset: 1
