@@ -590,9 +590,14 @@ fn generate_missing(
             version,
             address: Some(address),
             // FACTORYREGION is read-only flash which is always available.
-            power_domain: PowerDomain::Pd1,
+            power_domain: PowerDomain::Pd0,
             pins: vec![],
             sys_fentries: None,
+            interrupt: None,
+            block_async: None,
+            retained_through: None,
+            usable_through: None,
+            clocked_in_standby1: None,
         },
     );
 
