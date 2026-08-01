@@ -16,12 +16,13 @@ pub static PERIMAP: RegexMap<&str> = RegexMap::new(&[
     (".*:flashctl", "v1"),
     (".*:trng", "v1"),
     (".*:canfd", "v1"),
-    // The RTC comes in variants which are not distinguished by a version number (TRM §30).
+    // The RTC comes in variants which are not distinguished by a version number.
     // SysConfig calls the standalone pre-LFSS peripheral the "legacy" RTC; the variants inside the
     // LFSS are RTC_A when the LFSS has an independent VBAT supply and RTC_B when it is powered from
-    // VDD. Versioning them here means consumers do not have to tell them apart by instance name.
+    // VDD.
     ("mspm0g..0x:rtc", "legacy"),
     (".*:rtc", "b"),
+    (".*:factoryregion", "v1"),
     ("mspm0c110x:sysctl", "c110x"),
     ("mspm0c1105_c1106:sysctl", "c110x"),
     ("msps003fx:sysctl", "c110x"),
