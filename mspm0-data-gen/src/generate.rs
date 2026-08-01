@@ -530,6 +530,29 @@ fn generate_missing(
         },
     );
 
+    // FACTORYREGION is not described in sysconfig, but every SDK header defines its address.
+    let version = PERIMAP
+        .get(&format!("{}:{}", chip_name, PeripheralType::FactoryRegion))
+        .map(|s| s.to_string());
+    let address = header
+        .peripheral_addresses
+        .get("FACTORYREGION")
+        .copied()
+        .context(format!("{chip_name}: FACTORYREGION must have address"))?;
+    peripherals.insert(
+        "FACTORYREGION".to_string(),
+        Peripheral {
+            name: "FACTORYREGION".to_string(),
+            ty: PeripheralType::FactoryRegion,
+            version,
+            address: Some(address),
+            // FACTORYREGION is read-only flash which is always available.
+            power_domain: PowerDomain::Pd1,
+            pins: vec![],
+            sys_fentries: None,
+        },
+    );
+
     // Some devices duplicate the pins multiple times (such as C110x with PA1 and NRST sharing the same physical pin).
     let mut device_pins = BTreeSet::new();
 
