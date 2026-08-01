@@ -21,9 +21,8 @@ pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
         verify_crc_power_domain,
         verify_gpamp_power_domain,
         verify_spi_power_domain,
-        // Timers may be in either power domain: add checks if something is wrong
         verify_trng_power_domain,
-        // UART may be in either power domain: add checks if something is wrong
+        // TODO: UART may be in either power domain, add checks if something is wrong
     ];
 
     CHECKS
