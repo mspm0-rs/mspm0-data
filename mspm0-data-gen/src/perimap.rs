@@ -23,8 +23,11 @@ pub static PERIMAP: RegexMap<&str> = RegexMap::new(&[
     ("mspm0g..0x:rtc", "legacy"),
     (".*:rtc", "b"),
     (".*:factoryregion", "v1"),
+    // SLAU893 describes two C-series SYSCTLs, "SYSCTL_C1103_C1104" and "SYSCTL_C1105_C1106". The
+    // latter is a superset: it adds the HFXT and LFXT crystal drivers, `MCLKCFG.FLASHWAIT` and the
+    // HSCLK mux, which its datasheet also specifies and MSPM0C1104's does not.
     ("mspm0c110x:sysctl", "c110x"),
-    ("mspm0c1105_c1106:sysctl", "c110x"),
+    ("mspm0c1105_c1106:sysctl", "c1105_c1106"),
     ("msps003fx:sysctl", "c110x"),
     ("mspm0g..0x:sysctl", "g350x_g310x_g150x_g110x"),
     ("mspm0g..1x:sysctl", "g351x_g151x"),
