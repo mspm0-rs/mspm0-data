@@ -166,8 +166,13 @@ pub struct Peripheral {
     pub power_domain: PowerDomain,
     pub sys_fentries: Option<usize>,
 
-    /// The interrupt raised by this peripheral, if it has one.
-    pub interrupt: Option<PeripheralInterrupt>,
+    /// The interrupts raised by this peripheral.
+    ///
+    /// Usually one, and empty for a peripheral which raises none. A peripheral can have several: the
+    /// MSPM33 parts route a peripheral's interrupt outputs to more than one NVIC line, so the HSADC
+    /// has five. Note this is the opposite multiplicity to an `INT_GROUP`, where several peripherals
+    /// share one line and are told apart by `PeripheralInterrupt::group_iidx`; the two can coexist.
+    pub interrupts: &'static [PeripheralInterrupt],
 
     /// Whether this peripheral instance has its own `CLKCFG.BLOCKASYNC` bit.
     ///

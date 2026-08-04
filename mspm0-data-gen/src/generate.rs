@@ -335,7 +335,7 @@ fn generate_peripherals2(
                 pins: vec![],
                 sys_fentries,
                 // Filled in by the `apply_*` passes once every peripheral is known.
-                interrupt: None,
+                interrupts: Vec::new(),
                 block_async: None,
                 retained_through: None,
                 usable_through: None,
@@ -591,7 +591,7 @@ fn generate_missing(
             power_domain: PowerDomain::Pd1,
             pins: vec![],
             sys_fentries: None,
-            interrupt: None,
+            interrupts: Vec::new(),
             block_async: None,
             retained_through: None,
             usable_through: None,
@@ -622,7 +622,7 @@ fn generate_missing(
             power_domain: PowerDomain::Pd0,
             pins: vec![],
             sys_fentries: None,
-            interrupt: None,
+            interrupts: Vec::new(),
             block_async: None,
             retained_through: None,
             usable_through: None,
@@ -661,7 +661,7 @@ fn generate_missing(
                     power_domain: PowerDomain::Pd0,
                     pins: vec![],
                     sys_fentries: None,
-                    interrupt: None,
+                    interrupts: Vec::new(),
                     block_async: None,
                     retained_through: None,
                     usable_through: None,
@@ -1076,36 +1076,38 @@ fn has_backup_domain(
     Ok(vbat)
 }
 
-/// Attach each peripheral to the interrupt it raises.
+/// Attach each peripheral to the interrupts it raises.
 ///
-/// A peripheral either owns an NVIC interrupt of its own or sits inside an `INT_GROUP` and shares
-/// the group's interrupt, distinguished by an `IIDX` value. Both are matched by name, which is the
-/// only thing tying them together in the vendor data.
+/// A peripheral either owns NVIC interrupts of its own or sits inside an `INT_GROUP` and shares the
+/// group's interrupt, distinguished by an `IIDX` value. Both are matched by name, which is the only
+/// thing tying them together in the vendor data.
+///
+/// Every match is collected rather than the first. No MSPM0 peripheral has more than one, but the
+/// MSPM33 parts route a peripheral's interrupt outputs to several NVIC lines.
 fn apply_peripheral_interrupts(
     peripherals: &mut BTreeMap<String, Peripheral>,
     interrupts: &BTreeMap<i32, Interrupt>,
 ) {
     for (name, peripheral) in peripherals.iter_mut() {
-        peripheral.interrupt = interrupts
-            .values()
-            .find_map(|interrupt| {
-                (&interrupt.name == name).then(|| PeripheralInterrupt {
-                    name: interrupt.name.clone(),
-                    num: interrupt.num,
-                    group_iidx: None,
-                })
+        let own = interrupts.values().filter_map(|interrupt| {
+            (&interrupt.name == name).then(|| PeripheralInterrupt {
+                name: interrupt.name.clone(),
+                num: interrupt.num,
+                group_iidx: None,
             })
-            .or_else(|| {
-                interrupts.values().find_map(|interrupt| {
-                    let (&iidx, _) = interrupt.group.iter().find(|(_, member)| *member == name)?;
+        });
 
-                    Some(PeripheralInterrupt {
-                        name: interrupt.name.clone(),
-                        num: interrupt.num,
-                        group_iidx: Some(iidx),
-                    })
-                })
-            });
+        let shared = interrupts.values().filter_map(|interrupt| {
+            let (&iidx, _) = interrupt.group.iter().find(|(_, member)| *member == name)?;
+
+            Some(PeripheralInterrupt {
+                name: interrupt.name.clone(),
+                num: interrupt.num,
+                group_iidx: Some(iidx),
+            })
+        });
+
+        peripheral.interrupts = own.chain(shared).collect();
     }
 }
 

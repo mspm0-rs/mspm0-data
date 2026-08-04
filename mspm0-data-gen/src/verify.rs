@@ -17,6 +17,7 @@ pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
         standby1_timer_exists,
         timer_capabilities_known,
         errata_known,
+        interrupts_claimed,
         wake_times_ordered,
         // Frequencies transcribed from the datasheets
         clock_frequencies_consistent,
@@ -236,6 +237,46 @@ fn clock_frequencies_consistent(chip: &Chip, name: &str) -> anyhow::Result<()> {
                 range.max_hz
             );
         }
+    }
+
+    Ok(())
+}
+
+/// Report NVIC interrupts which no peripheral claims.
+///
+/// `apply_peripheral_interrupts` ties the two together by name, so a naming convention it does not
+/// recognise leaves the peripheral with an empty list and nothing to say so. That is what the MSPM33
+/// parts would do here: their headers name the HSADC's five lines `ADC0_INT_PUB1` through
+/// `ADC0_EVT_INT_PUB1`, none of which equals the peripheral's own name.
+fn interrupts_claimed(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    /// Interrupts which belong to no peripheral, so nothing can claim them.
+    ///
+    /// The generic event subscriber ports are part of the event fabric rather than a peripheral, and
+    /// sysconfig lists no peripheral for them. Only mspm0h321x has them.
+    static NO_PERIPHERAL: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^GENSUB\d+$").unwrap());
+
+    let claimed = chip
+        .peripherals
+        .values()
+        .flat_map(|peripheral| peripheral.interrupts.iter())
+        .map(|interrupt| interrupt.num)
+        .collect::<HashSet<_>>();
+
+    let unclaimed = chip
+        .interrupts
+        .values()
+        // Interrupts handled by cortex-m rather than by a peripheral of ours.
+        .filter(|interrupt| interrupt.num >= 0)
+        .filter(|interrupt| !claimed.contains(&interrupt.num))
+        .filter(|interrupt| !NO_PERIPHERAL.is_match(&interrupt.name))
+        .map(|interrupt| format!("{} ({})", interrupt.name, interrupt.num))
+        .collect::<Vec<_>>();
+
+    if !unclaimed.is_empty() {
+        bail!(
+            "{name}: no peripheral claims these interrupts, so the names did not match: {}",
+            unclaimed.join(", ")
+        );
     }
 
     Ok(())

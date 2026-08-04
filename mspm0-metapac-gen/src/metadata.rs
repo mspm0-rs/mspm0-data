@@ -255,28 +255,25 @@ fn generate_peripheral(
         None => quote! { None },
     };
 
-    let interrupt = match &peripheral.interrupt {
-        Some(interrupt) => {
-            let name = &interrupt.name;
-            let number = Literal::u32_unsuffixed(interrupt.num as u32);
-            let group_iidx = match interrupt.group_iidx {
-                Some(iidx) => {
-                    let iidx = Literal::u32_unsuffixed(iidx);
-                    quote! { Some(#iidx) }
-                }
-                None => quote! { None },
-            };
+    let interrupts = peripheral.interrupts.iter().map(|interrupt| {
+        let name = &interrupt.name;
+        let number = Literal::u32_unsuffixed(interrupt.num as u32);
+        let group_iidx = match interrupt.group_iidx {
+            Some(iidx) => {
+                let iidx = Literal::u32_unsuffixed(iidx);
+                quote! { Some(#iidx) }
+            }
+            None => quote! { None },
+        };
 
-            quote! {
-                Some(PeripheralInterrupt {
-                    name: #name,
-                    number: #number,
-                    group_iidx: #group_iidx,
-                })
+        quote! {
+            PeripheralInterrupt {
+                name: #name,
+                number: #number,
+                group_iidx: #group_iidx,
             }
         }
-        None => quote! { None },
-    };
+    });
 
     let block_async = match peripheral.block_async {
         Some(block_async) => quote! { Some(#block_async) },
@@ -360,7 +357,7 @@ fn generate_peripheral(
             pins: &[#(#pins),*],
             power_domain: #power_domain,
             sys_fentries: #sys_fentries,
-            interrupt: #interrupt,
+            interrupts: &[#(#interrupts),*],
             block_async: #block_async,
             retained_through: #retained_through,
             usable_through: #usable_through,
