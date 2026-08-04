@@ -187,9 +187,14 @@ pub struct ClockTree {
     /// Has an external digital LFCLK input (`EXLFCTL.SETUSEEXLF`, `LFCLKIN` pin).
     pub lfclk_in: bool,
 
-    /// Has a SYSPLL, and therefore an `HSCLKCFG.HSCLKSEL` mux.
+    /// Has a SYSPLL, and therefore something other than HFCLK to select as HSCLK.
     ///
-    /// Without it HSCLK is HFCLK and there is no mux field to program.
+    /// Where this is `false` there is nothing to choose between, but that is **not** the same as
+    /// there being no `HSCLKCFG.HSCLKSEL` field: only mspm0c110x and the l110x/l130x/l134x families
+    /// lack one. The rest still have the field, still reset it to the SYSPLL position they cannot
+    /// use, and still require software to write `HFCLKCLK` before MCLK can run from HSCLK - the
+    /// TRMs say to set the bit (SLAU893 2.7, SLAU923, SLAU847), and TI's own SVDs document no
+    /// encoding for the reset value on those parts.
     pub syspll: bool,
 
     /// Has `MCLKCFG.UDIV`, the MCLK to ULPCLK divider.
