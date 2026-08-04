@@ -9,8 +9,6 @@ pub struct Metadata {
     pub interrupts: &'static [Interrupt],
     pub interrupt_groups: &'static [InterruptGroup],
     pub dma_channels: &'static [DmaChannel],
-    pub adc_memctl: u8,
-    pub adc_vrsel: u8,
 
     /// Maximum frequency of MCLK, in Hz.
     ///
@@ -23,11 +21,140 @@ pub struct Metadata {
     /// throttles ULPCLK to 4MHz and STANDBY to 32kHz on every device.
     pub max_ulpclk_hz: u32,
 
+    /// Frequency SYSOSC runs at in its factory trimmed base mode (`SYSOSCCFG.FREQ = 0`), in Hz.
+    ///
+    /// This is the rate the device boots at, and the rate SYSOSC returns to when a peripheral raises
+    /// an asynchronous fast clock request. Do not infer it from `max_mclk_hz`: the two happen to
+    /// agree on the one part whose base rate is not 32MHz, and nothing makes them agree in general.
+    ///
+    /// The fixed low-power operating point (`SYSOSCCFG.FREQ = 1`) is not described separately: it is
+    /// 4MHz on every device whose datasheet specifies one, and whether it exists at all is what
+    /// `clock_tree.stop1` says.
+    pub sysosc_base_hz: u32,
+
+    /// MCLK ceiling, in Hz, for each `MCLKCFG.FLASHWAIT` setting, starting at zero wait states.
+    ///
+    /// `[24_000_000, 48_000_000, 80_000_000]` means zero wait states up to 24MHz, one up to 48MHz
+    /// and two up to 80MHz. A single entry means this device's MCLK ceiling is inside the zero wait
+    /// state band, so software never has a reason to raise `FLASHWAIT`.
+    ///
+    /// SYSCTL manages wait states on its own unless MCLK is sourced from a high speed clock, which
+    /// is the case where they have to be programmed.
+    pub flash_wait_hz: &'static [u32],
+
     /// Whether the chip has an independent `VBAT` supply and therefore a real backup power domain
     /// (PDB).
     ///
     /// Peripherals in the backup power domain are the only wake sources which survive SHUTDOWN.
     pub backup_domain: bool,
+
+    /// Which clock sources and dividers this device's SYSCTL provides.
+    pub clock_tree: ClockTree,
+
+    /// Errata which apply to this device, by TI's identifier (`GPIO_ERR_01`, `UART_ERR_03`, ...),
+    /// sorted.
+    ///
+    /// These are the functional advisories of the device's errata sheet, the ones TI describes as
+    /// affecting "the device's operation, function, or parametrics". The preprogrammed-software,
+    /// debug-only and fixed-by-compiler advisories are not listed.
+    ///
+    /// An erratum is listed when any silicon revision is affected, since a driver built for a part has
+    /// to run on whichever revision it meets. It is not a claim that a workaround is needed in every
+    /// case -- read the advisory.
+    pub errata: &'static [&'static str],
+
+    /// How long this device takes to reach RUN from each sleep mode.
+    pub wake_ns: WakeTimes,
+}
+
+/// Time to reach RUN from each sleep mode, in nanoseconds.
+///
+/// This is what decides whether a sleep is worth entering: a mode whose wake-up costs more than the
+/// time left before the next deadline is not usable for that deadline.
+///
+/// The sub-modes are named as SYSCTL describes them, since STOP0/1/2 and STANDBY0/1 are selected by
+/// different register fields and have measurably different costs.
+///
+/// Every figure is **typical, not a guaranteed ceiling**. The datasheets give one unqualified number
+/// per mode, in a cell spanning their MIN, TYP and MAX columns, so there is no worst case to report and
+/// a consumer needing a margin has to add its own.
+///
+/// `None` means the datasheet has no figure: either the device does not have that mode, or the figure
+/// is given in CPU cycles rather than a time, which is how several state SLEEP0.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct WakeTimes {
+    pub sleep0: Option<u32>,
+    pub sleep1: Option<u32>,
+    pub sleep2: Option<u32>,
+    pub stop0: Option<u32>,
+    pub stop1: Option<u32>,
+    pub stop2: Option<u32>,
+    pub standby0: Option<u32>,
+    pub standby1: Option<u32>,
+
+    /// SHUTDOWN is a reset rather than a wake, so this is a boot time. Where the datasheet gives it
+    /// for fast boot both enabled and disabled, the slower figure is the one recorded.
+    pub shutdown: Option<u32>,
+}
+
+impl Metadata {
+    /// Whether the named erratum applies to this device.
+    pub fn has_erratum(&self, erratum: &str) -> bool {
+        self.errata.binary_search(&erratum).is_ok()
+    }
+}
+
+/// The clock sources and dividers a device provides.
+///
+/// These are presence questions with a definite answer, so they are `bool` rather than
+/// `Option<bool>`.
+///
+/// Do not derive these from the SYSCTL version: mspm0c110x and mspm0c1105_c1106 share
+/// `sysctl_c110x` but only the latter has a high frequency crystal driver, and mspm0l112x and
+/// mspm0l211x share `sysctl_l122x_l222x` but have no STOP1 where mspm0l122x does.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct ClockTree {
+    /// Has a high frequency crystal driver (`HSCLKEN.HFXTEN`, `HFXIN`/`HFXOUT` pins).
+    pub hfxt: bool,
+
+    /// Has an external digital HFCLK input (`HSCLKEN.USEEXTHFCLK`, `HFCLKIN` pin).
+    ///
+    /// Separate from `hfxt`: mspm0c110x accepts a digital HFCLK but has no crystal driver.
+    pub hfclk_in: bool,
+
+    /// The range HFCLK must stay within, from the datasheet's `fHFXT` and `fHFIN`.
+    ///
+    /// Both paths share one range on every device which specifies them, so this covers a crystal and
+    /// a digital input alike. **It is not the SYSPLL reference range**: `fSYSPLLREF` is 4-48MHz on
+    /// every device that has a SYSPLL, but HFCLK only reaches 48MHz on the G families and stops at
+    /// 32MHz on the rest, so one constant cannot serve both checks.
+    ///
+    /// `None` where the datasheet gives no figure: the families with no HFCLK path, and mspm0c110x,
+    /// which has an `HFCLKIN` pin but no `fHFIN` row.
+    pub hfclk_hz: Option<ClockRange>,
+
+    /// Has a low frequency crystal driver (`LFXTCTL.SETUSELFXT`, `LFXIN`/`LFXOUT` pins).
+    pub lfxt: bool,
+
+    /// Has an external digital LFCLK input (`EXLFCTL.SETUSEEXLF`, `LFCLKIN` pin).
+    pub lfclk_in: bool,
+
+    /// Has a SYSPLL, and therefore an `HSCLKCFG.HSCLKSEL` mux.
+    ///
+    /// Without it HSCLK is HFCLK and there is no mux field to program.
+    pub syspll: bool,
+
+    /// Has `MCLKCFG.UDIV`, the MCLK to ULPCLK divider.
+    ///
+    /// Only the devices whose `max_ulpclk_hz` is below their `max_mclk_hz` have one.
+    pub ulpclk_div: bool,
+
+    /// Has the STOP1 sub-mode, in which SYSOSC drops to 4MHz rather than stopping
+    /// (`SYSOSCCFG.USE4MHZSTOP`).
+    ///
+    /// Where this is `false` the device's STOP mode is only STOP0 and STOP2, and a consumer with a
+    /// STOP1 of its own has to round it to STOP0 rather than weakening the guard.
+    pub stop1: bool,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
@@ -79,6 +206,107 @@ pub struct Peripheral {
     /// only timers which can wake the core from the deepest sleep. `None` for peripherals which are
     /// not timers.
     pub clocked_in_standby1: Option<bool>,
+
+    /// What this timer instance can do.
+    ///
+    /// `None` for peripherals which are not timers.
+    pub timer: Option<Timer>,
+
+    /// The range this peripheral's functional clock input must stay within.
+    ///
+    /// For the ADC this is `fADCCLK`, the rate of the source selected by `CLKCFG.SAMPCLK` before
+    /// `CTL0.SCLKDIV` divides it down — not the sampling clock itself. For the TRNG it is
+    /// `TRNGCLKF`, the rate reaching the module after `CLKDIV.RATIO`.
+    ///
+    /// It does not follow anything else here. Two parts can share `max_mclk_hz` and a SYSCTL version
+    /// and still differ, and the minimum is not always 4MHz.
+    ///
+    /// `None` where the datasheet specifies no such range, which is every peripheral other than the
+    /// ADC and the TRNG so far.
+    pub clock_range_hz: Option<ClockRange>,
+
+    /// What this ADC instance provides.
+    ///
+    /// `None` for peripherals which are not ADCs.
+    pub adc: Option<Adc>,
+}
+
+/// An inclusive frequency range, in Hz.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct ClockRange {
+    pub min_hz: u32,
+    pub max_hz: u32,
+}
+
+impl ClockRange {
+    /// Whether `hz` is within the range.
+    pub const fn contains(&self, hz: u32) -> bool {
+        self.min_hz <= hz && hz <= self.max_hz
+    }
+}
+
+/// The parts of one ADC instance which the single `adc_v1` register block does not describe.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct Adc {
+    /// Number of configurable conversion channels (`MEMCTL`).
+    pub memctl: u8,
+
+    /// Number of options `CTL2.VRSEL` accepts.
+    pub vrsel: u8,
+}
+
+/// The capabilities of one timer instance.
+///
+/// Every MSPM0 timer shares the `tim_v1` register block, so the `pac` module says nothing about
+/// which of these an instance actually implements. Instances differ widely: `TIMA0` has deadband
+/// insertion and a fault handler, `TIMG12` is 32-bit with no prescaler, and `TIMB0` is a bare
+/// counter with no capture/compare at all.
+///
+/// Capability does not follow the instance name, so do not key a table on it. `TIMG2` has two
+/// capture/compare channels on mspm0l110x, and TI's own metadata gives the mspm0l112x one the same
+/// feature tier as `TIMA0`.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct Timer {
+    /// Counter width in bits, either 16 or 32.
+    pub bits: u8,
+
+    /// Whether the instance has the 8-bit prescaler.
+    pub prescaler: bool,
+
+    /// Whether the instance has the repeat counter.
+    pub repeat_counter: bool,
+
+    /// Capture/compare channels which have a `CCPx` output.
+    ///
+    /// Zero for the basic timers (`TIMBx`), which cannot capture or compare at all. The datasheet
+    /// calls these the external channels; the compare-only channels behind them (`CC_45`, on the
+    /// advanced timers only) are not described here, since only the L-series datasheets say how
+    /// many there are.
+    pub ccp_channels: u8,
+
+    /// PWM outputs the instance drives, counting a channel's complementary output separately.
+    ///
+    /// Twice `ccp_channels` on the instances with deadband insertion, since those pair each channel
+    /// with a `CCPx_CMPL` output, and equal to it on the rest.
+    pub external_pwm_channels: u8,
+
+    /// Whether the instance has the phase load register.
+    pub phase_load: bool,
+
+    /// Whether the load register is shadowed.
+    pub shadow_load: bool,
+
+    /// Whether the capture/compare registers are shadowed.
+    pub shadow_ccs: bool,
+
+    /// Whether the instance has deadband insertion.
+    pub deadband: bool,
+
+    /// Whether the instance has a fault handler.
+    pub fault_handler: bool,
+
+    /// Whether the instance can decode quadrature and Hall inputs.
+    pub qei_hall: bool,
 }
 
 /// An operating mode, ordered from shallowest to deepest.

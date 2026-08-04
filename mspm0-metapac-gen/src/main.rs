@@ -148,12 +148,63 @@ fn generate_chip_metadata(
     });
 
     let family = &chip.family;
-    let adc_memctl = &chip.adc_memctl;
-    let adc_vrsel = &chip.adc_vrsel;
     let nvic_priority_bits = &chip.nvic_priority_bits;
     let max_mclk_hz = &chip.max_mclk_hz;
     let max_ulpclk_hz = &chip.max_ulpclk_hz;
+    let sysosc_base_hz = &chip.sysosc_base_hz;
+    let flash_wait_hz = chip
+        .flash_wait_hz
+        .iter()
+        .map(|hz| hz.to_string())
+        .collect::<Vec<_>>()
+        .join(", ");
     let backup_domain = &chip.backup_domain;
+    let tree = &chip.clock_tree;
+    let hfclk_hz = match tree.hfclk_hz {
+        Some(range) => format!(
+            "Some(ClockRange {{ min_hz: {}, max_hz: {} }})",
+            range.min_hz, range.max_hz
+        ),
+        None => "None".to_string(),
+    };
+    let clock_tree = format!(
+        "ClockTree {{ hfxt: {}, hfclk_in: {}, hfclk_hz: {}, lfxt: {}, lfclk_in: {}, syspll: {}, \
+         ulpclk_div: {}, stop1: {} }}",
+        tree.hfxt,
+        tree.hfclk_in,
+        hfclk_hz,
+        tree.lfxt,
+        tree.lfclk_in,
+        tree.syspll,
+        tree.ulpclk_div,
+        tree.stop1,
+    );
+
+    let errata = chip
+        .errata
+        .iter()
+        .map(|erratum| format!("{erratum:?}"))
+        .collect::<Vec<_>>()
+        .join(", ");
+
+    let wake = &chip.wake_ns;
+    let ns = |mode: Option<u32>| match mode {
+        Some(ns) => format!("Some({ns})"),
+        None => "None".to_string(),
+    };
+    let wake_ns = format!(
+        "WakeTimes {{ sleep0: {}, sleep1: {}, sleep2: {}, stop0: {}, stop1: {}, stop2: {}, \
+         standby0: {}, standby1: {}, shutdown: {} }}",
+        ns(wake.sleep0),
+        ns(wake.sleep1),
+        ns(wake.sleep2),
+        ns(wake.stop0),
+        ns(wake.stop1),
+        ns(wake.stop2),
+        ns(wake.standby0),
+        ns(wake.standby1),
+        ns(wake.shutdown),
+    );
 
     // Memory is the one part of the metadata which varies by part number rather than by family
     let memory = metadata::memory(chip);
@@ -175,11 +226,14 @@ fn generate_chip_metadata(
             interrupts: INTERRUPTS,
             interrupt_groups: INTERRUPT_GROUPS,
             dma_channels: DMA_CHANNELS,
-            adc_memctl: {adc_memctl},
-            adc_vrsel: {adc_vrsel},
             max_mclk_hz: {max_mclk_hz},
             max_ulpclk_hz: {max_ulpclk_hz},
+            sysosc_base_hz: {sysosc_base_hz},
+            flash_wait_hz: &[{flash_wait_hz}],
             backup_domain: {backup_domain},
+            clock_tree: {clock_tree},
+            errata: &[{errata}],
+            wake_ns: {wake_ns},
         }};
         ",
     )

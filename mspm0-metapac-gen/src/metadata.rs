@@ -304,6 +304,54 @@ fn generate_peripheral(
         None => quote! { None },
     };
 
+    let timer = match &peripheral.timer {
+        Some(timer) => {
+            let bits = Literal::u8_unsuffixed(timer.bits);
+            let ccp_channels = Literal::u8_unsuffixed(timer.ccp_channels);
+            let external_pwm_channels = Literal::u8_unsuffixed(timer.external_pwm_channels);
+            let (prescaler, repeat_counter) = (timer.prescaler, timer.repeat_counter);
+            let (phase_load, shadow_load, shadow_ccs) =
+                (timer.phase_load, timer.shadow_load, timer.shadow_ccs);
+            let (deadband, fault_handler, qei_hall) =
+                (timer.deadband, timer.fault_handler, timer.qei_hall);
+
+            quote! {
+                Some(Timer {
+                    bits: #bits,
+                    prescaler: #prescaler,
+                    repeat_counter: #repeat_counter,
+                    ccp_channels: #ccp_channels,
+                    external_pwm_channels: #external_pwm_channels,
+                    phase_load: #phase_load,
+                    shadow_load: #shadow_load,
+                    shadow_ccs: #shadow_ccs,
+                    deadband: #deadband,
+                    fault_handler: #fault_handler,
+                    qei_hall: #qei_hall,
+                })
+            }
+        }
+        None => quote! { None },
+    };
+
+    let clock_range_hz = match peripheral.clock_range_hz {
+        Some(range) => {
+            let min_hz = Literal::u32_unsuffixed(range.min_hz);
+            let max_hz = Literal::u32_unsuffixed(range.max_hz);
+            quote! { Some(ClockRange { min_hz: #min_hz, max_hz: #max_hz }) }
+        }
+        None => quote! { None },
+    };
+
+    let adc = match peripheral.adc {
+        Some(adc) => {
+            let memctl = Literal::u8_unsuffixed(adc.memctl);
+            let vrsel = Literal::u8_unsuffixed(adc.vrsel);
+            quote! { Some(Adc { memctl: #memctl, vrsel: #vrsel }) }
+        }
+        None => quote! { None },
+    };
+
     Some(quote! {
         Peripheral {
             name: #name,
@@ -317,6 +365,9 @@ fn generate_peripheral(
             retained_through: #retained_through,
             usable_through: #usable_through,
             clocked_in_standby1: #clocked_in_standby1,
+            timer: #timer,
+            clock_range_hz: #clock_range_hz,
+            adc: #adc,
         }
     })
 }

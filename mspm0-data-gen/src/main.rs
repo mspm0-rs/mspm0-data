@@ -1,4 +1,5 @@
 mod clock_tree;
+mod errata;
 mod generate;
 mod header;
 mod int_group;
@@ -7,8 +8,10 @@ mod parts;
 mod perimap;
 mod svd;
 mod sysconfig;
+mod timers;
 mod util;
 mod verify;
+mod wakeup;
 
 use std::{path::PathBuf, time::Instant};
 
@@ -60,7 +63,7 @@ fn main() -> anyhow::Result<()> {
     stopwatch.section("Sysconfig metadata");
 
     let sysconfig = sysconfig::Sysconfig::parse(&data_sources)?;
-    let _clock_trees = clock_tree::ClockTree::read_clock_trees(&data_sources)?;
+    let clock_trees = clock_tree::ClockTrees::parse(&data_sources)?;
 
     stopwatch.section("Parsing SVDs");
 
@@ -70,6 +73,9 @@ fn main() -> anyhow::Result<()> {
 
     let int_groups = int_group::Groups::parse()?;
     let operating_modes = operating_modes::OperatingModes::parse()?;
+    let timers = timers::Timers::parse()?;
+    let errata = errata::Errata::parse()?;
+    let wake = wakeup::parse()?;
     let parts = parts::PartsFile::read()?;
 
     // TODO: Expanded family names (ex. C110X -> C1103 & C1104)
@@ -82,6 +88,10 @@ fn main() -> anyhow::Result<()> {
         &svds,
         &operating_modes,
         &int_groups,
+        &timers,
+        &clock_trees,
+        &errata,
+        &wake,
     )?;
 
     stopwatch.stop();

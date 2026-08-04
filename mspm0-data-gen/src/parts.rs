@@ -40,6 +40,24 @@ pub struct PartFamily {
     /// Maximum frequency of ULPCLK, in Hz.
     pub max_ulpclk_hz: u32,
 
+    /// Frequency SYSOSC runs at in its factory trimmed base mode, in Hz.
+    pub sysosc_base_hz: u32,
+
+    /// MCLK ceiling, in Hz, for each `MCLKCFG.FLASHWAIT` setting, starting at zero wait states.
+    pub flash_wait_hz: Vec<u32>,
+
+    /// The range `fADCCLK` must stay within, which applies to every ADC instance of the family.
+    pub adc_clock_hz: ClockRange,
+
+    /// The range `TRNGCLKF` must stay within.
+    ///
+    /// Absent for the families with no TRNG.
+    #[serde(default)]
+    pub trng_clock_hz: Option<ClockRange>,
+
+    /// The parts of the clock tree with no machine-readable source.
+    pub clock_tree: ClockTreeSpec,
+
     /// Timers which keep receiving ULPCLK or LFCLK in STANDBY1.
     ///
     /// Only the timers named here can wake the core from STANDBY1.
@@ -47,6 +65,51 @@ pub struct PartFamily {
 
     /// Part numbers in this family.
     pub part_numbers: Vec<PartNumber>,
+}
+
+/// The clock tree facts which have to be curated.
+///
+/// The crystal drivers, the digital clock inputs and the SYSPLL are not here: sysconfig's
+/// `clocktree.json` has a node for each of those exactly when the family has one. These two do not
+/// follow from it, and cannot be taken from the register YAMLs either, since two families sharing one
+/// SYSCTL version can differ.
+#[derive(Debug, Deserialize)]
+pub struct ClockTreeSpec {
+    /// The range HFCLK must stay within, whether it comes from the crystal or the digital input.
+    ///
+    /// Absent where the datasheet gives no figure, which is the families with no HFCLK path and
+    /// MSPM0C1103/C1104, which has an `HFCLKIN` pin but no `fHFIN` row.
+    #[serde(default)]
+    pub hfclk_hz: Option<ClockRange>,
+
+    /// Whether the device has `MCLKCFG.UDIV`.
+    ///
+    /// Cross-checked in `verify` against the clock ceilings: a device with a divider is one whose
+    /// ULPCLK ceiling is below its MCLK ceiling.
+    pub ulpclk_div: bool,
+
+    /// Whether the device has the STOP1 sub-mode, from the presence of a `SYSOSCCFG.FREQ=01`
+    /// operating point.
+    pub stop1: bool,
+}
+
+/// An inclusive frequency range as `parts.yaml` writes it, in Hz.
+///
+/// Spelled `min`/`max` there rather than `min_hz`/`max_hz`, since the key it sits under already says
+/// the unit.
+#[derive(Debug, Clone, Copy, Deserialize)]
+pub struct ClockRange {
+    pub min: u32,
+    pub max: u32,
+}
+
+impl From<ClockRange> for mspm0_data_types::ClockRange {
+    fn from(range: ClockRange) -> Self {
+        Self {
+            min_hz: range.min,
+            max_hz: range.max,
+        }
+    }
 }
 
 #[derive(Debug, Deserialize)]

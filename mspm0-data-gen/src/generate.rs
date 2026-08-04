@@ -8,12 +8,14 @@ use std::{
 
 use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
-    Chip, DmaChannel, Interrupt, Memory, MemoryKind, Package, PackagePin, Peripheral,
-    PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain, PowerMode,
+    Adc, Chip, DmaChannel, Interrupt, Memory, MemoryKind, Package, PackagePin, Peripheral,
+    PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain, PowerMode, WakeTimes,
 };
 use regex::Regex;
 
 use crate::{
+    clock_tree::{ClockTreeFile, ClockTrees},
+    errata::Errata,
     header::{Header, Headers},
     int_group::Groups,
     operating_modes::OperatingModes,
@@ -21,6 +23,7 @@ use crate::{
     perimap::PERIMAP,
     svd::{Svd, Svds},
     sysconfig::{self, PartPeripheralWrapper, Sysconfig, SysconfigFile},
+    timers::Timers,
     verify,
 };
 
@@ -31,6 +34,10 @@ pub fn generate(
     svds: &Svds,
     operating_modes: &BTreeMap<String, OperatingModes>,
     int_groups: &BTreeMap<String, Groups>,
+    timers: &BTreeMap<String, Timers>,
+    clock_trees: &ClockTrees,
+    errata: &BTreeMap<String, Errata>,
+    wake: &BTreeMap<String, WakeTimes>,
 ) -> anyhow::Result<()> {
     fs::create_dir_all("./build/data/").unwrap();
 
@@ -61,6 +68,10 @@ pub fn generate(
             svd,
             operating_modes.get(&family.family),
             int_groups,
+            timers.get(&family.family),
+            clock_trees.files.get(&family.family),
+            errata.get(&family.family),
+            wake.get(&family.family).copied(),
         )
         .context(format!("Error when generating family: {}", family.family))?;
     }
@@ -75,6 +86,10 @@ fn generate_family(
     svd: Option<&Svd>,
     operating_modes: Option<&OperatingModes>,
     int_groups: &BTreeMap<String, Groups>,
+    timers: Option<&Timers>,
+    clock_tree: Option<&ClockTreeFile>,
+    errata: Option<&Errata>,
+    wake: Option<WakeTimes>,
 ) -> anyhow::Result<()> {
     // Data shared across all chips in a family.
     let packages = get_packages(&family.family, sysconfig)?;
@@ -83,14 +98,19 @@ fn generate_family(
     let mut peripherals = generate_peripherals2(&family.family, header, sysconfig)?;
     let interrupts = generate_irqs(&family.family, header, int_groups)?;
     let dma_channels = generate_dma_channels(&family.family, sysconfig)?;
-    let adc_memctl = generate_adc_memctl_dim(&family.family, sysconfig)?;
     let backup_domain = has_backup_domain(&family.family, sysconfig, &peripherals)?;
+    let clock_tree = clock_tree
+        .context(format!("{}: no clocktree.json", family.family))?
+        .clock_tree(family);
 
     // Low power facts which are easier to attach once every peripheral is known.
     apply_peripheral_interrupts(&mut peripherals, &interrupts);
     apply_block_async(&mut peripherals, svd);
     apply_operating_modes(operating_modes, &mut peripherals);
     apply_standby1_timers(family, &mut peripherals)?;
+    apply_timers(timers, &mut peripherals);
+    apply_clock_ranges(family, &mut peripherals);
+    apply_adc(family, sysconfig, &mut peripherals)?;
 
     for part_number in family.part_numbers.iter() {
         // Filter for package types available on the part number.
@@ -132,12 +152,15 @@ fn generate_family(
             peripherals: peripherals.clone(),
             interrupts: interrupts.clone(),
             dma_channels: dma_channels.clone(),
-            adc_memctl,
-            adc_vrsel: adc_vrsel_mapping(&family.adc_vrsel)?,
             nvic_priority_bits: header.nvic_priority_bits,
             max_mclk_hz: family.max_mclk_hz,
             max_ulpclk_hz: family.max_ulpclk_hz,
+            sysosc_base_hz: family.sysosc_base_hz,
+            flash_wait_hz: family.flash_wait_hz.clone(),
             backup_domain,
+            clock_tree,
+            errata: errata.map(|e| e.errata.clone()).unwrap_or_default(),
+            wake_ns: wake.unwrap_or_default(),
         };
 
         for err in verify::verify(&chip, &part_number.name) {
@@ -317,6 +340,9 @@ fn generate_peripherals2(
                 retained_through: None,
                 usable_through: None,
                 clocked_in_standby1: None,
+                timer: None,
+                clock_range_hz: None,
+                adc: None,
             };
 
             // Lookup the pins
@@ -570,6 +596,9 @@ fn generate_missing(
             retained_through: None,
             usable_through: None,
             clocked_in_standby1: None,
+            timer: None,
+            clock_range_hz: None,
+            adc: None,
         },
     );
 
@@ -598,6 +627,9 @@ fn generate_missing(
             retained_through: None,
             usable_through: None,
             clocked_in_standby1: None,
+            timer: None,
+            clock_range_hz: None,
+            adc: None,
         },
     );
 
@@ -634,6 +666,9 @@ fn generate_missing(
                     retained_through: None,
                     usable_through: None,
                     clocked_in_standby1: None,
+                    timer: None,
+                    clock_range_hz: None,
+                    adc: None,
                 });
 
             let pin = device_pin
@@ -894,56 +929,53 @@ fn generate_dma_channels(
     Ok(channels)
 }
 
-fn generate_adc_memctl_dim(chip_name: &str, sysconfig: &SysconfigFile) -> anyhow::Result<u8> {
-    // We parse the SYS_ADC_MEMCTL_DIM attribute in the ADC peripherals.
-    // Because we use the same adc pac for all ADC instances, we check if all existing MEMCTL_DIM
-    // attributes are equal.
-    let mut result = None;
+/// Record the facts about each ADC instance which the shared `adc_v1` register block cannot carry.
+///
+/// `MEMCTL` is per instance in sysconfig, so it is read per instance even though no part has two ADCs
+/// which disagree. `VRSEL` is stated once per family.
+fn apply_adc(
+    family: &PartFamily,
+    sysconfig: &SysconfigFile,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) -> anyhow::Result<()> {
+    let chip_name = &family.family;
+    let vrsel = adc_vrsel_mapping(&family.adc_vrsel)?;
 
+    let mut memctl = BTreeMap::new();
     for peripheral in sysconfig
         .peripherals
         .values()
         .filter(|p| p.name.starts_with("ADC"))
     {
-        let name = &peripheral.name;
-        // make names consistent sometimes
-        let name = maybe_rename(name);
+        let name = maybe_rename(&peripheral.name);
 
-        let raw_memctl_dim = &peripheral
+        let raw = peripheral
             .attributes
             .get("SYS_ADC_MEMCTL_DIM")
-            .unwrap_or_else(|| {
-                panic!(
-                    "SYS_ADC_MEMCTL_DIM should exist for {} in {}",
-                    name, chip_name
-                )
-            });
-        let memctl_error = format!(
-            "SYS_ADC_MEMCTL_DIM: {} should be an u32 as string for {} in {}",
-            raw_memctl_dim, name, chip_name
-        );
-        let memctl_dim = raw_memctl_dim
-            .as_str()
-            .expect(memctl_error.as_str())
-            .parse::<u8>()
-            .expect(memctl_error.as_str());
-        match result {
-            Some(m) => ensure!(
-                m == memctl_dim,
-                "{}: Found unequal memctl dim attributes {}, {}",
-                chip_name,
-                m,
-                memctl_dim
-            ),
-            None => result = Some(memctl_dim),
-        };
+            .context(format!("{chip_name}: {name} has no SYS_ADC_MEMCTL_DIM"))?;
+        let raw = raw.as_str().context(format!(
+            "{chip_name}: {name} SYS_ADC_MEMCTL_DIM is not a string value"
+        ))?;
+        let dim = raw.parse::<u8>().context(format!(
+            "{chip_name}: {name} SYS_ADC_MEMCTL_DIM `{raw}` is not a number"
+        ))?;
+
+        memctl.insert(name, dim);
     }
-    ensure!(
-        result.is_some(),
-        "{}: Unable to find any SYS_ADC_MEMCTL_DIM",
-        chip_name
-    );
-    Ok(result.unwrap())
+
+    for (name, peripheral) in peripherals.iter_mut() {
+        if peripheral.ty != PeripheralType::Adc {
+            continue;
+        }
+
+        let memctl = *memctl
+            .get(name)
+            .context(format!("{chip_name}: {name} has no MEMCTL count"))?;
+
+        peripheral.adc = Some(Adc { memctl, vrsel });
+    }
+
+    Ok(())
 }
 
 fn adc_vrsel_mapping(vrsel: &String) -> anyhow::Result<u8> {
@@ -1108,6 +1140,39 @@ fn apply_operating_modes(
         }
 
         peripheral.usable_through = modes.usable_through.get(name).copied();
+    }
+}
+
+/// Record the input clock range of the peripherals whose datasheet specifies one.
+///
+/// The ADC and the TRNG are the only two so far. Both are stated once per datasheet, so they apply to
+/// every instance of the family: the parts which have two ADCs give one `fADCCLK` covering both.
+fn apply_clock_ranges(family: &PartFamily, peripherals: &mut BTreeMap<String, Peripheral>) {
+    for peripheral in peripherals.values_mut() {
+        peripheral.clock_range_hz = match peripheral.ty {
+            PeripheralType::Adc => Some(family.adc_clock_hz.into()),
+            PeripheralType::Trng => family.trng_clock_hz.map(Into::into),
+            _ => None,
+        };
+    }
+}
+
+/// Record what each timer instance can do.
+///
+/// Matched by instance name, which is what the datasheet table names its rows. That the same name
+/// can mean different capabilities on another family is exactly why this is read per family rather
+/// than from one table.
+fn apply_timers(timers: Option<&Timers>, peripherals: &mut BTreeMap<String, Peripheral>) {
+    let Some(timers) = timers else {
+        return;
+    };
+
+    for (name, peripheral) in peripherals.iter_mut() {
+        if peripheral.ty != PeripheralType::Tim {
+            continue;
+        }
+
+        peripheral.timer = timers.timers.get(name).copied();
     }
 }
 
