@@ -224,7 +224,7 @@ fieldset/CLKSTATUS:
     description: Current HSCLK source, matching HSCLKCFG.HSCLKSEL.
     bit_offset: 16
     bit_size: 1
-    enum: HSCLKSEL
+    enum: CURHSCLKSEL
   - name: CURMCLKSEL
     description: 'MCLK Clock Source 0: NOT LFCLK, 1:LFCLK.'
     bit_offset: 17
@@ -318,9 +318,10 @@ fieldset/GENCLKCFG:
     bit_size: 1
     enum: MFPCLKSRC
   - name: HFCLK4MFPCLKDIV
-    description: HFCLK Divider 1..16.
+    description: Divider applied to HFCLK when HFCLK is used as the MFPCLK source.
     bit_offset: 12
     bit_size: 4
+    enum: HFCLK4MFPCLKDIV
   - name: FCCSELCLK
     bit_offset: 16
     bit_size: 4
@@ -359,7 +360,7 @@ fieldset/HFCLKCLKCFG:
   description: HFCLK Clock Configuration.
   fields:
   - name: HFXTTIME
-    description: HFXT startup time in 64us resolution.
+    description: HFXT startup time in 64us resolution, from 0 (minimum startup time, approximately zero) to 255 (maximum, approximately 16.32ms). If the HFCLK startup monitor is enabled (HFCLKFLTCHK), HFXT is checked after this time expires.
     bit_offset: 0
     bit_size: 8
   - name: HFXTRSEL
@@ -375,7 +376,7 @@ fieldset/HSCLKCFG:
   description: High Speed Clock Source Selection.
   fields:
   - name: HSCLKSEL
-    description: Selects the HSCLK source.
+    description: Selects the HSCLK source. This device has no SYSPLL, so HFCLKCLK is the only source it can select, and software must write it - the reset value leaves HSCLK unsourced.
     bit_offset: 0
     bit_size: 1
     enum: HSCLKSEL
@@ -605,8 +606,10 @@ fieldset/SYSOSCFCLCTL:
 fieldset/SYSSTATUS:
   fields:
   - name: BORCURTHRESHOLD
+    description: Indicates the active brown-out reset supply monitor configuration.
     bit_offset: 2
     bit_size: 2
+    enum: BORCURTHRESHOLD
   - name: BORLVL
     bit_offset: 4
     bit_size: 1
@@ -675,6 +678,30 @@ enum/BORCLRCMD_KEY:
   variants:
   - name: KEY
     value: 199
+enum/BORCURTHRESHOLD:
+  bit_size: 2
+  variants:
+  - name: BORMIN
+    description: Default minimum threshold. A BOR0- violation triggers a BOR.
+    value: 0
+  - name: BORLEVEL1
+    description: A BOR1- violation generates a BORLVL interrupt.
+    value: 1
+  - name: BORLEVEL2
+    description: A BOR2- violation generates a BORLVL interrupt.
+    value: 2
+  - name: BORLEVEL3
+    description: A BOR3- violation generates a BORLVL interrupt.
+    value: 3
+enum/CURHSCLKSEL:
+  bit_size: 1
+  variants:
+  - name: SYSPLL
+    description: HSCLK is currently sourced from the SYSPLL.
+    value: 0
+  - name: HFCLK
+    description: HSCLK is currently sourced from the HFCLK.
+    value: 1
 enum/DSLEEP:
   bit_size: 2
   variants:
@@ -775,6 +802,57 @@ enum/FLASHWAIT:
   - name: WAIT2
     description: 2 flash wait states are applied.
     value: 2
+enum/HFCLK4MFPCLKDIV:
+  bit_size: 4
+  variants:
+  - name: DIV1
+    description: HFCLK is not divided before being used for MFPCLK.
+    value: 0
+  - name: DIV2
+    description: HFCLK is divided by 2 before being used for MFPCLK.
+    value: 1
+  - name: DIV3
+    description: HFCLK is divided by 3 before being used for MFPCLK.
+    value: 2
+  - name: DIV4
+    description: HFCLK is divided by 4 before being used for MFPCLK.
+    value: 3
+  - name: DIV5
+    description: HFCLK is divided by 5 before being used for MFPCLK.
+    value: 4
+  - name: DIV6
+    description: HFCLK is divided by 6 before being used for MFPCLK.
+    value: 5
+  - name: DIV7
+    description: HFCLK is divided by 7 before being used for MFPCLK.
+    value: 6
+  - name: DIV8
+    description: HFCLK is divided by 8 before being used for MFPCLK.
+    value: 7
+  - name: DIV9
+    description: HFCLK is divided by 9 before being used for MFPCLK.
+    value: 8
+  - name: DIV10
+    description: HFCLK is divided by 10 before being used for MFPCLK.
+    value: 9
+  - name: DIV11
+    description: HFCLK is divided by 11 before being used for MFPCLK.
+    value: 10
+  - name: DIV12
+    description: HFCLK is divided by 12 before being used for MFPCLK.
+    value: 11
+  - name: DIV13
+    description: HFCLK is divided by 13 before being used for MFPCLK.
+    value: 12
+  - name: DIV14
+    description: HFCLK is divided by 14 before being used for MFPCLK.
+    value: 13
+  - name: DIV15
+    description: HFCLK is divided by 15 before being used for MFPCLK.
+    value: 14
+  - name: DIV16
+    description: HFCLK is divided by 16 before being used for MFPCLK.
+    value: 15
 enum/HFXTRSEL:
   bit_size: 2
   variants:
@@ -801,10 +879,10 @@ enum/HSCLKSEL:
   bit_size: 1
   variants:
   - name: SYSPLL
-    description: HSCLK is sourced from the SYSPLL.
+    description: The SYSPLL position of the mux, and the reset value. This device has no SYSPLL, so HSCLK has no source while this is selected.
     value: 0
-  - name: HFCLK
-    description: HSCLK is sourced from HFCLK.
+  - name: HFCLKCLK
+    description: HSCLK is sourced from the HFCLK.
     value: 1
 enum/ID:
   bit_size: 5
