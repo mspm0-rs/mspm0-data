@@ -215,7 +215,9 @@ fieldset/EXLFCTL:
   fields:
   - name: SETUSEEXLF
     description: Use external LF CLK IN.
-    bit_offset: 2
+    # The C-series SVD puts this at bit 2, which contradicts SLAU893 and every other family's
+    # SYSCTL. A write at bit 2 would never take effect.
+    bit_offset: 0
     bit_size: 1
   - name: KEY
     bit_offset: 24
@@ -226,7 +228,9 @@ fieldset/EXRSTPIN:
   fields:
   - name: DISABLE
     description: Disable External Reset.
-    bit_offset: 2
+    # The C-series SVD puts this at bit 2, which contradicts SLAU893 and every other family's
+    # SYSCTL. A write at bit 2 would never take effect.
+    bit_offset: 0
     bit_size: 1
   - name: KEY
     bit_offset: 24
@@ -499,7 +503,9 @@ fieldset/SYSSTATUSCLR:
   fields:
   - name: ALLECC
     description: Clear ALL ECC related SYSSTATUS indicators.
-    bit_offset: 2
+    # The C-series SVD puts this at bit 2, which contradicts SLAU893 and every other family's
+    # SYSCTL. A write at bit 2 would never take effect.
+    bit_offset: 0
     bit_size: 1
   - name: KEY
     bit_offset: 24
