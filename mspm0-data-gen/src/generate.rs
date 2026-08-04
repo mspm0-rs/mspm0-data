@@ -108,7 +108,7 @@ fn generate_family(
     apply_block_async(&mut peripherals, svd);
     apply_operating_modes(operating_modes, &mut peripherals);
     apply_standby1_timers(family, &mut peripherals)?;
-    apply_timers(timers, &mut peripherals);
+    apply_timers(family, sysconfig, timers, &mut peripherals)?;
     apply_clock_ranges(family, &mut peripherals);
     apply_adc(family, sysconfig, &mut peripherals)?;
 
@@ -1162,18 +1162,58 @@ fn apply_clock_ranges(family: &PartFamily, peripherals: &mut BTreeMap<String, Pe
 /// Matched by instance name, which is what the datasheet table names its rows. That the same name
 /// can mean different capabilities on another family is exactly why this is read per family rather
 /// than from one table.
-fn apply_timers(timers: Option<&Timers>, peripherals: &mut BTreeMap<String, Peripheral>) {
+fn apply_timers(
+    family: &PartFamily,
+    sysconfig: &SysconfigFile,
+    timers: Option<&Timers>,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) -> anyhow::Result<()> {
     let Some(timers) = timers else {
-        return;
+        return Ok(());
     };
+
+    // Sysconfig's own count of capture/compare channels, where it has one. It agrees with the
+    // datasheet on every instance which has both, so a disagreement means the table was misread
+    // rather than that the two sources describe different things.
+    //
+    // Only the count is cross-checked. `SYS_FLAVOR` cannot stand in for the rest: `flavorC` with two
+    // channels covers `TIMG6` both with and without shadow load, since mspm0g151x, mspm0g351x and
+    // mspm0g518x drop it where the earlier G families keep it.
+    let mut channels = BTreeMap::new();
+    for peripheral in sysconfig.peripherals.values() {
+        let Some(count) = peripheral.attributes.get("SYS_NUM_CC") else {
+            continue;
+        };
+        let Some(count) = count.as_str().and_then(|count| count.parse::<u8>().ok()) else {
+            bail!(
+                "{}: {} SYS_NUM_CC is not a number: {count}",
+                family.family,
+                peripheral.name
+            );
+        };
+
+        channels.insert(maybe_rename(&peripheral.name), count);
+    }
 
     for (name, peripheral) in peripherals.iter_mut() {
         if peripheral.ty != PeripheralType::Tim {
             continue;
         }
 
-        peripheral.timer = timers.timers.get(name).copied();
+        let timer = timers.timers.get(name).copied();
+        peripheral.timer = timer;
+
+        if let (Some(timer), Some(&count)) = (timer, channels.get(name)) {
+            ensure!(
+                timer.ccp_channels == count,
+                "{}, {name}: data/timers says {} capture/compare channels but sysconfig says {count}",
+                family.family,
+                timer.ccp_channels
+            );
+        }
     }
+
+    Ok(())
 }
 
 /// Record which timers keep receiving a clock in STANDBY1.
