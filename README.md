@@ -89,7 +89,7 @@ SVDs have some widespread annoyances that should be fixed when adding register Y
 
 ## Peripheral mapping (perimap)
 
-The `mspm0-metapac-gen` binary has a map to match peripherals to the right version in all chips, the [perimap](./mspm0-data-gen/src/perimap.rs).
+The `mspm0-data-gen` binary has a map to match peripherals to the right version in all chips, the [perimap](./mspm0-data-gen/src/perimap.rs).
 
 When parsing a chip, for each peripheral a "key" string is constructed using this format: `FAMILY:PERIPHERAL_NAME`, where:
 
