@@ -39,6 +39,11 @@ These are the data sources currently used.
   * Peripheral PF (pin function) mappings.
   * Peripheral pin names.
   * Which pins have wakeup logic (`io_wakeup`).
+  * Number of ADC conversion channels (`SYS_ADC_MEMCTL_DIM`).
+* SysConfig `clocktree.json`
+  * Which crystal drivers, external clock inputs and SYSPLL a family has. This is not derivable from
+    the SYSCTL register block: MSPM0C110x and MSPM0C1105/C1106 share one, but only the latter has a
+    crystal driver.
 * mspm0-sdk header files
   * Interrupt number, name
   * Peripheral addresses
@@ -47,24 +52,40 @@ These are the data sources currently used.
   * Register blocks
   * Which peripheral instances have a `CLKCFG.BLOCKASYNC` bit. TI does not publish an SVD for every
     family, so this is optional per family.
-* Device datasheets, from the "Supported Functionality by Operating Mode" table and its footnotes
+* Device datasheets, read by the scripts in [`tools/`](./tools)
   * How deep a sleep each PD1 peripheral is retained through, and how deep each peripheral
-    stays usable ([`data/operating_modes/`](./data/operating_modes))
+    stays usable, from the "Supported Functionality by Operating Mode" table
+    ([`data/operating_modes/`](./data/operating_modes))
+  * What each timer instance can do, from the TIMx configuration table
+    ([`data/timers/`](./data/timers))
+  * How long the device takes to reach RUN from each sleep mode, from the wake-up timing table
+    ([`data/wakeup/`](./data/wakeup))
   * Which timers stay clocked in STANDBY1 (`standby1_timers` in [`parts.yaml`](./data/parts.yaml))
-  * MCLK and ULPCLK ceilings
+  * MCLK and ULPCLK ceilings, the SYSOSC base frequency, the flash wait-state bands, `fADCCLK` and
+    `TRNGCLKF` (all in [`parts.yaml`](./data/parts.yaml))
+* Device errata sheets
+  * Which functional advisories apply ([`data/errata/`](./data/errata))
 * Manually entered
   * IIDX values for interrupts within a `INT_GROUP`
+  * Whether the device has `MCLKCFG.UDIV` and the STOP1 sub-mode (`clock_tree` in
+    [`parts.yaml`](./data/parts.yaml))
+
+Run `./d download-docs` to fetch the datasheets, errata sheets and reference manuals into `./files/`;
+the `tools/` scripts read them from there.
 
 # Adding a new chip
 
 1. Update the data sources to include the new chip. You will need to get the SVD and sysconfig metadata.
 2. Add the new chip family and part numbers to [`parts.yaml`](./data/parts.yaml). Besides the part
-   numbers and memory this needs the clock ceilings and `standby1_timers` from the datasheet.
+   numbers and memory this needs every frequency, the `clock_tree` entries and `standby1_timers`,
+   all from the datasheet.
 3. If needed, add any chip specific register blocks like `sysctl`.
 4. Check the peripheral mapping in [`perimap.rs`](./mspm0-data-gen/src/perimap.rs) to use the correct peripherals.
-5. Generate `data/operating_modes/<family>.yaml` with
-   [`tools/operating_modes.py`](./tools/operating_modes.py), which reads the datasheet's per-mode
-   table.
+5. Fetch the documents with `./d download-docs`, then regenerate the extracted data:
+   `tools/operating_modes.py`, `tools/timers.py`, `tools/wakeup.py` and `tools/errata.py`, each with
+   `--write files`.
+6. Run `./d gen` and read its output. `verify.rs` reports every per-chip gap it can detect, including
+   a family with no timer, errata or operating-mode data.
 
 # Adding support for a new peripheral
 
