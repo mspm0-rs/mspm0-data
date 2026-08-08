@@ -31,7 +31,7 @@ pub fn generate(out_dir: &Path) -> anyhow::Result<()> {
 
     let re = Regex::new("# *! *\\[.*\\]").unwrap();
 
-    for f in glob::glob("data/registers/*").unwrap() {
+    for f in glob::glob("data/registers/*.yaml").unwrap() {
         let f = f.unwrap();
 
         if !f.is_file() {
