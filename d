@@ -86,13 +86,50 @@ case "$CMD" in
         ./d check
     ;;
     check)
-        # Iterate over each chip that was generated in metapac and build it.
+        # Build every chip the metapac generated.
         #
-        # TODO: Parallelize this to speed up checks?
-        for feature in build/mspm0-metapac/src/chips/*/; do
-            feature=$(basename "$feature")
-            cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml --features pac,metadata,$feature
+        # Cargo holds an exclusive lock on its target directory for the length of a build, so
+        # running these in parallel against one directory only makes them queue. The chips are
+        # dealt out to JOBS shards instead, each with a target directory of its own: the
+        # dependencies are built once per shard and the chips within a shard reuse them. The
+        # directories sit under build/mspm0-metapac/ so that `build-metapac` clears them.
+        #
+        # JOBS=1 restores the sequential behaviour. Do not regenerate while this runs.
+        jobs=${JOBS:-$(nproc)}
+        chips=(build/mspm0-metapac/src/chips/*/)
+        logs=$(mktemp -d)
+
+        for shard in $(seq 0 $((jobs - 1))); do
+            (
+                export CARGO_TARGET_DIR="build/mspm0-metapac/target/shard-$shard"
+
+                for i in $(seq "$shard" "$jobs" $((${#chips[@]} - 1))); do
+                    feature=$(basename "${chips[i]}")
+
+                    if cargo build --release --manifest-path build/mspm0-metapac/Cargo.toml \
+                        --features pac,metadata,"$feature" > "$logs/$feature" 2>&1
+                    then
+                        rm "$logs/$feature"
+                        echo "ok $feature"
+                    else
+                        echo "FAILED $feature"
+                    fi
+                done
+            ) &
         done
+        wait
+
+        # A chip's log is left behind only if it failed to build.
+        failures=$(ls "$logs")
+
+        for feature in $failures; do
+            echo
+            echo "=== $feature"
+            cat "$logs/$feature"
+        done
+
+        rm -rf "$logs"
+        [ -z "$failures" ]
     ;;
     *)
         echo "unknown command"
