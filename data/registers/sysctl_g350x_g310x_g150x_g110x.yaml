@@ -576,14 +576,13 @@ fieldset/NMI:
     description: Clr the BORLVL NMI.
     bit_offset: 0
     bit_size: 1
-  - name: WWDT0
-    description: Watch Dog 0 Fault.
+  - name: WWDT
+    description: Watch dog fault, one bit per WWDT instance.
     bit_offset: 1
     bit_size: 1
-  - name: WWDT1
-    description: Watch Dog 0 Fault.
-    bit_offset: 2
-    bit_size: 1
+    array:
+      len: 2
+      stride: 1
   - name: LFCLKFAIL
     description: LFXT-EXLF Monitor Fail.
     bit_offset: 3
