@@ -26,6 +26,7 @@ pub static PERIMAP: RegexMap<&str> = RegexMap::new(&[
     // The mode maps of a UNICOMM instance. The SVDs describe them per instance and identically, so
     // one version each covers the portfolio, as with the wrapper.
     (".*:unicommi2cc", "v1"),
+    (".*:unicommuart", "v1"),
     // SLAU846 §23.3, SLAU847 §19.3, SLAU893 §13.3 and SLAU923 §11.3 describe the same eight
     // registers with the same fields, so every family shares one version. The SVDs disagree with
     // the TRMs and with each other about CTL0 bits 1 and 2, which the YAML resolves in the TRMs'
