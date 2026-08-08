@@ -28,7 +28,7 @@ block/CPU_INT:
     description: Interrupt clear.
     byte_offset: 40
     access: Write
-    fieldset: ICLR
+    fieldset: CPU_INT
 block/DMA_TRIG_RX:
   items:
   - name: IMASK
@@ -303,12 +303,11 @@ fieldset/CTL1:
     description: 'Command/Data Mode Value When CTL1.CDENABLE is 1, CS3 line is used as C/D signal to distinguish between Command (C/D low) and Data (C/D high) information. When a value is written into the CTL1.CDMODE bits, the C/D (CS3) line will go low for the given numbers of byte which are sent by the SPI, starting with the next value to be transmitted after which, C/D line will go high automatically 0: Manual mode with C/D signal as High 1-14: C/D is low while this number of bytes are being sent after which, this field sets to 0 and C/D goes high. Reading this field at any time returns the remaining number of command bytes. 15: Manual mode with C/D signal as Low.'
     bit_offset: 12
     bit_size: 4
-    enum: CTL1_CDMODE
+    enum: CDMODE
   - name: REPEATTX
     description: 'Counter to repeat last transfer 0: repeat last transfer is disabled. x: repeat the last transfer with the given number. The transfer will be started with writing a data into the TX Buffer. Sending the data will be repeated with the given value, so the data will be transferred X+1 times in total. The behavior is identical as if the data would be written into the TX Buffer that many times as defined by the value here. It can be used to clean a transfer or to pull a certain amount of data by a peripheral.'
     bit_offset: 16
     bit_size: 8
-    enum: REPEATTX
   - name: RXTIMEOUT
     description: Receive Timeout (only for Peripheral mode) Defines the number of Clock Cycles before after which the Receive Timeout flag RTOUT is set. The time is calculated using the control register for the clock selection and divider in the Controller mode configuration. A value of 0 disables this function.
     bit_offset: 24
@@ -330,57 +329,6 @@ fieldset/DMA_TRIG_TX:
   - name: TX
     description: Transmit FIFO event mask.
     bit_offset: 5
-    bit_size: 1
-fieldset/ICLR:
-  description: Interrupt clear.
-  fields:
-  - name: PER
-    description: Clear Parity error event.
-    bit_offset: 0
-    bit_size: 1
-  - name: RXFIFO_OVF
-    description: Clear RXFIFO overflow event.
-    bit_offset: 1
-    bit_size: 1
-  - name: RX
-    description: Clear Receive event.
-    bit_offset: 2
-    bit_size: 1
-  - name: RXFULL
-    description: Clear RX FIFO underflow event.
-    bit_offset: 3
-    bit_size: 1
-  - name: TXFIFO_UNF
-    description: Clear TXFIFO underflow event.
-    bit_offset: 4
-    bit_size: 1
-  - name: TX
-    description: Clear Transmit event.
-    bit_offset: 5
-    bit_size: 1
-  - name: TXEMPTY
-    description: Clear Transmit FIFO Empty event.
-    bit_offset: 6
-    bit_size: 1
-  - name: IDLE
-    description: Clear SPI IDLE mode event.
-    bit_offset: 8
-    bit_size: 1
-  - name: RTOUT
-    description: Clear SPI Receive Time-Out Event.
-    bit_offset: 9
-    bit_size: 1
-  - name: DMA_DONE_RX
-    description: Clear DMA Done on RX Event Channel Interrupt.
-    bit_offset: 15
-    bit_size: 1
-  - name: DMA_DONE_TX
-    description: Clear DMA Done on TX Event Channel Interrupt.
-    bit_offset: 16
-    bit_size: 1
-  - name: LTOUT
-    description: Clear SPI Line Time-Out Event.
-    bit_offset: 20
     bit_size: 1
 fieldset/IFLS:
   description: Interrupt FIFO Level Select Register.
@@ -468,12 +416,11 @@ fieldset/STAT:
     description: Busy.
     bit_offset: 8
     bit_size: 1
-    enum: BUSY
   - name: CDMODE
     description: Current CDMODE status. This reflects the current counter counter value.
     bit_offset: 12
     bit_size: 4
-    enum: STAT_CDMODE
+    enum: CDMODE
 fieldset/TXDATA:
   description: TXDATA Register.
   fields:
@@ -481,15 +428,15 @@ fieldset/TXDATA:
     description: Transmit Data When read, last written value will be returned. If the last write to this field was a 32-bit write (with PACKEN=1), 32-bits will be returned and if the last write was a 16-bit write (PACKEN=0), those 16-bits will be returned. When written, one or two FIFO entries will be written depending on PACKEN value. Data values are removed from the transmit FIFO one value at a time by the transmit logic. It is loaded into the transmit serial shifter, then serially shifted out onto the TXD output pin at the programmed bit rate. When a data size of less than 16 bits is selected, the user must right-justify data written to the transmit FIFO. The transmit logic ignores the unused bits.
     bit_offset: 0
     bit_size: 16
-enum/BUSY:
-  bit_size: 1
+enum/CDMODE:
+  bit_size: 4
   variants:
-  - name: IDLE
-    description: SPI is in idle mode.
+  - name: DATA
+    description: 'Manual mode: Data.'
     value: 0
-  - name: ACTIVE
-    description: SPI is currently transmitting and/or receiving data.
-    value: 1
+  - name: COMMAND
+    description: 'Manual mode: Command.'
+    value: 15
 enum/CSSEL:
   bit_size: 2
   variants:
@@ -505,15 +452,6 @@ enum/CSSEL:
   - name: CSSEL_3
     description: 'CS line select: 3.'
     value: 3
-enum/CTL1_CDMODE:
-  bit_size: 4
-  variants:
-  - name: DATA
-    description: 'Manual mode: Data.'
-    value: 0
-  - name: COMMAND
-    description: 'Manual mode: Command.'
-    value: 15
 enum/DSS:
   bit_size: 5
   variants:
@@ -595,12 +533,6 @@ enum/RATIO:
   - name: DIV_BY_8
     description: Divide clock source by 8.
     value: 7
-enum/REPEATTX:
-  bit_size: 8
-  variants:
-  - name: DISABLE
-    description: REPEATTX disable.
-    value: 0
 enum/RXIFLSEL:
   bit_size: 3
   variants:
@@ -691,15 +623,6 @@ enum/STAT:
   - name: LTOUT
     description: SPI line time-out interrupt.
     value: 21
-enum/STAT_CDMODE:
-  bit_size: 4
-  variants:
-  - name: DATA
-    description: 'Manual mode: Data.'
-    value: 0
-  - name: COMMAND
-    description: 'Manual mode: Command.'
-    value: 15
 enum/TXIFLSEL:
   bit_size: 3
   variants:

@@ -28,7 +28,7 @@ block/CPU_INT:
     description: Interrupt clear.
     byte_offset: 40
     access: Write
-    fieldset: ICLR
+    fieldset: CPU_INT
 block/DMA_TRIG_RX:
   items:
   - name: IMASK
@@ -156,13 +156,12 @@ block/UNICOMMUART:
     description: UART LIN Mode Control Register.
     byte_offset: 4404
     fieldset: LINCTL
-  - name: LINC0
+  - name: LINC
     description: UART LIN Mode Capture 0 Register.
+    array:
+      len: 2
+      stride: 4
     byte_offset: 4408
-    fieldset: LINC
-  - name: LINC1
-    description: UART LIN Mode Capture 1 Register.
-    byte_offset: 4412
     fieldset: LINC
   - name: IRCTL
     description: eUSCI_Ax IrDA Control Word Register.
@@ -391,85 +390,6 @@ fieldset/IBRD:
     description: Integer Baud-Rate Divisor.
     bit_offset: 0
     bit_size: 16
-fieldset/ICLR:
-  description: Interrupt clear.
-  fields:
-  - name: RTOUT
-    description: Clear UARTOUT Receive Time-Out Interrupt.
-    bit_offset: 0
-    bit_size: 1
-  - name: FRMERR
-    description: Clear UART Framing Error Interrupt.
-    bit_offset: 1
-    bit_size: 1
-  - name: PARERR
-    description: Clear UART Parity Error Interrupt.
-    bit_offset: 2
-    bit_size: 1
-  - name: BRKERR
-    description: Clear UART Break Error Interrupt.
-    bit_offset: 3
-    bit_size: 1
-  - name: OVRERR
-    description: Clear UART Receive Overrun Error Interrupt.
-    bit_offset: 4
-    bit_size: 1
-  - name: RXNE
-    description: Clear Negative Edge on UARTxRXD Interrupt.
-    bit_offset: 5
-    bit_size: 1
-  - name: RXPE
-    description: Clear Positive Edge on UARTxRXD Interrupt.
-    bit_offset: 6
-    bit_size: 1
-  - name: LINC0
-    description: Clear LIN Capture 0 / Match Interrupt.
-    bit_offset: 7
-    bit_size: 1
-  - name: LINC1
-    description: Clear LIN Capture 1 Interrupt.
-    bit_offset: 8
-    bit_size: 1
-  - name: LINOVF
-    description: Clear LIN Hardware Counter Overflow Interrupt.
-    bit_offset: 9
-    bit_size: 1
-  - name: RXINT
-    description: Clear UART Receive Interrupt.
-    bit_offset: 10
-    bit_size: 1
-  - name: TXINT
-    description: Clear UART Transmit Interrupt.
-    bit_offset: 11
-    bit_size: 1
-  - name: EOT
-    description: Clear UART End of Transmission Interrupt Indicates that the last bit of all transmitted data and flags has left the serializer and without any further Data in the TX Fifo or Buffer.
-    bit_offset: 12
-    bit_size: 1
-  - name: ADDR_MATCH
-    description: Clear Address Match Interrupt.
-    bit_offset: 13
-    bit_size: 1
-  - name: CTS
-    description: Clear UART Clear to Send Modem Interrupt.
-    bit_offset: 14
-    bit_size: 1
-  - name: DMA_DONE_RX
-    description: Clear DMA Done on RX Event Channel Interrupt.
-    bit_offset: 15
-    bit_size: 1
-  - name: DMA_DONE_TX
-    description: Clear DMA Done on TX Event Channel Interrupt.
-    bit_offset: 16
-    bit_size: 1
-  - name: NERR
-    description: Noise Error on triple voting. Asserted when the 3 samples of majority voting are not equal.
-    bit_offset: 17
-    bit_size: 1
-  - name: LTOUT
-    description: Clear UARTOUT Line Time-Out Interrupt.
-    bit_offset: 20
-    bit_size: 1
 fieldset/IFLS:
   description: UART Interrupt FIFO Level Select Register.
   fields:

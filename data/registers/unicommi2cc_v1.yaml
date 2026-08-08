@@ -28,7 +28,7 @@ block/CPU_INT:
     description: Interrupt clear.
     byte_offset: 40
     access: Write
-    fieldset: ICLR
+    fieldset: CPU_INT
 block/DMA_TRIG0:
   items:
   - name: IMASK
@@ -333,69 +333,6 @@ fieldset/GFCTL:
   - name: AGFEN
     description: Analog Glitch Suppression Enable.
     bit_offset: 8
-    bit_size: 1
-fieldset/ICLR:
-  description: Interrupt clear.
-  fields:
-  - name: RXDONE
-    description: Receive Data Interrupt Signals that a byte has been received.
-    bit_offset: 0
-    bit_size: 1
-  - name: TXDONE
-    description: Transmit Transaction completed Interrupt.
-    bit_offset: 1
-    bit_size: 1
-  - name: RXTRG
-    description: Receive Trigger.
-    bit_offset: 2
-    bit_size: 1
-  - name: TXTRG
-    description: Transmit FIFO Trigger.
-    bit_offset: 3
-    bit_size: 1
-  - name: RXFULL
-    description: RXFIFO full event.
-    bit_offset: 4
-    bit_size: 1
-  - name: TXEMPTY
-    description: Transmit FIFO Empty interrupt mask. This interrupt is set if all data in the Transmit FIFO have been shifted out and the transmit goes into idle mode.
-    bit_offset: 5
-    bit_size: 1
-  - name: NACK
-    description: Address/Data NACK Interrupt.
-    bit_offset: 7
-    bit_size: 1
-  - name: START
-    description: START Detection Interrupt.
-    bit_offset: 8
-    bit_size: 1
-  - name: STOP
-    description: STOP Detection Interrupt.
-    bit_offset: 9
-    bit_size: 1
-  - name: ARBLOST
-    description: Arbitration Lost Interrupt.
-    bit_offset: 10
-    bit_size: 1
-  - name: PEC_RX_ERR
-    description: RX Pec Error Interrupt.
-    bit_offset: 11
-    bit_size: 1
-  - name: TIMEOUTA
-    description: Timeout A interrupt.
-    bit_offset: 12
-    bit_size: 1
-  - name: TIMEOUTB
-    description: Timeout B Interrupt.
-    bit_offset: 13
-    bit_size: 1
-  - name: DMA_DONE_RX
-    description: DMA Done on Event Channel RX.
-    bit_offset: 15
-    bit_size: 1
-  - name: DMA_DONE_TX
-    description: DMA Done on Event Channel TX.
-    bit_offset: 16
     bit_size: 1
 fieldset/IFLS:
   description: Interrupt FIFO Level Select Register.
