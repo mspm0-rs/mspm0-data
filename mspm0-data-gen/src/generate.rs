@@ -9,7 +9,8 @@ use std::{
 use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
     Adc, Chip, DmaChannel, Interrupt, Memory, MemoryKind, Package, PackagePin, Peripheral,
-    PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain, PowerMode, Timer, WakeTimes,
+    PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain, PowerMode, Timer, Unicomm,
+    WakeTimes,
 };
 use regex::Regex;
 
@@ -958,6 +959,14 @@ const UNICOMM_MODE_OFFSETS: &[(&str, u32)] = &[
     ("SPI", 0x20000),
 ];
 
+/// The register map each UNICOMM mode is described by, and how [`Unicomm`] reports it.
+const UNICOMM_MODE_TYPES: &[(&str, PeripheralType, fn(&Unicomm) -> bool)] = &[
+    ("UART", PeripheralType::UnicommUart, |m| m.uart),
+    ("I2CC", PeripheralType::UnicommI2cc, |m| m.i2c_controller),
+    ("I2CT", PeripheralType::UnicommI2ct, |m| m.i2c_target),
+    ("SPI", PeripheralType::UnicommSpi, |m| m.spi),
+];
+
 /// Record which register maps each UNICOMM instance implements.
 fn apply_unicomm(
     family: &PartFamily,
@@ -999,6 +1008,60 @@ fn apply_unicomm(
         }
 
         peripheral.unicomm = Some(*modes);
+    }
+
+    // Each mode the instance implements becomes a peripheral of its own, so that a consumer gets
+    // the right register block at the right address rather than having to subtract an offset from
+    // the instance. TI's own SVDs model them this way too, as UC0_UART, UC0_I2CC and so on.
+    //
+    // The instance is what the device has: it owns the pins, the interrupt and the low power
+    // facts, and the views repeat only what is true of them as a window onto the same silicon.
+    let mut views = Vec::new();
+
+    for peripheral in peripherals.values() {
+        let (Some(modes), Some(address)) = (peripheral.unicomm, peripheral.address) else {
+            continue;
+        };
+
+        for (mode, ty, implemented) in UNICOMM_MODE_TYPES {
+            if !implemented(&modes) {
+                continue;
+            }
+
+            let offset = UNICOMM_MODE_OFFSETS
+                .iter()
+                .find(|(name, _)| name == mode)
+                .map(|(_, offset)| offset)
+                .expect("every mode has an offset");
+
+            let name = format!("{}_{mode}", peripheral.name);
+            let version = PERIMAP
+                .get(&format!("{}:{ty}", family.family))
+                .map(|version| version.to_string());
+
+            views.push(Peripheral {
+                name: name.clone(),
+                ty: *ty,
+                version,
+                address: Some(address - offset),
+                power_domain: peripheral.power_domain,
+                pins: vec![],
+                sys_fentries: None,
+                interrupts: Vec::new(),
+                block_async: None,
+                retained_through: peripheral.retained_through,
+                usable_through: peripheral.usable_through,
+                clocked_in_standby1: None,
+                timer: None,
+                clock_range_hz: None,
+                adc: None,
+                unicomm: None,
+            });
+        }
+    }
+
+    for view in views {
+        peripherals.insert(view.name.clone(), view);
     }
 
     Ok(())
