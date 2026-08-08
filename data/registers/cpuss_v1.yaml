@@ -22,9 +22,8 @@ block/CPUSS:
     description: Prefetch/Cache control.
     byte_offset: 4864
     fieldset: CTL
-# The interrupt group is shared across all CPUSS variants.
 block/INT_GROUP:
-  description: Interrupt group.
+  description: Interrupt group. Shared across all CPUSS variants.
   items:
   - name: IIDX
     description: Interrupt index
