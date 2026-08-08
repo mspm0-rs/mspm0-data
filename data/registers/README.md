@@ -12,6 +12,23 @@ that is not written down here tends to get "corrected" back to the SVD by the ne
 Notes about what a register *means*, as opposed to where its definition came from, belong in the
 `description:` text instead. Those survive `fmt` and reach the generated PAC's documentation.
 
+## How much of this is reproducible
+
+Not all of it. `transforms/` gets a block most of the way there, but **re-running a transform does
+not reproduce the checked-in YAML**, so it cannot be treated as a regeneration step:
+
+- Seven blocks have no transform at all and are maintained entirely by hand: `beeper_v1`,
+  `cpuss_v1`, `factoryregion_v1`, `sysctl_c1105_c1106`, `tim_btimer`, `unicomm_v1`, `vref_v1`.
+- Where a transform does exist, the deviations below are not in it. Running the C110x SYSCTL
+  transform over `MSPM0C110X.svd` reproduces the checked-in block *except* for exactly the three
+  fields listed under it, which come out at the SVD's bit 2.
+- The cleanup work — arrays, shared fieldsets, deleted enums — is hand-applied on top and is not
+  encoded in the transforms either.
+
+So a transform is a starting point for a *new* block, not something to re-run over an existing one:
+doing that discards the hand work silently. Diff the output against the checked-in YAML instead, and
+use the flatten-and-compare check described in the root README to see what actually moved.
+
 ## Deviations from the SVD
 
 Each entry says what the SVD claims, what this repo says instead, and what the evidence is.
