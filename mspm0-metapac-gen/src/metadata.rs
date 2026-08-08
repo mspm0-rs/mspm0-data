@@ -304,6 +304,7 @@ fn generate_peripheral(
     let timer = match &peripheral.timer {
         Some(timer) => {
             let bits = Literal::u8_unsuffixed(timer.bits);
+            let counters = Literal::u8_unsuffixed(timer.counters);
             let ccp_channels = Literal::u8_unsuffixed(timer.ccp_channels);
             let external_pwm_channels = Literal::u8_unsuffixed(timer.external_pwm_channels);
             let (prescaler, repeat_counter) = (timer.prescaler, timer.repeat_counter);
@@ -315,6 +316,7 @@ fn generate_peripheral(
             quote! {
                 Some(Timer {
                     bits: #bits,
+                    counters: #counters,
                     prescaler: #prescaler,
                     repeat_counter: #repeat_counter,
                     ccp_channels: #ccp_channels,

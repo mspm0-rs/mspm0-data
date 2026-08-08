@@ -515,6 +515,19 @@ pub struct Timer {
     /// Counter width in bits, either 16 or 32.
     pub bits: u8,
 
+    /// Independent counters the instance implements.
+    ///
+    /// One on every general-purpose and advanced timer. The basic timers are a counter array and
+    /// are the only instances where this is not 1: four counters on the G-series `TIMBx`, two on
+    /// the L-series ones. The `tim_btimer` register block addresses the eight the TRM documents, so
+    /// this is what says which of those exist.
+    ///
+    /// Unlike the rest of this struct it does not come from `data/timers`: the datasheets state it
+    /// only as a feature of `TIMBx` in general, in wording which is identical on devices that
+    /// disagree. It is sysconfig's `SYS_NUM_COUNTERS`, which is per instance.
+    #[serde(default = "one")]
+    pub counters: u8,
+
     /// Whether the instance has the 8-bit prescaler.
     pub prescaler: bool,
 
@@ -552,6 +565,11 @@ pub struct Timer {
 
     /// Whether the instance can decode quadrature and Hall inputs.
     pub qei_hall: bool,
+}
+
+/// Default for [`Timer::counters`], which `data/timers` does not carry.
+fn one() -> u8 {
+    1
 }
 
 /// An operating mode, ordered from shallowest to deepest.

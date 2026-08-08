@@ -40,6 +40,8 @@ These are the data sources currently used.
   * Peripheral pin names.
   * Which pins have wakeup logic (`io_wakeup`).
   * Number of ADC conversion channels (`SYS_ADC_MEMCTL_DIM`).
+  * How many counters a basic timer instance has (`SYS_NUM_COUNTERS`), and a cross-check of the
+    datasheet's capture/compare channel counts (`SYS_NUM_CC`).
 * SysConfig `clocktree.json`
   * Which crystal drivers, external clock inputs and SYSPLL a family has. This is not derivable from
     the SYSCTL register block: MSPM0C110x and MSPM0C1105/C1106 share one, but only the latter has a

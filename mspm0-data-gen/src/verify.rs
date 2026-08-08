@@ -16,6 +16,7 @@ pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
         block_async_known,
         standby1_timer_exists,
         timer_capabilities_known,
+        timer_counters_addressable,
         errata_known,
         interrupts_claimed,
         wake_times_ordered,
@@ -383,6 +384,38 @@ fn timer_capabilities_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
             chip.family,
             unknown.join(", ")
         );
+    }
+
+    Ok(())
+}
+
+/// Verify that every counter an instance claims is one its register block can reach.
+///
+/// `tim_v1` has a single counter and `tim_btimer` an array of the eight the TRM documents, so a
+/// count outside those is either a sysconfig attribute nobody expected or a timer mapped to the
+/// wrong block.
+fn timer_counters_addressable(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    for peripheral in chip.peripherals.values() {
+        let Some(timer) = peripheral.timer else {
+            continue;
+        };
+
+        let addressable = match peripheral.version.as_deref() {
+            Some("btimer") => 8,
+            _ => 1,
+        };
+
+        if timer.counters == 0 || timer.counters > addressable {
+            bail!(
+                "{name}: {} has {} counters, but {} addresses {addressable}",
+                peripheral.name,
+                timer.counters,
+                peripheral
+                    .version
+                    .as_deref()
+                    .unwrap_or("no register block for it")
+            );
+        }
     }
 
     Ok(())

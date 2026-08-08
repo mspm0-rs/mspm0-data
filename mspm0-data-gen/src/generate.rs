@@ -9,7 +9,7 @@ use std::{
 use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
     Adc, Chip, DmaChannel, Interrupt, Memory, MemoryKind, Package, PackagePin, Peripheral,
-    PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain, PowerMode, WakeTimes,
+    PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain, PowerMode, Timer, WakeTimes,
 };
 use regex::Regex;
 
@@ -1205,12 +1205,36 @@ fn apply_timers(
         channels.insert(maybe_rename(&peripheral.name), count);
     }
 
+    // How many of the counter array's counters an instance implements. Only the basic timers have
+    // more than one, and sysconfig is the only per-instance source: the datasheets state it as a
+    // feature of TIMBx in general, in the same words on the G-series parts which have four and the
+    // L-series ones which have two.
+    let mut counters = BTreeMap::new();
+    for peripheral in sysconfig.peripherals.values() {
+        let Some(count) = peripheral.attributes.get("SYS_NUM_COUNTERS") else {
+            continue;
+        };
+        let Some(count) = count.as_str().and_then(|count| count.parse::<u8>().ok()) else {
+            bail!(
+                "{}: {} SYS_NUM_COUNTERS is not a number: {count}",
+                family.family,
+                peripheral.name
+            );
+        };
+
+        counters.insert(maybe_rename(&peripheral.name), count);
+    }
+
     for (name, peripheral) in peripherals.iter_mut() {
         if peripheral.ty != PeripheralType::Tim {
             continue;
         }
 
-        let timer = timers.timers.get(name).copied();
+        let timer = timers.timers.get(name).copied().map(|timer| Timer {
+            // Absent means the instance is not a counter array, so it has the one counter.
+            counters: counters.get(name).copied().unwrap_or(1),
+            ..timer
+        });
         peripheral.timer = timer;
 
         if let (Some(timer), Some(&count)) = (timer, channels.get(name)) {
