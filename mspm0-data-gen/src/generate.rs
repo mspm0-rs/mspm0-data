@@ -695,8 +695,16 @@ fn get_peripheral_type_version(chip_name: &str, name: &str) -> (PeripheralType, 
     } else {
         PeripheralType::Unknown
     };
+
+    // TIMB is a basic timer and has its own register block, so the key names the instance kind
+    // rather than the peripheral type. TIMA and TIMG share one, and both keep the plain `tim` key.
+    let key = if ty == PeripheralType::Tim && name.starts_with("TIMB") {
+        "timb"
+    } else {
+        &ty.to_string()
+    };
     let version = PERIMAP
-        .get(&format!("{}:{}", chip_name, ty))
+        .get(&format!("{}:{}", chip_name, key))
         .map(|s| s.to_string());
 
     (ty, version)
