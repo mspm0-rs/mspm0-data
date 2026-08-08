@@ -78,7 +78,7 @@ block/ECC:
     description: MCAN ECC Wrapper Revision Register.
     byte_offset: 16
     access: Read
-    fieldset: ERR_WRAP_REV
+    fieldset: ERR_REV
   - name: CTRL
     description: MCAN ECC Control.
     byte_offset: 20
@@ -86,7 +86,6 @@ block/ECC:
   - name: ERR_CTRL1
     description: MCAN ECC Error Control 1 Register.
     byte_offset: 24
-    fieldset: ERR_ERR_CTRL1
   - name: ERR_CTRL2
     description: MCAN ECC Error Control 2 Register.
     byte_offset: 28
@@ -99,7 +98,6 @@ block/ECC:
     description: MCAN ECC Error Status 2 Register.
     byte_offset: 36
     access: Read
-    fieldset: ERR_ERR_STAT2
   - name: ERR_STAT3
     description: MCAN ECC Error Status 3 Register.
     byte_offset: 40
@@ -107,35 +105,35 @@ block/ECC:
   - name: SEC_EOI
     description: MCAN Single Error Corrected End of Interrupt Register.
     byte_offset: 60
-    fieldset: ERR_SEC_EOI
+    fieldset: ERR_EOI
   - name: SEC_STATUS
     description: MCAN Single Error Corrected Interrupt Status Register.
     byte_offset: 64
-    fieldset: ERR_SEC_STATUS
+    fieldset: ERR_STATUS
   - name: SEC_ENABLE_SET
     description: MCAN Single Error Corrected Interrupt Enable Set Register.
     byte_offset: 128
-    fieldset: ERR_SEC_ENABLE_SET
+    fieldset: ERR_ENABLE_SET
   - name: SEC_ENABLE_CLR
     description: MCAN Single Error Corrected Interrupt Enable Clear Register.
     byte_offset: 192
-    fieldset: ERR_SEC_ENABLE_CLR
+    fieldset: ERR_ENABLE_CLR
   - name: DED_EOI
     description: MCAN Double Error Detected End of Interrupt Register.
     byte_offset: 316
-    fieldset: ERR_DED_EOI
+    fieldset: ERR_EOI
   - name: DED_STATUS
     description: MCAN Double Error Detected Interrupt Status Register.
     byte_offset: 320
-    fieldset: ERR_DED_STATUS
+    fieldset: ERR_STATUS
   - name: DED_ENABLE_SET
     description: MCAN Double Error Detected Interrupt Enable Set Register.
     byte_offset: 384
-    fieldset: ERR_DED_ENABLE_SET
+    fieldset: ERR_ENABLE_SET
   - name: DED_ENABLE_CLR
     description: MCAN Double Error Detected Interrupt Enable Clear Register.
     byte_offset: 448
-    fieldset: ERR_DED_ENABLE_CLR
+    fieldset: ERR_ENABLE_CLR
   - name: AGGR_ENABLE_SET
     description: MCAN Error Aggregator Enable Set Register.
     byte_offset: 512
@@ -147,11 +145,11 @@ block/ECC:
   - name: AGGR_STATUS_SET
     description: MCAN Error Aggregator Status Set Register.
     byte_offset: 520
-    fieldset: ERR_AGGR_STATUS_SET
+    fieldset: ERR_AGGR_STATUS
   - name: AGGR_STATUS_CLR
     description: MCAN Error Aggregator Status Clear Register.
     byte_offset: 524
-    fieldset: ERR_AGGR_STATUS_CLR
+    fieldset: ERR_AGGR_STATUS
 block/MCAN:
   items:
   - name: CREL
@@ -163,7 +161,6 @@ block/MCAN:
     description: MCAN Endian Register.
     byte_offset: 4
     access: Read
-    fieldset: ENDN
   - name: DBTP
     description: MCAN Data Bit Timing and Prescaler Register.
     byte_offset: 12
@@ -251,13 +248,12 @@ block/MCAN:
     byte_offset: 148
     access: Read
     fieldset: HPMS
-  - name: NDAT1
-    description: MCAN New Data 1.
+  - name: NDAT
+    description: 'MCAN New Data. Index 0 covers message buffers 0 to 31 and index 1 buffers 32 to 63.'
+    array:
+      len: 2
+      stride: 4
     byte_offset: 152
-    fieldset: NDAT
-  - name: NDAT2
-    description: MCAN New Data 2.
-    byte_offset: 156
     fieldset: NDAT
   - name: RXF0C
     description: MCAN Rx FIFO 0 Configuration.
@@ -417,24 +413,24 @@ block/SUBSYS:
   - name: ICS
     description: MCAN Subsystem Interrupt Clear Shadow Register.
     byte_offset: 12
-    fieldset: SUBSYS_ICS
+    fieldset: SUBSYS_INT
   - name: IRS
     description: MCAN Subsystem Interrupt Raw Satus Register.
     byte_offset: 16
-    fieldset: SUBSYS_IRS
+    fieldset: SUBSYS_INT
   - name: IECS
     description: MCAN Subsystem Interrupt Enable Clear Shadow Register.
     byte_offset: 20
-    fieldset: SUBSYS_IECS
+    fieldset: SUBSYS_INT
   - name: IE
     description: MCAN Subsystem Interrupt Enable Register.
     byte_offset: 24
-    fieldset: SUBSYS_IE
+    fieldset: SUBSYS_INT
   - name: IES
     description: MCAN Subsystem Interrupt Enable Status.
     byte_offset: 28
     access: Read
-    fieldset: SUBSYS_IES
+    fieldset: SUBSYS_INT
   - name: EOI
     description: MCAN Subsystem End of Interrupt.
     byte_offset: 32
@@ -524,14 +520,13 @@ fieldset/CCCR:
 fieldset/CPU_INT:
   description: Interrupt clear.
   fields:
-  - name: INTL0
-    description: Clear MCAN Interrupt Line 0.
+  - name: INTL
+    description: The MCAN interrupt line.
     bit_offset: 0
     bit_size: 1
-  - name: INTL1
-    description: Clear MCAN Interrupt Line 1.
-    bit_offset: 1
-    bit_size: 1
+    array:
+      len: 2
+      stride: 1
   - name: SEC
     description: Clear Message RAM SEC interrupt.
     bit_offset: 2
@@ -637,9 +632,6 @@ fieldset/ECR:
     description: 'CAN Error Logging. The counter is incremented each time when a CAN protocol error causes the Transmit Error Counter or the Receive Error Counter to be incremented. It is reset by read access to CEL. The counter stops at 0xFF; the next increment of TEC or REC sets interrupt flag IR.ELO. Note: When CCCR.ASM is set, the CAN protocol controller does not increment TEC and REC when a CAN protocol error is detected, but CEL is still incremented.'
     bit_offset: 16
     bit_size: 8
-fieldset/ENDN:
-  description: MCAN Endian Register.
-  fields: []
 fieldset/ERR_AGGR_ENABLE_CLR:
   description: MCAN Error Aggregator Enable Clear Register.
   fields:
@@ -662,19 +654,8 @@ fieldset/ERR_AGGR_ENABLE_SET:
     description: Write 1 to enable timeout errors. Reads return the corresponding enable bit's current value.
     bit_offset: 1
     bit_size: 1
-fieldset/ERR_AGGR_STATUS_CLR:
-  description: MCAN Error Aggregator Status Clear Register.
-  fields:
-  - name: AGGR_PARITY_ERR
-    description: Aggregator Parity Error Status 2-bit saturating counter of the number of parity errors that have occurred since last cleared. 0 No parity errors have occurred 1 One parity error has occurred 2 Two parity errors have occurred 3 Three parity errors have occurred A write of a non-zero value to this bit field decrements it by the value provided.
-    bit_offset: 0
-    bit_size: 2
-  - name: SVBUS_TIMEOUT
-    description: Aggregator Serial VBUS Timeout Error Status 2-bit saturating counter of the number of SVBUS timeout errors that have occurred since last cleared. 0 No timeout errors have occurred 1 One timeout error has occurred 2 Two timeout errors have occurred 3 Three timeout errors have occurred A write of a non-zero value to this bit field decrements it by the value provided.
-    bit_offset: 2
-    bit_size: 2
-fieldset/ERR_AGGR_STATUS_SET:
-  description: MCAN Error Aggregator Status Set Register.
+fieldset/ERR_AGGR_STATUS:
+  description: MCAN ECC aggregator status.
   fields:
   - name: AGGR_PARITY_ERR
     description: Aggregator Parity Error Status 2-bit saturating counter of the number of parity errors that have occurred since last cleared. 0 No parity errors have occurred 1 One parity error has occurred 2 Two parity errors have occurred 3 Three parity errors have occurred A write of a non-zero value to this bit field increments it by the value provided.
@@ -719,37 +700,6 @@ fieldset/ERR_CTRL:
     description: Enables Serial VBUS timeout mechanism.
     bit_offset: 8
     bit_size: 1
-fieldset/ERR_DED_ENABLE_CLR:
-  description: MCAN Double Error Detected Interrupt Enable Clear Register.
-  fields:
-  - name: MSGMEM_ENABLE_CLR
-    description: Message RAM DED Interrupt Pending Enable Clear. Writing a 1 to this bit disables the Message RAM DED error interrupts. Writing a 0 has no effect. Reads return the corresponding enable bit's current value.
-    bit_offset: 0
-    bit_size: 1
-fieldset/ERR_DED_ENABLE_SET:
-  description: MCAN Double Error Detected Interrupt Enable Set Register.
-  fields:
-  - name: MSGMEM_ENABLE_SET
-    description: Message RAM DED Interrupt Pending Enable Set. Writing a 1 to this bit enables the Message RAM DED error interrupts. Writing a 0 has no effect. Reads return the corresponding enable bit's current value.
-    bit_offset: 0
-    bit_size: 1
-fieldset/ERR_DED_EOI:
-  description: MCAN Double Error Detected End of Interrupt Register.
-  fields:
-  - name: EOI_WR
-    description: Write to this register indicates that software has acknowledged the pending interrupt and the next interrupt can be sent to the host. Note that a write to the MCANERR_ERR_STAT1.CLR_ECC_DED goes through the SVBUS and has a delayed completion. To avoid an additional interrupt, read the MCANERR_ERR_STAT1 register back prior to writing to this bit field.
-    bit_offset: 0
-    bit_size: 1
-fieldset/ERR_DED_STATUS:
-  description: MCAN Double Error Detected Interrupt Status Register.
-  fields:
-  - name: MSGMEM_PEND
-    description: Message RAM DED Interrupt Pending 0 No DED interrupt is pending 1 DED interrupt is pending.
-    bit_offset: 0
-    bit_size: 1
-fieldset/ERR_ERR_CTRL1:
-  description: MCAN ECC Error Control 1 Register.
-  fields: []
 fieldset/ERR_ERR_CTRL2:
   description: MCAN ECC Error Control 2 Register.
   fields:
@@ -800,9 +750,6 @@ fieldset/ERR_ERR_STAT1:
     description: ECC Error Bit Position. Indicates the bit position in the RAM data that is in error on an SEC error. Only valid on an SEC error. 0 Bit 0 is in error 1 Bit 1 is in error 2 Bit 2 is in error 3 Bit 3 is in error ... 31 Bit 31 is in error >32 Invalid.
     bit_offset: 16
     bit_size: 16
-fieldset/ERR_ERR_STAT2:
-  description: MCAN ECC Error Status 2 Register.
-  fields: []
 fieldset/ERR_ERR_STAT3:
   description: MCAN ECC Error Status 3 Register.
   fields:
@@ -819,7 +766,7 @@ fieldset/ERR_ERR_STAT3:
     bit_offset: 9
     bit_size: 1
 fieldset/ERR_REV:
-  description: MCAN Error Aggregator Revision Register.
+  description: Revision of the ECC block or of its wrapper.
   fields:
   - name: REVMIN
     description: Minor Revision of the Error Aggregator.
@@ -837,29 +784,29 @@ fieldset/ERR_REV:
     description: PID Register Scheme.
     bit_offset: 30
     bit_size: 2
-fieldset/ERR_SEC_ENABLE_CLR:
-  description: MCAN Single Error Corrected Interrupt Enable Clear Register.
+fieldset/ERR_ENABLE_CLR:
+  description: Disable the message memory error interrupt.
   fields:
   - name: MSGMEM_ENABLE_CLR
     description: Message RAM SEC Interrupt Pending Enable Clear. Writing a 1 to this bit disables the Message RAM SEC error interrupts. Writing a 0 has no effect. Reads return the corresponding enable bit's current value.
     bit_offset: 0
     bit_size: 1
-fieldset/ERR_SEC_ENABLE_SET:
-  description: MCAN Single Error Corrected Interrupt Enable Set Register.
+fieldset/ERR_ENABLE_SET:
+  description: Enable the message memory error interrupt.
   fields:
   - name: MSGMEM_ENABLE_SET
     description: Message RAM SEC Interrupt Pending Enable Set. Writing a 1 to this bit enables the Message RAM SEC error interrupts. Writing a 0 has no effect. Reads return the corresponding enable bit's current value.
     bit_offset: 0
     bit_size: 1
-fieldset/ERR_SEC_EOI:
-  description: MCAN Single Error Corrected End of Interrupt Register.
+fieldset/ERR_EOI:
+  description: End of interrupt for a message memory error.
   fields:
   - name: EOI_WR
     description: Write to this register indicates that software has acknowledged the pending interrupt and the next interrupt can be sent to the host. Note that a write to the MCANERR_ERR_STAT1.CLR_ECC_SEC goes through the SVBUS and has a delayed completion. To avoid an additional interrupt, read the MCANERR_ERR_STAT1 register back prior to writing to this bit field.
     bit_offset: 0
     bit_size: 1
-fieldset/ERR_SEC_STATUS:
-  description: MCAN Single Error Corrected Interrupt Status Register.
+fieldset/ERR_STATUS:
+  description: Pending status of a message memory error.
   fields:
   - name: MSGMEM_PEND
     description: Message RAM SEC Interrupt Pending 0 No SEC interrupt is pending 1 SEC interrupt is pending.
@@ -891,25 +838,6 @@ fieldset/ERR_VECTOR:
     description: Read Completion Flag.
     bit_offset: 24
     bit_size: 1
-fieldset/ERR_WRAP_REV:
-  description: MCAN ECC Wrapper Revision Register.
-  fields:
-  - name: REVMIN
-    description: Minor Revision of the Error Aggregator.
-    bit_offset: 0
-    bit_size: 6
-  - name: REVMAJ
-    description: Major Revision of the Error Aggregator.
-    bit_offset: 8
-    bit_size: 3
-  - name: MODULE_ID
-    description: Module Identification Number.
-    bit_offset: 16
-    bit_size: 12
-  - name: SCHEME
-    description: PID Register Scheme.
-    bit_offset: 30
-    bit_size: 2
 fieldset/EVT_MODE:
   description: Event Mode.
   fields:
@@ -1090,14 +1018,13 @@ fieldset/IIDX:
 fieldset/ILE:
   description: MCAN Interrupt Line Enable.
   fields:
-  - name: EINT0
-    description: Enable Interrupt Line 0 0 Interrupt Line 0 is disabled 1 Interrupt Line 0 is enabled.
+  - name: EINT
+    description: Enable the MCAN interrupt line.
     bit_offset: 0
     bit_size: 1
-  - name: EINT1
-    description: Enable Interrupt Line 1 0 Interrupt Line 1 is disabled 1 Interrupt Line 1 is enabled.
-    bit_offset: 1
-    bit_size: 1
+    array:
+      len: 2
+      stride: 1
 fieldset/ILS:
   description: MCAN Interrupt Line Select.
   fields:
@@ -1682,39 +1609,11 @@ fieldset/SUBSYS_EXT_TS_UNSERVICED_INTR_CNTR:
     description: External Timestamp Counter Unserviced Rollover Interrupts. If this value is > 1, an MCANSS_EOI write of '1' to bit 0 will issue another interrupt. The status of this bit field is affected by the MCANSS_IRS.EXT_TS_CNTR_OVFL bit field.
     bit_offset: 0
     bit_size: 5
-fieldset/SUBSYS_ICS:
-  description: MCAN Subsystem Interrupt Clear Shadow Register.
-  fields:
-  - name: EXT_TS_CNTR_OVFL
-    description: External Timestamp Counter Overflow Interrupt Status Clear. Reads always return a 0. 0 Write of '0' has no effect 1 Write of '1' clears the MCANSS_IRS.EXT_TS_CNTR_OVFL bit.
-    bit_offset: 0
-    bit_size: 1
-fieldset/SUBSYS_IE:
-  description: MCAN Subsystem Interrupt Enable Register.
+fieldset/SUBSYS_INT:
+  description: Subsystem interrupt, one bit per source.
   fields:
   - name: EXT_TS_CNTR_OVFL
     description: External Timestamp Counter Overflow Interrupt Enable. A write of '0' has no effect. A write of '1' sets the MCANSS_IES.EXT_TS_CNTR_OVFL bit.
-    bit_offset: 0
-    bit_size: 1
-fieldset/SUBSYS_IECS:
-  description: MCAN Subsystem Interrupt Enable Clear Shadow Register.
-  fields:
-  - name: EXT_TS_CNTR_OVFL
-    description: External Timestamp Counter Overflow Interrupt Enable Clear. Reads always return a 0. 0 Write of '0' has no effect 1 Write of '1' clears the MCANSS_IES.EXT_TS_CNTR_OVFL bit.
-    bit_offset: 0
-    bit_size: 1
-fieldset/SUBSYS_IES:
-  description: MCAN Subsystem Interrupt Enable Status.
-  fields:
-  - name: EXT_TS_CNTR_OVFL
-    description: External Timestamp Counter Overflow Interrupt Enable Status. To set, use the CANSS_IE.EXT_TS_CNTR_OVFL bit. To clear, use the MCANSS_IECS.EXT_TS_CNTR_OVFL bit. 0 External timestamp counter overflow interrupt is not enabled 1 External timestamp counter overflow interrupt is enabled.
-    bit_offset: 0
-    bit_size: 1
-fieldset/SUBSYS_IRS:
-  description: MCAN Subsystem Interrupt Raw Satus Register.
-  fields:
-  - name: EXT_TS_CNTR_OVFL
-    description: External Timestamp Counter Overflow Interrupt Status. This bit is set by HW or by a SW write of '1'. To clear, use the MCANSS_ICS.EXT_TS_CNTR_OVFL bit. 0 External timestamp counter has not overflowed 1 External timestamp counter has overflowed When this bit is set to '1' by HW or SW, the MCANSS_EXT_TS_UNSERVICED_INTR_CNTR.EXT_TS_INTR_CNTR bit field will increment by 1.
     bit_offset: 0
     bit_size: 1
 fieldset/SUBSYS_PID:
