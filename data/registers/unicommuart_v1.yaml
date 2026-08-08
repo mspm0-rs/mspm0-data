@@ -242,14 +242,13 @@ fieldset/CPU_INT:
     description: Enable Positive Edge on UARTxRXD Interrupt.
     bit_offset: 6
     bit_size: 1
-  - name: LINC0
-    description: Enable LIN Capture 0 / Match Interrupt.
+  - name: LINC
+    description: 'LIN capture interrupt. Index 0 is the capture-or-match interrupt on the falling RXD edge, index 1 the capture interrupt on the rising edge.'
     bit_offset: 7
     bit_size: 1
-  - name: LINC1
-    description: Enable LIN Capture 1 Interrupt.
-    bit_offset: 8
-    bit_size: 1
+    array:
+      len: 2
+      stride: 1
   - name: LINOVF
     description: Enable LIN Hardware Counter Overflow Interrupt.
     bit_offset: 9
