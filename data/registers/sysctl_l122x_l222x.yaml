@@ -197,19 +197,19 @@ block/SYSCTL:
   - name: FRXPROTMAINSTART
     description: Flash RX Protection Start Address.
     byte_offset: 12312
-    fieldset: FRXPROTMAINSTART
+    fieldset: FPROTADDR
   - name: FRXPROTMAINEND
     description: Flash RX Protection End Address.
     byte_offset: 12316
-    fieldset: FRXPROTMAINEND
+    fieldset: FPROTADDR
   - name: FIPPROTMAINSTART
     description: Flash IP Protection Start Address.
     byte_offset: 12320
-    fieldset: FIPPROTMAINSTART
+    fieldset: FPROTADDR
   - name: FIPPROTMAINEND
     description: Flash IP Protection End Address.
     byte_offset: 12324
-    fieldset: FIPPROTMAINEND
+    fieldset: FPROTADDR
   - name: FLBANKSWPPOLICY
     description: Flash Bank Swap Policy.
     byte_offset: 12344
@@ -364,18 +364,11 @@ fieldset/FCCCMD:
     bit_offset: 24
     bit_size: 8
     enum: FCCCMD_KEY
-fieldset/FIPPROTMAINEND:
-  description: Flash IP Protection End Address.
+fieldset/FPROTADDR:
+  description: A flash protection boundary address.
   fields:
   - name: ADDR
-    description: Flash IP Protection End Address 64B granularity.
-    bit_offset: 6
-    bit_size: 16
-fieldset/FIPPROTMAINSTART:
-  description: Flash IP Protection Start Address.
-  fields:
-  - name: ADDR
-    description: Flash IP Protection Start Address 64B granularity.
+    description: The boundary address, at 64 byte granularity.
     bit_offset: 6
     bit_size: 16
 fieldset/FLBANKSWP:
@@ -392,20 +385,6 @@ fieldset/FLBANKSWPPOLICY:
     description: '1: Disables Policy To Allow Flash Bank Swapping.'
     bit_offset: 0
     bit_size: 1
-fieldset/FRXPROTMAINEND:
-  description: Flash RX Protection End Address.
-  fields:
-  - name: ADDR
-    description: Flash RX Protection End Address 64B granularity.
-    bit_offset: 6
-    bit_size: 16
-fieldset/FRXPROTMAINSTART:
-  description: Flash RX Protection Start Address.
-  fields:
-  - name: ADDR
-    description: Flash RX Protection Start Address 64B granularity.
-    bit_offset: 6
-    bit_size: 16
 fieldset/FWENABLE:
   description: Security Firewall Enable Register.
   fields:
