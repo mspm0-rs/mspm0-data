@@ -20,6 +20,9 @@ pub static PERIMAP: RegexMap<&str> = RegexMap::new(&[
     (".*:flashctl", "v1"),
     (".*:trng", "v1"),
     (".*:canfd", "v1"),
+    // One version: the SDK ships a single hw_unicomm.h for the portfolio, and the wrapper is what
+    // every instance has regardless of which mode maps it implements.
+    (".*:unicomm", "v1"),
     // SLAU846 §23.3, SLAU847 §19.3, SLAU893 §13.3 and SLAU923 §11.3 describe the same eight
     // registers with the same fields, so every family shares one version. The SVDs disagree with
     // the TRMs and with each other about CTL0 bits 1 and 2, which the YAML resolves in the TRMs'

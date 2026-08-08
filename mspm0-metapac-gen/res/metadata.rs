@@ -234,6 +234,36 @@ pub struct Peripheral {
     ///
     /// `None` for peripherals which are not ADCs.
     pub adc: Option<Adc>,
+
+    /// Which register maps this UNICOMM instance implements.
+    ///
+    /// `None` for peripherals which are not UNICOMM instances.
+    pub unicomm: Option<Unicomm>,
+}
+
+/// Which register maps a UNICOMM instance implements.
+///
+/// UNICOMM is one peripheral which is a UART, an SPI, an I2C controller or an I2C target depending
+/// on `IPMODE.SELECT`, with a register map per mode at a fixed offset below the instance's own
+/// address. **No instance implements all four**, and which it implements does not follow the
+/// instance name: on MSPM0G518x `UC0` is a UART or either half of an I2C but never an SPI, `UC2` is
+/// an SPI only, and `UC3` is a UART or an SPI.
+///
+/// An instance with one mode has nothing to select and no `IPMODE` register to select it with, so
+/// writing `IPMODE` is only meaningful where more than one of these is true.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct Unicomm {
+    /// Implements the UART register map, `0x80000` below the instance address.
+    pub uart: bool,
+
+    /// Implements the I2C controller register map, `0x60000` below the instance address.
+    pub i2c_controller: bool,
+
+    /// Implements the I2C target register map, `0x40000` below the instance address.
+    pub i2c_target: bool,
+
+    /// Implements the SPI register map, `0x20000` below the instance address.
+    pub spi: bool,
 }
 
 /// An inclusive frequency range, in Hz.

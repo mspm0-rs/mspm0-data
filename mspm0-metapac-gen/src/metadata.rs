@@ -351,6 +351,22 @@ fn generate_peripheral(
         None => quote! { None },
     };
 
+    let unicomm = match peripheral.unicomm {
+        Some(unicomm) => {
+            let (uart, spi) = (unicomm.uart, unicomm.spi);
+            let (i2c_controller, i2c_target) = (unicomm.i2c_controller, unicomm.i2c_target);
+            quote! {
+                Some(Unicomm {
+                    uart: #uart,
+                    i2c_controller: #i2c_controller,
+                    i2c_target: #i2c_target,
+                    spi: #spi,
+                })
+            }
+        }
+        None => quote! { None },
+    };
+
     Some(quote! {
         Peripheral {
             name: #name,
@@ -367,6 +383,7 @@ fn generate_peripheral(
             timer: #timer,
             clock_range_hz: #clock_range_hz,
             adc: #adc,
+            unicomm: #unicomm,
         }
     })
 }

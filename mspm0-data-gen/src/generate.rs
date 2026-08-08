@@ -111,6 +111,7 @@ fn generate_family(
     apply_timers(family, sysconfig, timers, &mut peripherals)?;
     apply_clock_ranges(family, &mut peripherals);
     apply_adc(family, sysconfig, &mut peripherals)?;
+    apply_unicomm(family, header, &mut peripherals)?;
 
     for part_number in family.part_numbers.iter() {
         // Filter for package types available on the part number.
@@ -343,6 +344,7 @@ fn generate_peripherals2(
                 timer: None,
                 clock_range_hz: None,
                 adc: None,
+                unicomm: None,
             };
 
             // Lookup the pins
@@ -599,6 +601,7 @@ fn generate_missing(
             timer: None,
             clock_range_hz: None,
             adc: None,
+            unicomm: None,
         },
     );
 
@@ -630,6 +633,7 @@ fn generate_missing(
             timer: None,
             clock_range_hz: None,
             adc: None,
+            unicomm: None,
         },
     );
 
@@ -669,6 +673,7 @@ fn generate_missing(
                     timer: None,
                     clock_range_hz: None,
                     adc: None,
+                    unicomm: None,
                 });
 
             let pin = device_pin
@@ -941,6 +946,64 @@ fn generate_dma_channels(
 ///
 /// `MEMCTL` is per instance in sysconfig, so it is read per instance even though no part has two ADCs
 /// which disagree. `VRSEL` is stated once per family.
+/// Offset of each UNICOMM register map below the instance's own address.
+///
+/// Fixed by the IP: `mspm0g518x.h` computes them with `UC_UART_BASE(UC0_BASE)` and friends over
+/// `UC_*_OFFSET`, and the L-series headers write every base out literally. `apply_unicomm` checks
+/// each literal against these.
+const UNICOMM_MODE_OFFSETS: &[(&str, u32)] = &[
+    ("UART", 0x80000),
+    ("I2CC", 0x60000),
+    ("I2CT", 0x40000),
+    ("SPI", 0x20000),
+];
+
+/// Record which register maps each UNICOMM instance implements.
+fn apply_unicomm(
+    family: &PartFamily,
+    header: &Header,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) -> anyhow::Result<()> {
+    for (name, peripheral) in peripherals.iter_mut() {
+        if peripheral.ty != PeripheralType::Unicomm {
+            continue;
+        }
+
+        let modes = header.unicomm_modes.get(name).context(format!(
+            "{}: {name} is not in the header's UNICOMM instance table",
+            family.family
+        ))?;
+
+        ensure!(
+            modes.uart || modes.i2c_controller || modes.i2c_target || modes.spi,
+            "{}: {name} implements no UNICOMM register map",
+            family.family
+        );
+
+        // Where the header states a map's address rather than computing it, hold it to the offset
+        // a consumer is told to use. A part which moved one would otherwise be silently wrong.
+        if let Some(address) = peripheral.address {
+            for (mode, offset) in UNICOMM_MODE_OFFSETS {
+                let Some(&stated) = header.peripheral_addresses.get(&format!("{name}_{mode}"))
+                else {
+                    continue;
+                };
+
+                ensure!(
+                    stated == address - offset,
+                    "{}: {name}_{mode} is at {stated:#x}, not {:#x} as the offset from {name} says",
+                    family.family,
+                    address - offset
+                );
+            }
+        }
+
+        peripheral.unicomm = Some(*modes);
+    }
+
+    Ok(())
+}
+
 fn apply_adc(
     family: &PartFamily,
     sysconfig: &SysconfigFile,

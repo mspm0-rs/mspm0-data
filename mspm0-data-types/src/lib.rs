@@ -479,6 +479,12 @@ pub struct Peripheral {
     /// `None` for peripherals which are not ADCs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub adc: Option<Adc>,
+
+    /// Which register maps this UNICOMM instance implements.
+    ///
+    /// `None` for peripherals which are not UNICOMM instances.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unicomm: Option<Unicomm>,
 }
 
 /// The parts of one ADC instance which the single `adc_v1` register block does not describe.
@@ -570,6 +576,34 @@ pub struct Timer {
 /// Default for [`Timer::counters`], which `data/timers` does not carry.
 fn one() -> u8 {
     1
+}
+
+/// Which register maps a UNICOMM instance implements.
+///
+/// UNICOMM is one peripheral which is a UART, an SPI, an I2C controller or an I2C target depending
+/// on `IPMODE.SELECT`, with a register map per mode at a fixed offset below the instance's own
+/// address. **No instance implements all four**, and which it implements does not follow the
+/// instance name: on MSPM0G518x `UC0` is a UART or either half of an I2C but never an SPI, `UC2` is
+/// an SPI only, and `UC3` is a UART or an SPI.
+///
+/// An instance with one mode has nothing to select and no `IPMODE` register to select it with, so
+/// writing `IPMODE` is only meaningful where more than one of these is true.
+///
+/// Read from the instance table in the SDK's device header, which populates a register pointer per
+/// mode the instance has.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Unicomm {
+    /// Implements the UART register map, `0x80000` below the instance address.
+    pub uart: bool,
+
+    /// Implements the I2C controller register map, `0x60000` below the instance address.
+    pub i2c_controller: bool,
+
+    /// Implements the I2C target register map, `0x40000` below the instance address.
+    pub i2c_target: bool,
+
+    /// Implements the SPI register map, `0x20000` below the instance address.
+    pub spi: bool,
 }
 
 /// An operating mode, ordered from shallowest to deepest.
