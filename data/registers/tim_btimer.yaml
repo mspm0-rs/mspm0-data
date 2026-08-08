@@ -129,9 +129,9 @@ block/TIM:
     access: Read
     fieldset: EVT_MODE
   - name: CTRREGS
-    description: One independent counter. Every device with a TIMB implements two, which is what TI's own `BTIMER_Regs` declares; the register array itself runs to eight.
+    description: One independent counter. The array is the eight the TRM documents and the interrupt registers have bits for; how many a device implements is `Timer::counters`, which is 4 on the G-series instances and 2 on the L-series ones.
     array:
-      len: 2
+      len: 8
       stride: 256
     byte_offset: 4352
     block: CTRREGS
