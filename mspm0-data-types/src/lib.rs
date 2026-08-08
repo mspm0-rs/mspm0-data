@@ -165,6 +165,18 @@ pub enum PeripheralType {
 
     Unicomm,
 
+    /// The UART register map of a UNICOMM instance, at a fixed offset below it.
+    UnicommUart,
+
+    /// The I2C controller register map of a UNICOMM instance, at a fixed offset below it.
+    UnicommI2cc,
+
+    /// The I2C target register map of a UNICOMM instance, at a fixed offset below it.
+    UnicommI2ct,
+
+    /// The SPI register map of a UNICOMM instance, at a fixed offset below it.
+    UnicommSpi,
+
     Usbfs,
 
     Vref,
@@ -210,6 +222,10 @@ impl fmt::Display for PeripheralType {
             PeripheralType::Trng => "trng",
             PeripheralType::Uart => "uart",
             PeripheralType::Unicomm => "unicomm",
+            PeripheralType::UnicommUart => "unicommuart",
+            PeripheralType::UnicommI2cc => "unicommi2cc",
+            PeripheralType::UnicommI2ct => "unicommi2ct",
+            PeripheralType::UnicommSpi => "unicommspi",
             PeripheralType::Usbfs => "usbfs",
             PeripheralType::Vref => "vref",
             PeripheralType::Wuc => "wuc",
