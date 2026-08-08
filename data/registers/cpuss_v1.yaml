@@ -128,7 +128,7 @@ fieldset/MIS:
   - name: INT
     description: Masked interrupt status for INT.
     bit_offset: 0
-    bit_size: 1
+    bit_size: 8
     enum: MIS
 fieldset/ISET:
   description: Interrupt set.
@@ -136,7 +136,7 @@ fieldset/ISET:
   - name: INT
     description: Sets INT in RIS register.
     bit_offset: 0
-    bit_size: 1
+    bit_size: 8
     enum: ISET
 fieldset/ICLR:
   description: Interrupt clear.
@@ -144,7 +144,7 @@ fieldset/ICLR:
   - name: INT
     description: Clears INT in RIS register.
     bit_offset: 0
-    bit_size: 1
+    bit_size: 8
     enum: ICLR
 
 enum/IIDX:
@@ -196,7 +196,7 @@ enum/RIS:
     description: INT occurred.
     value: 1
 enum/MIS:
-  bit_size: 1
+  bit_size: 8
   variants:
   - name: CLR
     description: INT does not request an interrupt service routine.
@@ -205,7 +205,7 @@ enum/MIS:
     description: INT requests an interrupt service routine.
     value: 1
 enum/ISET:
-  bit_size: 1
+  bit_size: 8
   variants:
   - name: NO_EFFECT
     description: Writing a 0 has no effect.
@@ -214,7 +214,7 @@ enum/ISET:
     description: RIS bit corresponding to INT is set.
     value: 1
 enum/ICLR:
-  bit_size: 1
+  bit_size: 8
   variants:
   - name: NO_EFFECT
     description: Writing a 0 has no effect.
