@@ -807,10 +807,6 @@ enum/ID:
   - name: BOOTEXNRST
     description: NRST triggered BOOTRST (&lt;1s hold).
     value: 12
-  # The SVD puts this at 10, copied from SLAU847's RSTCAUSE field description for this SYSCTL
-  # variant. That description contradicts the same TRM's "Reset Causes" table, which lists 10 as
-  # reserved and 13 as the software-triggered BOOTRST, and every other family agrees with the table.
-  # BOOTWWDT0 below was already corrected against that table for the same reason.
   - name: BOOTSW
     description: Software triggered BOOTRST.
     value: 13

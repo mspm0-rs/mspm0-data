@@ -258,10 +258,7 @@ fieldset/DESC:
     bit_offset: 16
     bit_size: 16
 fieldset/DIO:
-  # Every one of these registers is a mask over the port's 32 DIO pins, indexed by DIO number.
-  # In the two generic event blocks only one half is implemented: GEN_EVENT0 has DIO0 to DIO15 and
-  # GEN_EVENT1 has DIO16 to DIO31, each at the bit matching its own DIO number.
-  description: A mask over the port's DIO pins.
+  description: 'A mask over the port''s 32 DIO pins, indexed by DIO number. The two generic event blocks implement one half each: GEN_EVENT0 has DIO0 to DIO15 and GEN_EVENT1 has DIO16 to DIO31, each at the bit matching its own DIO number.'
   fields:
   - name: DIO
     description: One bit per DIO pin.
