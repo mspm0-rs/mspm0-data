@@ -73,6 +73,18 @@ case "$CMD" in
         chips=(build/mspm0-metapac/src/chips/*/)
         logs=$(mktemp -d)
 
+        # Hand the shards one jobserver between them. Cargo is a jobserver client and takes the
+        # pool from MAKEFLAGS, so this is what stops each shard assuming the whole machine is its
+        # own while building its copy of the dependencies. Note the floor: a client gets one
+        # implicit token for free, so the total is the shard count plus the pool, not the pool.
+        #
+        # The fifo lives outside $logs, whose every remaining entry is a failed chip's log.
+        tokens=$(mktemp -u)
+        mkfifo "$tokens"
+        exec 9<>"$tokens"
+        printf "%*s" "$jobs" "" | tr " " "+" >&9
+        export MAKEFLAGS="-j$jobs --jobserver-auth=fifo:$tokens"
+
         for shard in $(seq 0 $((jobs - 1))); do
             (
                 export CARGO_TARGET_DIR="build/mspm0-metapac/target/shard-$shard"
@@ -103,6 +115,8 @@ case "$CMD" in
         done
 
         rm -rf "$logs"
+        exec 9>&-
+        rm -f "$tokens"
         [ -z "$failures" ]
     ;;
     *)
