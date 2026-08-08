@@ -60,95 +60,95 @@ block/CPU_INT:
     fieldset: CPU_INT
 block/ECC:
   items:
-  - name: ERR_REV
+  - name: REV
     description: MCAN Error Aggregator Revision Register.
     byte_offset: 0
     access: Read
     fieldset: ERR_REV
-  - name: ERR_VECTOR
+  - name: VECTOR
     description: MCAN ECC Vector Register.
     byte_offset: 8
     fieldset: ERR_VECTOR
-  - name: ERR_STAT
+  - name: STAT
     description: MCAN Error Misc Status.
     byte_offset: 12
     access: Read
     fieldset: ERR_STAT
-  - name: ERR_WRAP_REV
+  - name: WRAP_REV
     description: MCAN ECC Wrapper Revision Register.
     byte_offset: 16
     access: Read
     fieldset: ERR_WRAP_REV
-  - name: ERR_CTRL
+  - name: CTRL
     description: MCAN ECC Control.
     byte_offset: 20
     fieldset: ERR_CTRL
-  - name: ERR_ERR_CTRL1
+  - name: ERR_CTRL1
     description: MCAN ECC Error Control 1 Register.
     byte_offset: 24
     fieldset: ERR_ERR_CTRL1
-  - name: ERR_ERR_CTRL2
+  - name: ERR_CTRL2
     description: MCAN ECC Error Control 2 Register.
     byte_offset: 28
     fieldset: ERR_ERR_CTRL2
-  - name: ERR_ERR_STAT1
+  - name: ERR_STAT1
     description: MCAN ECC Error Status 1 Register.
     byte_offset: 32
     fieldset: ERR_ERR_STAT1
-  - name: ERR_ERR_STAT2
+  - name: ERR_STAT2
     description: MCAN ECC Error Status 2 Register.
     byte_offset: 36
     access: Read
     fieldset: ERR_ERR_STAT2
-  - name: ERR_ERR_STAT3
+  - name: ERR_STAT3
     description: MCAN ECC Error Status 3 Register.
     byte_offset: 40
     fieldset: ERR_ERR_STAT3
-  - name: ERR_SEC_EOI
+  - name: SEC_EOI
     description: MCAN Single Error Corrected End of Interrupt Register.
     byte_offset: 60
     fieldset: ERR_SEC_EOI
-  - name: ERR_SEC_STATUS
+  - name: SEC_STATUS
     description: MCAN Single Error Corrected Interrupt Status Register.
     byte_offset: 64
     fieldset: ERR_SEC_STATUS
-  - name: ERR_SEC_ENABLE_SET
+  - name: SEC_ENABLE_SET
     description: MCAN Single Error Corrected Interrupt Enable Set Register.
     byte_offset: 128
     fieldset: ERR_SEC_ENABLE_SET
-  - name: ERR_SEC_ENABLE_CLR
+  - name: SEC_ENABLE_CLR
     description: MCAN Single Error Corrected Interrupt Enable Clear Register.
     byte_offset: 192
     fieldset: ERR_SEC_ENABLE_CLR
-  - name: ERR_DED_EOI
+  - name: DED_EOI
     description: MCAN Double Error Detected End of Interrupt Register.
     byte_offset: 316
     fieldset: ERR_DED_EOI
-  - name: ERR_DED_STATUS
+  - name: DED_STATUS
     description: MCAN Double Error Detected Interrupt Status Register.
     byte_offset: 320
     fieldset: ERR_DED_STATUS
-  - name: ERR_DED_ENABLE_SET
+  - name: DED_ENABLE_SET
     description: MCAN Double Error Detected Interrupt Enable Set Register.
     byte_offset: 384
     fieldset: ERR_DED_ENABLE_SET
-  - name: ERR_DED_ENABLE_CLR
+  - name: DED_ENABLE_CLR
     description: MCAN Double Error Detected Interrupt Enable Clear Register.
     byte_offset: 448
     fieldset: ERR_DED_ENABLE_CLR
-  - name: ERR_AGGR_ENABLE_SET
+  - name: AGGR_ENABLE_SET
     description: MCAN Error Aggregator Enable Set Register.
     byte_offset: 512
     fieldset: ERR_AGGR_ENABLE_SET
-  - name: ERR_AGGR_ENABLE_CLR
+  - name: AGGR_ENABLE_CLR
     description: MCAN Error Aggregator Enable Clear Register.
     byte_offset: 516
     fieldset: ERR_AGGR_ENABLE_CLR
-  - name: ERR_AGGR_STATUS_SET
+  - name: AGGR_STATUS_SET
     description: MCAN Error Aggregator Status Set Register.
     byte_offset: 520
     fieldset: ERR_AGGR_STATUS_SET
-  - name: ERR_AGGR_STATUS_CLR
+  - name: AGGR_STATUS_CLR
     description: MCAN Error Aggregator Status Clear Register.
     byte_offset: 524
     fieldset: ERR_AGGR_STATUS_CLR
@@ -400,50 +400,50 @@ block/PROCESSORS:
     block: ECC
 block/SUBSYS:
   items:
-  - name: SUBSYS_PID
+  - name: PID
     description: MCAN Subsystem Revision Register.
     byte_offset: 0
     access: Read
     fieldset: SUBSYS_PID
-  - name: SUBSYS_CTRL
+  - name: CTRL
     description: MCAN Subsystem Control Register.
     byte_offset: 4
     fieldset: SUBSYS_CTRL
-  - name: SUBSYS_STAT
+  - name: STAT
     description: MCAN Subsystem Status Register.
     byte_offset: 8
     access: Read
     fieldset: SUBSYS_STAT
-  - name: SUBSYS_ICS
+  - name: ICS
     description: MCAN Subsystem Interrupt Clear Shadow Register.
     byte_offset: 12
     fieldset: SUBSYS_ICS
-  - name: SUBSYS_IRS
+  - name: IRS
     description: MCAN Subsystem Interrupt Raw Satus Register.
     byte_offset: 16
     fieldset: SUBSYS_IRS
-  - name: SUBSYS_IECS
+  - name: IECS
     description: MCAN Subsystem Interrupt Enable Clear Shadow Register.
     byte_offset: 20
     fieldset: SUBSYS_IECS
-  - name: SUBSYS_IE
+  - name: IE
     description: MCAN Subsystem Interrupt Enable Register.
     byte_offset: 24
     fieldset: SUBSYS_IE
-  - name: SUBSYS_IES
+  - name: IES
     description: MCAN Subsystem Interrupt Enable Status.
     byte_offset: 28
     access: Read
     fieldset: SUBSYS_IES
-  - name: SUBSYS_EOI
+  - name: EOI
     description: MCAN Subsystem End of Interrupt.
     byte_offset: 32
     fieldset: SUBSYS_EOI
-  - name: SUBSYS_EXT_TS_PRESCALER
+  - name: EXT_TS_PRESCALER
     description: MCAN Subsystem External Timestamp Prescaler 0.
     byte_offset: 36
     fieldset: SUBSYS_EXT_TS_PRESCALER
-  - name: SUBSYS_EXT_TS_UNSERVICED_INTR_CNTR
+  - name: EXT_TS_UNSERVICED_INTR_CNTR
     description: MCAN Subsystem External Timestamp Unserviced Interrupts Counter.
     byte_offset: 40
     access: Read
