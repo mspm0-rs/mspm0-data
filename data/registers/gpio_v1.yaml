@@ -422,14 +422,17 @@ fieldset/FPORT:
     bit_offset: 0
     bit_size: 4
 fieldset/GEN_EVENT:
-  description: Interrupt clear.
+  # Indexed by absolute DIO number, so that it agrees with CPU_INT and the DOUT/DIN masks.
+  # GEN_EVENT0 implements DIO0 to DIO15 and GEN_EVENT1 implements DIO16 to DIO31, each at the bit
+  # matching its own DIO number; the other half of the word is reserved in both.
+  description: Generic event mask, one bit per DIO.
   fields:
   - name: DIO
-    description: DIO0 event.
+    description: DIO event.
     bit_offset: 0
     bit_size: 1
     array:
-      len: 16
+      len: 32
       stride: 1
 fieldset/GEN_EVENT_IIDX:
   description: Interrupt index.
