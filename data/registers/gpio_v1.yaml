@@ -8,27 +8,27 @@ block/CPU_INT:
   - name: IMASK
     description: Interrupt mask.
     byte_offset: 8
-    fieldset: CPU_INT
+    fieldset: DIO
   - name: RIS
     description: Raw interrupt status.
     byte_offset: 16
     access: Read
-    fieldset: CPU_INT
+    fieldset: DIO
   - name: MIS
     description: Masked interrupt status.
     byte_offset: 24
     access: Read
-    fieldset: CPU_INT
+    fieldset: DIO
   - name: ISET
     description: Interrupt set.
     byte_offset: 32
     access: Write
-    fieldset: CPU_INT
+    fieldset: DIO
   - name: ICLR
     description: Interrupt clear.
     byte_offset: 40
     access: Write
-    fieldset: CPU_INT
+    fieldset: DIO
 block/GEN_EVENT:
   items:
   - name: IIDX
@@ -39,27 +39,27 @@ block/GEN_EVENT:
   - name: IMASK
     description: Interrupt mask.
     byte_offset: 8
-    fieldset: GEN_EVENT
+    fieldset: DIO
   - name: RIS
     description: Raw interrupt status.
     byte_offset: 16
     access: Read
-    fieldset: GEN_EVENT
+    fieldset: DIO
   - name: MIS
     description: Masked interrupt status.
     byte_offset: 24
     access: Read
-    fieldset: GEN_EVENT
+    fieldset: DIO
   - name: ISET
     description: Interrupt set.
     byte_offset: 32
     access: Write
-    fieldset: GEN_EVENT
+    fieldset: DIO
   - name: ICLR
     description: Interrupt clear.
     byte_offset: 40
     access: Write
-    fieldset: GEN_EVENT
+    fieldset: DIO
 block/GPIO:
   description: PERIPHERALREGION.
   items:
@@ -113,40 +113,40 @@ block/GPIO:
       stride: 4
     byte_offset: 4608
     access: Write
-    fieldset: DOUT_X4
+    fieldset: DIO_X4
   - name: DOUT31_0
     description: Data output 31 to 0.
     byte_offset: 4736
-    fieldset: DOUT31_0
+    fieldset: DIO
   - name: DOUTSET31_0
     description: Data output set 31 to 0.
     byte_offset: 4752
     access: Write
-    fieldset: DOUTSET31_0
+    fieldset: DIO
   - name: DOUTCLR31_0
     description: Data output clear 31 to 0.
     byte_offset: 4768
     access: Write
-    fieldset: DOUTCLR31_0
+    fieldset: DIO
   - name: DOUTTGL31_0
     description: Data output toggle 31 to 0.
     byte_offset: 4784
     access: Write
-    fieldset: DOUTTGL31_0
+    fieldset: DIO
   - name: DOE31_0
     description: Data output enable 31 to 0.
     byte_offset: 4800
-    fieldset: DOE31_0
+    fieldset: DIO
   - name: DOESET31_0
     description: Data output enable set 31 to 0.
     byte_offset: 4816
     access: Write
-    fieldset: DOESET31_0
+    fieldset: DIO
   - name: DOECLR31_0
     description: Data output enable clear 31 to 0.
     byte_offset: 4832
     access: Write
-    fieldset: DOECLR31_0
+    fieldset: DIO
   - name: DIN_Y_X4
     description: Data input 3 to 0.
     array:
@@ -154,20 +154,20 @@ block/GPIO:
       stride: 4
     byte_offset: 4864
     access: Read
-    fieldset: DIN_X4
+    fieldset: DIO_X4
   - name: DIN31_0
     description: Data input 31 to 0.
     byte_offset: 4992
     access: Read
-    fieldset: DIN31_0
+    fieldset: DIO
   - name: POLARITY15_0
     description: Polarity 15 to 0.
     byte_offset: 5008
-    fieldset: POLARITY15_0
+    fieldset: POLARITY
   - name: POLARITY31_16
     description: Polarity 31 to 16.
     byte_offset: 5024
-    fieldset: POLARITY31_16
+    fieldset: POLARITY
   - name: CTL
     description: FAST WAKE GLOBAL EN.
     byte_offset: 5120
@@ -223,16 +223,6 @@ fieldset/CLKOVR:
     bit_offset: 1
     bit_size: 1
     enum: RUN_STOP
-fieldset/CPU_INT:
-  description: Interrupt clear.
-  fields:
-  - name: DIO
-    description: DIO0 event.
-    bit_offset: 0
-    bit_size: 1
-    array:
-      len: 32
-      stride: 1
 fieldset/CPU_INT_IIDX:
   description: Interrupt index.
   fields:
@@ -267,21 +257,24 @@ fieldset/DESC:
     description: Module identification contains a unique peripheral identification number. The assignments are maintained in a central database for all of the platform modules to ensure uniqueness.
     bit_offset: 16
     bit_size: 16
-fieldset/DIN31_0:
-  description: Data input 31 to 0.
+fieldset/DIO:
+  # Every one of these registers is a mask over the port's 32 DIO pins, indexed by DIO number.
+  # In the two generic event blocks only one half is implemented: GEN_EVENT0 has DIO0 to DIO15 and
+  # GEN_EVENT1 has DIO16 to DIO31, each at the bit matching its own DIO number.
+  description: A mask over the port's DIO pins.
   fields:
   - name: DIO
-    description: This bit reads the data input value of DIO0.
+    description: One bit per DIO pin.
     bit_offset: 0
     bit_size: 1
     array:
       len: 32
       stride: 1
-fieldset/DIN_X4:
-  description: Data input 11 to 8.
+fieldset/DIO_X4:
+  description: Four DIO pins, one per byte of the word.
   fields:
   - name: DIO
-    description: This bit reads the data input value of DIO8.
+    description: The value of one DIO pin.
     bit_offset: 0
     bit_size: 1
     array:
@@ -297,86 +290,6 @@ fieldset/DMAMASK:
     array:
       len: 32
       stride: 1
-fieldset/DOE31_0:
-  description: Data output enable 31 to 0.
-  fields:
-  - name: DIO
-    description: Enables data output for DIO0.
-    bit_offset: 0
-    bit_size: 1
-    array:
-      len: 32
-      stride: 1
-fieldset/DOECLR31_0:
-  description: Data output enable clear 31 to 0.
-  fields:
-  - name: DIO
-    description: Writing 1 to this bit clears the DIO0 bit in the DOE31_0 register. Writing 0 has no effect.
-    bit_offset: 0
-    bit_size: 1
-    array:
-      len: 32
-      stride: 1
-fieldset/DOESET31_0:
-  description: Data output enable set 31 to 0.
-  fields:
-  - name: DIO
-    description: Writing 1 to this bit sets the DIO0 bit in the DOE31_0 register. Writing 0 has no effect.
-    bit_offset: 0
-    bit_size: 1
-    array:
-      len: 32
-      stride: 1
-fieldset/DOUT31_0:
-  description: Data output 31 to 0.
-  fields:
-  - name: DIO
-    description: This bit sets the value of the pin configured as DIO0 when the output is enabled through DOE31_0 register.
-    bit_offset: 0
-    bit_size: 1
-    array:
-      len: 32
-      stride: 1
-fieldset/DOUTCLR31_0:
-  description: Data output clear 31 to 0.
-  fields:
-  - name: DIO
-    description: Writing 1 to this bit clears the DIO0 bit in the DOUT31_0 register. Writing 0 has no effect.
-    bit_offset: 0
-    bit_size: 1
-    array:
-      len: 32
-      stride: 1
-fieldset/DOUTSET31_0:
-  description: Data output set 31 to 0.
-  fields:
-  - name: DIO
-    description: Writing 1 to this bit sets the DIO0 bit in the DOUT31_0 register. Writing 0 has no effect.
-    bit_offset: 0
-    bit_size: 1
-    array:
-      len: 32
-      stride: 1
-fieldset/DOUTTGL31_0:
-  description: Data output toggle 31 to 0.
-  fields:
-  - name: DIO
-    description: This bit is used to toggle DIO0 output.
-    bit_offset: 0
-    bit_size: 1
-    array:
-      len: 32
-      stride: 1
-fieldset/DOUT_X4:
-  description: Data output 11 to 8.
-  fields:
-  - name: DIO
-    description: This bit sets the value of the pin configured as DIO8 when the output is enabled through DOE31_0 register.
-    bit_offset: 0
-    bit_size: 1
-    array:
-      len: 4
-      stride: 8
 fieldset/EVT_MODE:
   description: Event Mode.
   fields:
@@ -421,19 +334,6 @@ fieldset/FPORT:
     description: 0 = disconnected. 1-15 = connected to channelID = CHANID.
     bit_offset: 0
     bit_size: 4
-fieldset/GEN_EVENT:
-  # Indexed by absolute DIO number, so that it agrees with CPU_INT and the DOUT/DIN masks.
-  # GEN_EVENT0 implements DIO0 to DIO15 and GEN_EVENT1 implements DIO16 to DIO31, each at the bit
-  # matching its own DIO number; the other half of the word is reserved in both.
-  description: Generic event mask, one bit per DIO.
-  fields:
-  - name: DIO
-    description: DIO event.
-    bit_offset: 0
-    bit_size: 1
-    array:
-      len: 32
-      stride: 1
 fieldset/GEN_EVENT_IIDX:
   description: Interrupt index.
   fields:
@@ -449,22 +349,11 @@ fieldset/PDBGCTL:
     description: Free run control.
     bit_offset: 0
     bit_size: 1
-fieldset/POLARITY15_0:
-  description: Polarity 15 to 0.
+fieldset/POLARITY:
+  description: Edge detection polarity for sixteen DIO pins, two bits each.
   fields:
   - name: DIO
-    description: Enables and configures edge detection polarity for DIO0.
-    bit_offset: 0
-    bit_size: 2
-    array:
-      len: 16
-      stride: 2
-    enum: POLARITY
-fieldset/POLARITY31_16:
-  description: Polarity 31 to 16.
-  fields:
-  - name: DIO
-    description: Enables and configures edge detection polarity for DIO16.
+    description: Enables and configures edge detection polarity for one DIO.
     bit_offset: 0
     bit_size: 2
     array:
