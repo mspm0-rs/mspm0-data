@@ -10,6 +10,10 @@ pub static PERIMAP: RegexMap<&str> = RegexMap::new(&[
     (".*:iomux", "v1"),
     (".*:mathacl", "v1"),
     (".*:opa", "v1"),
+    // A TIMB instance is a basic timer: its counters live at 0x1100 where the general-purpose
+    // block has CCPD/ODIS/CCLKCTL, and it has neither CLKDIV/CLKSEL nor a COUNTERREGS group.
+    // Keyed on the instance kind, not the peripheral type — see `get_peripheral_type_version`.
+    (".*:timb", "btimer"),
     (".*:tim", "v1"),
     (".*:adc", "v1"),
     (".*:wwdt", "v1"),

@@ -146,3 +146,10 @@ When parsing a chip, for each peripheral a "key" string is constructed using thi
 ("mspm0c110x:sysctl", ("sysctl", "c110x")),
 ("mspm0g..0x:sysctl", ("sysctl", "g350x_g310x_g150x_g110x")),
 ```
+
+`PERIPHERAL_NAME` is the peripheral type, so every instance of a type on a chip gets the same
+version. Where one type covers instances with different register blocks the key has to say which,
+as `timb` does for the basic timers alongside `tim` — see `get_peripheral_type_version`. Such a
+version also needs an entry in `VARIANT_MODULES` in
+[`peripheral.rs`](./mspm0-metapac-gen/src/peripheral.rs) to give it a module name of its own,
+otherwise the metapac generator panics on the two blocks colliding.
