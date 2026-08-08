@@ -59,22 +59,21 @@ block/ADC:
     description: Sample Clock Frequency Range Register.
     byte_offset: 4368
     fieldset: CLKFREQ
-  - name: SCOMP0
-    description: Sample Time Compare 0 Register.
+  - name: SCOMP
+    description: Sample Time Compare Register.
+    array:
+      len: 2
+      stride: 4
     byte_offset: 4372
-    fieldset: SCOMP0
-  - name: SCOMP1
-    description: Sample Time Compare 1 Register.
-    byte_offset: 4376
-    fieldset: SCOMP1
+    fieldset: SCOMP
   - name: WCLOW
     description: Window Comparator Low Threshold Register.
     byte_offset: 4424
-    fieldset: WCLOW
+    fieldset: WC
   - name: WCHIGH
     description: Window Comparator High Threshold Register.
     byte_offset: 4432
-    fieldset: WCHIGH
+    fieldset: WC
   - name: MEMCTL
     description: Conversion Memory Control Register.
     array:
@@ -309,10 +308,9 @@ fieldset/CTL1:
     bit_size: 1
     enum: TRIGSRC
   - name: SC
-    description: Start of conversion.
+    description: Start of conversion. With SAMPMODE MANUAL the sample phase lasts as long as this bit is set, and clearing it starts the conversion phase; with AUTO, setting it triggers the timer based sample time and clearing it does nothing.
     bit_offset: 8
     bit_size: 1
-    enum: SC
   - name: CONSEQ
     description: Conversion sequence mode.
     bit_offset: 16
@@ -357,10 +355,9 @@ fieldset/CTL2:
     bit_offset: 10
     bit_size: 1
   - name: SAMPCNT
-    description: Number of ADC converted samples to be transferred on a DMA trigger.
+    description: Number of ADC converted samples to be transferred on a DMA trigger, up to 24.
     bit_offset: 11
     bit_size: 5
-    enum: SAMPCNT
   - name: STARTADD
     description: Sequencer start address. These bits select which MEMCTLx is used for single conversion or as first MEMCTL for sequence mode. The value of STARTADD is 0x00 to 0x17, corresponding to MEMRES0 to MEMRES23.
     bit_offset: 16
@@ -417,12 +414,12 @@ fieldset/EVT_MODE:
     description: Event line mode select for event corresponding to CPU_INT.
     bit_offset: 0
     bit_size: 2
-    enum: INT_CFG
+    enum: EVT_CFG
   - name: EVT1_CFG
     description: Event line mode select for event corresponding to GEN_EVENT.
     bit_offset: 2
     bit_size: 2
-    enum: EVT1_CFG
+    enum: EVT_CFG
 fieldset/FPORT:
   description: Publisher Configuration Register.
   fields:
@@ -525,15 +522,8 @@ fieldset/RSTCTL:
     bit_offset: 24
     bit_size: 8
     enum: RESET_KEY
-fieldset/SCOMP0:
-  description: Sample Time Compare 0 Register.
-  fields:
-  - name: VAL
-    description: 'Specifies the number of sample clocks. When VAL = 0 or 1, number of sample clocks = Sample clock divide value. When VAL > 1, number of sample clocks = VAL x Sample clock divide value. Note: Sample clock divide value is not the value written to SCLKDIV but the actual divide value (SCLKDIV = 2 implies divide value is 4). Example: VAL = 4, SCLKDIV = 3 implies 32 sample clock cycles.'
-    bit_offset: 0
-    bit_size: 10
-fieldset/SCOMP1:
-  description: Sample Time Compare 1 Register.
+fieldset/SCOMP:
+  description: Sample Time Compare Register.
   fields:
   - name: VAL
     description: 'Specifies the number of sample clocks. When VAL = 0 or 1, number of sample clocks = Sample clock divide value. When VAL > 1, number of sample clocks = VAL x Sample clock divide value. Note: Sample clock divide value is not the value written to SCLKDIV but the actual divide value (SCLKDIV = 2 implies divide value is 4). Example: VAL = 4, SCLKDIV = 3 implies 32 sample clock cycles.'
@@ -557,15 +547,8 @@ fieldset/STATUS:
     description: Indicates reference buffer is powered up and ready.
     bit_offset: 1
     bit_size: 1
-fieldset/WCHIGH:
-  description: Window Comparator High Threshold Register.
-  fields:
-  - name: DATA
-    description: If DF = 0, unsigned binary format has to be used. The threshold value has to be right aligned, with the MSB on the left. For 10-bits and 8-bits resolution, unused bit have to be 0s. If DF = 1, 2s-complement format has to be used. The value based on the resolution has to be left aligned with the LSB on the right. For 10-bits and 8-bits resolution, unused bit have to be 0s.
-    bit_offset: 0
-    bit_size: 16
-fieldset/WCLOW:
-  description: Window Comparator Low Threshold Register.
+fieldset/WC:
+  description: A window comparator threshold.
   fields:
   - name: DATA
     description: If DF = 0, unsigned binary format has to be used. The value based on the resolution has to be right aligned with the MSB on the left. For 10-bits and 8-bits resolution, unused bits have to be 0s. If DF = 1, 2s-complement format has to be used. The value based on the resolution has to be left aligned with the LSB on the right. For 10-bits and 8-bits resolution, unused bits have to be 0s.
@@ -795,18 +778,6 @@ enum/DMA_TRIG_IIDX_STAT:
   - name: MEMRESIFG23
     description: MEMRES23 data loaded interrupt.
     value: 32
-enum/EVT1_CFG:
-  bit_size: 2
-  variants:
-  - name: DISABLE
-    description: The interrupt or event line is disabled.
-    value: 0
-  - name: SOFTWARE
-    description: The interrupt or event line is in software mode. Software must clear the RIS.
-    value: 1
-  - name: HARDWARE
-    description: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.
-    value: 2
 enum/FRANGE:
   bit_size: 3
   variants:
@@ -852,7 +823,7 @@ enum/GEN_EVENT_IIDX_STAT:
   - name: MEMRESIFG0
     description: MEMRES0 data loaded interrupt.
     value: 9
-enum/INT_CFG:
+enum/EVT_CFG:
   bit_size: 2
   variants:
   - name: DISABLE
@@ -907,15 +878,6 @@ enum/SAMPCLK:
   - name: HFCLK
     description: 'HFCLK clock is the source of ADC sample clock. Note : HFCLK may not be available on all the devices.'
     value: 2
-enum/SAMPCNT:
-  bit_size: 5
-  variants:
-  - name: MIN
-    description: Minimum value.
-    value: 0
-  - name: MAX
-    description: Maximum value.
-    value: 24
 enum/SAMPMODE:
   bit_size: 1
   variants:
@@ -924,15 +886,6 @@ enum/SAMPMODE:
     value: 0
   - name: MANUAL
     description: Software trigger is used as sample signal.
-    value: 1
-enum/SC:
-  bit_size: 1
-  variants:
-  - name: STOP
-    description: When SAMPMODE is set to MANUAL, clearing this bit will end the sample phase and the conversion phase will start. When SAMPMODE is set to AUTO, writing 0 has no effect.
-    value: 0
-  - name: START
-    description: When SAMPMODE is set to MANUAL, setting this bit will start the sample phase. Sample phase will last as long as this bit is set. When SAMPMODE is set to AUTO, setting this bit will trigger the timer based sample time.
     value: 1
 enum/SCLKDIV:
   bit_size: 3
