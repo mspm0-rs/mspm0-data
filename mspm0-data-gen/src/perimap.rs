@@ -16,6 +16,11 @@ pub static PERIMAP: RegexMap<&str> = RegexMap::new(&[
     (".*:flashctl", "v1"),
     (".*:trng", "v1"),
     (".*:canfd", "v1"),
+    // SLAU846 §23.3, SLAU847 §19.3, SLAU893 §13.3 and SLAU923 §11.3 describe the same eight
+    // registers with the same fields, so every family shares one version. The SVDs disagree with
+    // the TRMs and with each other about CTL0 bits 1 and 2, which the YAML resolves in the TRMs'
+    // favour.
+    (".*:vref", "v1"),
     (".*:factoryregion", "v1"),
     // SLAU893 describes two C-series SYSCTLs, "SYSCTL_C1103_C1104" and "SYSCTL_C1105_C1106". The
     // latter is a superset: it adds the HFXT and LFXT crystal drivers, `MCLKCFG.FLASHWAIT` and the
