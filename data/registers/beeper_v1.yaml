@@ -12,21 +12,11 @@ fieldset/BEEPCFG:
     description: Beeper output enable
     bit_offset: 0
     bit_size: 1
-    enum: EN
   - name: FREQ
     description: Beeper Output Frequency Configuration
     bit_offset: 4
     bit_size: 2
     enum: FREQ
-enum/EN:
-  bit_size: 1
-  variants:
-  - name: DISABLE
-    description: Beeper Output Disabled
-    value: 0
-  - name: ENABLE
-    description: Beeper Output Enabled
-    value: 1
 enum/FREQ:
   bit_size: 2
   variants:
