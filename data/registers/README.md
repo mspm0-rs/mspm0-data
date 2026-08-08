@@ -14,20 +14,30 @@ Notes about what a register *means*, as opposed to where its definition came fro
 
 ## How much of this is reproducible
 
-Not all of it. `transforms/` gets a block most of the way there, but **re-running a transform does
-not reproduce the checked-in YAML**, so it cannot be treated as a regeneration step:
+Some of it. `transforms/` gets a block most of the way there, and two of the deviations below are now
+encoded in it and verified end to end:
 
-- Seven blocks have no transform at all and are maintained entirely by hand: `beeper_v1`,
-  `cpuss_v1`, `factoryregion_v1`, `sysctl_c1105_c1106`, `tim_btimer`, `unicomm_v1`, `vref_v1`.
-- Where a transform does exist, the deviations below are not in it. Running the C110x SYSCTL
-  transform over `MSPM0C110X.svd` reproduces the checked-in block *except* for exactly the three
-  fields listed under it, which come out at the SVD's bit 2.
-- The cleanup work — arrays, shared fieldsets, deleted enums — is hand-applied on top and is not
-  encoded in the transforms either.
+| block | reproduces the checked-in YAML? |
+| --- | --- |
+| `sysctl_c110x` | **yes** — `chiptool extract-peripheral --svd sources/svd/MSPM0C110X.svd --peripheral SYSCTL`, then `transforms/transform.sh` with `SYSCTL_C110x.yaml` |
+| `sysctl_l110x_l130x_l134x` | **yes** — same, from `MSPM0L130X.svd` |
+| everything else with a transform | no, see below |
+| `beeper_v1`, `cpuss_v1`, `factoryregion_v1`, `sysctl_c1105_c1106`, `tim_btimer`, `unicomm_v1`, `vref_v1` | no transform exists at all |
 
-So a transform is a starting point for a *new* block, not something to re-run over an existing one:
-doing that discards the hand work silently. Diff the output against the checked-in YAML instead, and
-use the flatten-and-compare check described in the root README to see what actually moved.
+Where a transform does not reproduce its block, the reason is usually that it is written against a
+different source instance than the one the block was derived from — `TIM.yaml` runs from `TIMA0` on
+MSPM0G350X, which has four capture/compare channels and neither the `DC` nor the `QEIERR` event, so
+its output cannot match `tim_v1` however the transform is written. Closing those gaps means
+re-deriving the block, not just editing the transform.
+
+The rest of the cleanup — shared fieldsets, deleted enums, stripped prefixes — is hand-applied on top
+and is not encoded anywhere. **Re-running a transform over an existing block therefore discards hand
+work silently.** Diff the output against the checked-in YAML instead, and use the flatten-and-compare
+check described in the root README to see what actually moved.
+
+The exception worth copying is `TIM.yaml`'s `CCD`/`CCU` step: `!MakeFieldArray` with `mode: Cursed`
+produces exactly the offset lists the checked-in block carries, so that piece of the cleanup at least
+survives a re-derivation.
 
 ## Deviations from the SVD
 
