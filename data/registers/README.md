@@ -43,6 +43,13 @@ survives a re-derivation.
 
 Each entry says what the SVD claims, what this repo says instead, and what the evidence is.
 
+When checking a release for unintended movement, fingerprint the *generated* Rust rather than the
+YAML — read the register offsets back out of `wrapping_add` and the field positions out of each
+accessor's `(shift, mask)`. That covers everything the generator does between IR and Rust, which
+flatten-and-compare cannot see. Run it against the **immediately preceding tag**: against an older
+one it reports the three C-series fields below moving from bit 2 to bit 0, which is a correction from
+an earlier round rather than anything in the release under test.
+
 ### `sysctl_c110x`, `sysctl_c1105_c1106` — three unlock-protected control bits are at bit 0
 
 | fieldset | field |
