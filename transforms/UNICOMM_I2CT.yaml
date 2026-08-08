@@ -108,5 +108,13 @@ transforms:
     from: (C|T)MODE
     to: MODE
 
+
+  # ICLR has the same layout as the other CPU_INT registers. The standalone uart_v1 and i2c_v1
+  # carry one fieldset for all five, and two identical fieldsets is the bloat the README warns of.
+  - !MergeFieldsets
+    from: (CPU_INT|ICLR)
+    to: CPU_INT
+    check: NoCheck
+
   ## Cleanup
   - !Sort

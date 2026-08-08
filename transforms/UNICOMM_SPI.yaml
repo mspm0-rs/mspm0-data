@@ -130,5 +130,22 @@ transforms:
     from: DMA_TRIG_TX_(.+)
     to: $1
 
+
+  # ICLR has the same layout as the other CPU_INT registers. The standalone uart_v1 and i2c_v1
+  # carry one fieldset for all five, and two identical fieldsets is the bloat the README warns of.
+  - !MergeFieldsets
+    from: (CPU_INT|ICLR)
+    to: CPU_INT
+    check: NoCheck
+
+  ## REPEATTX names only its disabled value, and BUSY is IDLE/ACTIVE on a status bit
+  - !DeleteEnums
+    from: (REPEATTX|BUSY)
+
+  ## CTL1 and STAT describe the command/data framing with the same two values
+  - !MergeEnums
+    from: (CTL1|STAT)_CDMODE
+    to: CDMODE
+
   ## Cleanup
   - !Sort

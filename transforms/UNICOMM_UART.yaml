@@ -161,7 +161,7 @@ transforms:
     to: LINC
 
   - !MakeRegisterArray
-    blocks: UART
+    blocks: UNICOMMUART
     from: LINC(\d+)
     to: LINC
 
@@ -206,6 +206,14 @@ transforms:
   - !MergeFieldsets
     from: CLKDIV(.*)
     to: CLKDIV
+
+
+  # ICLR has the same layout as the other CPU_INT registers. The standalone uart_v1 and i2c_v1
+  # carry one fieldset for all five, and two identical fieldsets is the bloat the README warns of.
+  - !MergeFieldsets
+    from: (CPU_INT|ICLR)
+    to: CPU_INT
+    check: NoCheck
 
   ## Cleanup
   - !Sort
