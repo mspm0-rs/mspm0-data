@@ -10,88 +10,48 @@ use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
     Adc, Chip, DmaChannel, Interrupt, Memory, MemoryKind, Package, PackagePin, Peripheral,
     PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain, PowerMode, Timer, Unicomm,
-    WakeTimes,
 };
 use regex::Regex;
 
 use crate::{
-    clock_tree::{ClockTreeFile, ClockTrees},
-    errata::Errata,
-    header::{Header, Headers},
+    sources::{FamilySources, Sources},
+    header::Header,
     int_group::Groups,
     operating_modes::OperatingModes,
-    parts::{PartFamily, PartMemory, PartsFile},
+    parts::{PartFamily, PartMemory},
     perimap::PERIMAP,
-    svd::{Svd, Svds},
-    sysconfig::{self, PartPeripheralWrapper, Sysconfig, SysconfigFile},
+    svd::Svd,
+    sysconfig::{self, PartPeripheralWrapper, SysconfigFile},
     timers::Timers,
     verify,
 };
 
-pub fn generate(
-    parts: &PartsFile,
-    headers: &Headers,
-    sysconfig: &Sysconfig,
-    svds: &Svds,
-    operating_modes: &BTreeMap<String, OperatingModes>,
-    int_groups: &BTreeMap<String, Groups>,
-    timers: &BTreeMap<String, Timers>,
-    clock_trees: &ClockTrees,
-    errata: &BTreeMap<String, Errata>,
-    wake: &BTreeMap<String, WakeTimes>,
-) -> anyhow::Result<()> {
+pub fn generate(sources: &Sources) -> anyhow::Result<()> {
     fs::create_dir_all("./build/data/").unwrap();
 
-    for family in parts.families.iter() {
-        let sysconfig = sysconfig
-            .files
-            .get(&family.family.to_uppercase())
-            .context(format!("No sysconfig data available for {}", family.family))?;
+    for family in sources.parts.families.iter() {
+        let family_sources = sources.family(&family.family)?;
 
-        // MSPS003FX is the same as C110X except for package options and some pins.
-        let header_name = if family.family == "msps003fx" {
-            "mspm0c110x"
-        } else {
-            &family.family
-        };
-
-        let header = headers
-            .headers
-            .get(&header_name.to_lowercase())
-            .context(format!("Could not lookup header for {}", header_name))?;
-
-        let svd = svds.files.get(&family.family);
-
-        generate_family(
-            family,
-            header,
-            sysconfig,
-            svd,
-            operating_modes.get(&family.family),
-            int_groups,
-            timers.get(&family.family),
-            clock_trees.files.get(&family.family),
-            errata.get(&family.family),
-            wake.get(&family.family).copied(),
-        )
-        .context(format!("Error when generating family: {}", family.family))?;
+        generate_family(family, &family_sources)
+            .context(format!("Error when generating family: {}", family.family))?;
     }
 
     Ok(())
 }
 
-fn generate_family(
-    family: &PartFamily,
-    header: &Header,
-    sysconfig: &SysconfigFile,
-    svd: Option<&Svd>,
-    operating_modes: Option<&OperatingModes>,
-    int_groups: &BTreeMap<String, Groups>,
-    timers: Option<&Timers>,
-    clock_tree: Option<&ClockTreeFile>,
-    errata: Option<&Errata>,
-    wake: Option<WakeTimes>,
-) -> anyhow::Result<()> {
+fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Result<()> {
+    let FamilySources {
+        header,
+        sysconfig,
+        svd,
+        clock_tree,
+        operating_modes,
+        timers,
+        errata,
+        wake,
+        int_groups,
+    } = *sources;
+
     // Data shared across all chips in a family.
     let packages = get_packages(&family.family, sysconfig)?;
     let iomux = generate_pincm(&family.family, sysconfig)?;

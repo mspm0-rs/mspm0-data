@@ -6,7 +6,8 @@ use regex::Regex;
 
 #[derive(Debug)]
 pub struct Headers {
-    pub headers: BTreeMap<String, Header>,
+    /// Keyed by family name, lowercase (e.g. `mspm0g350x`).
+    pub files: BTreeMap<String, Header>,
 }
 
 impl Headers {
@@ -31,7 +32,7 @@ impl Headers {
             headers.insert(name.to_string(), Header::read(name, &header)?);
         }
 
-        Ok(Self { headers })
+        Ok(Self { files: headers })
     }
 }
 

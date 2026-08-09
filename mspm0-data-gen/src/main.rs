@@ -9,6 +9,7 @@ mod perimap;
 mod svd;
 mod sysconfig;
 mod timers;
+mod sources;
 mod util;
 mod verify;
 mod wakeup;
@@ -80,19 +81,21 @@ fn main() -> anyhow::Result<()> {
 
     // TODO: Expanded family names (ex. C110X -> C1103 & C1104)
 
+    let sources = sources::Sources {
+        parts,
+        headers,
+        sysconfig,
+        svds,
+        clock_trees,
+        operating_modes,
+        int_groups,
+        timers,
+        errata,
+        wake,
+    };
+
     stopwatch.section("Generate data");
-    generate::generate(
-        &parts,
-        &headers,
-        &sysconfig,
-        &svds,
-        &operating_modes,
-        &int_groups,
-        &timers,
-        &clock_trees,
-        &errata,
-        &wake,
-    )?;
+    generate::generate(&sources)?;
 
     stopwatch.stop();
 
