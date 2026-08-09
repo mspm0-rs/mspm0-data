@@ -66,7 +66,7 @@ fieldset/CTL0:
   description: Control 0.
   fields:
   - name: ENABLE
-    description: Enables the corresponding VREF reference buffer. A device may implement fewer buffers than the three the register can address; the device datasheet says how many.
+    description: 'Enables reference buffer n. Each buffer feeds a different set of on-chip analog consumers rather than being interchangeable: hw_vref.h names buffer 1 COMP_VREF and buffer 2 ADC_VREF, and index 0 is the one TI''s own driverlib enables. SLAU846 Figure 23-1 is a superset diagram, so a device need not implement all three; nothing published says which it has.'
     bit_offset: 0
     bit_size: 1
     array:
@@ -85,9 +85,11 @@ fieldset/CTL1:
   description: Control 1.
   fields:
   - name: READY
-    description: VREF output is ready. Once set, it stays set when VREF is disabled and later re-enabled. On a device with more than one reference buffer it only applies to the first one enabled.
+    description: 'Reference buffer n has settled. One bit per ENABLE, but not at the same offsets: READY0 is bit 0, READY1 bit 2 and READY2 bit 3, with bit 1 unused. Beware VREF_ERR_01, which leaves the bit set once the buffer has been enabled a first time since reset, so on an affected device it cannot report a later enable and the datasheet startup time is the only signal.'
     bit_offset: 0
     bit_size: 1
+    array:
+      offsets: [0, 2, 3]
 fieldset/CTL2:
   description: Control 2.
   fields:
