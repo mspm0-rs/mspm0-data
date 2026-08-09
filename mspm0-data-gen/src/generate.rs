@@ -606,6 +606,45 @@ fn generate_missing(
         }
     }
 
+    // The beeper is documented as one SYSCTL register and addressed through it, so sysconfig does
+    // not list it and its register block was carved out of the SYSCTL maps. Every family below
+    // puts BEEPCFG at 0x1190 with the same two fields, per its hw_sysctl_*.h.
+    //
+    // Keyed on the family and not on the SYSCTL version: mspm0l112x and mspm0l211x have the beeper
+    // and share `sysctl_l122x_l222x` with mspm0l122x and mspm0l222x, which do not.
+    const BEEPER_FAMILIES: &[&str] = &[
+        "mspm0c110x",
+        "mspm0c1105_c1106",
+        "msps003fx",
+        "mspm0h321x",
+        "mspm0l112x",
+        "mspm0l211x",
+    ];
+
+    if BEEPER_FAMILIES.contains(&chip_name) {
+        let address = get_peripheral_addresses(chip_name, "SYSCTL", header, sysconfig)?
+            .context(format!("{chip_name}: BEEPER needs SYSCTL's address"))?;
+
+        let version = PERIMAP
+            .get(&format!("{}:{}", chip_name, PeripheralType::Beeper))
+            .map(|s| s.to_string());
+
+        peripherals.insert(
+            "BEEPER".to_string(),
+            Peripheral {
+                name: "BEEPER".to_string(),
+                ty: PeripheralType::Beeper,
+                version,
+                address: Some(address),
+                // It is part of SYSCTL, which is in PD0 on every family that has a beeper.
+                power_domain: PowerDomain::Pd0,
+                pins: vec![],
+                sys_fentries: None,
+                unicomm: None,
+            },
+        );
+    }
+
     Ok(())
 }
 

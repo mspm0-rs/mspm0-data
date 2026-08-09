@@ -1,5 +1,5 @@
 block/BEEPER:
-  description: The MSPM0C110x/MSPS003 beeper. This technically exists in the SYSCTL block, but is separated. 
+  description: 'The beeper, addressed through SYSCTL: this is one register of that block, split out so the four SYSCTL variants which have it do not each carry a copy. Present on C110x, C1105/C1106, MSPS003, H321x, L112x and L211x.'
   items:
   - name: BEEPCFG
     description: BEEPER Configuration

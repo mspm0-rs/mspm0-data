@@ -99,6 +99,12 @@ pub enum PeripheralType {
 
     AesAdv,
 
+    /// The beeper, a square wave output driven from LFCLK.
+    ///
+    /// Documented as part of SYSCTL and addressed through it, but described here as a peripheral of
+    /// its own so it gets a register block rather than four registers' worth of SYSCTL variants.
+    Beeper,
+
     Aes,
 
     Canfd,
@@ -193,6 +199,7 @@ impl fmt::Display for PeripheralType {
             PeripheralType::Adc => "adc",
             PeripheralType::Aes => "aes",
             PeripheralType::AesAdv => "aesadv",
+            PeripheralType::Beeper => "beeper",
             PeripheralType::Canfd => "canfd",
             PeripheralType::Comp => "comp",
             PeripheralType::Cpuss => "cpuss",

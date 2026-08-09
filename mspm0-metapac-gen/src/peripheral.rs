@@ -10,6 +10,7 @@ use quote::quote;
 /// By name, then version (if any)
 const GENERATE_PERIPHERALS: &[PeripheralType] = &[
     PeripheralType::Adc,
+    PeripheralType::Beeper,
     PeripheralType::Cpuss,
     PeripheralType::Dma,
     PeripheralType::Canfd,
