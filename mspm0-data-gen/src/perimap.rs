@@ -34,12 +34,10 @@ pub static PERIMAP: RegexMap<&str> = RegexMap::new(&[
     // the TRMs and with each other about CTL0 bits 1 and 2, which the YAML resolves in the TRMs'
     // favour.
     (".*:vref", "v1"),
-    // The RTC comes in variants which are not distinguished by a version number.
-    // SysConfig calls the standalone pre-LFSS peripheral the "legacy" RTC; the variants inside the
-    // LFSS are RTC_A when the LFSS has an independent VBAT supply and RTC_B when it is powered from
-    // VDD.
-    ("mspm0g..0x:rtc", "legacy"),
-    (".*:rtc", "b"),
+    // No RTC entry: a version names a register block, and none has been curated. The variants,
+    // for whoever writes them: sysconfig calls the standalone pre-LFSS peripheral the "legacy"
+    // RTC, and the ones inside the LFSS are RTC_A when the LFSS has an independent VBAT supply
+    // and RTC_B when it is powered from VDD. `mspm0g..0x` has the legacy one, everything else B.
     (".*:factoryregion", "v1"),
     // SLAU893 describes two C-series SYSCTLs, "SYSCTL_C1103_C1104" and "SYSCTL_C1105_C1106". The
     // latter is a superset: it adds the HFXT and LFXT crystal drivers, `MCLKCFG.FLASHWAIT` and the
