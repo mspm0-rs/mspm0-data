@@ -17,15 +17,17 @@ pub fn per_family<T: DeserializeOwned>(dir: &str) -> anyhow::Result<BTreeMap<Str
     for path in glob::glob(&format!("data/{dir}/*.yaml"))?.flatten() {
         let family = path
             .file_stem()
-            .context(format!("{}: no file stem to take a family name from", path.display()))?
+            .context(format!(
+                "{}: no file stem to take a family name from",
+                path.display()
+            ))?
             .to_string_lossy()
             .into_owned();
 
-        let content =
-            fs::read_to_string(&path).context(format!("reading {}", path.display()))?;
+        let content = fs::read_to_string(&path).context(format!("reading {}", path.display()))?;
 
-        let value = serde_yaml::from_str::<T>(&content)
-            .context(format!("reading {}", path.display()))?;
+        let value =
+            serde_yaml::from_str::<T>(&content).context(format!("reading {}", path.display()))?;
 
         families.insert(family, value);
     }
