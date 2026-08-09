@@ -735,101 +735,85 @@ fn maybe_rename(name: &str) -> String {
     name.to_string()
 }
 
-fn get_peripheral_type_version(chip_name: &str, name: &str) -> (PeripheralType, Option<String>) {
-    if name.starts_with("SYSCTL") {
-        let version = PERIMAP
-            .get(&format!("{}:{}", chip_name, PeripheralType::Sysctl))
-            .map(|s| s.to_string());
-        return (PeripheralType::Sysctl, version);
+/// Peripheral instance name prefixes, and the type each names.
+///
+/// First match wins, so order matters where one prefix starts with another: `AESADV` has to come
+/// before `AES`. TIMA, TIMB and TIMG are all `Tim` - which register block a timer instance uses is
+/// a separate question, answered by [`register_block_key`].
+const PERIPHERAL_PREFIXES: &[(&str, PeripheralType)] = &[
+    ("ADC", PeripheralType::Adc),
+    ("AESADV", PeripheralType::AesAdv),
+    ("AES", PeripheralType::Aes),
+    ("CANFD", PeripheralType::Canfd),
+    ("COMP", PeripheralType::Comp),
+    ("CPUSS", PeripheralType::Cpuss),
+    ("CRC", PeripheralType::Crc),
+    ("DAC", PeripheralType::Dac),
+    ("DEBUGSS", PeripheralType::Debugss),
+    ("DMA", PeripheralType::Dma),
+    ("EVENT", PeripheralType::Event),
+    ("FLASHCTL", PeripheralType::FlashCtl),
+    ("GPAMP", PeripheralType::GpAmp),
+    ("GPIO", PeripheralType::Gpio),
+    ("I2C", PeripheralType::I2c),
+    ("I2S", PeripheralType::I2s),
+    ("IOMUX", PeripheralType::Iomux),
+    ("IWDT", PeripheralType::Iwdt),
+    ("KEYSTORECTL", PeripheralType::KeystoreCtl),
+    ("LCD", PeripheralType::Lcd),
+    ("LFSS", PeripheralType::Lfss),
+    ("MATHACL", PeripheralType::Mathacl),
+    ("NPU", PeripheralType::Npu),
+    ("OPA", PeripheralType::Opa),
+    ("RTC", PeripheralType::Rtc),
+    ("SPG", PeripheralType::Spgss),
+    ("SPI", PeripheralType::Spi),
+    ("SYSCTL", PeripheralType::Sysctl),
+    ("TIMA", PeripheralType::Tim),
+    ("TIMB", PeripheralType::Tim),
+    ("TIMG", PeripheralType::Tim),
+    ("TRNG", PeripheralType::Trng),
+    ("UART", PeripheralType::Uart),
+    ("UC", PeripheralType::Unicomm),
+    ("USBFS", PeripheralType::Usbfs),
+    ("VREF", PeripheralType::Vref),
+    ("WUC", PeripheralType::Wuc),
+    ("WWDT", PeripheralType::Wwdt),
+];
+
+/// The type of a peripheral, from its instance name.
+///
+/// `Unknown` for a name no prefix covers. That is not inert - such a peripheral is dropped from the
+/// generated metadata - so `verify::peripheral_types_known` reports it rather than letting a source
+/// bump quietly lose one.
+fn peripheral_type_from_name(name: &str) -> PeripheralType {
+    PERIPHERAL_PREFIXES
+        .iter()
+        .find(|(prefix, _)| name.starts_with(prefix))
+        .map(|(_, ty)| *ty)
+        .unwrap_or(PeripheralType::Unknown)
+}
+
+/// The `data/registers` prefix a peripheral's register block is filed under.
+///
+/// Normally the peripheral type, since a chip has one block per type. TIMB is the exception: a
+/// basic timer has its own block but the same `Tim` type as TIMA and TIMG, so it needs a key of its
+/// own to reach `perimap`. The version it selects then gets a module name from `VARIANT_MODULES` in
+/// the metapac generator.
+fn register_block_key(name: &str, ty: PeripheralType) -> Cow<'static, str> {
+    if ty == PeripheralType::Tim && name.starts_with("TIMB") {
+        return Cow::Borrowed("timb");
     }
 
-    let ty = if name.starts_with("ADC") {
-        PeripheralType::Adc
-    } else if name.starts_with("AESADV") {
-        PeripheralType::AesAdv
-    } else if name.starts_with("AES") {
-        PeripheralType::Aes
-    } else if name.starts_with("CANFD") {
-        PeripheralType::Canfd
-    } else if name.starts_with("COMP") {
-        PeripheralType::Comp
-    } else if name.starts_with("CPUSS") {
-        PeripheralType::Cpuss
-    } else if name.starts_with("CRC") {
-        PeripheralType::Crc
-    } else if name.starts_with("DAC") {
-        PeripheralType::Dac
-    } else if name.starts_with("DEBUGSS") {
-        PeripheralType::Debugss
-    } else if name.starts_with("DMA") {
-        PeripheralType::Dma
-    } else if name.starts_with("EVENT") {
-        PeripheralType::Event
-    } else if name.starts_with("FLASHCTL") {
-        PeripheralType::FlashCtl
-    } else if name.starts_with("GPAMP") {
-        PeripheralType::GpAmp
-    } else if name.starts_with("GPIO") {
-        PeripheralType::Gpio
-    } else if name.starts_with("I2C") {
-        PeripheralType::I2c
-    } else if name.starts_with("I2S") {
-        PeripheralType::I2s
-    } else if name.starts_with("IOMUX") {
-        PeripheralType::Iomux
-    } else if name.starts_with("IWDT") {
-        PeripheralType::Iwdt
-    } else if name.starts_with("KEYSTORECTL") {
-        PeripheralType::KeystoreCtl
-    } else if name.starts_with("LCD") {
-        PeripheralType::Lcd
-    } else if name.starts_with("LFSS") {
-        PeripheralType::Lfss
-    } else if name.starts_with("MATHACL") {
-        PeripheralType::Mathacl
-    } else if name.starts_with("NPU") {
-        PeripheralType::Npu
-    } else if name.starts_with("OPA") {
-        PeripheralType::Opa
-    } else if name.starts_with("RTC") {
-        PeripheralType::Rtc
-    } else if name.starts_with("SPG") {
-        PeripheralType::Spgss
-    } else if name.starts_with("SPI") {
-        PeripheralType::Spi
-    } else if name.starts_with("TIMA") {
-        PeripheralType::Tim
-    } else if name.starts_with("TIMB") {
-        PeripheralType::Tim
-    } else if name.starts_with("TIMG") {
-        PeripheralType::Tim
-    } else if name.starts_with("TRNG") {
-        PeripheralType::Trng
-    } else if name.starts_with("UART") {
-        PeripheralType::Uart
-    } else if name.starts_with("UC") {
-        PeripheralType::Unicomm
-    } else if name.starts_with("USBFS") {
-        PeripheralType::Usbfs
-    } else if name.starts_with("VREF") {
-        PeripheralType::Vref
-    } else if name.starts_with("WUC") {
-        PeripheralType::Wuc
-    } else if name.starts_with("WWDT") {
-        PeripheralType::Wwdt
-    } else {
-        PeripheralType::Unknown
-    };
+    Cow::Owned(ty.to_string())
+}
 
-    // TIMB is a basic timer and has its own register block, so the key names the instance kind
-    // rather than the peripheral type. TIMA and TIMG share one, and both keep the plain `tim` key.
-    let key = if ty == PeripheralType::Tim && name.starts_with("TIMB") {
-        "timb"
-    } else {
-        &ty.to_string()
-    };
+fn get_peripheral_type_version(chip_name: &str, name: &str) -> (PeripheralType, Option<String>) {
+    let ty = peripheral_type_from_name(name);
+    let key = register_block_key(name, ty);
+
     let version = PERIMAP
-        .get(&format!("{}:{}", chip_name, key))
+        .get(&format!("{chip_name}:{key}"))
         .map(|s| s.to_string());
 
     (ty, version)
