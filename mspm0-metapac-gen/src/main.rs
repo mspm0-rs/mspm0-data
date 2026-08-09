@@ -7,6 +7,7 @@ use std::{
 
 use anyhow::Context;
 use mspm0_data_types::{Chip, Package};
+use proc_macro2::Literal;
 use quote::quote;
 
 mod interrupt;
@@ -137,28 +138,26 @@ fn generate_chip_metadata(
     });
 
     let family = &chip.family;
-    let adc_memctl = &chip.adc_memctl;
-    let adc_vrsel = &chip.adc_vrsel;
+    let adc_memctl = Literal::u8_unsuffixed(chip.adc_memctl);
+    let adc_vrsel = Literal::u8_unsuffixed(chip.adc_vrsel);
+    let include = format!("../{deduped_file}");
 
-    let mut contents = String::new();
-    write!(
-        &mut contents,
-        "
-        include!(\"../{deduped_file}\");
-        pub static METADATA: Metadata = Metadata {{
-            name: \"{name}\",
-            family: \"{family}\",
+    let contents = quote! {
+        include!(#include);
+
+        pub static METADATA: Metadata = Metadata {
+            name: #name,
+            family: #family,
             peripherals: PERIPHERALS,
             pins: PINS,
             interrupts: INTERRUPTS,
             interrupt_groups: INTERRUPT_GROUPS,
             dma_channels: DMA_CHANNELS,
-            adc_memctl: {adc_memctl},
-            adc_vrsel: {adc_vrsel},
-        }};
-        ",
-    )
-    .unwrap();
+            adc_memctl: #adc_memctl,
+            adc_vrsel: #adc_vrsel,
+        };
+    }
+    .to_string();
 
     write_rust(dir.join("metadata.rs"), &contents).unwrap();
 }
