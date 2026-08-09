@@ -25,20 +25,10 @@ fn main() -> anyhow::Result<()> {
     let out_dir = PathBuf::from("build/mspm0-metapac");
     fs::create_dir_all(&out_dir)?;
 
-    for f in glob::glob("build/data/*")? {
-        let f = f.unwrap();
-
-        if f.file_name()
-            .unwrap()
-            .to_string_lossy()
-            .starts_with("ignore.")
-        {
-            continue;
-        }
-
+    for f in glob::glob("build/data/*.json")?.flatten() {
         let name = f
             .file_name()
-            .unwrap()
+            .context("chip data file has no name")?
             .to_string_lossy()
             .replace(".json", "")
             .to_lowercase();

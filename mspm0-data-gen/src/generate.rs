@@ -54,11 +54,11 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
 
     // Data shared across all chips in a family.
     let packages = get_packages(&family.family, sysconfig)?;
-    let iomux = generate_pincm(&family.family, sysconfig)?;
+    let iomux = generate_pincm(sysconfig)?;
     let wakeup_pins = generate_wakeup_pins(sysconfig);
     let mut peripherals = generate_peripherals2(&family.family, header, sysconfig)?;
     let interrupts = generate_irqs(&family.family, header, int_groups)?;
-    let dma_channels = generate_dma_channels(&family.family, sysconfig)?;
+    let dma_channels = generate_dma_channels(sysconfig)?;
     let backup_domain = has_backup_domain(&family.family, sysconfig, &peripherals)?;
     let clock_tree = clock_tree
         .context(format!("{}: no clocktree.json", family.family))?
@@ -184,15 +184,12 @@ fn get_packages(family: &str, sysconfig: &SysconfigFile) -> anyhow::Result<Vec<P
     Ok(packages)
 }
 
-fn generate_pincm(
-    _chip_name: &str,
-    sysconfig: &SysconfigFile,
-) -> anyhow::Result<BTreeMap<String, u32>> {
+fn generate_pincm(sysconfig: &SysconfigFile) -> anyhow::Result<BTreeMap<String, u32>> {
     let mut pins = BTreeMap::new();
 
-    // TODO: Remove this hack as we have replaced it.
     for device_pin in sysconfig.device_pins.values() {
-        // TODO: Does this cause any problems?
+        // Multi-bonded pins, as in generate_peripherals2: named for both functions, listed
+        // separately under each.
         if device_pin.name.contains('/') {
             continue;
         }
@@ -284,7 +281,7 @@ fn generate_peripherals2(
             }
 
             let (ty, version) = get_peripheral_type_version(chip_name, &name);
-            let address = get_peripheral_addresses(chip_name, &name, header, sysconfig)?;
+            let address = get_peripheral_addresses(chip_name, &name, header)?;
             let power_domain = get_power_domain(peripheral, ty, chip_name)?;
             let sys_fentries = get_sys_fentries(peripheral, chip_name)?;
 
@@ -338,9 +335,8 @@ fn generate_peripherals2(
                                 .context(format!("Device pin with id {device_pin_id}, used by {pin_name_and_signal} (id: {pin_id}) is not present"))?;
                             let device_pin_name = &device_pin.name;
 
-                            // Remove pin entries with a `/` as these represent multi-bonded pins.
-                            //
-                            // TODO: Does this cause any problems?
+                            // Multi-bonded pins, which sysconfig names "PA1/NRST". The bank and
+                            // pin they alias are listed separately, so skipping them loses nothing.
                             if device_pin_name.contains('/') {
                                 continue;
                             }
@@ -349,11 +345,7 @@ fn generate_peripherals2(
                                 "PF was not valid integer for {device_pin_name}, {pin_name_and_signal}"
                             ))?;
 
-                            let pin = device_pin_name
-                                .split_once('/')
-                                .map(|(a, _)| a)
-                                .unwrap_or_else(|| device_pin_name)
-                                .to_string();
+                            let pin = device_pin_name.to_string();
 
                             if skip_peripheral_pin(device_pin_name, chip_name) {
                                 continue;
@@ -591,7 +583,7 @@ fn generate_missing(
             // Resolving the address always is unfortunately required because or_insert_with_key cannot handle
             // fallible closures.
             let bank = format!("GPIO{bank}");
-            let address = get_peripheral_addresses(chip_name, &bank, header, sysconfig)?
+            let address = get_peripheral_addresses(chip_name, &bank, header)?
                 .context(format!("{bank} must have address"))?;
 
             let version = PERIMAP
@@ -653,7 +645,7 @@ fn generate_missing(
     ];
 
     if BEEPER_FAMILIES.contains(&chip_name) {
-        let address = get_peripheral_addresses(chip_name, "SYSCTL", header, sysconfig)?
+        let address = get_peripheral_addresses(chip_name, "SYSCTL", header)?
             .context(format!("{chip_name}: BEEPER needs SYSCTL's address"))?;
 
         let version = PERIMAP
@@ -783,7 +775,6 @@ fn get_peripheral_addresses(
     chip_name: &str,
     name: &str,
     header: &Header,
-    _sysconfig: &SysconfigFile,
 ) -> anyhow::Result<Option<u32>> {
     let name = Cow::from(name);
 
@@ -884,10 +875,7 @@ fn generate_irqs(
     Ok(interrupts)
 }
 
-fn generate_dma_channels(
-    _chip_name: &str,
-    sysconfig: &SysconfigFile,
-) -> anyhow::Result<BTreeMap<u32, DmaChannel>> {
+fn generate_dma_channels(sysconfig: &SysconfigFile) -> anyhow::Result<BTreeMap<u32, DmaChannel>> {
     static PATTERN: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"DMA_CH(?<channel>\d+)").unwrap());
 
@@ -935,7 +923,11 @@ const UNICOMM_MODE_OFFSETS: &[(&str, u32)] = &[
 ];
 
 /// The register map each UNICOMM mode is described by, and how [`Unicomm`] reports it.
-const UNICOMM_MODE_TYPES: &[(&str, PeripheralType, fn(&Unicomm) -> bool)] = &[
+/// A UNICOMM mode view: the suffix its instance name takes, the peripheral type it becomes, and
+/// whether a given instance implements it.
+type UnicommMode = (&'static str, PeripheralType, fn(&Unicomm) -> bool);
+
+const UNICOMM_MODE_TYPES: &[UnicommMode] = &[
     ("UART", PeripheralType::UnicommUart, |m| m.uart),
     ("I2CC", PeripheralType::UnicommI2cc, |m| m.i2c_controller),
     ("I2CT", PeripheralType::UnicommI2ct, |m| m.i2c_target),
@@ -1198,13 +1190,14 @@ fn apply_peripheral_interrupts(
     interrupts: &BTreeMap<i32, Interrupt>,
 ) {
     for (name, peripheral) in peripherals.iter_mut() {
-        let own = interrupts.values().filter_map(|interrupt| {
-            (&interrupt.name == name).then(|| PeripheralInterrupt {
+        let own = interrupts
+            .values()
+            .filter(|interrupt| &interrupt.name == name)
+            .map(|interrupt| PeripheralInterrupt {
                 name: interrupt.name.clone(),
                 num: interrupt.num,
                 group_iidx: None,
-            })
-        });
+            });
 
         let shared = interrupts.values().filter_map(|interrupt| {
             let (&iidx, _) = interrupt.group.iter().find(|(_, member)| *member == name)?;

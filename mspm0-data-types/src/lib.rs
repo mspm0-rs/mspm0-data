@@ -247,7 +247,8 @@ pub struct PackagePin {
     pub signals: Vec<String>,
 }
 
-// TODO: The rest
+// Every peripheral sysconfig names on a supported device needs a variant here: one that falls
+// through to `Unknown` is dropped from the generated metadata, which `verify.rs` reports.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum PeripheralType {
