@@ -7,6 +7,7 @@ use std::{
 
 use anyhow::Context;
 use mspm0_data_types::{Chip, Package};
+use proc_macro2::Literal;
 use quote::quote;
 
 mod interrupt;
@@ -137,95 +138,101 @@ fn generate_chip_metadata(
     });
 
     let family = &chip.family;
-    let nvic_priority_bits = &chip.nvic_priority_bits;
-    let max_mclk_hz = &chip.max_mclk_hz;
-    let max_ulpclk_hz = &chip.max_ulpclk_hz;
-    let sysosc_base_hz = &chip.sysosc_base_hz;
-    let flash_wait_hz = chip
-        .flash_wait_hz
-        .iter()
-        .map(|hz| hz.to_string())
-        .collect::<Vec<_>>()
-        .join(", ");
-    let backup_domain = &chip.backup_domain;
+    let nvic_priority_bits = Literal::u8_unsuffixed(chip.nvic_priority_bits);
+    let max_mclk_hz = Literal::u32_unsuffixed(chip.max_mclk_hz);
+    let max_ulpclk_hz = Literal::u32_unsuffixed(chip.max_ulpclk_hz);
+    let sysosc_base_hz = Literal::u32_unsuffixed(chip.sysosc_base_hz);
+    let flash_wait_hz = chip.flash_wait_hz.iter().map(|hz| Literal::u32_unsuffixed(*hz));
+    let backup_domain = chip.backup_domain;
+    let errata = chip.errata.iter();
+
     let tree = &chip.clock_tree;
     let hfclk_hz = match tree.hfclk_hz {
-        Some(range) => format!(
-            "Some(ClockRange {{ min_hz: {}, max_hz: {} }})",
-            range.min_hz, range.max_hz
-        ),
-        None => "None".to_string(),
+        Some(range) => {
+            let min_hz = Literal::u32_unsuffixed(range.min_hz);
+            let max_hz = Literal::u32_unsuffixed(range.max_hz);
+            quote!(Some(ClockRange { min_hz: #min_hz, max_hz: #max_hz }))
+        }
+        None => quote!(None),
     };
-    let clock_tree = format!(
-        "ClockTree {{ hfxt: {}, hfclk_in: {}, hfclk_hz: {}, lfxt: {}, lfclk_in: {}, syspll: {}, \
-         ulpclk_div: {}, stop1: {} }}",
+    let (hfxt, hfclk_in, lfxt, lfclk_in, syspll, ulpclk_div, stop1) = (
         tree.hfxt,
         tree.hfclk_in,
-        hfclk_hz,
         tree.lfxt,
         tree.lfclk_in,
         tree.syspll,
         tree.ulpclk_div,
         tree.stop1,
     );
-
-    let errata = chip
-        .errata
-        .iter()
-        .map(|erratum| format!("{erratum:?}"))
-        .collect::<Vec<_>>()
-        .join(", ");
+    let clock_tree = quote! {
+        ClockTree {
+            hfxt: #hfxt,
+            hfclk_in: #hfclk_in,
+            hfclk_hz: #hfclk_hz,
+            lfxt: #lfxt,
+            lfclk_in: #lfclk_in,
+            syspll: #syspll,
+            ulpclk_div: #ulpclk_div,
+            stop1: #stop1,
+        }
+    };
 
     let wake = &chip.wake_ns;
     let ns = |mode: Option<u32>| match mode {
-        Some(ns) => format!("Some({ns})"),
-        None => "None".to_string(),
+        Some(ns) => {
+            let ns = Literal::u32_unsuffixed(ns);
+            quote!(Some(#ns))
+        }
+        None => quote!(None),
     };
-    let wake_ns = format!(
-        "WakeTimes {{ sleep0: {}, sleep1: {}, sleep2: {}, stop0: {}, stop1: {}, stop2: {}, \
-         standby0: {}, standby1: {}, shutdown: {} }}",
-        ns(wake.sleep0),
-        ns(wake.sleep1),
-        ns(wake.sleep2),
-        ns(wake.stop0),
-        ns(wake.stop1),
-        ns(wake.stop2),
-        ns(wake.standby0),
-        ns(wake.standby1),
-        ns(wake.shutdown),
-    );
+    let (sleep0, sleep1, sleep2) = (ns(wake.sleep0), ns(wake.sleep1), ns(wake.sleep2));
+    let (stop0, wake_stop1, stop2) = (ns(wake.stop0), ns(wake.stop1), ns(wake.stop2));
+    let (standby0, standby1, shutdown) =
+        (ns(wake.standby0), ns(wake.standby1), ns(wake.shutdown));
+    let wake_ns = quote! {
+        WakeTimes {
+            sleep0: #sleep0,
+            sleep1: #sleep1,
+            sleep2: #sleep2,
+            stop0: #stop0,
+            stop1: #wake_stop1,
+            stop2: #stop2,
+            standby0: #standby0,
+            standby1: #standby1,
+            shutdown: #shutdown,
+        }
+    };
 
     // Memory is the one part of the metadata which varies by part number rather than by family
     let memory = metadata::memory(chip);
+    let include = format!("../{deduped_file}");
 
-    let mut contents = String::new();
-    write!(
-        &mut contents,
-        "
-        include!(\"../{deduped_file}\");
-        static MEMORY: &[MemoryRegion] = {memory};
-        pub static METADATA: Metadata = Metadata {{
-            name: \"{name}\",
-            family: \"{family}\",
+    let contents = quote! {
+        include!(#include);
+
+        static MEMORY: &[MemoryRegion] = #memory;
+
+        pub static METADATA: Metadata = Metadata {
+            name: #name,
+            family: #family,
             memory: MEMORY,
             peripherals: PERIPHERALS,
             pins: PINS,
-            nvic_priority_bits: {nvic_priority_bits},
+            nvic_priority_bits: #nvic_priority_bits,
             interrupts: INTERRUPTS,
             interrupt_groups: INTERRUPT_GROUPS,
             dma_channels: DMA_CHANNELS,
-            max_mclk_hz: {max_mclk_hz},
-            max_ulpclk_hz: {max_ulpclk_hz},
-            sysosc_base_hz: {sysosc_base_hz},
-            flash_wait_hz: &[{flash_wait_hz}],
-            backup_domain: {backup_domain},
-            clock_tree: {clock_tree},
-            errata: &[{errata}],
-            wake_ns: {wake_ns},
-        }};
-        ",
-    )
-    .unwrap();
+            max_mclk_hz: #max_mclk_hz,
+            max_ulpclk_hz: #max_ulpclk_hz,
+            sysosc_base_hz: #sysosc_base_hz,
+            flash_wait_hz: &[#(#flash_wait_hz),*],
+            backup_domain: #backup_domain,
+            clock_tree: #clock_tree,
+            errata: &[#(#errata),*],
+            wake_ns: #wake_ns,
+        };
+    }
+    .to_string();
 
     write_rust(dir.join("metadata.rs"), &contents).unwrap();
 }
