@@ -528,6 +528,32 @@ pub struct Peripheral {
     /// `None` for peripherals which are not UNICOMM instances.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unicomm: Option<Unicomm>,
+
+    /// The parts of the VREF instance which the `vref_v1` register block does not describe.
+    ///
+    /// `None` for peripherals which are not the VREF.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub vref: Option<Vref>,
+}
+
+/// The parts of the VREF instance which the single `vref_v1` register block does not describe.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Vref {
+    /// Time from `CTL0.ENABLE` to a settled reference, in nanoseconds.
+    ///
+    /// `CTL1.READY` reports this and is the better signal, but `VREF_ERR_01` leaves the bit set once
+    /// a buffer has been enabled a first time since reset, so on a device carrying that erratum it
+    /// cannot report a later enable and this figure is the only way to know. Check
+    /// [`Chip::errata`] rather than assuming either way.
+    ///
+    /// Typical rather than a guaranteed ceiling: the datasheet cell spans its MIN, TYP and MAX
+    /// columns. Where a datasheet states the row under several conditions this is the slowest of
+    /// them, which on the G5187 means the 200us figure with a 1uF capacitor on `VREF+` rather than
+    /// the 20us one without.
+    ///
+    /// `None` when the family's datasheet has no `Tstartup` row.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub startup_ns: Option<u32>,
 }
 
 /// The parts of one ADC instance which the single `adc_v1` register block does not describe.

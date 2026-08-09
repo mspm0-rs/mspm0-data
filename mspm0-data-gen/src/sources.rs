@@ -6,7 +6,7 @@
 
 use std::collections::BTreeMap;
 
-use mspm0_data_types::WakeTimes;
+use mspm0_data_types::{Vref, WakeTimes};
 
 use crate::{
     clock_tree::{ClockTreeFile, ClockTrees},
@@ -32,6 +32,7 @@ pub struct Sources {
     pub timers: BTreeMap<String, Timers>,
     pub errata: BTreeMap<String, Errata>,
     pub wake: BTreeMap<String, WakeTimes>,
+    pub vref: BTreeMap<String, Vref>,
 }
 
 /// What one family is described by.
@@ -47,6 +48,7 @@ pub struct FamilySources<'a> {
     pub timers: Option<&'a Timers>,
     pub errata: Option<&'a Errata>,
     pub wake: Option<WakeTimes>,
+    pub vref: Option<Vref>,
 
     /// Not narrowed to the family: `generate_irqs` looks groups up per chip, not per family.
     pub int_groups: &'a BTreeMap<String, Groups>,
@@ -85,6 +87,7 @@ impl Sources {
             timers: self.timers.get(family),
             errata: self.errata.get(family),
             wake: self.wake.get(family).copied(),
+            vref: self.vref.get(family).copied(),
             int_groups: &self.int_groups,
         })
     }

@@ -239,6 +239,11 @@ pub struct Peripheral {
     ///
     /// `None` for peripherals which are not UNICOMM instances.
     pub unicomm: Option<Unicomm>,
+
+    /// The parts of the VREF instance which the register block does not describe.
+    ///
+    /// `None` for peripherals which are not the VREF.
+    pub vref: Option<Vref>,
 }
 
 /// Which register maps a UNICOMM instance implements.
@@ -367,6 +372,25 @@ pub enum PowerMode {
     /// Nothing but the `SHUTDNSTORE` bytes in SYSCTL survives this, so it appears only for
     /// non-volatile memory.
     Shutdown,
+}
+
+/// The parts of the VREF instance which the register block does not describe.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct Vref {
+    /// Time from `CTL0.ENABLE` to a settled reference, in nanoseconds.
+    ///
+    /// `CTL1.READY` reports this and is the better signal, but `VREF_ERR_01` leaves the bit set once
+    /// a buffer has been enabled a first time since reset, so on a device carrying that erratum it
+    /// cannot report a later enable and this figure is the only way to know. Check `Metadata::errata`
+    /// rather than assuming either way.
+    ///
+    /// Typical rather than a guaranteed ceiling: the datasheet cell spans its MIN, TYP and MAX
+    /// columns. Where a datasheet states the row under several conditions this is the slowest, which
+    /// on the G5187 is the 200us figure with a 1uF capacitor on `VREF+` rather than the 20us one
+    /// without.
+    ///
+    /// `None` when the family's datasheet has no `Tstartup` row.
+    pub startup_ns: Option<u32>,
 }
 
 /// The interrupt raised by a peripheral.

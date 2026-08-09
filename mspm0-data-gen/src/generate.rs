@@ -10,6 +10,7 @@ use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
     Adc, Chip, DmaChannel, Interrupt, Memory, MemoryKind, Package, PackagePin, Peripheral,
     PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain, PowerMode, Timer, Unicomm,
+    Vref,
 };
 use regex::Regex;
 
@@ -49,6 +50,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
         timers,
         errata,
         wake,
+        vref,
         int_groups,
     } = *sources;
 
@@ -73,6 +75,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
     apply_clock_ranges(family, &mut peripherals);
     apply_adc(family, sysconfig, &mut peripherals)?;
     apply_unicomm(family, header, &mut peripherals)?;
+    apply_vref(vref, &mut peripherals);
 
     for part_number in family.part_numbers.iter() {
         // Filter for package types available on the part number.
@@ -303,6 +306,7 @@ fn generate_peripherals2(
                 clock_range_hz: None,
                 adc: None,
                 unicomm: None,
+                vref: None,
             };
 
             // Lookup the pins
@@ -537,6 +541,7 @@ fn generate_missing(
             clock_range_hz: None,
             adc: None,
             unicomm: None,
+        vref: None,
         },
     );
 
@@ -569,6 +574,7 @@ fn generate_missing(
             clock_range_hz: None,
             adc: None,
             unicomm: None,
+        vref: None,
         },
     );
 
@@ -609,6 +615,7 @@ fn generate_missing(
                     clock_range_hz: None,
                     adc: None,
                     unicomm: None,
+                vref: None,
                 });
 
             let pin = device_pin
@@ -672,6 +679,7 @@ fn generate_missing(
                 clock_range_hz: None,
                 adc: None,
                 unicomm: None,
+                vref: None,
             },
         );
     }
@@ -1023,6 +1031,7 @@ fn apply_unicomm(
                 clock_range_hz: None,
                 adc: None,
                 unicomm: None,
+                vref: None,
             });
         }
     }
@@ -1032,6 +1041,24 @@ fn apply_unicomm(
     }
 
     Ok(())
+}
+
+/// Attach the family's VREF startup time to its VREF instance.
+///
+/// Left absent rather than defaulted when the family has no figure: a consumer which has to wait out
+/// `VREF_ERR_01` needs to refuse rather than guess, and a guessed number is one that silently returns
+/// an unsettled reference.
+fn apply_vref(vref: Option<Vref>, peripherals: &mut BTreeMap<String, Peripheral>) {
+    let Some(vref) = vref else {
+        return;
+    };
+
+    for peripheral in peripherals
+        .values_mut()
+        .filter(|peripheral| peripheral.ty == PeripheralType::Vref)
+    {
+        peripheral.vref = Some(vref);
+    }
 }
 
 fn apply_adc(

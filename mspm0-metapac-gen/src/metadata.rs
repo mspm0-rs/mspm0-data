@@ -367,6 +367,14 @@ fn generate_peripheral(
         None => quote! { None },
     };
 
+    let vref = match peripheral.vref.and_then(|vref| vref.startup_ns) {
+        Some(ns) => {
+            let ns = Literal::u32_unsuffixed(ns);
+            quote! { Some(Vref { startup_ns: Some(#ns) }) }
+        }
+        None => quote! { None },
+    };
+
     Some(quote! {
         Peripheral {
             name: #name,
@@ -384,6 +392,7 @@ fn generate_peripheral(
             clock_range_hz: #clock_range_hz,
             adc: #adc,
             unicomm: #unicomm,
+            vref: #vref,
         }
     })
 }

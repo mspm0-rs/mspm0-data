@@ -11,6 +11,7 @@ mod sysconfig;
 mod timers;
 mod sources;
 mod util;
+mod vref;
 mod verify;
 mod wakeup;
 
@@ -77,6 +78,7 @@ fn main() -> anyhow::Result<()> {
     let timers = timers::parse()?;
     let errata = errata::parse()?;
     let wake = wakeup::parse()?;
+    let vref = vref::parse()?;
     let parts = parts::PartsFile::read()?;
 
     // TODO: Expanded family names (ex. C110X -> C1103 & C1104)
@@ -92,6 +94,7 @@ fn main() -> anyhow::Result<()> {
         timers,
         errata,
         wake,
+        vref,
     };
 
     stopwatch.section("Generate data");

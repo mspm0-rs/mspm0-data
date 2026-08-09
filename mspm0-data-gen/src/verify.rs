@@ -12,6 +12,7 @@ pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
         gpio_no_duplicates,
         peripheral_types_known,
         register_blocks_exist,
+        vref_startup_known,
         // Peripherals which don't actually exist
         no_gpamp_c110x_l151x,
         // Low power data which is only as complete as the data sources
@@ -84,6 +85,28 @@ fn register_blocks_exist(chip: &Chip, name: &str) -> anyhow::Result<()> {
             bail!(
                 "{name}: {} claims version {version}, but data/registers/{block}.yaml does not exist",
                 peripheral.name
+            );
+        }
+    }
+
+    Ok(())
+}
+
+/// Report a VREF instance with no startup time.
+///
+/// A device carrying `VREF_ERR_01` cannot trust `CTL1.READY` after the first enable since reset, so
+/// without this figure a consumer has no way to know the reference has settled.
+fn vref_startup_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    for peripheral in chip
+        .peripherals
+        .values()
+        .filter(|peripheral| peripheral.ty == PeripheralType::Vref)
+    {
+        if peripheral.vref.and_then(|vref| vref.startup_ns).is_none() {
+            bail!(
+                "{name}: {} has no startup time; data/vref/{}.yaml is missing or has no Tstartup row",
+                peripheral.name,
+                chip.family
             );
         }
     }
