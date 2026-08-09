@@ -62,6 +62,10 @@ These are the data sources currently used.
     ([`data/timers/`](./data/timers))
   * How long the device takes to reach RUN from each sleep mode, from the wake-up timing table
     ([`data/wakeup/`](./data/wakeup))
+  * How long VREF takes to settle after being enabled, from the `Tstartup` row
+    ([`data/vref/`](./data/vref)). `CTL1.READY` would answer it, but `VREF_ERR_01` leaves that bit
+    set after the first enable since reset, so on an affected device the datasheet figure is the
+    only signal
   * Which timers stay clocked in STANDBY1 (`standby1_timers` in [`parts.yaml`](./data/parts.yaml))
   * MCLK and ULPCLK ceilings, the SYSOSC base frequency, the flash wait-state bands, `fADCCLK` and
     `TRNGCLKF` (all in [`parts.yaml`](./data/parts.yaml))
@@ -84,7 +88,8 @@ the `tools/` scripts read them from there.
 3. If needed, add any chip specific register blocks like `sysctl`.
 4. Check the peripheral mapping in [`perimap.rs`](./mspm0-data-gen/src/perimap.rs) to use the correct peripherals.
 5. Fetch the documents with `./d download-docs`, then regenerate the extracted data:
-   `tools/operating_modes.py`, `tools/timers.py`, `tools/wakeup.py` and `tools/errata.py`, each with
+   `tools/operating_modes.py`, `tools/timers.py`, `tools/wakeup.py`, `tools/vref.py` and
+   `tools/errata.py`, each with
    `--write files`.
 6. Run `./d gen` and read its output. `verify.rs` reports every per-chip gap it can detect, including
    a family with no timer, errata or operating-mode data.

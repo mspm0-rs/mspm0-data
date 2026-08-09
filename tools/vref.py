@@ -2,7 +2,7 @@
 
 `VREF.CTL0.ENABLE` starts a reference buffer and `CTL1.READY` is supposed to say when it has settled,
 but `VREF_ERR_01` leaves that bit set once a buffer has been enabled a first time since reset. On an
-affected device -- 93 of them -- the datasheet's `Tstartup` is the only way to know the reference is
+affected device -- 22 of the 43 part numbers -- the datasheet's `Tstartup` is the only way to know it is
 usable, so TI's own workaround is to wait it out. This writes `data/vref/<family>.yaml`.
 
 Like `tools/wakeup.py`, this is an offline aid rather than part of the build. Re-run it after a data
