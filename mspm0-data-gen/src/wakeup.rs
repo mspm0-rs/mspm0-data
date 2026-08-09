@@ -6,23 +6,13 @@
 //! Unlike the other `data/` readers there is no intermediate type: the file's keys are exactly
 //! [`WakeTimes`]' fields, so it deserializes straight into the shape the JSON carries.
 
-use std::{collections::BTreeMap, fs};
+use std::collections::BTreeMap;
 
-use anyhow::Context;
 use mspm0_data_types::WakeTimes;
+
+use crate::util;
 
 /// Read every `data/wakeup/<family>.yaml`, keyed by family name.
 pub fn parse() -> anyhow::Result<BTreeMap<String, WakeTimes>> {
-    let mut families = BTreeMap::new();
-
-    for path in glob::glob("data/wakeup/*.yaml").unwrap().flatten() {
-        let family = path.file_stem().unwrap().to_string_lossy().to_string();
-        let content = fs::read_to_string(&path)?;
-        let wake = serde_yaml::from_str::<WakeTimes>(&content)
-            .context(format!("Error reading wake-up times for {family}"))?;
-
-        families.insert(family, wake);
-    }
-
-    Ok(families)
+    util::per_family("wakeup")
 }

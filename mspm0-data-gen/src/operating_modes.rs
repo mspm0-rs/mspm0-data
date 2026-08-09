@@ -5,11 +5,12 @@
 //! This information isn't available in any machine-readable format, so it's extracted from the
 //! datasheet's "Supported Functionality by Operating Mode" table using `tools/operating_modes.py`.
 
-use std::{collections::BTreeMap, fs};
+use std::collections::BTreeMap;
 
-use anyhow::Context;
 use mspm0_data_types::PowerMode;
 use serde::Deserialize;
+
+use crate::util;
 
 #[derive(Debug, Default, Deserialize)]
 pub struct OperatingModes {
@@ -21,25 +22,7 @@ pub struct OperatingModes {
     pub usable_through: BTreeMap<String, PowerMode>,
 }
 
-impl OperatingModes {
-    pub fn parse() -> anyhow::Result<BTreeMap<String, OperatingModes>> {
-        let mut map = BTreeMap::new();
-
-        for f in glob::glob("data/operating_modes/*.yaml")? {
-            let f = f?;
-            let content = fs::read_to_string(&f)?;
-            let modes = serde_yaml::from_str::<OperatingModes>(&content)
-                .context(format!("Error reading {}", f.display()))?;
-
-            map.insert(
-                f.file_stem()
-                    .context("File has no stem")?
-                    .to_string_lossy()
-                    .to_string(),
-                modes,
-            );
-        }
-
-        Ok(map)
-    }
+/// Read every `data/operating_modes/<family>.yaml`, keyed by family name.
+pub fn parse() -> anyhow::Result<BTreeMap<String, OperatingModes>> {
+    util::per_family("operating_modes")
 }

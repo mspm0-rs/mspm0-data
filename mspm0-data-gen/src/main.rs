@@ -71,10 +71,10 @@ fn main() -> anyhow::Result<()> {
 
     stopwatch.section("Read interrupt group mappings");
 
-    let int_groups = int_group::Groups::parse()?;
-    let operating_modes = operating_modes::OperatingModes::parse()?;
-    let timers = timers::Timers::parse()?;
-    let errata = errata::Errata::parse()?;
+    let int_groups = int_group::parse()?;
+    let operating_modes = operating_modes::parse()?;
+    let timers = timers::parse()?;
+    let errata = errata::parse()?;
     let wake = wakeup::parse()?;
     let parts = parts::PartsFile::read()?;
 
