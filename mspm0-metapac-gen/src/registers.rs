@@ -15,41 +15,31 @@ pub fn generate(out_dir: &Path) -> anyhow::Result<()> {
 
     // Must create `src` directory which common is eventually written to.
     let out_dir = out_dir.join("src/peripherals");
-    fs::create_dir_all(&out_dir).unwrap();
+    fs::create_dir_all(&out_dir)?;
 
     // Common module
-    fs::write(common, generate::COMMON_MODULE).unwrap();
+    fs::write(common, generate::COMMON_MODULE)?;
 
     let options = generate::Options::new().with_common_module(CommonModule::External(
-        TokenStream::from_str("crate::common").unwrap(),
+        // Not `?`: LexError is neither Send nor Sync, and this parses a fixed path anyway.
+        TokenStream::from_str("crate::common").expect("crate::common is a valid path"),
     ));
 
-    let re = Regex::new("# *! *\\[.*\\]").unwrap();
+    let re = Regex::new("# *! *\\[.*\\]")?;
 
-    for f in glob::glob("data/registers/*.yaml").unwrap() {
-        let f = f.unwrap();
-
+    for f in glob::glob("data/registers/*.yaml")?.flatten() {
         if !f.is_file() {
             continue;
         }
 
-        if f.file_name()
-            .unwrap()
-            .to_string_lossy()
-            .starts_with("ignore.")
-        {
-            continue;
-        }
+        let ctx = || format!("register block {}", f.display());
 
-        let ctx = format!("{:?}", f.file_name());
-
-        let mut ir: ir::IR = serde_yaml::from_str(&fs::read_to_string(&f).unwrap())
-            .context(ctx.clone())
-            .expect("Error reading registers");
+        let mut ir: ir::IR =
+            serde_yaml::from_str(&fs::read_to_string(&f).with_context(ctx)?).with_context(ctx)?;
 
         transform::expand_extends::ExpandExtends {}
             .run(&mut ir)
-            .unwrap();
+            .with_context(ctx)?;
 
         transform::map_names(&mut ir, |k, s| match k {
             transform::NameKind::Block => *s = s.to_string(),
@@ -58,18 +48,16 @@ pub fn generate(out_dir: &Path) -> anyhow::Result<()> {
             _ => {}
         });
 
-        transform::sort::Sort {}.run(&mut ir).unwrap();
+        transform::sort::Sort {}.run(&mut ir).with_context(ctx)?;
         transform::sanitize::Sanitize::default()
             .run(&mut ir)
-            .unwrap();
+            .with_context(ctx)?;
 
-        let items = generate::render(&ir, &options)
-            .context(ctx)
-            .expect("Failed to generate code for peripheral");
+        let items = generate::render(&ir, &options).with_context(ctx)?;
 
         let name = f
             .file_name()
-            .unwrap()
+            .context("register block has no file name")?
             .to_string_lossy()
             .replace(".yaml", ".rs");
 
