@@ -670,6 +670,8 @@ fn get_peripheral_type_version(chip_name: &str, name: &str) -> (PeripheralType, 
         PeripheralType::Opa
     } else if name.starts_with("RTC") {
         PeripheralType::Rtc
+    } else if name.starts_with("SPG") {
+        PeripheralType::Spgss
     } else if name.starts_with("SPI") {
         PeripheralType::Spi
     } else if name.starts_with("TIMA") {

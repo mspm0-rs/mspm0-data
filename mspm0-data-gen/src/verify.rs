@@ -1,7 +1,7 @@
 use std::{collections::HashSet, sync::LazyLock};
 
 use anyhow::{bail, Context};
-use mspm0_data_types::{Chip, PowerDomain};
+use mspm0_data_types::{Chip, PeripheralType, PowerDomain};
 use regex::Regex;
 
 /// Run every check, returning one error per failure.
@@ -13,6 +13,8 @@ pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
         core_peripherals,
         pin_names,
         gpio_no_duplicates,
+        peripheral_types_known,
+        register_blocks_exist,
         // Peripherals which don't actually exist
         no_gpamp_c110x_l151x,
         // Power domains
@@ -29,6 +31,63 @@ pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
         .iter()
         .filter_map(|check| check(chip, name).err())
         .collect()
+}
+
+/// Every register block `data/registers` provides, by file stem.
+static REGISTER_BLOCKS: LazyLock<HashSet<String>> = LazyLock::new(|| {
+    glob::glob("data/registers/*.yaml")
+        .unwrap()
+        .flatten()
+        .filter_map(|path| Some(path.file_stem()?.to_string_lossy().into_owned()))
+        .collect()
+});
+
+/// A peripheral whose name matched no known prefix.
+///
+/// `PeripheralType::Unknown` is not inert: `mspm0-metapac-gen` drops those peripherals from the
+/// generated metadata, so the chip silently loses one. That is how a source bump which adds a
+/// peripheral goes unnoticed, which is why this is an error rather than a note.
+fn peripheral_types_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    let unknown = chip
+        .peripherals
+        .values()
+        .filter(|peripheral| peripheral.ty == PeripheralType::Unknown)
+        .map(|peripheral| peripheral.name.as_str())
+        .collect::<Vec<_>>();
+
+    if !unknown.is_empty() {
+        bail!(
+            "{name}: no peripheral type for {}, so it will be dropped from the metadata. Add a \
+             prefix to `peripheral_type_from_name` and a `PeripheralType` variant",
+            unknown.join(", ")
+        );
+    }
+
+    Ok(())
+}
+
+/// A version names a register block, so the block has to be there.
+///
+/// `Peripheral::version` selects `data/registers/<type>_<version>.yaml`. A version with no such
+/// file promises the consumer a register block which does not exist; either curate the block or
+/// drop the `perimap` entry until it is written.
+fn register_blocks_exist(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    for peripheral in chip.peripherals.values() {
+        let Some(version) = &peripheral.version else {
+            continue;
+        };
+
+        let block = format!("{}_{version}", peripheral.ty);
+
+        if !REGISTER_BLOCKS.contains(&block) {
+            bail!(
+                "{name}: {} claims version {version}, but data/registers/{block}.yaml does not exist",
+                peripheral.name
+            );
+        }
+    }
+
+    Ok(())
 }
 
 /// Verify all core peripherals are present.
