@@ -464,22 +464,74 @@ fn get_sys_fentries(
     Ok(Some(sys_fentries.parse::<usize>().unwrap()))
 }
 
+/// The device series a family belongs to.
+///
+/// Only exists to keep [`POWER_DOMAIN_FIXES`] from being applied to parts it was never checked
+/// against. Adding MSPM33 or a SimpleLink part means adding a variant and its own table, not
+/// extending the MSPM0 one — their power domains are laid out differently.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Series {
+    Mspm0,
+}
+
+impl Series {
+    fn of(family: &str) -> anyhow::Result<Self> {
+        if family.starts_with("mspm0") || family.starts_with("msps003") {
+            return Ok(Series::Mspm0);
+        }
+
+        bail!(
+            "{family}: unknown device series. Power domains are stated per series, so a new one \
+             needs its own table rather than MSPM0's"
+        )
+    }
+
+    /// The domain a peripheral is in whatever sysconfig claims, if it is one of the known-wrong ones.
+    fn power_domain_fix(self, ty: PeripheralType) -> Option<PowerDomain> {
+        let fixes = match self {
+            Series::Mspm0 => POWER_DOMAIN_FIXES,
+        };
+
+        fixes
+            .iter()
+            .find(|(fixed, _)| *fixed == ty)
+            .map(|(_, domain)| *domain)
+    }
+}
+
+/// Peripherals whose power domain sysconfig states wrongly, or not at all, on MSPM0.
+///
+/// Each of these holds for every MSPM0 family, so they are applied unconditionally rather than
+/// against a list of the families whose metadata happens to be wrong today — a new family got the
+/// bug and not the fix. Applying them by construction is also what enforces the invariant; there
+/// were six checks in `verify.rs` asserting exactly this list, and they could no longer fail.
+///
+/// GPAMP is here because sysconfig gives it no power domain at all, not because it gives a wrong
+/// one.
+const POWER_DOMAIN_FIXES: &[(PeripheralType, PowerDomain)] = &[
+    (PeripheralType::AesAdv, PowerDomain::Pd1),
+    (PeripheralType::Cpuss, PowerDomain::Pd1),
+    (PeripheralType::Crc, PowerDomain::Pd1),
+    (PeripheralType::GpAmp, PowerDomain::Pd0),
+    (PeripheralType::Spi, PowerDomain::Pd1),
+    (PeripheralType::Trng, PowerDomain::Pd1),
+];
+
 fn get_power_domain(
     peripheral: &sysconfig::Peripheral,
     ty: PeripheralType,
     chip_name: &str,
 ) -> anyhow::Result<PowerDomain> {
+    if let Some(domain) = Series::of(chip_name)?.power_domain_fix(ty) {
+        return Ok(domain);
+    }
+
     let Some(power_domain) = peripheral
         .attributes
         .get("power_domain")
         // G151x uses all caps power domain while other chips use lowercase.
         .or_else(|| peripheral.attributes.get("POWER_DOMAIN"))
     else {
-        // GPAMP does not have a specified power domain from sysconfig. It is always in PD0.
-        if peripheral.name == "GPAMP" {
-            return Ok(PowerDomain::Pd0);
-        }
-
         bail!("{chip_name}: {} has no power domain", peripheral.name)
     };
 
@@ -490,78 +542,8 @@ fn get_power_domain(
         )
     };
 
-    // A few notes on exceptions:
-    // - ADCx:
-    //   The ADCs technically are in both PD0 and PD1 power domains. We pick PD0 since the
-    //   ADC is in the more permissive power.
-    //
-    // - GPIOx:
-    //   Same rationale as ADCs
+    // The ADCs and GPIOs are in both PD0 and PD1; we take the more permissive of the two.
     let domain = match power_domain {
-        // Fix mistakes in SYSCTL
-        "PD_ULP_AON"
-            if (chip_name == "msps003fx"
-                || chip_name == "mspm0c110x"
-                || chip_name == "mspm0c1105_c1106"
-                || chip_name == "mspm0h321x"
-                || chip_name == "mspm0l110x"
-                || chip_name == "mspm0l122x"
-                || chip_name == "mspm0l130x"
-                || chip_name == "mspm0l134x"
-                || chip_name == "mspm0l222x"
-                || chip_name == "mspm0l112x"
-                || chip_name == "mspm0l211x")
-                && ty == PeripheralType::Cpuss =>
-        {
-            PowerDomain::Pd1
-        }
-        "PD_ULP_AON"
-            if (chip_name == "mspm0l122x"
-                || chip_name == "mspm0l222x"
-                || chip_name == "mspm0l112x"
-                || chip_name == "mspm0l211x")
-                && ty == PeripheralType::AesAdv =>
-        {
-            PowerDomain::Pd1
-        }
-        "PD_ULP_AON"
-            if (chip_name == "msps003fx"
-                || chip_name == "mspm0c110x"
-                || chip_name == "mspm0c1105_c1106"
-                || chip_name == "mspm0h321x"
-                || chip_name == "mspm0l110x"
-                || chip_name == "mspm0l122x"
-                || chip_name == "mspm0l130x"
-                || chip_name == "mspm0l134x"
-                || chip_name == "mspm0l222x")
-                && ty == PeripheralType::Crc =>
-        {
-            PowerDomain::Pd1
-        }
-        "PD_ULP_AON"
-            if (chip_name == "msps003fx"
-                || chip_name == "mspm0c110x"
-                || chip_name == "mspm0c1105_c1106"
-                || chip_name == "mspm0h321x"
-                || chip_name == "mspm0l110x"
-                || chip_name == "mspm0l122x"
-                || chip_name == "mspm0l130x"
-                || chip_name == "mspm0l134x"
-                || chip_name == "mspm0l222x")
-                && ty == PeripheralType::Spi =>
-        {
-            PowerDomain::Pd1
-        }
-        "PD_ULP_AON"
-            if (chip_name == "mspm0l122x" || chip_name == "mspm0l222x")
-                && ty == PeripheralType::Trng =>
-        {
-            PowerDomain::Pd1
-        }
-
-        // Q: GPAMP appears to be in PD0 but is None in most chips.
-
-        // Normal
         "PD_ULP_AON" => PowerDomain::Pd0,
         "PD_ULP_AAON" => PowerDomain::Pd1,
         "PD_VRTC_AON" => PowerDomain::Backup,

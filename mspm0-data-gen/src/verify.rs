@@ -1,6 +1,6 @@
 use std::{collections::HashSet, sync::LazyLock};
 
-use anyhow::{bail, Context};
+use anyhow::bail;
 use mspm0_data_types::{Chip, PeripheralType, PowerDomain};
 use regex::Regex;
 
@@ -26,14 +26,6 @@ pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
         clock_frequencies_consistent,
         retention_known,
         wakeup_pins_known,
-        // Power domains
-        verify_aesadv_power_domain,
-        verify_cpuss_power_domain,
-        verify_crc_power_domain,
-        verify_gpamp_power_domain,
-        verify_spi_power_domain,
-        verify_trng_power_domain,
-        // TODO: UART may be in either power domain, add checks if something is wrong
     ];
 
     CHECKS
@@ -553,92 +545,6 @@ fn gpio_no_duplicates(chip: &Chip, name: &str) -> anyhow::Result<()> {
                 );
             }
         }
-    }
-
-    Ok(())
-}
-
-fn verify_aesadv_power_domain(chip: &Chip, name: &str) -> anyhow::Result<()> {
-    // L122X puts AESADV in the wrong power domain
-    let Some(peripheral) = chip.peripherals.get("AESADV") else {
-        return Ok(());
-    };
-
-    if peripheral.power_domain != PowerDomain::Pd1 {
-        bail!("{name}: AESADV is not in power domain PD1");
-    }
-
-    Ok(())
-}
-
-/// A few parts have errors in sysconfig metadata where CPUSS is in PD0.
-///
-/// For all MSPM0 parts CPUSS is in PD1.
-fn verify_cpuss_power_domain(chip: &Chip, name: &str) -> anyhow::Result<()> {
-    let peripheral = chip.peripherals.get("CPUSS").context("CPUSS not present")?;
-
-    if peripheral.power_domain != PowerDomain::Pd1 {
-        bail!("{name}: CPUSS is not in power domain PD1");
-    }
-
-    Ok(())
-}
-
-fn verify_crc_power_domain(chip: &Chip, name: &str) -> anyhow::Result<()> {
-    let Some(peripheral) = chip
-        .peripherals
-        .get("CRC")
-        .or_else(|| chip.peripherals.get("CRCP0"))
-    else {
-        return Ok(());
-    };
-
-    if peripheral.power_domain != PowerDomain::Pd1 {
-        bail!("{name}: CRC is not in power domain PD1");
-    }
-
-    Ok(())
-}
-
-fn verify_gpamp_power_domain(chip: &Chip, name: &str) -> anyhow::Result<()> {
-    // Sysconfig states GPAMP has no power domain, but it belongs to PD0.
-    let Some(peripheral) = chip.peripherals.get("GPAMP") else {
-        return Ok(());
-    };
-
-    if peripheral.power_domain != PowerDomain::Pd0 {
-        bail!("{name}: GPAMP is not in power domain PD0");
-    }
-
-    Ok(())
-}
-
-/// SPI peripherals always belong to PD1.
-fn verify_spi_power_domain(chip: &Chip, name: &str) -> anyhow::Result<()> {
-    // Maintainer note: This could change in the future.
-    static PATTERN: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"SPI(\d+)").unwrap());
-
-    for (peripheral_name, peripheral) in chip
-        .peripherals
-        .iter()
-        .filter(|(name, _)| PATTERN.is_match(name))
-    {
-        if peripheral.power_domain != PowerDomain::Pd1 {
-            bail!("{name}: {peripheral_name} is not in power domain PD1");
-        }
-    }
-
-    Ok(())
-}
-
-/// TRNG peripherals always belong to PD1.
-fn verify_trng_power_domain(chip: &Chip, name: &str) -> anyhow::Result<()> {
-    let Some(peripheral) = chip.peripherals.get("TRNG") else {
-        return Ok(());
-    };
-
-    if peripheral.power_domain != PowerDomain::Pd1 {
-        bail!("{name}: TRNG is not in power domain PD1");
     }
 
     Ok(())

@@ -9,6 +9,7 @@
 retained_through:
   AESADV: Standby
   CPUSS: Standby
+  CRC0: Standby
   DMA: Standby
 
 usable_through:
