@@ -62,7 +62,7 @@ fn main() -> anyhow::Result<()> {
 
     stopwatch.section("Read interrupt group mappings");
 
-    let int_groups = int_group::Groups::parse()?;
+    let int_groups = int_group::parse()?;
     let parts = parts::PartsFile::read()?;
 
     // TODO: Expanded family names (ex. C110X -> C1103 & C1104)
