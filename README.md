@@ -43,9 +43,8 @@ These are the data sources currently used.
   * How many counters a basic timer instance has (`SYS_NUM_COUNTERS`), and a cross-check of the
     datasheet's capture/compare channel counts (`SYS_NUM_CC`).
 * SysConfig `clocktree.json`
-  * Which crystal drivers, external clock inputs and SYSPLL a family has. This is not derivable from
-    the SYSCTL register block: MSPM0C110x and MSPM0C1105/C1106 share one, but only the latter has a
-    crystal driver.
+  * Which crystal drivers, external clock inputs and SYSPLL a family has. A node is present exactly
+    when the family has that hardware.
 * mspm0-sdk header files
   * Interrupt number, name
   * Peripheral addresses
@@ -64,8 +63,8 @@ These are the data sources currently used.
     ([`data/wakeup/`](./data/wakeup))
   * How long VREF takes to settle after being enabled, from the `Tstartup` row
     ([`data/vref/`](./data/vref)). `CTL1.READY` would answer it, but `VREF_ERR_01` leaves that bit
-    set after the first enable since reset, so on an affected device the datasheet figure is the
-    only signal
+    set after the first enable since reset. On an affected device the datasheet figure is the only
+    signal
   * Which timers stay clocked in STANDBY1 (`standby1_timers` in [`parts.yaml`](./data/parts.yaml))
   * MCLK and ULPCLK ceilings, the SYSOSC base frequency, the flash wait-state bands, `fADCCLK` and
     `TRNGCLKF` (all in [`parts.yaml`](./data/parts.yaml))
@@ -74,7 +73,8 @@ These are the data sources currently used.
 * Manually entered
   * IIDX values for interrupts within a `INT_GROUP`
   * Whether the device has `MCLKCFG.UDIV` and the STOP1 sub-mode (`clock_tree` in
-    [`parts.yaml`](./data/parts.yaml))
+    [`parts.yaml`](./data/parts.yaml)). Neither can be keyed off the SYSCTL version: MSPM0L112x and
+    MSPM0L211x share `sysctl_l122x_l222x` with MSPM0L122x and MSPM0L222x, but have no STOP1
 
 Run `./d download-docs` to fetch the datasheets, errata sheets and reference manuals into `./files/`;
 the `tools/` scripts read them from there.
@@ -155,8 +155,11 @@ When parsing a chip, for each peripheral a "key" string is constructed using thi
 ```
 
 `PERIPHERAL_NAME` is the peripheral type, so every instance of a type on a chip gets the same
-version. Where one type covers instances with different register blocks the key has to say which,
-as `timb` does for the basic timers alongside `tim` — see `get_peripheral_type_version`. Such a
+version. Where one type covers instances with different register blocks, the key has to say which:
+`timb` does that for the basic timers alongside `tim`, in `get_peripheral_type_version`. Such a
 version also needs an entry in `VARIANT_MODULES` in
-[`peripheral.rs`](./mspm0-metapac-gen/src/peripheral.rs) to give it a module name of its own,
-otherwise the metapac generator panics on the two blocks colliding.
+[`peripheral.rs`](./mspm0-metapac-gen/src/peripheral.rs) to give it a module name of its own.
+Without one, the metapac generator panics on the two blocks colliding.
+
+A version also means the register block exists. `verify.rs` fails if a perimap entry names a YAML
+that has not been written, so do not add the entry ahead of the block.
