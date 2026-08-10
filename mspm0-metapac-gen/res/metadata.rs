@@ -255,6 +255,30 @@ pub struct Peripheral {
     ///
     /// `None` for peripherals which are not the VREF.
     pub vref: Option<Vref>,
+
+    /// The parts of this COMP instance which its register block does not describe.
+    ///
+    /// `None` for peripherals which are not comparators.
+    pub comp: Option<Comp>,
+}
+
+/// The parts of one COMP instance which its register block does not describe.
+///
+/// Both COMP register blocks enumerate every `CTL2.REFSRC` value the IP has ever had, so on its own
+/// the PAC offers reference sources some devices do not implement — the same shape as the OPA mux
+/// positions, where a selection that does not exist selects nothing and reads as a healthy
+/// configuration.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct Comp {
+    /// Whether `CTL2.REFSRC` positions 5 (`VDDA`), 6 (`INTVREF_DAC`) and 7 (`INTVREF`) select a
+    /// source on this instance. The three come and go together; positions 0 through 3 exist on
+    /// every comparator, and 4 is reserved everywhere.
+    ///
+    /// When false, writing 5 through 7 selects no reference. The internal-reference positions are
+    /// the only way to a reference in modes where the VREF module is unavailable; when this is
+    /// false, `REFSRC` 2 and 3 reach the VREF module's output instead, which follows the VREF
+    /// configuration (internal where the device generates one, the `VREF+`/`VREF-` pins otherwise).
+    pub int_vref: bool,
 }
 
 /// Which extended-UART features a UART instance implements.

@@ -18,6 +18,7 @@ pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
         uart_features_known,
         opa_inputs_known,
         opa_input_sources_exist,
+        comp_features_known,
         // Peripherals which don't actually exist
         no_gpamp_c110x_l151x,
         // Low power data which is only as complete as the data sources
@@ -274,6 +275,29 @@ fn uart_features_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
                  the instance",
                 peripheral.name,
                 chip.family
+            );
+        }
+    }
+
+    Ok(())
+}
+
+/// Every comparator states whether it has the `CTL2.REFSRC` internal-reference positions.
+///
+/// The data comes from sysconfig's `SYS_COMP_INT_VREF`, which every family's metadata carries per
+/// instance, so an instance without it means the attribute moved rather than that the answer is
+/// unknown.
+fn comp_features_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    for peripheral in chip
+        .peripherals
+        .values()
+        .filter(|peripheral| peripheral.ty == PeripheralType::Comp)
+    {
+        if peripheral.comp.is_none() {
+            bail!(
+                "{name}: {} has no comparator data; SYS_COMP_INT_VREF was not found on the \
+                 sysconfig instance",
+                peripheral.name,
             );
         }
     }

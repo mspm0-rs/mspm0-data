@@ -8,7 +8,7 @@ use std::{
 
 use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
-    Adc, Chip, DmaChannel, Interrupt, Memory, MemoryKind, Package, PackagePin, Peripheral,
+    Adc, Chip, Comp, DmaChannel, Interrupt, Memory, MemoryKind, Package, PackagePin, Peripheral,
     PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain, PowerMode, Timer, Uart,
     Unicomm, Vref,
 };
@@ -84,6 +84,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
     apply_uart(family, sysconfig, uart, &mut peripherals)?;
     apply_opa(opa, &mut peripherals);
     apply_vref(vref, &mut peripherals);
+    apply_comp(sysconfig, &mut peripherals);
 
     for part_number in family.part_numbers.iter() {
         // Filter for package types available on the part number.
@@ -317,6 +318,7 @@ fn generate_peripherals2(
                 uart: None,
                 opa: None,
                 vref: None,
+                comp: None,
             };
 
             // Lookup the pins
@@ -554,6 +556,7 @@ fn generate_missing(
             uart: None,
             opa: None,
             vref: None,
+            comp: None,
         },
     );
 
@@ -589,6 +592,7 @@ fn generate_missing(
             uart: None,
             opa: None,
             vref: None,
+            comp: None,
         },
     );
 
@@ -632,6 +636,7 @@ fn generate_missing(
                     uart: None,
                     opa: None,
                     vref: None,
+                    comp: None,
                 });
 
             let pin = device_pin
@@ -698,6 +703,7 @@ fn generate_missing(
                 uart: None,
                 opa: None,
                 vref: None,
+                comp: None,
             },
         );
     }
@@ -1052,6 +1058,7 @@ fn apply_unicomm(
                 uart: None,
                 opa: None,
                 vref: None,
+                comp: None,
             });
         }
     }
@@ -1090,6 +1097,32 @@ fn apply_vref(vref: Option<Vref>, peripherals: &mut BTreeMap<String, Peripheral>
         .filter(|peripheral| peripheral.ty == PeripheralType::Vref)
     {
         peripheral.vref = Some(vref);
+    }
+}
+
+/// Attach whether each COMP instance implements the `CTL2.REFSRC` internal-reference positions.
+///
+/// `SYS_COMP_INT_VREF` is present (as `"1"`) exactly on the instances which have them and absent
+/// otherwise. It agrees with every SVD which enumerates `REFSRC` — the five newer-generation SVDs
+/// list values 5 through 7 and the four older ones stop at 3 — and with the two datasheets which
+/// state the feature in prose (the L1228's "dedicated internal reference", the G5187's "internal
+/// VREF1"), so unlike `SYS_LIN_EN` it is safe to read directly. driverlib is *not* a cross-check:
+/// its `DL_COMP_REF_SOURCE_INT_VREF` gate names only L122X_L222X, against both of the above.
+fn apply_comp(sysconfig: &SysconfigFile, peripherals: &mut BTreeMap<String, Peripheral>) {
+    for peripheral in sysconfig.peripherals.values() {
+        let name = maybe_rename(&peripheral.name);
+        let Some(comp) = peripherals.get_mut(&name) else {
+            continue;
+        };
+        if comp.ty != PeripheralType::Comp {
+            continue;
+        }
+
+        let int_vref = peripheral
+            .attributes
+            .get("SYS_COMP_INT_VREF")
+            .is_some_and(|value| value.as_str() == Some("1"));
+        comp.comp = Some(Comp { int_vref });
     }
 }
 

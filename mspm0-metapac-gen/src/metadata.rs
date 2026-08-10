@@ -473,6 +473,14 @@ fn generate_peripheral(
         None => quote! { None },
     };
 
+    let comp = match peripheral.comp {
+        Some(comp) => {
+            let int_vref = comp.int_vref;
+            quote! { Some(Comp { int_vref: #int_vref }) }
+        }
+        None => quote! { None },
+    };
+
     Some(quote! {
         Peripheral {
             name: #name,
@@ -493,6 +501,7 @@ fn generate_peripheral(
             uart: #uart,
             opa: #opa,
             vref: #vref,
+            comp: #comp,
         }
     })
 }
