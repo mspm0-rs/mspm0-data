@@ -74,6 +74,10 @@ These are the data sources currently used.
   * Which extended-UART features (LIN, DALI, IrDA, ISO7816, Manchester) each UART instance
     implements, from the "UART Features" table ([`data/uart/`](./data/uart)). One register block
     serves every instance, so this is the only place the difference is stated per part
+  * The comparator timing figures — enable time per mode, and the reference DAC's settling time,
+    internal and pin-loaded — from the `ten` and `tdac_settle` rows ([`data/comp/`](./data/comp)).
+    Neither has a status bit behind it, so waiting them out is the only way to know the output is
+    meaningful
   * Which timers stay clocked in STANDBY1 (`standby1_timers` in [`parts.yaml`](./data/parts.yaml))
   * MCLK and ULPCLK ceilings, the SYSOSC base frequency, the flash wait-state bands, `fADCCLK` and
     `TRNGCLKF` (all in [`parts.yaml`](./data/parts.yaml))
@@ -101,7 +105,7 @@ the `tools/` scripts read them from there.
 4. Check the peripheral mapping in [`perimap.rs`](./mspm0-data-gen/src/perimap.rs) to use the correct peripherals.
 5. Fetch the documents with `./d download-docs`, then regenerate the extracted data:
    `tools/operating_modes.py`, `tools/timers.py`, `tools/wakeup.py`, `tools/vref.py`,
-   `tools/adc_channels.py`, `tools/uart.py` and `tools/errata.py`, each with
+   `tools/adc_channels.py`, `tools/uart.py`, `tools/comp.py` and `tools/errata.py`, each with
    `--write files`.
 6. Run `./d gen` and read its output. `verify.rs` reports every per-chip gap it can detect, including
    a family with no timer, errata or operating-mode data.
