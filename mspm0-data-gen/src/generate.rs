@@ -8,9 +8,9 @@ use std::{
 
 use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
-    Adc, Chip, Comp, DmaChannel, Interrupt, Memory, MemoryKind, Package, PackagePin, Peripheral,
-    PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain, PowerMode, Timer, Uart,
-    Unicomm, Vref,
+    Adc, Chip, Comp, DmaChannel, Flashctl, Interrupt, Memory, MemoryKind, Package, PackagePin,
+    Peripheral, PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain, PowerMode, Timer,
+    Uart, Unicomm, Vref,
 };
 use regex::Regex;
 
@@ -87,6 +87,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
     apply_opa(opa, &mut peripherals);
     apply_vref(vref, &mut peripherals);
     apply_comp(sysconfig, comp, &mut peripherals);
+    apply_flashctl(family, header, &mut peripherals);
 
     for part_number in family.part_numbers.iter() {
         // Filter for package types available on the part number.
@@ -321,6 +322,7 @@ fn generate_peripherals2(
                 opa: None,
                 vref: None,
                 comp: None,
+                flashctl: None,
             };
 
             // Lookup the pins
@@ -559,6 +561,7 @@ fn generate_missing(
             opa: None,
             vref: None,
             comp: None,
+            flashctl: None,
         },
     );
 
@@ -595,6 +598,7 @@ fn generate_missing(
             opa: None,
             vref: None,
             comp: None,
+            flashctl: None,
         },
     );
 
@@ -639,6 +643,7 @@ fn generate_missing(
                     opa: None,
                     vref: None,
                     comp: None,
+                    flashctl: None,
                 });
 
             let pin = device_pin
@@ -706,6 +711,7 @@ fn generate_missing(
                 opa: None,
                 vref: None,
                 comp: None,
+                flashctl: None,
             },
         );
     }
@@ -1061,6 +1067,7 @@ fn apply_unicomm(
                 opa: None,
                 vref: None,
                 comp: None,
+                flashctl: None,
             });
         }
     }
@@ -1137,6 +1144,32 @@ fn apply_comp(
             enable_ulp_ns: timing.and_then(|t| t.enable_ulp_ns),
             dac_settle_ns: timing.and_then(|t| t.dac_settle_ns),
             dac_settle_pin_ns: timing.and_then(|t| t.dac_settle_pin_ns),
+        });
+    }
+}
+
+/// Attach the flash geometry and protection layout to the FLASHCTL instance.
+///
+/// The widths and the ECC flag come from the per-device header's `FLASHCTL_SYS_*` constants and
+/// `__MSPM0_HAS_ECC__`; the sector size is the datasheet's, curated in `parts.yaml`. Not from the
+/// SVDs, which describe `CMDWEPROTA` on parts whose header gives it zero width, nor from
+/// driverlib, whose `DL_FLASHCTL_SECTOR_SIZE` is one portfolio-wide constant.
+fn apply_flashctl(
+    family: &PartFamily,
+    header: &Header,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) {
+    for peripheral in peripherals
+        .values_mut()
+        .filter(|peripheral| peripheral.ty == PeripheralType::FlashCtl)
+    {
+        peripheral.flashctl = Some(Flashctl {
+            sector_bytes: family.flash_sector_bytes,
+            word_bytes: header.flash.datawidth_bits / 8,
+            weprota_bits: header.flash.weprota_bits,
+            weprotb_bits: header.flash.weprotb_bits,
+            weprotc_bits: header.flash.weprotc_bits,
+            has_ecc: header.flash.has_ecc,
         });
     }
 }

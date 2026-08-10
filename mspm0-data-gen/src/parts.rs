@@ -55,6 +55,10 @@ pub struct PartFamily {
     #[serde(default)]
     pub trng_clock_hz: Option<ClockRange>,
 
+    /// The flash erase granularity in bytes, from the datasheet's "minimum erase resolution"
+    /// bullet. 1024 on every family so far; stated per device so the question stays closed.
+    pub flash_sector_bytes: u32,
+
     /// The parts of the clock tree with no machine-readable source.
     pub clock_tree: ClockTreeSpec,
 

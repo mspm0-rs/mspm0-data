@@ -498,6 +498,26 @@ fn generate_peripheral(
         None => quote! { None },
     };
 
+    let flashctl = match peripheral.flashctl {
+        Some(flashctl) => {
+            let sector_bytes = Literal::u32_unsuffixed(flashctl.sector_bytes);
+            let word_bytes = Literal::u8_unsuffixed(flashctl.word_bytes);
+            let weprota_bits = Literal::u8_unsuffixed(flashctl.weprota_bits);
+            let weprotb_bits = Literal::u8_unsuffixed(flashctl.weprotb_bits);
+            let weprotc_bits = Literal::u8_unsuffixed(flashctl.weprotc_bits);
+            let has_ecc = flashctl.has_ecc;
+            quote! { Some(Flashctl {
+                sector_bytes: #sector_bytes,
+                word_bytes: #word_bytes,
+                weprota_bits: #weprota_bits,
+                weprotb_bits: #weprotb_bits,
+                weprotc_bits: #weprotc_bits,
+                has_ecc: #has_ecc,
+            }) }
+        }
+        None => quote! { None },
+    };
+
     Some(quote! {
         Peripheral {
             name: #name,
@@ -519,6 +539,7 @@ fn generate_peripheral(
             opa: #opa,
             vref: #vref,
             comp: #comp,
+            flashctl: #flashctl,
         }
     })
 }

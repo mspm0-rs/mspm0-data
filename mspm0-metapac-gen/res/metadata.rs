@@ -260,6 +260,54 @@ pub struct Peripheral {
     ///
     /// `None` for peripherals which are not comparators.
     pub comp: Option<Comp>,
+
+    /// How this flash controller writes and protects its flash.
+    ///
+    /// `None` for peripherals which are not the FLASHCTL.
+    pub flashctl: Option<Flashctl>,
+}
+
+/// How the flash controller writes and protects its flash.
+///
+/// One `flashctl` register block serves every device, so these are the per-device facts a flash
+/// driver needs and the block cannot state. They describe the controller: no current device varies
+/// its flash geometry per bank, and the sources state them once per device, so a per-region
+/// statement would only repeat them.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct Flashctl {
+    /// Erase granularity in bytes. 1024 on every device so far — stated per device by the
+    /// datasheet ("minimum erase resolution of 1KB"), recorded per device so a driver need not
+    /// assume TI's portfolio-wide driverlib constant holds for a part it was never checked on.
+    pub sector_bytes: u32,
+
+    /// The flash word — the minimum programming unit — in bytes. 8 on every device except the
+    /// G518x's 16. Data written per program command must be a multiple of this, and a word can
+    /// only be programmed once per erase.
+    pub word_bytes: u8,
+
+    /// Implemented bits in `CMDWEPROTA`, each write-protecting one sector of physical bank 0.
+    /// 0 means the register does not exist and `CMDWEPROTB` alone protects MAIN memory — TI's
+    /// newer scheme; 16 bits on the C110x, 32 on the other older families.
+    ///
+    /// These registers reset to fully protected on every program or erase completion, so a driver
+    /// clears the relevant bit before every operation, not once.
+    pub weprota_bits: u8,
+
+    /// Implemented bits in `CMDWEPROTB`, each write-protecting eight sectors. Which eight depends
+    /// on more than these widths: on a single-bank part with `CMDWEPROTA` its bit 0 starts above
+    /// `CMDWEPROTA`'s 32 sectors, while on a multi-bank part it starts at each bank's base — the
+    /// three mask formulas in TI's `dl_flashctl.c` `DL_FlashCTL_unprotectSector` are the
+    /// reference, and the bank count is a runtime fact (`FACTORYREGION`), not a metadata one.
+    pub weprotb_bits: u8,
+
+    /// Implemented bits in `CMDWEPROTC`. 0 on every current device; carried so the day TI ships
+    /// one it is data rather than a schema change.
+    pub weprotc_bits: u8,
+
+    /// Whether the flash carries ECC — a 72-bit stored word of 64 data bits plus 8 ECC bits.
+    /// False on the C, H321x and L110x/L130x/L134x families, whose datasheets hedge their flash
+    /// word footnote with "on devices with ECC" and never state the ECC variant.
+    pub has_ecc: bool,
 }
 
 /// The parts of one COMP instance which its register block does not describe.

@@ -19,6 +19,7 @@ pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
         opa_inputs_known,
         opa_input_sources_exist,
         comp_features_known,
+        flashctl_known,
         // Peripherals which don't actually exist
         no_gpamp_c110x_l151x,
         // Low power data which is only as complete as the data sources
@@ -312,6 +313,34 @@ fn comp_features_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
                 "{name}: {} has no timing figures; data/comp/{}.yaml is missing or incomplete",
                 peripheral.name,
                 chip.family,
+            );
+        }
+    }
+
+    Ok(())
+}
+
+/// The flash controller states its geometry, and the figures are ones the sources can produce.
+///
+/// No check ties the `CMDWEPROT` widths to the flash size: the bit-to-sector mapping depends on
+/// the bank count, which is a runtime fact (`FACTORYREGION`), and the obvious single-bank formula
+/// is genuinely wrong for the dual-bank L122x/L222x.
+fn flashctl_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    for peripheral in chip
+        .peripherals
+        .values()
+        .filter(|peripheral| peripheral.ty == PeripheralType::FlashCtl)
+    {
+        let Some(flashctl) = &peripheral.flashctl else {
+            bail!("{name}: {} has no flash geometry data", peripheral.name);
+        };
+
+        if !matches!(flashctl.word_bytes, 8 | 16) {
+            bail!(
+                "{name}: {} states a {}-byte flash word; the portfolio has only 64- and 128-bit \
+                 words, so the header read likely broke",
+                peripheral.name,
+                flashctl.word_bytes,
             );
         }
     }

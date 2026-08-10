@@ -23,6 +23,9 @@ families:
   # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
   flash_wait_hz: [24000000]
   adc_clock_hz: { min: 12000000, max: 24000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
   clock_tree:
     ulpclk_div: false
     stop1: false
@@ -66,6 +69,9 @@ families:
   # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
   flash_wait_hz: [24000000]
   adc_clock_hz: { min: 12000000, max: 24000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
   clock_tree:
     ulpclk_div: false
     stop1: false
@@ -115,6 +121,9 @@ families:
   # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
   flash_wait_hz: [24000000, 32000000]
   adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
   clock_tree:
     hfclk_hz: { min: 4000000, max: 32000000 } # fHFXT and fHFIN
     ulpclk_div: false
@@ -176,6 +185,9 @@ families:
   # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
   flash_wait_hz: [24000000, 48000000, 80000000]
   adc_clock_hz: { min: 4000000, max: 48000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
   clock_tree:
     hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
     ulpclk_div: true
@@ -246,6 +258,9 @@ families:
   flash_wait_hz: [24000000, 48000000, 80000000]
   adc_clock_hz: { min: 4000000, max: 48000000 } # fADCCLK
   trng_clock_hz: { min: 9500000, max: 25000000 } # TRNGCLKF
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
   clock_tree:
     hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
     ulpclk_div: true
@@ -316,6 +331,9 @@ families:
   flash_wait_hz: [24000000, 48000000, 80000000]
   adc_clock_hz: { min: 4000000, max: 48000000 } # fADCCLK
   trng_clock_hz: { min: 9500000, max: 25000000 } # TRNGCLKF
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
   clock_tree:
     hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
     ulpclk_div: true
@@ -399,6 +417,9 @@ families:
   flash_wait_hz: [24000000, 48000000, 80000000]
   adc_clock_hz: { min: 4000000, max: 48000000 } # fADCCLK
   trng_clock_hz: { min: 9500000, max: 25000000 } # TRNGCLKF
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
   clock_tree:
     hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
     ulpclk_div: true
@@ -459,6 +480,9 @@ families:
   flash_wait_hz: [24000000, 48000000, 80000000]
   adc_clock_hz: { min: 4000000, max: 48000000 } # fADCCLK
   trng_clock_hz: { min: 9500000, max: 25000000 } # TRNGCLKF
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
   clock_tree:
     hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
     ulpclk_div: true
@@ -525,6 +549,9 @@ families:
   flash_wait_hz: [24000000, 48000000, 80000000]
   adc_clock_hz: { min: 4000000, max: 48000000 } # fADCCLK
   trng_clock_hz: { min: 9500000, max: 25000000 } # TRNGCLKF
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
   clock_tree:
     hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
     ulpclk_div: true
@@ -607,6 +634,9 @@ families:
   # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
   flash_wait_hz: [24000000, 48000000, 80000000]
   adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
   clock_tree:
     hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
     ulpclk_div: true
@@ -646,6 +676,9 @@ families:
   # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
   flash_wait_hz: [24000000, 32000000]
   adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
   clock_tree:
     hfclk_hz: { min: 4000000, max: 32000000 } # fHFXT and fHFIN
     ulpclk_div: false
@@ -688,6 +721,9 @@ families:
   # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
   flash_wait_hz: [24000000, 32000000]
   adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
   clock_tree:
     ulpclk_div: false
     stop1: true
@@ -739,6 +775,9 @@ families:
   # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
   flash_wait_hz: [24000000, 32000000]
   adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
   clock_tree:
     hfclk_hz: { min: 4000000, max: 32000000 } # fHFXT and fHFIN
     ulpclk_div: false
@@ -803,6 +842,9 @@ families:
   flash_wait_hz: [24000000, 32000000]
   adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
   trng_clock_hz: { min: 9500000, max: 25000000 } # TRNGCLKF
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
   clock_tree:
     hfclk_hz: { min: 4000000, max: 32000000 } # fHFXT and fHFIN
     ulpclk_div: false
@@ -859,6 +901,9 @@ families:
   # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
   flash_wait_hz: [24000000, 32000000]
   adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
   clock_tree:
     ulpclk_div: false
     stop1: true
@@ -936,6 +981,9 @@ families:
   # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
   flash_wait_hz: [24000000, 32000000]
   adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
   clock_tree:
     ulpclk_div: false
     stop1: true
@@ -999,6 +1047,9 @@ families:
   # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
   flash_wait_hz: [24000000, 32000000]
   adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
   clock_tree:
     hfclk_hz: { min: 4000000, max: 32000000 } # fHFXT and fHFIN
     ulpclk_div: false
@@ -1063,6 +1114,9 @@ families:
   flash_wait_hz: [24000000, 32000000]
   adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
   trng_clock_hz: { min: 9500000, max: 25000000 } # TRNGCLKF
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
   clock_tree:
     hfclk_hz: { min: 4000000, max: 32000000 } # fHFXT and fHFIN
     ulpclk_div: false

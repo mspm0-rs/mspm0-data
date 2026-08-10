@@ -47,10 +47,37 @@ pub struct Header {
 
     /// Number of bits the NVIC uses for interrupt priority levels.
     pub nvic_priority_bits: u8,
-    // TODO: flash info
+
+    /// The flash-controller facts the header states as `FLASHCTL_SYS_*` constants.
+    pub flash: HeaderFlash,
     // TODO: Available IOMUX indices
     // TODO: PF values (for non-analog)
     // TODO: DMA triggers (used for dma transfers)
+}
+
+/// The `FLASHCTL_SYS_*` constants and `__MSPM0_HAS_ECC__`, from the per-device header.
+///
+/// Deliberately not taken from the SVDs: the H321X SVD describes `CMDWEPROTA` although the part's
+/// header gives it zero width, the same superset-IP pattern as elsewhere.
+#[derive(Debug, Clone, Copy)]
+pub struct HeaderFlash {
+    /// Bits in one flash word, the minimum programming unit. 64 everywhere except the G518x's 128.
+    pub datawidth_bits: u8,
+
+    /// Implemented bits in `CMDWEPROTA`, one sector each. 0 means the register does not exist and
+    /// `CMDWEPROTB` alone protects MAIN memory; 16 on the C110x, 32 on the other older families.
+    pub weprota_bits: u8,
+
+    /// Implemented bits in `CMDWEPROTB`. Eight sectors each on parts with `CMDWEPROTA` (covering
+    /// the space above its 32 sectors), and the whole of MAIN at eight sectors per bit without it.
+    pub weprotb_bits: u8,
+
+    /// Implemented bits in `CMDWEPROTC`. 0 on every current part.
+    pub weprotc_bits: u8,
+
+    /// Whether the flash carries ECC (a 72-bit total word). Absent from the C, H321x and
+    /// L110x/L130x/L134x headers, matching their datasheets' hedged "on devices with ECC".
+    pub has_ecc: bool,
 }
 
 impl Header {
@@ -64,12 +91,48 @@ impl Header {
         let irq_numbers = Self::get_irq_numbers(chip_name, &content)?;
         let nvic_priority_bits = Self::get_nvic_priority_bits(chip_name, &content)?;
         let unicomm_modes = Self::get_unicomm_modes(&content);
+        let flash = Self::get_flash(chip_name, &content)?;
 
         Ok(Self {
             peripheral_addresses,
             unicomm_modes,
             irq_numbers,
             nvic_priority_bits,
+            flash,
+        })
+    }
+
+    /// Read the `FLASHCTL_SYS_*` constants and the `__MSPM0_HAS_ECC__` flag.
+    fn get_flash(chip_name: &str, content: &str) -> anyhow::Result<HeaderFlash> {
+        /// Example:
+        /// ```c,no_run
+        /// #define FLASHCTL_SYS_DATAWIDTH                        (64)      /* !< Data bit width ... */
+        /// ```
+        static CONSTANT: LazyLock<Regex> = LazyLock::new(|| {
+            Regex::new(r"(?m)#define\s+FLASHCTL_SYS_(?<name>\w+)\s+\((?<value>\d+)\)").unwrap()
+        });
+
+        let mut constants = BTreeMap::new();
+        for capture in CONSTANT.captures_iter(content) {
+            let value: u8 = capture["value"]
+                .parse()
+                .context(format!("{chip_name}: FLASHCTL_SYS_{} overflows", &capture["name"]))?;
+            constants.insert(capture["name"].to_string(), value);
+        }
+
+        let get = |name: &str| {
+            constants
+                .get(name)
+                .copied()
+                .context(format!("{chip_name}: no FLASHCTL_SYS_{name} in header"))
+        };
+
+        Ok(HeaderFlash {
+            datawidth_bits: get("DATAWIDTH")?,
+            weprota_bits: get("WEPROTAWIDTH")?,
+            weprotb_bits: get("WEPROTBWIDTH")?,
+            weprotc_bits: get("WEPROTCWIDTH")?,
+            has_ecc: content.contains("__MSPM0_HAS_ECC__"),
         })
     }
 
