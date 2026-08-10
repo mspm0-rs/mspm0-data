@@ -349,7 +349,7 @@ fieldset/GENCLKEN:
     bit_offset: 0
     bit_size: 1
   - name: MFPCLKEN
-    description: Enable the MFCLK.
+    description: Enable the MFPCLK.
     bit_offset: 4
     bit_size: 1
 fieldset/HFCLKCLKCFG:
@@ -734,7 +734,7 @@ enum/EXCLKSRC:
     value: 1
   - name: LFCLK
     value: 2
-  - name: MFCLK
+  - name: MFPCLK
     description: 'NOTE: This must be divided in post divider.'
     value: 3
   - name: HFCLK
