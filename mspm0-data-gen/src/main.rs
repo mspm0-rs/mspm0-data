@@ -4,6 +4,7 @@ mod errata;
 mod generate;
 mod header;
 mod int_group;
+mod opa;
 mod operating_modes;
 mod parts;
 mod perimap;
@@ -80,6 +81,7 @@ fn main() -> anyhow::Result<()> {
     let operating_modes = operating_modes::parse()?;
     let timers = timers::parse()?;
     let uart = uart::parse()?;
+    let opa = opa::parse()?;
     let errata = errata::parse()?;
     let wake = wakeup::parse()?;
     let vref = vref::parse()?;
@@ -98,6 +100,7 @@ fn main() -> anyhow::Result<()> {
         int_groups,
         timers,
         uart,
+        opa,
         errata,
         wake,
         vref,

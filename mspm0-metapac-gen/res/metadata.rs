@@ -246,6 +246,11 @@ pub struct Peripheral {
     /// `None` for peripherals which are neither a UART nor a UNICOMM UART function.
     pub uart: Option<Uart>,
 
+    /// What this OPA instance's input muxes select.
+    ///
+    /// `None` for peripherals which are not OPAs.
+    pub opa: Option<Opa>,
+
     /// The parts of the VREF instance which the register block does not describe.
     ///
     /// `None` for peripherals which are not the VREF.
@@ -469,6 +474,80 @@ pub enum PowerMode {
     Shutdown,
 }
 
+/// What an OPA instance's three input muxes select at each position, sorted by position.
+///
+/// The register block is shared, so which positions exist — and which peer instance the cascade
+/// positions reach — comes from the datasheet: the "OPAx Input Channel Mapping" tables on the
+/// G families, and the "Device Analog Connections" figure on the L families.
+///
+/// Position 0 is `Open` (deliberately no connection) on every mux of every instance and is not
+/// listed. **Any other position absent from its map selects nothing**: the input floats, which on
+/// the M-mux means the gain ladder pivots about a floating node and produces plausible-looking
+/// wrong results. The known holes are on the L families, which lack `PSEL` 2 (`IN1+`), 3 (DAC12)
+/// and 8 (ground), and `MSEL` 3 (DAC12).
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct Opa {
+    /// The non-inverting input mux, `CFG.PSEL`.
+    pub pmux: &'static [OpaMuxEntry],
+
+    /// The inverting input mux, `CFG.NSEL`.
+    pub nmux: &'static [OpaMuxEntry],
+
+    /// The gain-ladder bottom mux, `CFG.MSEL`.
+    pub mmux: &'static [OpaMuxEntry],
+}
+
+/// One connected position of an OPA input mux.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct OpaMuxEntry {
+    /// The mux selector value.
+    pub position: u8,
+
+    /// What the position selects.
+    pub input: OpaInput,
+}
+
+/// A source an OPA input-mux position selects.
+///
+/// Pin polarity follows the mux: on the P-mux `In(0)` is the `OPAx_IN0+` package pin, on the
+/// N-mux and M-mux it is the corresponding `-` pin.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub enum OpaInput {
+    /// The instance's own `INn+`/`INn-` package pin; the payload is `n`.
+    In(u8),
+
+    /// The 12-bit DAC output. It reaches the mux through the `DAC_OUT` package pin, which is also
+    /// the `OPAx_IN2±` input: the datasheets warn against external circuitry on that pin while
+    /// the DAC drives the OPA.
+    Dac12,
+
+    /// The 8-bit reference DAC of the COMP instance named by the payload. On the G families
+    /// `OPAn` is fed by `COMPn`'s DAC; on the L families both OPAs are fed by `COMP0`'s.
+    Dac8(u8),
+
+    /// The `VREF+` pin node. The internal reference reaches it only where `Vref::output_to_pin`
+    /// is true; an external reference on the pin works regardless.
+    VrefPlus,
+
+    /// The gain-ladder top of the OPA instance named by the payload — the cascade connection.
+    Rtop(u8),
+
+    /// The gain-ladder bottom of the OPA instance named by the payload — the cascade connection.
+    Rbot(u8),
+
+    /// The instance's own gain-ladder tap.
+    OwnRtap,
+
+    /// The instance's own gain-ladder top.
+    OwnRtop,
+
+    /// The GPAMP output.
+    Gpamp,
+
+    /// Ground.
+    Ground,
+}
+
 /// The parts of the VREF instance which the register block does not describe.
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub struct Vref {
@@ -486,6 +565,16 @@ pub struct Vref {
     ///
     /// `None` when the family's datasheet has no `Tstartup` row.
     pub startup_ns: Option<u32>,
+
+    /// Whether the internal reference is buffered out to the `VREF+` package pin.
+    ///
+    /// True on the G families, whose datasheets state an output drive strength for the pin and
+    /// require the decoupling capacitor for internal-reference use. False on the C/H/L families,
+    /// where `VREF+` only brings an external reference in — and on devices with no VREF pins at
+    /// all. Anything reading the `VREF+` pin node, such as an OPA input mux position routed to it,
+    /// sees the internal reference only where this is true; with an external reference driving
+    /// the pin it works regardless.
+    pub output_to_pin: bool,
 }
 
 /// The interrupt raised by a peripheral.

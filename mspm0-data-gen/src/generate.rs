@@ -18,6 +18,7 @@ use crate::{
     adc_channels::AdcChannels,
     header::Header,
     int_group::Groups,
+    opa::Opas,
     operating_modes::OperatingModes,
     parts::{PartFamily, PartMemory},
     perimap::PERIMAP,
@@ -52,6 +53,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
         operating_modes,
         timers,
         uart,
+        opa,
         errata,
         wake,
         vref,
@@ -80,6 +82,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
     apply_adc(family, sysconfig, adc_channels, &mut peripherals)?;
     apply_unicomm(family, header, &mut peripherals)?;
     apply_uart(family, sysconfig, uart, &mut peripherals)?;
+    apply_opa(opa, &mut peripherals);
     apply_vref(vref, &mut peripherals);
 
     for part_number in family.part_numbers.iter() {
@@ -312,6 +315,7 @@ fn generate_peripherals2(
                 adc: None,
                 unicomm: None,
                 uart: None,
+                opa: None,
                 vref: None,
             };
 
@@ -548,6 +552,7 @@ fn generate_missing(
             adc: None,
             unicomm: None,
             uart: None,
+            opa: None,
             vref: None,
         },
     );
@@ -582,6 +587,7 @@ fn generate_missing(
             adc: None,
             unicomm: None,
             uart: None,
+            opa: None,
             vref: None,
         },
     );
@@ -624,6 +630,7 @@ fn generate_missing(
                     adc: None,
                     unicomm: None,
                     uart: None,
+                    opa: None,
                     vref: None,
                 });
 
@@ -689,6 +696,7 @@ fn generate_missing(
                 adc: None,
                 unicomm: None,
                 uart: None,
+                opa: None,
                 vref: None,
             },
         );
@@ -1042,6 +1050,7 @@ fn apply_unicomm(
                 adc: None,
                 unicomm: None,
                 uart: None,
+                opa: None,
                 vref: None,
             });
         }
@@ -1052,6 +1061,18 @@ fn apply_unicomm(
     }
 
     Ok(())
+}
+
+/// Attach each OPA instance's input-mux maps from `data/opa`.
+fn apply_opa(opas: Option<&Opas>, peripherals: &mut BTreeMap<String, Peripheral>) {
+    for (name, peripheral) in peripherals.iter_mut() {
+        if peripheral.ty != PeripheralType::Opa {
+            continue;
+        }
+
+        // Absent data is a gap verify.rs reports, like the other curated per-instance facts.
+        peripheral.opa = opas.and_then(|family| family.get(name)).cloned();
+    }
 }
 
 /// Attach the family's VREF startup time to its VREF instance.

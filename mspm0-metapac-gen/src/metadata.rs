@@ -204,6 +204,35 @@ fn adc_internal_source(source: AdcInternalSource) -> TokenStream {
     }
 }
 
+fn opa_input(input: mspm0_data_types::OpaInput) -> TokenStream {
+    use mspm0_data_types::OpaInput;
+
+    match input {
+        OpaInput::In(n) => {
+            let n = Literal::u8_unsuffixed(n);
+            quote! { OpaInput::In(#n) }
+        }
+        OpaInput::Dac12 => quote! { OpaInput::Dac12 },
+        OpaInput::Dac8(n) => {
+            let n = Literal::u8_unsuffixed(n);
+            quote! { OpaInput::Dac8(#n) }
+        }
+        OpaInput::VrefPlus => quote! { OpaInput::VrefPlus },
+        OpaInput::Rtop(n) => {
+            let n = Literal::u8_unsuffixed(n);
+            quote! { OpaInput::Rtop(#n) }
+        }
+        OpaInput::Rbot(n) => {
+            let n = Literal::u8_unsuffixed(n);
+            quote! { OpaInput::Rbot(#n) }
+        }
+        OpaInput::OwnRtap => quote! { OpaInput::OwnRtap },
+        OpaInput::OwnRtop => quote! { OpaInput::OwnRtop },
+        OpaInput::Gpamp => quote! { OpaInput::Gpamp },
+        OpaInput::Ground => quote! { OpaInput::Ground },
+    }
+}
+
 fn skip_peripheral(ty: PeripheralType) -> bool {
     matches!(ty, PeripheralType::Unknown)
 }
@@ -413,10 +442,33 @@ fn generate_peripheral(
         None => quote! { None },
     };
 
-    let vref = match peripheral.vref.and_then(|vref| vref.startup_ns) {
-        Some(ns) => {
-            let ns = Literal::u32_unsuffixed(ns);
-            quote! { Some(Vref { startup_ns: Some(#ns) }) }
+    let opa = match &peripheral.opa {
+        Some(opa) => {
+            let mux = |map: &std::collections::BTreeMap<u8, mspm0_data_types::OpaInput>| {
+                let entries = map.iter().map(|(position, input)| {
+                    let position = Literal::u8_unsuffixed(*position);
+                    let input = opa_input(*input);
+                    quote! { OpaMuxEntry { position: #position, input: #input } }
+                });
+                quote! { &[#(#entries),*] }
+            };
+            let (pmux, nmux, mmux) = (mux(&opa.pmux), mux(&opa.nmux), mux(&opa.mmux));
+            quote! { Some(Opa { pmux: #pmux, nmux: #nmux, mmux: #mmux }) }
+        }
+        None => quote! { None },
+    };
+
+    let vref = match peripheral.vref {
+        Some(vref) => {
+            let startup_ns = match vref.startup_ns {
+                Some(ns) => {
+                    let ns = Literal::u32_unsuffixed(ns);
+                    quote! { Some(#ns) }
+                }
+                None => quote! { None },
+            };
+            let output_to_pin = vref.output_to_pin;
+            quote! { Some(Vref { startup_ns: #startup_ns, output_to_pin: #output_to_pin }) }
         }
         None => quote! { None },
     };
@@ -439,6 +491,7 @@ fn generate_peripheral(
             adc: #adc,
             unicomm: #unicomm,
             uart: #uart,
+            opa: #opa,
             vref: #vref,
         }
     })

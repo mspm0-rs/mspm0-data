@@ -16,6 +16,8 @@ pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
         adc_channels_known,
         adc_internal_sources_exist,
         uart_features_known,
+        opa_inputs_known,
+        opa_input_sources_exist,
         // Peripherals which don't actually exist
         no_gpamp_c110x_l151x,
         // Low power data which is only as complete as the data sources
@@ -177,6 +179,77 @@ fn adc_internal_sources_exist(chip: &Chip, name: &str) -> anyhow::Result<()> {
                     "{name}: {} channel {channel} samples {instance}, which the chip does not have",
                     peripheral.name
                 );
+            }
+        }
+    }
+
+    Ok(())
+}
+
+/// Every OPA instance should say what its input muxes select.
+///
+/// All four OPA-bearing families have the data — from the G datasheets' mapping tables or the L
+/// datasheets' analog-connections figure — so an instance without it means `data/opa/<family>.yaml`
+/// is missing or lost the instance.
+fn opa_inputs_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    for peripheral in chip
+        .peripherals
+        .values()
+        .filter(|peripheral| peripheral.ty == PeripheralType::Opa)
+    {
+        if peripheral.opa.is_none() {
+            bail!(
+                "{name}: {} has no input-mux data; data/opa/{}.yaml is missing or lost the \
+                 instance",
+                peripheral.name,
+                chip.family
+            );
+        }
+    }
+
+    Ok(())
+}
+
+/// An input-mux position naming another instance requires that instance to exist.
+///
+/// The same standing as `adc_internal_sources_exist`: a curated map naming a peer OPA, a COMP's
+/// DAC, the 12-bit DAC, the GPAMP or the VREF is only right if the chip has it.
+fn opa_input_sources_exist(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    use mspm0_data_types::OpaInput;
+
+    for peripheral in chip
+        .peripherals
+        .values()
+        .filter(|peripheral| peripheral.ty == PeripheralType::Opa)
+    {
+        let Some(opa) = &peripheral.opa else {
+            continue;
+        };
+
+        for (mux, map) in [
+            ("PSEL", &opa.pmux),
+            ("NSEL", &opa.nmux),
+            ("MSEL", &opa.mmux),
+        ] {
+            for (position, input) in map {
+                let instance = match input {
+                    OpaInput::Dac8(n) => format!("COMP{n}"),
+                    OpaInput::Rtop(n) | OpaInput::Rbot(n) => format!("OPA{n}"),
+                    OpaInput::Dac12 => "DAC0".to_string(),
+                    OpaInput::Gpamp => "GPAMP".to_string(),
+                    OpaInput::VrefPlus => "VREF".to_string(),
+                    OpaInput::In(_) | OpaInput::OwnRtap | OpaInput::OwnRtop | OpaInput::Ground => {
+                        continue
+                    }
+                };
+
+                if !chip.peripherals.contains_key(&instance) {
+                    bail!(
+                        "{name}: {} {mux} position {position} selects {instance}, which the chip \
+                         does not have",
+                        peripheral.name
+                    );
+                }
             }
         }
     }

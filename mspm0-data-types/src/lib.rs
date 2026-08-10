@@ -543,6 +543,12 @@ pub struct Peripheral {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub uart: Option<Uart>,
 
+    /// What this OPA instance's input muxes select.
+    ///
+    /// `None` for peripherals which are not OPAs.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub opa: Option<Opa>,
+
     /// The parts of the VREF instance which the `vref_v1` register block does not describe.
     ///
     /// `None` for peripherals which are not the VREF.
@@ -568,6 +574,17 @@ pub struct Vref {
     /// `None` when the family's datasheet has no `Tstartup` row.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub startup_ns: Option<u32>,
+
+    /// Whether the internal reference is buffered out to the `VREF+` package pin.
+    ///
+    /// True on the G families, whose datasheets state an output drive strength for the pin and
+    /// require the decoupling capacitor for internal-reference use. False on the C/H/L families,
+    /// where `VREF+` only brings an external reference in — and on devices with no VREF pins at
+    /// all. Anything reading the `VREF+` pin node, such as an OPA input mux position routed to it,
+    /// sees the internal reference only where this is true; with an external reference driving the
+    /// pin it works regardless.
+    #[serde(default)]
+    pub output_to_pin: bool,
 }
 
 /// The parts of one ADC instance which the single `adc_v1` register block does not describe.
@@ -733,6 +750,71 @@ pub struct Unicomm {
 
     /// Implements the SPI register map, `0x20000` below the instance address.
     pub spi: bool,
+}
+
+/// What an OPA instance's three input muxes select at each position.
+///
+/// The register block is shared, so which positions exist — and which peer instance the cascade
+/// positions reach — comes from the datasheet: the "OPAx Input Channel Mapping" tables on the
+/// G families, and the "Device Analog Connections" figure on the L families, whose datasheet
+/// promises those tables and does not contain them.
+///
+/// Position 0 is `Open` (deliberately no connection) on every mux of every instance and is not
+/// listed. **Any other position absent from its map selects nothing**: the input floats, which on
+/// the M-mux means the gain ladder pivots about a floating node and produces plausible-looking
+/// wrong results. The known holes are on the L families, which lack `PSEL` 2 (`IN1+`), 3 (DAC12)
+/// and 8 (ground), and `MSEL` 3 (DAC12).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Opa {
+    /// The non-inverting input mux, `CFG.PSEL`.
+    pub pmux: BTreeMap<u8, OpaInput>,
+
+    /// The inverting input mux, `CFG.NSEL`.
+    pub nmux: BTreeMap<u8, OpaInput>,
+
+    /// The gain-ladder bottom mux, `CFG.MSEL`.
+    pub mmux: BTreeMap<u8, OpaInput>,
+}
+
+/// A source an OPA input-mux position selects.
+///
+/// Pin polarity follows the mux: on the P-mux [`OpaInput::In0`] is the `OPAx_IN0+` package pin, on
+/// the N-mux and M-mux it is the corresponding `-` pin.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum OpaInput {
+    /// The instance's own `INn+`/`INn-` package pin; the payload is `n`.
+    In(u8),
+
+    /// The 12-bit DAC output. It reaches the mux through the `DAC_OUT` package pin, which is also
+    /// the `OPAx_IN2±` input: the datasheets warn against external circuitry on that pin while the
+    /// DAC drives the OPA.
+    Dac12,
+
+    /// The 8-bit reference DAC of the COMP instance named by the payload. On the G families
+    /// `OPAn` is fed by `COMPn`'s DAC; on the L families both OPAs are fed by `COMP0`'s.
+    Dac8(u8),
+
+    /// The `VREF+` pin node. The internal reference reaches it only where [`Vref::output_to_pin`]
+    /// is true; an external reference on the pin works regardless.
+    VrefPlus,
+
+    /// The gain-ladder top of the OPA instance named by the payload — the cascade connection.
+    Rtop(u8),
+
+    /// The gain-ladder bottom of the OPA instance named by the payload — the cascade connection.
+    Rbot(u8),
+
+    /// The instance's own gain-ladder tap.
+    OwnRtap,
+
+    /// The instance's own gain-ladder top.
+    OwnRtop,
+
+    /// The GPAMP output.
+    Gpamp,
+
+    /// Ground.
+    Ground,
 }
 
 /// Which extended-UART features a UART instance implements.
