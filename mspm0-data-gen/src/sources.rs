@@ -19,6 +19,7 @@ use crate::{
     svd::{Svd, Svds},
     sysconfig::{Sysconfig, SysconfigFile},
     timers::Timers,
+    uart::Uarts,
 };
 
 /// Every source, whole.
@@ -32,6 +33,7 @@ pub struct Sources {
     pub operating_modes: BTreeMap<String, OperatingModes>,
     pub int_groups: BTreeMap<String, Groups>,
     pub timers: BTreeMap<String, Timers>,
+    pub uart: BTreeMap<String, Uarts>,
     pub errata: BTreeMap<String, Errata>,
     pub wake: BTreeMap<String, WakeTimes>,
     pub vref: BTreeMap<String, Vref>,
@@ -49,6 +51,7 @@ pub struct FamilySources<'a> {
     pub clock_tree: Option<&'a ClockTreeFile>,
     pub operating_modes: Option<&'a OperatingModes>,
     pub timers: Option<&'a Timers>,
+    pub uart: Option<&'a Uarts>,
     pub errata: Option<&'a Errata>,
     pub wake: Option<WakeTimes>,
     pub vref: Option<Vref>,
@@ -89,6 +92,7 @@ impl Sources {
             clock_tree: self.clock_trees.files.get(family),
             operating_modes: self.operating_modes.get(family),
             timers: self.timers.get(family),
+            uart: self.uart.get(family),
             errata: self.errata.get(family),
             wake: self.wake.get(family).copied(),
             vref: self.vref.get(family).copied(),

@@ -241,10 +241,43 @@ pub struct Peripheral {
     /// `None` for peripherals which are not UNICOMM instances.
     pub unicomm: Option<Unicomm>,
 
+    /// Which extended-UART features this UART implements.
+    ///
+    /// `None` for peripherals which are neither a UART nor a UNICOMM UART function.
+    pub uart: Option<Uart>,
+
     /// The parts of the VREF instance which the register block does not describe.
     ///
     /// `None` for peripherals which are not the VREF.
     pub vref: Option<Vref>,
+}
+
+/// Which extended-UART features a UART instance implements.
+///
+/// Every legacy UART shares one register block and every UNICOMM UART function shares another, so
+/// the block does not say which instance implements these; the datasheet's "UART Features" table
+/// does. TI's Extend/Main naming is deliberately not recorded: the UNICOMM UARTs do not nest that
+/// way. On MSPM0G518x `UC1` has LIN but no smart card and `UC3` smart card but no LIN, so the
+/// features stand alone. A legacy extend instance has all five; a legacy main instance has none.
+///
+/// The features do not follow the instance name — UART1 is main on mspm0l130x and extend on
+/// mspm0l122x — so do not key them on it.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct Uart {
+    /// LIN mode: the `LINCTL`/`LINCNT`/`LINC0`/`LINC1` registers and their interrupts.
+    pub lin: bool,
+
+    /// DALI (IEC 62386) support.
+    pub dali: bool,
+
+    /// IrDA encoding and decoding.
+    pub irda: bool,
+
+    /// ISO 7816 smart card mode.
+    pub iso7816: bool,
+
+    /// The Manchester codec (`CTL0.MENC`).
+    pub manchester: bool,
 }
 
 /// Which register maps a UNICOMM instance implements.

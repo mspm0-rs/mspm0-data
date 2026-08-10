@@ -15,6 +15,7 @@ pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
         vref_startup_known,
         adc_channels_known,
         adc_internal_sources_exist,
+        uart_features_known,
         // Peripherals which don't actually exist
         no_gpamp_c110x_l151x,
         // Low power data which is only as complete as the data sources
@@ -177,6 +178,30 @@ fn adc_internal_sources_exist(chip: &Chip, name: &str) -> anyhow::Result<()> {
                     peripheral.name
                 );
             }
+        }
+    }
+
+    Ok(())
+}
+
+/// Every UART instance should say which extended features it has.
+///
+/// Every datasheet so far has the "UART Features" table, so an instance without the data means
+/// `data/uart/<family>.yaml` is missing or lost the instance.
+fn uart_features_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    for peripheral in chip.peripherals.values().filter(|peripheral| {
+        matches!(
+            peripheral.ty,
+            PeripheralType::Uart | PeripheralType::UnicommUart
+        )
+    }) {
+        if peripheral.uart.is_none() {
+            bail!(
+                "{name}: {} has no extended-feature data; data/uart/{}.yaml is missing or lost \
+                 the instance",
+                peripheral.name,
+                chip.family
+            );
         }
     }
 

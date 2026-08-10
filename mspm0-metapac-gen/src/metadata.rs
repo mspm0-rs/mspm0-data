@@ -396,6 +396,23 @@ fn generate_peripheral(
         None => quote! { None },
     };
 
+    let uart = match peripheral.uart {
+        Some(uart) => {
+            let (lin, dali, irda) = (uart.lin, uart.dali, uart.irda);
+            let (iso7816, manchester) = (uart.iso7816, uart.manchester);
+            quote! {
+                Some(Uart {
+                    lin: #lin,
+                    dali: #dali,
+                    irda: #irda,
+                    iso7816: #iso7816,
+                    manchester: #manchester,
+                })
+            }
+        }
+        None => quote! { None },
+    };
+
     let vref = match peripheral.vref.and_then(|vref| vref.startup_ns) {
         Some(ns) => {
             let ns = Literal::u32_unsuffixed(ns);
@@ -421,6 +438,7 @@ fn generate_peripheral(
             clock_range_hz: #clock_range_hz,
             adc: #adc,
             unicomm: #unicomm,
+            uart: #uart,
             vref: #vref,
         }
     })

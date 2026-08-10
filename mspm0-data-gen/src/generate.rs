@@ -9,8 +9,8 @@ use std::{
 use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
     Adc, Chip, DmaChannel, Interrupt, Memory, MemoryKind, Package, PackagePin, Peripheral,
-    PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain, PowerMode, Timer, Unicomm,
-    Vref,
+    PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain, PowerMode, Timer, Uart,
+    Unicomm, Vref,
 };
 use regex::Regex;
 
@@ -25,6 +25,7 @@ use crate::{
     svd::Svd,
     sysconfig::{self, PartPeripheralWrapper, SysconfigFile},
     timers::Timers,
+    uart::Uarts,
     verify,
 };
 
@@ -50,6 +51,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
         clock_tree,
         operating_modes,
         timers,
+        uart,
         errata,
         wake,
         vref,
@@ -77,6 +79,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
     apply_clock_ranges(family, &mut peripherals);
     apply_adc(family, sysconfig, adc_channels, &mut peripherals)?;
     apply_unicomm(family, header, &mut peripherals)?;
+    apply_uart(family, sysconfig, uart, &mut peripherals)?;
     apply_vref(vref, &mut peripherals);
 
     for part_number in family.part_numbers.iter() {
@@ -308,6 +311,7 @@ fn generate_peripherals2(
                 clock_range_hz: None,
                 adc: None,
                 unicomm: None,
+                uart: None,
                 vref: None,
             };
 
@@ -543,6 +547,7 @@ fn generate_missing(
             clock_range_hz: None,
             adc: None,
             unicomm: None,
+            uart: None,
             vref: None,
         },
     );
@@ -576,6 +581,7 @@ fn generate_missing(
             clock_range_hz: None,
             adc: None,
             unicomm: None,
+            uart: None,
             vref: None,
         },
     );
@@ -617,6 +623,7 @@ fn generate_missing(
                     clock_range_hz: None,
                     adc: None,
                     unicomm: None,
+                    uart: None,
                     vref: None,
                 });
 
@@ -681,6 +688,7 @@ fn generate_missing(
                 clock_range_hz: None,
                 adc: None,
                 unicomm: None,
+                uart: None,
                 vref: None,
             },
         );
@@ -1033,6 +1041,7 @@ fn apply_unicomm(
                 clock_range_hz: None,
                 adc: None,
                 unicomm: None,
+                uart: None,
                 vref: None,
             });
         }
@@ -1061,6 +1070,76 @@ fn apply_vref(vref: Option<Vref>, peripherals: &mut BTreeMap<String, Peripheral>
     {
         peripheral.vref = Some(vref);
     }
+}
+
+/// Attach each UART instance's extended-feature flags from `data/uart`.
+fn apply_uart(
+    family: &PartFamily,
+    sysconfig: &SysconfigFile,
+    uarts: Option<&Uarts>,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) -> anyhow::Result<()> {
+    for (name, peripheral) in peripherals.iter_mut() {
+        if !matches!(
+            peripheral.ty,
+            PeripheralType::Uart | PeripheralType::UnicommUart
+        ) {
+            continue;
+        }
+
+        // Absent data is a gap verify.rs reports, like the other datasheet extractions.
+        peripheral.uart = uarts.and_then(|family| family.get(name)).copied();
+    }
+
+    let Some(uarts) = uarts else {
+        return Ok(());
+    };
+
+    // Cross-check against sysconfig, which is per instance and agrees with every datasheet read so
+    // far, so a disagreement means the table was misread rather than that the two sources describe
+    // different things. `SYS_UARTADV` marks the legacy extend instances; the UNICOMM hosts state
+    // the features themselves, with DALI and Manchester folded into one attribute just as the
+    // MSPM0G5187 table folds them into one row. `SYS_LIN_EN` is deliberately not consulted: it is
+    // `1` on the main UARTs of mspm0g350x and its siblings, against their datasheet and SVD.
+    for peripheral in sysconfig.peripherals.values() {
+        if let Some(adv) = peripheral.attributes.get("SYS_UARTADV") {
+            let Some(uart) = uarts.get(&peripheral.name) else {
+                continue;
+            };
+            let extend = uart.lin || uart.dali || uart.irda || uart.iso7816 || uart.manchester;
+            ensure!(
+                adv.as_str() == Some(if extend { "true" } else { "false" }),
+                "{}: data/uart says {} {} extend but sysconfig SYS_UARTADV disagrees",
+                family.family,
+                peripheral.name,
+                if extend { "is" } else { "is not" },
+            );
+        }
+
+        let checks: [(&str, fn(&Uart) -> bool); 5] = [
+            ("SYS_UART_LIN_EN", |uart| uart.lin),
+            ("SYS_UART_IRDA_EN", |uart| uart.irda),
+            ("SYS_UART_SMARTCARD_EN", |uart| uart.iso7816),
+            ("SYS_UART_DALI_MENC_EN", |uart| uart.dali),
+            ("SYS_UART_DALI_MENC_EN", |uart| uart.manchester),
+        ];
+        for (attribute, check) in checks {
+            let Some(value) = peripheral.attributes.get(attribute) else {
+                continue;
+            };
+            let Some(uart) = uarts.get(&format!("{}_UART", peripheral.name)) else {
+                continue;
+            };
+            ensure!(
+                value.as_str() == Some(if check(uart) { "true" } else { "false" }),
+                "{}: data/uart and sysconfig {attribute} disagree about {}_UART",
+                family.family,
+                peripheral.name,
+            );
+        }
+    }
+
+    Ok(())
 }
 
 fn apply_adc(

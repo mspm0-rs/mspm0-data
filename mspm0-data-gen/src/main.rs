@@ -11,6 +11,7 @@ mod sources;
 mod svd;
 mod sysconfig;
 mod timers;
+mod uart;
 mod util;
 mod verify;
 mod vref;
@@ -78,6 +79,7 @@ fn main() -> anyhow::Result<()> {
     let int_groups = int_group::parse()?;
     let operating_modes = operating_modes::parse()?;
     let timers = timers::parse()?;
+    let uart = uart::parse()?;
     let errata = errata::parse()?;
     let wake = wakeup::parse()?;
     let vref = vref::parse()?;
@@ -95,6 +97,7 @@ fn main() -> anyhow::Result<()> {
         operating_modes,
         int_groups,
         timers,
+        uart,
         errata,
         wake,
         vref,
