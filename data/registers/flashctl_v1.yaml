@@ -251,6 +251,14 @@ fieldset/CMDCTL:
     bit_offset: 9
     bit_size: 4
     enum: REGIONSEL
+  # PREVEREN, POSTVEREN, PROGMASKDIS and ERASEMASKDIS are documented only by the SLAU847/893/923
+  # CMDCTL field tables; SLAU846 marks bits 20-18 and 15-14 reserved, and hw_flashctl.h and the
+  # SVDs omit all four (they do carry SSERASEDIS and DATAVEREN, so SLAU846's reserved span is
+  # wrong about bit 20 either way). Kept: the MASKDIS descriptions name the prever/postver
+  # machinery these bits control. The field tables give PREVEREN/POSTVEREN a 1h reset where the
+  # same sections' figures and [Reset =] headers say 0 — clearing them disables the
+  # verify-and-repulse loop, leaving marginal cells with no error, so never write CMDCTL whole:
+  # driverlib only ever read-modify-writes it (BANKSEL, REGIONSEL, ECCGENOVR).
   - name: PREVEREN
     description: Enable verify before program or erase. For program, bits already programmed to the requests value will be masked. For erase, sectors already erased will be masked.
     bit_offset: 14
