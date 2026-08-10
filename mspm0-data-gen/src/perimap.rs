@@ -20,6 +20,26 @@ pub static PERIMAP: RegexMap<&str> = RegexMap::new(&[
     (".*:flashctl", "v1"),
     (".*:trng", "v1"),
     (".*:canfd", "v1"),
+    // One layout, but DACOUTEN (CTL1 bit 11) only exists where the header states
+    // `COMP_SYS_DACOUT_EN`: the 8-bit reference DAC reaches a pin on these four families only.
+    ("mspm0c1105_c1106:comp", "dacout"),
+    ("mspm0g518x:comp", "dacout"),
+    ("mspm0l112x:comp", "dacout"),
+    ("mspm0l211x:comp", "dacout"),
+    (".*:comp", "v1"),
+    // Three CRC generators. `16` lacks CRCCTRL.POLYSIZE: those devices are CRC-16 only, stated
+    // per device by the headers' `CRC_SYS_CRC32_ENABLE = 0`. `p` adds the programmable-polynomial
+    // CRCPOLY register; TI types those instances `CRCP_Regs` and the TRMs call them CRCP0.
+    ("mspm0c110x:crc", "16"),
+    ("msps003fx:crc", "16"),
+    ("mspm0c1105_c1106:crc", "16"),
+    ("mspm0h321x:crc", "16"),
+    ("mspm0l112x:crc", "16"),
+    ("mspm0l211x:crc", "16"),
+    ("mspm0g..1x:crc", "p"),
+    ("mspm0g518x:crc", "p"),
+    ("mspm0l.22x:crc", "p"),
+    (".*:crc", "v1"),
     // One version: the SDK ships a single hw_unicomm.h for the portfolio, and the wrapper is what
     // every instance has regardless of which mode maps it implements.
     (".*:unicomm", "v1"),
