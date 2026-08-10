@@ -49,6 +49,9 @@ These are the data sources currently used.
   * Interrupt number, name
   * Peripheral addresses
   * NVIC interrupt priority bits
+  * Flash geometry: the programming word width, the `CMDWEPROT*` register widths and whether the
+    flash has ECC (`FLASHCTL_SYS_*`, `__MSPM0_HAS_ECC__`). Not from the SVDs, which describe
+    `CMDWEPROTA` on parts whose header gives it zero width
 * mspm0 SVDs
   * Register blocks
   * Which peripheral instances have a `CLKCFG.BLOCKASYNC` bit. TI does not publish an SVD for every
@@ -85,6 +88,9 @@ These are the data sources currently used.
   * Which functional advisories apply ([`data/errata/`](./data/errata))
 * Manually entered
   * IIDX values for interrupts within a `INT_GROUP`
+  * The flash erase-sector size (`flash_sector_bytes` in [`parts.yaml`](./data/parts.yaml)), from
+    each datasheet's "minimum erase resolution" bullet. 1KB everywhere so far, recorded per family
+    so no driver has to trust driverlib's single portfolio-wide constant
   * What each OPA input-mux position selects ([`data/opa/`](./data/opa)), including which peer
     instance the cascade positions reach. Hand-curated because the L-series datasheet publishes it
     only as a figure — one it promises as tables it does not contain
