@@ -279,6 +279,37 @@ pub struct Comp {
     /// false, `REFSRC` 2 and 3 reach the VREF module's output instead, which follows the VREF
     /// configuration (internal where the device generates one, the `VREF+`/`VREF-` pins otherwise).
     pub int_vref: bool,
+
+    /// Time from `CTL1.ENABLE` in high-speed mode (`CTL1.MODE = 0`) until the comparator meets its
+    /// propagation-delay specification, in nanoseconds. Nothing reports this — there is no ready
+    /// bit — so waiting it out is the only option. The figure's cell spans the datasheet's MIN,
+    /// TYP and MAX columns, so it is a stated figure rather than a guaranteed ceiling; the same
+    /// holds for the other three figures here.
+    ///
+    /// `None` when the family's datasheet has no `ten` row.
+    pub enable_fast_ns: Option<u32>,
+
+    /// Time from `CTL1.ENABLE` in low-power mode (`CTL1.MODE = 1`) until the comparator meets its
+    /// propagation-delay specification, in nanoseconds. 10us on every device so far, where
+    /// high-speed mode reaches its own specification in 5us on the newer-generation comparators.
+    ///
+    /// `None` when the family's datasheet has no `ten` row.
+    pub enable_ulp_ns: Option<u32>,
+
+    /// Time for the 8-bit reference DAC to settle to 1 LSB after a full-scale code change, in
+    /// nanoseconds, unloaded. This is the internal path — what the comparator itself, or an OPA
+    /// sampling the DAC through its input mux, sees.
+    ///
+    /// `None` when the family's datasheet has no `tdac_settle` row.
+    pub dac_settle_ns: Option<u32>,
+
+    /// The same settling figure with the DAC driven out to a package pin (`CTL1.DACOUTEN`) under
+    /// the datasheet's stated load. Stated exactly on the families whose COMP has that bit, and
+    /// slower than the internal path — 6us against 1.5us so far.
+    ///
+    /// `None` when the datasheet does not state the pin-loaded row, including every device whose
+    /// DAC cannot reach a pin.
+    pub dac_settle_pin_ns: Option<u32>,
 }
 
 /// Which extended-UART features a UART instance implements.

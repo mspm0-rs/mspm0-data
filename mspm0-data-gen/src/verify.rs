@@ -282,22 +282,36 @@ fn uart_features_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Every comparator states whether it has the `CTL2.REFSRC` internal-reference positions.
+/// Every comparator states whether it has the `CTL2.REFSRC` internal-reference positions, and
+/// carries the family's timing figures.
 ///
-/// The data comes from sysconfig's `SYS_COMP_INT_VREF`, which every family's metadata carries per
+/// The first comes from sysconfig's `SYS_COMP_INT_VREF`, which every family's metadata carries per
 /// instance, so an instance without it means the attribute moved rather than that the answer is
-/// unknown.
+/// unknown. The timing comes from `data/comp/<family>.yaml`, and every COMP-bearing datasheet so
+/// far has the `ten` and `tdac_settle` rows, so a missing figure means the extraction broke.
+/// `dac_settle_pin_ns` is not checked: only the datasheets whose COMP drives a pin state it.
 fn comp_features_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
     for peripheral in chip
         .peripherals
         .values()
         .filter(|peripheral| peripheral.ty == PeripheralType::Comp)
     {
-        if peripheral.comp.is_none() {
+        let Some(comp) = &peripheral.comp else {
             bail!(
                 "{name}: {} has no comparator data; SYS_COMP_INT_VREF was not found on the \
                  sysconfig instance",
                 peripheral.name,
+            );
+        };
+
+        if comp.enable_fast_ns.is_none()
+            || comp.enable_ulp_ns.is_none()
+            || comp.dac_settle_ns.is_none()
+        {
+            bail!(
+                "{name}: {} has no timing figures; data/comp/{}.yaml is missing or incomplete",
+                peripheral.name,
+                chip.family,
             );
         }
     }

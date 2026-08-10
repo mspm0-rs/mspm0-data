@@ -476,7 +476,24 @@ fn generate_peripheral(
     let comp = match peripheral.comp {
         Some(comp) => {
             let int_vref = comp.int_vref;
-            quote! { Some(Comp { int_vref: #int_vref }) }
+            let ns = |value: Option<u32>| match value {
+                Some(ns) => {
+                    let ns = Literal::u32_unsuffixed(ns);
+                    quote! { Some(#ns) }
+                }
+                None => quote! { None },
+            };
+            let enable_fast_ns = ns(comp.enable_fast_ns);
+            let enable_ulp_ns = ns(comp.enable_ulp_ns);
+            let dac_settle_ns = ns(comp.dac_settle_ns);
+            let dac_settle_pin_ns = ns(comp.dac_settle_pin_ns);
+            quote! { Some(Comp {
+                int_vref: #int_vref,
+                enable_fast_ns: #enable_fast_ns,
+                enable_ulp_ns: #enable_ulp_ns,
+                dac_settle_ns: #dac_settle_ns,
+                dac_settle_pin_ns: #dac_settle_pin_ns,
+            }) }
         }
         None => quote! { None },
     };

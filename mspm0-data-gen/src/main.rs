@@ -1,5 +1,6 @@
 mod adc_channels;
 mod clock_tree;
+mod comp;
 mod errata;
 mod generate;
 mod header;
@@ -85,6 +86,7 @@ fn main() -> anyhow::Result<()> {
     let errata = errata::parse()?;
     let wake = wakeup::parse()?;
     let vref = vref::parse()?;
+    let comp = comp::parse()?;
     let parts = parts::PartsFile::read()?;
 
     // TODO: Expanded family names (ex. C110X -> C1103 & C1104)
@@ -104,6 +106,7 @@ fn main() -> anyhow::Result<()> {
         errata,
         wake,
         vref,
+        comp,
     };
 
     stopwatch.section("Generate data");

@@ -14,6 +14,7 @@ use mspm0_data_types::{
 };
 use regex::Regex;
 
+use crate::comp::CompTiming;
 use crate::{
     adc_channels::AdcChannels,
     header::Header,
@@ -57,6 +58,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
         errata,
         wake,
         vref,
+        comp,
         int_groups,
     } = *sources;
 
@@ -84,7 +86,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
     apply_uart(family, sysconfig, uart, &mut peripherals)?;
     apply_opa(opa, &mut peripherals);
     apply_vref(vref, &mut peripherals);
-    apply_comp(sysconfig, &mut peripherals);
+    apply_comp(sysconfig, comp, &mut peripherals);
 
     for part_number in family.part_numbers.iter() {
         // Filter for package types available on the part number.
@@ -1100,7 +1102,8 @@ fn apply_vref(vref: Option<Vref>, peripherals: &mut BTreeMap<String, Peripheral>
     }
 }
 
-/// Attach whether each COMP instance implements the `CTL2.REFSRC` internal-reference positions.
+/// Attach each COMP instance's facts: whether it implements the `CTL2.REFSRC` internal-reference
+/// positions, and the family's timing figures from `data/comp`.
 ///
 /// `SYS_COMP_INT_VREF` is present (as `"1"`) exactly on the instances which have them and absent
 /// otherwise. It agrees with every SVD which enumerates `REFSRC` — the five newer-generation SVDs
@@ -1108,7 +1111,11 @@ fn apply_vref(vref: Option<Vref>, peripherals: &mut BTreeMap<String, Peripheral>
 /// state the feature in prose (the L1228's "dedicated internal reference", the G5187's "internal
 /// VREF1"), so unlike `SYS_LIN_EN` it is safe to read directly. driverlib is *not* a cross-check:
 /// its `DL_COMP_REF_SOURCE_INT_VREF` gate names only L122X_L222X, against both of the above.
-fn apply_comp(sysconfig: &SysconfigFile, peripherals: &mut BTreeMap<String, Peripheral>) {
+fn apply_comp(
+    sysconfig: &SysconfigFile,
+    timing: Option<CompTiming>,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) {
     for peripheral in sysconfig.peripherals.values() {
         let name = maybe_rename(&peripheral.name);
         let Some(comp) = peripherals.get_mut(&name) else {
@@ -1122,7 +1129,15 @@ fn apply_comp(sysconfig: &SysconfigFile, peripherals: &mut BTreeMap<String, Peri
             .attributes
             .get("SYS_COMP_INT_VREF")
             .is_some_and(|value| value.as_str() == Some("1"));
-        comp.comp = Some(Comp { int_vref });
+
+        // Absent timing is a gap verify.rs reports, like the VREF startup figure.
+        comp.comp = Some(Comp {
+            int_vref,
+            enable_fast_ns: timing.and_then(|t| t.enable_fast_ns),
+            enable_ulp_ns: timing.and_then(|t| t.enable_ulp_ns),
+            dac_settle_ns: timing.and_then(|t| t.dac_settle_ns),
+            dac_settle_pin_ns: timing.and_then(|t| t.dac_settle_pin_ns),
+        });
     }
 }
 

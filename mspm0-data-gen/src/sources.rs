@@ -11,6 +11,7 @@ use mspm0_data_types::{Vref, WakeTimes};
 use crate::{
     adc_channels::AdcChannels,
     clock_tree::{ClockTreeFile, ClockTrees},
+    comp::CompTiming,
     errata::Errata,
     header::{Header, Headers},
     int_group::Groups,
@@ -39,6 +40,7 @@ pub struct Sources {
     pub errata: BTreeMap<String, Errata>,
     pub wake: BTreeMap<String, WakeTimes>,
     pub vref: BTreeMap<String, Vref>,
+    pub comp: BTreeMap<String, CompTiming>,
 }
 
 /// What one family is described by.
@@ -58,6 +60,7 @@ pub struct FamilySources<'a> {
     pub errata: Option<&'a Errata>,
     pub wake: Option<WakeTimes>,
     pub vref: Option<Vref>,
+    pub comp: Option<CompTiming>,
 
     /// Not narrowed to the family: `generate_irqs` looks groups up per chip, not per family.
     pub int_groups: &'a BTreeMap<String, Groups>,
@@ -100,6 +103,7 @@ impl Sources {
             errata: self.errata.get(family),
             wake: self.wake.get(family).copied(),
             vref: self.vref.get(family).copied(),
+            comp: self.comp.get(family).copied(),
             int_groups: &self.int_groups,
         })
     }
