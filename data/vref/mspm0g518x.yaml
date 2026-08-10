@@ -12,3 +12,7 @@
 #   slowest of: 20us at BUFCONFIG = {0, 1} , VDD ≥ 2.7 V; 200us at BUFCONFIG = {0, 1} , VDD ≥ 2.7 V, C = 1µF VREF
 
 startup_ns: 200000
+# Whether the internal reference is buffered out to the VREF+ pin, from the
+# datasheet's "VREF output drive strength" row. false also covers devices
+# with no VREF pins.
+output_to_pin: true

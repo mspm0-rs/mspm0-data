@@ -21,6 +21,16 @@ Two things about the row are worth knowing:
 - **The stated conditions differ between datasheets** -- `VDD = 2.8 V` on most, `2.7 V` on the C1104 --
   and one figure per device is therefore a simplification. The conditions are written into the
   generated file's header so the simplification is visible rather than implied.
+
+This also extracts `output_to_pin`: whether the internal reference is buffered out to the VREF+
+package pin. The families genuinely differ -- an OPA reading its `PSEL = 5` (the VREF+ pin node) gets
+the internal reference on a G3507 and a floating pin on an L1306, measured on hardware, and TI's own
+SDK example behaves the same way. The signal is the "VREF output drive strength" row of the same
+electrical table: every G-family datasheet has it (with a short-circuit current and a *required*
+decoupling capacitor for internal-reference use), no C/H/L datasheet does, and the older G pin tables
+say it outright ("external reference input / internal reference output"). The C/H/L datasheets
+describe VREF+ only as "bringing in an external reference", and the C1104 has no VREF pins at all --
+`false` covers both.
 """
 
 # /// script
@@ -42,6 +52,10 @@ except ImportError as e:  # pragma: no cover
 
 CAPTION = "VREF startup time"
 
+#: The row that says the internal reference drives the VREF+ pin. Matched over the page text
+#: rather than parsed: presence is the fact.
+OUTPUT_DRIVE = "VREF output drive strength"
+
 LATTICE = {"vertical_strategy": "lines", "horizontal_strategy": "lines"}
 
 #: Time units the figure may be given in, as a multiplier to nanoseconds. The datasheets are
@@ -56,6 +70,17 @@ def caption_pages(path: Path) -> list[int]:
     doc = pypdfium2.PdfDocument(str(path))
     try:
         return [i for i in range(len(doc)) if CAPTION in doc[i].get_textpage().get_text_range()]
+    finally:
+        doc.close()
+
+
+def drives_pin(path: Path) -> bool:
+    """Whether the datasheet states the output-drive row for the VREF+ pin."""
+    doc = pypdfium2.PdfDocument(str(path))
+    try:
+        return any(
+            OUTPUT_DRIVE in doc[i].get_textpage().get_text_range() for i in range(len(doc))
+        )
     finally:
         doc.close()
 
@@ -164,11 +189,16 @@ def write(datasheets: str) -> int:
             others = "; ".join(f"{v / 1000:g}us at {c}" for v, c in sorted(found))
             conditions = f"{conditions}\n#\n#   slowest of: {others}"
 
+        output = drives_pin(pdf)
         path = Path(f"data/vref/{family}.yaml")
         with open(path, "w", encoding="utf-8", newline="\n") as out:
             out.write(HEADER.format(ds=gpn.upper(), conditions=conditions or "none stated"))
             out.write(f"\nstartup_ns: {ns}\n")
-        print(f"{family}: {ns / 1000:g} us, from {pdf.name}")
+            out.write("# Whether the internal reference is buffered out to the VREF+ pin, from the\n")
+            out.write("# datasheet's \"VREF output drive strength\" row. false also covers devices\n")
+            out.write("# with no VREF pins.\n")
+            out.write(f"output_to_pin: {str(output).lower()}\n")
+        print(f"{family}: {ns / 1000:g} us, output_to_pin={output}, from {pdf.name}")
 
     return problems
 
@@ -184,6 +214,7 @@ def main(argv: list[str]) -> None:
 
     for path in paths:
         print(f"########## {path.name}")
+        print(f"    output_to_pin: {drives_pin(path)}")
         for ns, conditions in read_tables(path):
             print(f"    {ns / 1000:>8g} us   {conditions}")
 
