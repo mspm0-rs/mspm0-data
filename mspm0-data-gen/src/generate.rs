@@ -1137,7 +1137,7 @@ fn convert_memory(memory: &PartMemory) -> anyhow::Result<Memory> {
     // second RAM bank differ, and they say so in parts.yaml.
     let retained_through = memory.retained_through.unwrap_or(match kind {
         MemoryKind::Flash => PowerMode::Shutdown,
-        MemoryKind::Ram => PowerMode::Standby,
+        MemoryKind::Ram => PowerMode::Standby1,
     });
 
     Ok(Memory {

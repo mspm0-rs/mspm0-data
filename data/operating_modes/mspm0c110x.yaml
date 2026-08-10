@@ -7,21 +7,21 @@
 # `retained_through` covers PD1 peripherals only, since nothing else is automatically disabled.
 
 retained_through:
-  CPUSS: Standby
-  CRC: Standby
-  DMA: Standby
-  SPI0: Standby
+  CPUSS: Standby1
+  CRC: Standby1
+  DMA: Standby1
+  SPI0: Standby1
 
 usable_through:
-  ADC0: Sleep
+  ADC0: Stop0
   CPUSS: Run
   CRC: Sleep
   DMA: Sleep
-  GPIOA: Standby
+  GPIOA: Standby1
   SPI0: Sleep
-  TIMA0: Standby
-  TIMG14: Standby
-  TIMG8: Standby
-  UART0: Standby
-  VREF: Sleep
-  WWDT0: Stop
+  TIMA0: Standby1
+  TIMG14: Standby1
+  TIMG8: Standby1
+  UART0: Standby1
+  VREF: Stop0
+  WWDT0: Standby0

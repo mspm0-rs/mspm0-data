@@ -18,6 +18,17 @@ Cells spanning several rows or columns mean the table needs lattice reconstructi
 lines; reading extracted text instead silently loses the spans.
 
     row.cells[i] is None  <=>  column i is covered by a merge that began earlier
+
+STOP and STANDBY are reported per sub-mode, RUN and SLEEP as a whole. That asymmetry is in the
+hardware, not a shortcut: STOP0/1/2 and STANDBY0/1 each disable a superset of the one before, but
+RUN1 and RUN2 are *clock-source policies* rather than depths -- RUN2 runs the CPU with SYSOSC off,
+and SLEEP0 turns it back on. Across all 16 datasheets every row whose usability switches back on
+does so at `RUN2 -> SLEEP0` or `SLEEP2 -> STOP0`, and none within STOP or within STANDBY, so a
+single threshold is only meaningful once RUN and SLEEP are each collapsed.
+
+Which sub-modes exist varies: most families have STOP0/1/2, while the C-series, H3216 and L2117
+tables have no STOP1 column at all. The sub-mode names are read from the table's second header row
+rather than counted off, so a missing one cannot shift the rest.
 """
 
 # /// script
@@ -29,7 +40,7 @@ import glob
 import json
 import re
 import sys
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from pathlib import Path
 
 try:
@@ -39,10 +50,10 @@ try:
 except ImportError as e:  # pragma: no cover
     raise SystemExit(f"{e.name} is missing; run this with `uv run` instead of `python`")
 
-ColumnGroups = dict[int, str]                      # column index -> mode group
+ColumnModes = dict[int, str]                       # column index -> PowerMode variant name
 States = dict[int, str | None]                     # column index -> state, merges resolved
 Rows = list[tuple[str, States]]                    # (row label, states)
-ByGroup = dict[str, set[str]]                      # mode group -> states seen in it
+ByMode = dict[str, set[str]]                       # PowerMode variant -> states seen in it
 Overrides = dict[str, dict[str, dict[str, str]]]   # family -> field -> name -> value
 
 CAPTION = "Supported Functionality by Operating Mode"
@@ -52,12 +63,25 @@ LATTICE = {"vertical_strategy": "lines", "horizontal_strategy": "lines"}
 #: Mode groups in order of increasing depth. The datasheet names these as merged header cells.
 GROUPS = ["RUN", "SLEEP", "STOP", "STANDBY", "SHUTDOWN"]
 
+#: Groups reported per sub-mode rather than collapsed, and the `PowerMode` stem each maps onto.
+SPLIT = {"STOP": "Stop", "STANDBY": "Standby"}
+
+#: `PowerMode` variants a column can map to, deepest last. `Stop1` is absent on several families.
+MODES = ["Run", "Sleep", "Stop0", "Stop1", "Stop2", "Standby0", "Standby1", "Shutdown"]
+
+#: A sub-mode name from the table's second header row. That row is rotated, and pdfplumber returns
+#: rotated text back to front ("0POTS"), so the cell is reversed before matching.
+SUBMODE = re.compile(r"^(RUN|SLEEP|STOP|STANDBY)(\d)$")
+
 #: Per the table's legend: EN and OPT mean the function is usable, DIS/OFF/NS do not. `NS` is "not
 #: automatically disabled in the specified mode, but its use is not supported", which is the case a
 #: boolean would hide. Only OFF loses configuration.
 USABLE = ("EN", "OPT")
 
-STATE = re.compile(r"^(EN|DIS|OPT|NS|OFF)\b")
+#: A cell's state, ignoring any footnote marker after it. Most are parenthesised ("OPT(2)"), but the
+#: MSPM0C1106 GPIOA/B row renders one bare ("OPT2"), which a `\b` here would reject -- and rejecting
+#: it silently costs that row its STANDBY1 column.
+STATE = re.compile(r"^(EN|DIS|OPT|NS|OFF)(?![A-Za-z])")
 
 #: Row labels which do not use the peripheral's own name.
 ALIASES = {
@@ -84,11 +108,11 @@ def caption_pages(path: Path) -> list[int]:
         doc.close()
 
 
-def read_tables(path: Path) -> Iterator[tuple[ColumnGroups, Rows]]:
-    """Yield (column_groups, rows) for each page of the operating-mode table.
+def read_tables(path: Path) -> Iterator[tuple[ColumnModes, Rows]]:
+    """Yield (column_modes, rows) for each page of the operating-mode table.
 
-    `column_groups` maps a column index to its mode group; `rows` is a list of (label, states) where
-    `states` is one entry per mode column, merges already resolved.
+    `column_modes` maps a column index to the `PowerMode` variant it reports; `rows` is a list of
+    (label, states) where `states` is one entry per mode column, merges already resolved.
     """
     pages = caption_pages(path)
     if not pages:
@@ -101,26 +125,22 @@ def read_tables(path: Path) -> Iterator[tuple[ColumnGroups, Rows]]:
                     continue
                 data = table.extract()
 
-                # The header row names each group in the column it starts at; the columns it spans
-                # follow as `None` cells. Anything past the last named group is SHUTDOWN, which some
-                # datasheets leave unlabelled.
+                # The group row names each group in the column it starts at; the columns it spans
+                # follow as `None` cells. It is used only to find where the mode columns begin --
+                # which mode each one reports comes from the sub-mode row below it.
                 header = [(c or "").replace("\n", "").strip() for c in data[0]]
-                column_group: ColumnGroups = {}
-                current: str | None = None
+                columns: list[int] = []
+                seen_group = False
                 for i, cell in enumerate(header):
                     if i < 2:
                         continue                     # group label and row label columns
-                    name = next((g for g in GROUPS if cell.upper().startswith(g)), None)
-                    if name:
-                        current = name
-                    elif cell and current == "STANDBY":
-                        current = "SHUTDOWN"         # trailing unlabelled column
-                    if current:
-                        column_group[i] = current
-                # A trailing column after STANDBY with no header of its own is SHUTDOWN.
-                tail = max(column_group, default=1)
-                if column_group.get(tail) == "STANDBY" and tail == len(header) - 1:
-                    column_group[tail] = "SHUTDOWN"
+                    seen_group |= any(cell.upper().startswith(g) for g in GROUPS)
+                    if seen_group:
+                        columns.append(i)
+
+                column_mode = split_submodes(columns, data[1] if len(data) > 1 else [])
+                if column_mode is None:
+                    continue
 
                 rows: Rows = []
                 for ri, row in enumerate(table.rows[1:], start=1):
@@ -133,7 +153,7 @@ def read_tables(path: Path) -> Iterator[tuple[ColumnGroups, Rows]]:
 
                     states: States = {}
                     held: str | None = None
-                    for ci in sorted(column_group):
+                    for ci in sorted(column_mode):
                         if ci >= len(row.cells):
                             continue
                         if row.cells[ci] is not None:
@@ -144,51 +164,88 @@ def read_tables(path: Path) -> Iterator[tuple[ColumnGroups, Rows]]:
                         states[ci] = held
                     rows.append((label, states))
 
-                yield column_group, rows
+                yield column_mode, rows
 
 
-def group_states(column_group: ColumnGroups, states: States) -> ByGroup:
-    """States seen in each mode group, as {group: set of states}."""
-    out: ByGroup = {}
-    for ci, group in column_group.items():
-        s = states.get(ci)
-        if s:
-            out.setdefault(group, set()).add(s)
+def split_submodes(columns: Iterable[int], subheader: list) -> ColumnModes | None:
+    """Map each mode column to a `PowerMode` variant, or `None` if the sub-mode row does not parse.
+
+    The sub-mode row is the authority, not the merged group row above it. RUN and SLEEP collapse to
+    one variant each; STOP and STANDBY keep the index the table gives them, read rather than counted
+    because several families have no STOP1.
+
+    Deciding SHUTDOWN here is what makes MSPM0H3216 come out right. Its table stops at STANDBY1 with
+    no SHUTDOWN column at all, and a trailing-column heuristic reads that last column as SHUTDOWN and
+    loses the deeper half of STANDBY.
+    """
+    labels = [(c or "").replace("\n", "").strip()[::-1].upper() for c in subheader]
+    last = max(columns, default=-1)
+
+    out: ColumnModes = {}
+    for ci in columns:
+        label = labels[ci] if ci < len(labels) else ""
+        m = SUBMODE.match(label)
+        if m is None:
+            # SHUTDOWN has no index, and its cell is routinely clipped ("SHUTDOW", "DOWN", "NWO").
+            # Anywhere but the last column, an unreadable label means the row did not parse.
+            if ci != last:
+                return None
+            out[ci] = "Shutdown"
+            continue
+
+        group, index = m.group(1), m.group(2)
+        out[ci] = f"{SPLIT[group]}{index}" if group in SPLIT else group.capitalize()
+
     return out
 
 
-def retained_through(by_group: ByGroup) -> str | None:
+def mode_states(column_mode: ColumnModes, states: States) -> ByMode:
+    """States seen in each mode, as {mode: set of states}."""
+    out: ByMode = {}
+    for ci, mode in column_mode.items():
+        s = states.get(ci)
+        if s:
+            out.setdefault(mode, set()).add(s)
+    return out
+
+
+def present(by_mode: ByMode) -> list[str]:
+    """The modes this table has a column for, shallowest first, excluding SHUTDOWN."""
+    return [m for m in MODES if m != "Shutdown" and m in by_mode]
+
+
+def retained_through(by_mode: ByMode) -> str | None:
     """Deepest mode a PD1 peripheral's configuration survives, or None if the table is silent.
 
-    `OFF` is the only state which loses configuration; `EN`, `OPT` and `DIS` all keep it. STOP and
-    STANDBY are read separately, so losing it only in STANDBY reports `Stop` rather than `Sleep`.
+    `OFF` is the only state which loses configuration; `EN`, `OPT` and `DIS` all keep it. Losing it
+    only in the deeper half of STANDBY now reports `Standby0` where this used to have to say `Stop`.
 
-    A blank group is answered conservatively: retention in a deeper mode implies it in a shallower one,
-    but not the reverse.
+    Sleep is the floor rather than Run: PD1 is powered in both, so a row which is already `OFF` by
+    the first STOP sub-mode says nothing finer than "not through STOP".
     """
-    stop = by_group.get("STOP", set())
-    standby = by_group.get("STANDBY", set())
-    if not stop and not standby:
+    sleeps = [m for m in present(by_mode) if m not in ("Run", "Sleep")]
+    if not sleeps:
         return None
 
-    if "OFF" in stop:
-        return "Sleep"
-    if "OFF" in standby:
-        return "Stop" if stop else "Sleep"
-    return "Standby" if standby else "Stop"
+    deepest = "Sleep"
+    for mode in sleeps:
+        if "OFF" in by_mode[mode]:
+            break
+        deepest = mode
+    return deepest
 
 
-def usable_through(by_group: ByGroup) -> str | None:
-    """Deepest mode group in which every policy is usable, or None if the table is silent."""
+def usable_through(by_mode: ByMode) -> str | None:
+    """Deepest mode in which every policy is usable, or None if the table is silent.
+
+    Walks only the modes the table has a column for, so a family without STOP1 still reaches STOP2.
+    """
     deepest: str | None = None
-    for group in ("RUN", "SLEEP", "STOP", "STANDBY"):
-        seen = by_group.get(group)
-        if not seen:
+    for mode in present(by_mode):
+        if not by_mode[mode] <= set(USABLE):
             break
-        if not seen <= set(USABLE):
-            break
-        deepest = group
-    return {"RUN": "Run", "SLEEP": "Sleep", "STOP": "Stop", "STANDBY": "Standby"}.get(deepest)
+        deepest = mode
+    return deepest
 
 
 def expand(label: str) -> list[str]:
@@ -281,10 +338,10 @@ def write(datasheets: str) -> int:
 
         retained: dict[str, str] = {}
         usable: dict[str, str] = {}
-        for column_group, rows in read_tables(pdf):
+        for column_mode, rows in read_tables(pdf):
             for label, states in rows:
-                by_group = group_states(column_group, states)
-                r, u = retained_through(by_group), usable_through(by_group)
+                by_mode = mode_states(column_mode, states)
+                r, u = retained_through(by_mode), usable_through(by_mode)
                 for name in expand(label):
                     if name not in known.get(family, ()):
                         continue
@@ -346,11 +403,11 @@ def main(argv: list[str]) -> None:
 
     for path in paths:
         print(f"########## {path.name}")
-        for column_group, rows in read_tables(path):
-            columns = sorted(column_group)
-            print("    " + " ".join(f"{column_group[c][:4]:<5}" for c in columns))
+        for column_mode, rows in read_tables(path):
+            columns = sorted(column_mode)
+            print("    " + " ".join(f"{column_mode[c]:<9}" for c in columns))
             for label, states in rows:
-                print(f"    {' '.join(f'{states.get(c) or chr(45):<5}' for c in columns)}  {label}")
+                print(f"    {' '.join(f'{states.get(c) or chr(45):<9}' for c in columns)}  {label}")
             print()
 
 

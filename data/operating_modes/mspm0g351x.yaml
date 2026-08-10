@@ -10,63 +10,63 @@ retained_through:
   AESADV: Sleep
   CANFD0: Sleep
   CANFD1: Sleep
-  CPUSS: Standby
-  CRCP0: Standby
-  DMA: Standby
+  CPUSS: Standby1
+  CRCP0: Standby1
+  DMA: Standby1
   MATHACL: Sleep
-  SPI0: Standby
-  SPI1: Standby
-  SPI2: Standby
+  SPI0: Standby1
+  SPI1: Standby1
+  SPI2: Standby1
   TIMA0: Sleep
   TIMA1: Sleep
   TIMG12: Sleep
   TIMG6: Sleep
   TIMG7: Sleep
   TRNG: Sleep
-  UART3: Standby
-  UART4: Standby
-  UART5: Standby
-  UART6: Standby
+  UART3: Standby1
+  UART4: Standby1
+  UART5: Standby1
+  UART6: Standby1
 
 usable_through:
-  ADC0: Sleep
-  ADC1: Sleep
+  ADC0: Stop1
+  ADC1: Stop1
   AESADV: Sleep
-  COMP0: Standby
-  COMP1: Standby
-  COMP2: Standby
+  COMP0: Standby1
+  COMP1: Standby1
+  COMP2: Standby1
   CPUSS: Run
   CRCP0: Sleep
-  DAC0: Sleep
+  DAC0: Stop1
   DMA: Sleep
-  GPIOA: Standby
-  GPIOB: Standby
-  GPIOC: Standby
-  I2C0: Standby
-  I2C1: Standby
-  I2C2: Standby
+  GPIOA: Standby1
+  GPIOB: Standby1
+  GPIOC: Standby1
+  I2C0: Standby1
+  I2C1: Standby1
+  I2C2: Standby1
   MATHACL: Sleep
-  RTC_B: Standby
+  RTC_B: Standby1
   SPI0: Sleep
   SPI1: Sleep
   SPI2: Sleep
   TIMA0: Sleep
   TIMA1: Sleep
-  TIMG0: Standby
+  TIMG0: Standby1
   TIMG12: Sleep
-  TIMG14: Standby
+  TIMG14: Standby1
   TIMG6: Sleep
   TIMG7: Sleep
-  TIMG8: Standby
-  TIMG9: Standby
+  TIMG8: Standby1
+  TIMG9: Standby1
   TRNG: Sleep
-  UART0: Standby
-  UART1: Standby
+  UART0: Standby1
+  UART1: Standby1
   UART3: Sleep
   UART4: Sleep
   UART5: Sleep
   UART6: Sleep
-  UART7: Standby
-  VREF: Standby
-  WWDT0: Stop
-  WWDT1: Stop
+  UART7: Standby1
+  VREF: Standby1
+  WWDT0: Standby0
+  WWDT1: Standby0

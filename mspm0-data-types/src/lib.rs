@@ -473,9 +473,12 @@ pub struct Peripheral {
 
     /// The deepest mode through which this peripheral keeps its configuration.
     ///
-    /// [`PowerMode::Standby`] means the configuration survives everything short of SHUTDOWN;
-    /// [`PowerMode::Sleep`] means it is already gone in STOP, so the peripheral must be fully
+    /// [`PowerMode::Standby1`] means the configuration survives everything short of SHUTDOWN;
+    /// [`PowerMode::Sleep`] means it is already gone by STOP0, so the peripheral must be fully
     /// reconfigured on wake. All PD1 peripherals need re-enabling after STOP or STANDBY regardless.
+    ///
+    /// [`PowerMode::Sleep`] is the shallowest value this takes. PD1 is powered in RUN and SLEEP
+    /// alike, so a row already `OFF` by STOP0 says nothing finer than "not through STOP".
     ///
     /// `None` when `power_domain` is not [`PowerDomain::Pd1`].
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -488,6 +491,11 @@ pub struct Peripheral {
     ///
     /// `None` when the row does not resolve to a single mode: either its values differ between the
     /// policies within a mode group, or one value spans every column.
+    ///
+    /// [`PowerMode::Standby1`] here does **not** mean a timer can wake the core. This is the
+    /// table's peripheral row; whether a timer is still clocked is a separate row and is reported
+    /// by [`Peripheral::clocked_in_standby1`]. The two coincide on 13 of the 18 families and
+    /// diverge on the L-series.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub usable_through: Option<PowerMode>,
 
@@ -678,14 +686,34 @@ pub struct Unicomm {
 /// An operating mode, ordered from shallowest to deepest.
 ///
 /// Ordering is meaningful and is what makes retention comparable: a peripheral retained through
-/// [`PowerMode::Standby`] is also retained in every shallower mode, so a consumer can ask
-/// `retained_through >= PowerMode::Stop` rather than enumerating cases.
+/// [`PowerMode::Standby1`] is also retained in every shallower mode, so a consumer can ask
+/// `retained_through >= PowerMode::Stop0` rather than enumerating cases.
+///
+/// STOP and STANDBY are split per sub-mode because each disables a superset of the one before it.
+/// **RUN and SLEEP are deliberately not**, and adding their sub-modes would break the ordering:
+/// RUN1 and RUN2 are clock-source policies rather than depths, so RUN2 runs the CPU with SYSOSC
+/// off while the deeper SLEEP0 turns it back on. Across the datasheets, every row whose usability
+/// switches back on does so at `RUN2 -> SLEEP0` or `SLEEP2 -> STOP0` — MCAN, USB, I2S, OPA and the
+/// MFCLK-fed peripherals — and none within STOP or within STANDBY.
+///
+/// Not every family has every sub-mode: the C-series, MSPM0H321x and MSPM0L2117 tables have no
+/// STOP1 column, so [`PowerMode::Stop1`] never appears for those and [`PowerMode::Stop2`] is the
+/// next mode after [`PowerMode::Stop0`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum PowerMode {
     Run,
     Sleep,
-    Stop,
-    Standby,
+    Stop0,
+    Stop1,
+    Stop2,
+
+    /// PD0 is still clocked here, which is what separates it from [`PowerMode::Standby1`].
+    Standby0,
+
+    /// PD0 is unclocked apart from the handful of timers marked
+    /// [`Peripheral::clocked_in_standby1`], so those are the only peripherals which can wake the
+    /// core from here.
+    Standby1,
 
     /// Nothing but the `SHUTDNSTORE` bytes in SYSCTL survives this, so it appears only for
     /// non-volatile memory.
@@ -758,7 +786,7 @@ pub struct Memory {
     /// The deepest mode through which the contents of this partition survive.
     ///
     /// Flash is non-volatile, so it is [`PowerMode::Shutdown`]. SRAM is normally
-    /// [`PowerMode::Standby`], since only the `SHUTDNSTORE` bytes in SYSCTL survive SHUTDOWN. The
+    /// [`PowerMode::Standby1`], since only the `SHUTDNSTORE` bytes in SYSCTL survive SHUTDOWN. The
     /// upper SRAM bank of the parts which have one is the exception.
     pub retained_through: PowerMode,
 }

@@ -180,8 +180,11 @@ fn power_mode(mode: PowerMode) -> TokenStream {
     match mode {
         PowerMode::Run => quote! { PowerMode::Run },
         PowerMode::Sleep => quote! { PowerMode::Sleep },
-        PowerMode::Stop => quote! { PowerMode::Stop },
-        PowerMode::Standby => quote! { PowerMode::Standby },
+        PowerMode::Stop0 => quote! { PowerMode::Stop0 },
+        PowerMode::Stop1 => quote! { PowerMode::Stop1 },
+        PowerMode::Stop2 => quote! { PowerMode::Stop2 },
+        PowerMode::Standby0 => quote! { PowerMode::Standby0 },
+        PowerMode::Standby1 => quote! { PowerMode::Standby1 },
         PowerMode::Shutdown => quote! { PowerMode::Shutdown },
     }
 }

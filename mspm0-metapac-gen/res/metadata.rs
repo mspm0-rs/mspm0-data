@@ -189,8 +189,9 @@ pub struct Peripheral {
 
     /// The deepest mode through which this peripheral keeps its configuration.
     ///
-    /// `Standby` means the configuration survives everything short of SHUTDOWN; `Sleep` means it is
-    /// already gone in STOP, so the peripheral must be fully reconfigured on wake.
+    /// `Standby1` means the configuration survives everything short of SHUTDOWN; `Sleep` means it
+    /// is already gone by STOP0, so the peripheral must be fully reconfigured on wake. `Sleep` is
+    /// the shallowest value this takes, since PD1 is powered in RUN and SLEEP alike.
     ///
     /// All PD1 peripherals need re-enabling after STOP or STANDBY regardless (TRM §2.2.6.1).
     ///
@@ -360,14 +361,27 @@ pub struct Timer {
 /// An operating mode, ordered from shallowest to deepest.
 ///
 /// Ordering is meaningful and is what makes retention comparable: something retained through
-/// `PowerMode::Standby` is also retained in every shallower mode, so a consumer can ask
-/// `retained_through >= PowerMode::Stop` rather than enumerating cases.
+/// `PowerMode::Standby1` is also retained in every shallower mode, so a consumer can ask
+/// `retained_through >= PowerMode::Stop0` rather than enumerating cases.
+///
+/// STOP and STANDBY are split per sub-mode because each disables a superset of the one before it.
+/// RUN and SLEEP are not: their sub-modes are clock-source policies rather than depths, and RUN2
+/// runs the CPU with SYSOSC off where the deeper SLEEP0 has it on, so ordering them would be a
+/// lie. Not every family has every sub-mode — several have no STOP1 at all.
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Clone, Copy)]
 pub enum PowerMode {
     Run,
     Sleep,
-    Stop,
-    Standby,
+    Stop0,
+    Stop1,
+    Stop2,
+
+    /// PD0 is still clocked here, which is what separates it from `PowerMode::Standby1`.
+    Standby0,
+
+    /// PD0 is unclocked apart from the handful of timers marked `clocked_in_standby1`, so those
+    /// are the only peripherals which can wake the core from here.
+    Standby1,
 
     /// Nothing but the `SHUTDNSTORE` bytes in SYSCTL survives this, so it appears only for
     /// non-volatile memory.
@@ -422,7 +436,7 @@ pub struct MemoryRegion {
 
     /// The deepest mode through which the contents of this region survive.
     ///
-    /// Flash is non-volatile, so it is `Shutdown`. SRAM is normally `Standby`, since only the
+    /// Flash is non-volatile, so it is `Shutdown`. SRAM is normally `Standby1`, since only the
     /// `SHUTDNSTORE` bytes in SYSCTL survive SHUTDOWN.
     pub retained_through: PowerMode,
 }

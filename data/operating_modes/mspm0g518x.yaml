@@ -8,9 +8,9 @@
 
 retained_through:
   AESADV: Sleep
-  CPUSS: Standby
-  CRCP0: Standby
-  DMA: Standby
+  CPUSS: Standby1
+  CRCP0: Standby1
+  DMA: Standby1
   I2S0: Sleep
   NPU: Sleep
   TIMA0: Sleep
@@ -21,25 +21,25 @@ retained_through:
   USBFS0: Sleep
 
 usable_through:
-  ADC0: Sleep
+  ADC0: Stop1
   AESADV: Sleep
-  COMP0: Standby
+  COMP0: Standby1
   CPUSS: Run
   CRCP0: Sleep
   DMA: Sleep
-  GPIOA: Standby
-  GPIOB: Standby
-  IWDT: Standby
+  GPIOA: Standby1
+  GPIOB: Standby1
+  IWDT: Standby1
   NPU: Sleep
-  RTC_B: Standby
+  RTC_B: Standby1
   TIMA0: Sleep
-  TIMB0: Standby
-  TIMG0: Standby
+  TIMB0: Standby1
+  TIMG0: Standby1
   TIMG6: Sleep
   TIMG7: Sleep
-  UC0: Standby
-  UC1: Standby
+  UC0: Standby1
+  UC1: Standby1
   UC2: Sleep
   UC3: Sleep
-  WWDT0: Stop
-  WWDT1: Stop
+  WWDT0: Standby0
+  WWDT1: Standby0

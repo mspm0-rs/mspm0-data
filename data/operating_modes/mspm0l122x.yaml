@@ -7,41 +7,41 @@
 # `retained_through` covers PD1 peripherals only, since nothing else is automatically disabled.
 
 retained_through:
-  AESADV: Standby
-  CPUSS: Standby
-  DMA: Standby
-  SPI0: Standby
-  SPI1: Standby
+  AESADV: Standby1
+  CPUSS: Standby1
+  DMA: Standby1
+  SPI0: Standby1
+  SPI1: Standby1
   TRNG: Sleep
 
   # Not derivable from the table: these rows give one value spanning every mode,
   # which says the peripheral is available but not whether its configuration
   # survives. Entered by hand and preserved across regeneration.
-  CRCP0: Standby
+  CRCP0: Standby1
 
 usable_through:
-  ADC0: Sleep
-  AESADV: Standby
-  COMP0: Standby
+  ADC0: Stop1
+  AESADV: Standby1
+  COMP0: Standby1
   CPUSS: Run
   DMA: Sleep
-  GPIOA: Standby
-  GPIOB: Standby
-  GPIOC: Standby
-  I2C0: Standby
-  I2C1: Standby
-  SPI0: Standby
-  SPI1: Standby
-  TIMA0: Standby
-  TIMG0: Standby
-  TIMG12: Standby
-  TIMG4: Standby
-  TIMG5: Standby
-  TIMG8: Standby
-  TRNG: Standby
-  UART0: Standby
-  UART1: Standby
-  UART2: Standby
-  UART3: Standby
-  UART4: Standby
-  WWDT0: Stop
+  GPIOA: Standby1
+  GPIOB: Standby1
+  GPIOC: Standby1
+  I2C0: Standby1
+  I2C1: Standby1
+  SPI0: Standby1
+  SPI1: Standby1
+  TIMA0: Standby1
+  TIMG0: Standby1
+  TIMG12: Standby1
+  TIMG4: Standby1
+  TIMG5: Standby1
+  TIMG8: Standby1
+  TRNG: Standby1
+  UART0: Standby1
+  UART1: Standby1
+  UART2: Standby1
+  UART3: Standby1
+  UART4: Standby1
+  WWDT0: Standby0
