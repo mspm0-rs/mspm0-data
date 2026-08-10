@@ -294,6 +294,54 @@ pub struct Adc {
 
     /// Number of options `CTL2.VRSEL` accepts.
     pub vrsel: u8,
+
+    /// Channels hard-wired to an internal signal rather than a package pin, sorted by channel.
+    ///
+    /// From the datasheet's "ADC Channel Mapping" table. Channels not listed go to package pins or
+    /// nowhere. The routing differs per instance and per family -- the OPA0 output is ADC0
+    /// channel 13 on mspm0g350x and channel 12 on mspm0l130x -- so do not key it on the instance
+    /// name.
+    pub internal_channels: &'static [AdcInternalChannel],
+}
+
+/// One ADC channel and the internal signal it samples.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct AdcInternalChannel {
+    pub channel: u8,
+    pub source: AdcInternalSource,
+}
+
+/// An internal signal an ADC channel samples instead of a package pin.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub enum AdcInternalSource {
+    /// The temperature sensor. Its single-point calibration value is in `FACTORYREGION`.
+    TemperatureSensor,
+
+    /// The OPA0 output.
+    Opa0,
+
+    /// The OPA1 output.
+    Opa1,
+
+    /// The GPAMP output.
+    Gpamp,
+
+    /// The DAC0 output. The channel is shared with a package pin, which cannot sample external
+    /// signals while the DAC drives it.
+    Dac0,
+
+    /// The internal voltage reference, `VREF` or `VREFINT` in the datasheets. Not the `VREF+`/
+    /// `VREF-` pins, which are external and stay in the pin data.
+    Vref,
+
+    /// The supply monitor, "Supply/Battery Monitor" in most datasheets.
+    SupplyMonitor,
+
+    /// The VBAT backup-supply monitor.
+    VbatMonitor,
+
+    /// The VUSB supply monitor.
+    VusbMonitor,
 }
 
 /// The capabilities of one timer instance.

@@ -1,3 +1,4 @@
+mod adc_channels;
 mod clock_tree;
 mod errata;
 mod generate;
@@ -6,13 +7,13 @@ mod int_group;
 mod operating_modes;
 mod parts;
 mod perimap;
+mod sources;
 mod svd;
 mod sysconfig;
 mod timers;
-mod sources;
 mod util;
-mod vref;
 mod verify;
+mod vref;
 mod wakeup;
 
 use std::{path::PathBuf, time::Instant};
@@ -73,6 +74,7 @@ fn main() -> anyhow::Result<()> {
 
     stopwatch.section("Read interrupt group mappings");
 
+    let adc_channels = adc_channels::parse()?;
     let int_groups = int_group::parse()?;
     let operating_modes = operating_modes::parse()?;
     let timers = timers::parse()?;
@@ -86,6 +88,7 @@ fn main() -> anyhow::Result<()> {
     let sources = sources::Sources {
         parts,
         headers,
+        adc_channels,
         sysconfig,
         svds,
         clock_trees,

@@ -15,12 +15,13 @@ use mspm0_data_types::{
 use regex::Regex;
 
 use crate::{
-    sources::{FamilySources, Sources},
+    adc_channels::AdcChannels,
     header::Header,
     int_group::Groups,
     operating_modes::OperatingModes,
     parts::{PartFamily, PartMemory},
     perimap::PERIMAP,
+    sources::{FamilySources, Sources},
     svd::Svd,
     sysconfig::{self, PartPeripheralWrapper, SysconfigFile},
     timers::Timers,
@@ -44,6 +45,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
     let FamilySources {
         header,
         sysconfig,
+        adc_channels,
         svd,
         clock_tree,
         operating_modes,
@@ -73,7 +75,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
     apply_standby1_timers(family, &mut peripherals)?;
     apply_timers(family, sysconfig, timers, &mut peripherals)?;
     apply_clock_ranges(family, &mut peripherals);
-    apply_adc(family, sysconfig, &mut peripherals)?;
+    apply_adc(family, sysconfig, adc_channels, &mut peripherals)?;
     apply_unicomm(family, header, &mut peripherals)?;
     apply_vref(vref, &mut peripherals);
 
@@ -541,7 +543,7 @@ fn generate_missing(
             clock_range_hz: None,
             adc: None,
             unicomm: None,
-        vref: None,
+            vref: None,
         },
     );
 
@@ -574,7 +576,7 @@ fn generate_missing(
             clock_range_hz: None,
             adc: None,
             unicomm: None,
-        vref: None,
+            vref: None,
         },
     );
 
@@ -615,7 +617,7 @@ fn generate_missing(
                     clock_range_hz: None,
                     adc: None,
                     unicomm: None,
-                vref: None,
+                    vref: None,
                 });
 
             let pin = device_pin
@@ -1064,6 +1066,7 @@ fn apply_vref(vref: Option<Vref>, peripherals: &mut BTreeMap<String, Peripheral>
 fn apply_adc(
     family: &PartFamily,
     sysconfig: &SysconfigFile,
+    adc_channels: Option<&AdcChannels>,
     peripherals: &mut BTreeMap<String, Peripheral>,
 ) -> anyhow::Result<()> {
     let chip_name = &family.family;
@@ -1100,7 +1103,17 @@ fn apply_adc(
             .get(name)
             .context(format!("{chip_name}: {name} has no MEMCTL count"))?;
 
-        peripheral.adc = Some(Adc { memctl, vrsel });
+        // Absent data is a gap verify.rs reports, like the other datasheet extractions.
+        let internal_channels = adc_channels
+            .and_then(|family| family.get(name))
+            .cloned()
+            .unwrap_or_default();
+
+        peripheral.adc = Some(Adc {
+            memctl,
+            vrsel,
+            internal_channels,
+        });
     }
 
     Ok(())

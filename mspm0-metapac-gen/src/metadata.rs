@@ -1,7 +1,8 @@
 use std::{collections::HashSet, sync::LazyLock};
 
 use mspm0_data_types::{
-    Chip, MemoryKind, Package, Peripheral, PeripheralType, PowerDomain, PowerMode,
+    AdcInternalSource, Chip, MemoryKind, Package, Peripheral, PeripheralType, PowerDomain,
+    PowerMode,
 };
 use proc_macro2::{Literal, TokenStream};
 use quote::quote;
@@ -189,6 +190,20 @@ fn power_mode(mode: PowerMode) -> TokenStream {
     }
 }
 
+fn adc_internal_source(source: AdcInternalSource) -> TokenStream {
+    match source {
+        AdcInternalSource::TemperatureSensor => quote! { AdcInternalSource::TemperatureSensor },
+        AdcInternalSource::Opa0 => quote! { AdcInternalSource::Opa0 },
+        AdcInternalSource::Opa1 => quote! { AdcInternalSource::Opa1 },
+        AdcInternalSource::Gpamp => quote! { AdcInternalSource::Gpamp },
+        AdcInternalSource::Dac0 => quote! { AdcInternalSource::Dac0 },
+        AdcInternalSource::Vref => quote! { AdcInternalSource::Vref },
+        AdcInternalSource::SupplyMonitor => quote! { AdcInternalSource::SupplyMonitor },
+        AdcInternalSource::VbatMonitor => quote! { AdcInternalSource::VbatMonitor },
+        AdcInternalSource::VusbMonitor => quote! { AdcInternalSource::VusbMonitor },
+    }
+}
+
 fn skip_peripheral(ty: PeripheralType) -> bool {
     matches!(ty, PeripheralType::Unknown)
 }
@@ -345,11 +360,22 @@ fn generate_peripheral(
         None => quote! { None },
     };
 
-    let adc = match peripheral.adc {
+    let adc = match &peripheral.adc {
         Some(adc) => {
             let memctl = Literal::u8_unsuffixed(adc.memctl);
             let vrsel = Literal::u8_unsuffixed(adc.vrsel);
-            quote! { Some(Adc { memctl: #memctl, vrsel: #vrsel }) }
+            let internal_channels = adc.internal_channels.iter().map(|(channel, source)| {
+                let channel = Literal::u8_unsuffixed(*channel);
+                let source = adc_internal_source(*source);
+                quote! { AdcInternalChannel { channel: #channel, source: #source } }
+            });
+            quote! {
+                Some(Adc {
+                    memctl: #memctl,
+                    vrsel: #vrsel,
+                    internal_channels: &[#(#internal_channels),*],
+                })
+            }
         }
         None => quote! { None },
     };

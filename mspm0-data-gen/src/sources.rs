@@ -9,6 +9,7 @@ use std::collections::BTreeMap;
 use mspm0_data_types::{Vref, WakeTimes};
 
 use crate::{
+    adc_channels::AdcChannels,
     clock_tree::{ClockTreeFile, ClockTrees},
     errata::Errata,
     header::{Header, Headers},
@@ -24,6 +25,7 @@ use crate::{
 pub struct Sources {
     pub parts: PartsFile,
     pub headers: Headers,
+    pub adc_channels: BTreeMap<String, AdcChannels>,
     pub sysconfig: Sysconfig,
     pub svds: Svds,
     pub clock_trees: ClockTrees,
@@ -42,6 +44,7 @@ pub struct Sources {
 pub struct FamilySources<'a> {
     pub header: &'a Header,
     pub sysconfig: &'a SysconfigFile,
+    pub adc_channels: Option<&'a AdcChannels>,
     pub svd: Option<&'a Svd>,
     pub clock_tree: Option<&'a ClockTreeFile>,
     pub operating_modes: Option<&'a OperatingModes>,
@@ -81,6 +84,7 @@ impl Sources {
         Ok(FamilySources {
             header,
             sysconfig,
+            adc_channels: self.adc_channels.get(family),
             svd: self.svds.files.get(family),
             clock_tree: self.clock_trees.files.get(family),
             operating_modes: self.operating_modes.get(family),

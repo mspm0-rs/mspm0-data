@@ -565,13 +565,59 @@ pub struct Vref {
 }
 
 /// The parts of one ADC instance which the single `adc_v1` register block does not describe.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Adc {
     /// Number of configurable conversion channels (`MEMCTL`).
     pub memctl: u8,
 
     /// Number of options `CTL2.VRSEL` accepts.
     pub vrsel: u8,
+
+    /// Channels hard-wired to an internal signal rather than a package pin.
+    ///
+    /// From the datasheet's "ADC Channel Mapping" table, read by `tools/adc_channels.py`. Channels
+    /// not listed go to package pins or nowhere. The routing differs per instance and per family --
+    /// the OPA0 output is ADC0 channel 13 on mspm0g350x and channel 12 on mspm0l130x -- so a
+    /// consumer must not key it on the instance name.
+    ///
+    /// Empty when the family's datasheet has no such table, which none so far lacks.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub internal_channels: BTreeMap<u8, AdcInternalSource>,
+}
+
+/// An internal signal an ADC channel samples instead of a package pin.
+///
+/// Variants exist for the signals the current datasheets route; a new family may add more.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum AdcInternalSource {
+    /// The temperature sensor. Its single-point calibration value is in `FACTORYREGION`.
+    TemperatureSensor,
+
+    /// The OPA0 output.
+    Opa0,
+
+    /// The OPA1 output.
+    Opa1,
+
+    /// The GPAMP output.
+    Gpamp,
+
+    /// The DAC0 output. The channel is shared with a package pin, which cannot sample external
+    /// signals while the DAC drives it.
+    Dac0,
+
+    /// The internal voltage reference, `VREF` or `VREFINT` in the datasheets. Not the `VREF+`/
+    /// `VREF-` pins, which are external and stay in the pin data.
+    Vref,
+
+    /// The supply monitor, "Supply/Battery Monitor" in most datasheets.
+    SupplyMonitor,
+
+    /// The VBAT backup-supply monitor.
+    VbatMonitor,
+
+    /// The VUSB supply monitor.
+    VusbMonitor,
 }
 
 /// An inclusive frequency range, in Hz.

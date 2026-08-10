@@ -1,7 +1,7 @@
 use std::{collections::HashSet, sync::LazyLock};
 
 use anyhow::bail;
-use mspm0_data_types::{Chip, PeripheralType, PowerDomain};
+use mspm0_data_types::{AdcInternalSource, Chip, PeripheralType, PowerDomain};
 use regex::Regex;
 
 /// Run every check, returning one error per failure.
@@ -13,6 +13,8 @@ pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
         peripheral_types_known,
         register_blocks_exist,
         vref_startup_known,
+        adc_channels_known,
+        adc_internal_sources_exist,
         // Peripherals which don't actually exist
         no_gpamp_c110x_l151x,
         // Low power data which is only as complete as the data sources
@@ -108,6 +110,73 @@ fn vref_startup_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
                 peripheral.name,
                 chip.family
             );
+        }
+    }
+
+    Ok(())
+}
+
+/// Report an ADC instance with no internal-channel data.
+///
+/// Every datasheet so far has the channel-mapping table, so an empty map means
+/// `data/adc_channels/<family>.yaml` is missing or the extraction lost the instance, not a device
+/// without internal channels.
+fn adc_channels_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    for peripheral in chip
+        .peripherals
+        .values()
+        .filter(|peripheral| peripheral.ty == PeripheralType::Adc)
+    {
+        let empty = peripheral
+            .adc
+            .as_ref()
+            .is_none_or(|adc| adc.internal_channels.is_empty());
+        if empty {
+            bail!(
+                "{name}: {} has no internal channels; data/adc_channels/{}.yaml is missing or lost \
+                 the instance",
+                peripheral.name,
+                chip.family
+            );
+        }
+    }
+
+    Ok(())
+}
+
+/// An internal channel naming a peripheral instance requires that instance to exist.
+///
+/// This is the check that separates the datasheets from the SDK's family-superset tables, which
+/// route the OPA outputs on families that have no OPA.
+fn adc_internal_sources_exist(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    for peripheral in chip
+        .peripherals
+        .values()
+        .filter(|peripheral| peripheral.ty == PeripheralType::Adc)
+    {
+        let Some(adc) = &peripheral.adc else {
+            continue;
+        };
+
+        for (channel, source) in &adc.internal_channels {
+            let instance = match source {
+                AdcInternalSource::Opa0 => "OPA0",
+                AdcInternalSource::Opa1 => "OPA1",
+                AdcInternalSource::Gpamp => "GPAMP",
+                AdcInternalSource::Dac0 => "DAC0",
+                AdcInternalSource::Vref => "VREF",
+                AdcInternalSource::TemperatureSensor
+                | AdcInternalSource::SupplyMonitor
+                | AdcInternalSource::VbatMonitor
+                | AdcInternalSource::VusbMonitor => continue,
+            };
+
+            if !chip.peripherals.contains_key(instance) {
+                bail!(
+                    "{name}: {} channel {channel} samples {instance}, which the chip does not have",
+                    peripheral.name
+                );
+            }
         }
     }
 
