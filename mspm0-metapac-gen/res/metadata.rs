@@ -280,9 +280,12 @@ pub struct Flashctl {
     /// assume TI's portfolio-wide driverlib constant holds for a part it was never checked on.
     pub sector_bytes: u32,
 
-    /// The flash word — the minimum programming unit — in bytes. 8 on every device except the
-    /// G518x's 16. Data written per program command must be a multiple of this, and a word can
-    /// only be programmed once per erase.
+    /// The widest single program command in bytes. 8 on every device except the G518x's 16,
+    /// which programs two flash words in one command (TI's `programMemory128` sets
+    /// `CMDTYPE.SIZE` to `TWO_WORDS`). Not the minimum programming unit: the flash word is
+    /// 8 bytes on every device, the G518x included ("Flash word size is 64 data bits (8 bytes)"
+    /// in its own datasheet), and a word can only be programmed once per erase. The value is the
+    /// header's `FLASHCTL_SYS_DATAWIDTH`, whose comment miscalls it the flash-word width.
     pub word_bytes: u8,
 
     /// Implemented bits in `CMDWEPROTA`, each write-protecting one sector of physical bank 0.
