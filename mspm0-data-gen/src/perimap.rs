@@ -47,9 +47,10 @@ pub static PERIMAP: RegexMap<&str> = RegexMap::new(&[
     ("msps003fx:sysctl", "c110x"),
     ("mspm0g..0x:sysctl", "g350x_g310x_g150x_g110x"),
     ("mspm0g..1x:sysctl", "g351x_g151x"),
-    // G511x/G518x have no reference manual of their own yet, so they borrow the G350x SYSCTL.
-    // Split them out when one is published.
-    ("mspm0g5..x:sysctl", "g350x_g310x_g150x_g110x"),
+    // Derived from the G351x block: same flash-protection and security region, minus the SRAM
+    // bank-1 registers and CANCLKSRC, plus the USB FLL. TI's own header and SVD for the family
+    // describe it; only the TRM still lags.
+    ("mspm0g518x:sysctl", "g518x"),
     ("mspm0h321x:sysctl", "h321x"),
     ("mspm0l..0x:sysctl", "l110x_l130x_l134x"),
     ("mspm0l134x:sysctl", "l110x_l130x_l134x"),
