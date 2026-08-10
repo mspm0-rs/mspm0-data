@@ -61,10 +61,11 @@ These are the data sources currently used.
     ([`data/timers/`](./data/timers))
   * How long the device takes to reach RUN from each sleep mode, from the wake-up timing table
     ([`data/wakeup/`](./data/wakeup))
-  * How long VREF takes to settle after being enabled, from the `Tstartup` row
-    ([`data/vref/`](./data/vref)). `CTL1.READY` would answer it, but `VREF_ERR_01` leaves that bit
-    set after the first enable since reset. On an affected device the datasheet figure is the only
-    signal
+  * How long VREF takes to settle after being enabled, from the `Tstartup` row, and whether the
+    internal reference is buffered out to the `VREF+` pin, from the output drive-strength row
+    ([`data/vref/`](./data/vref)). `CTL1.READY` would answer the first, but `VREF_ERR_01` leaves
+    that bit set after the first enable since reset. On an affected device the datasheet figure is
+    the only signal
   * Which ADC channels sample an internal signal instead of a pin (the temperature sensor, the
     OPA, GPAMP and DAC outputs, the internal reference, the supply monitors), from the ADC
     channel-mapping table ([`data/adc_channels/`](./data/adc_channels)). The SDK states the same
@@ -80,6 +81,9 @@ These are the data sources currently used.
   * Which functional advisories apply ([`data/errata/`](./data/errata))
 * Manually entered
   * IIDX values for interrupts within a `INT_GROUP`
+  * What each OPA input-mux position selects ([`data/opa/`](./data/opa)), including which peer
+    instance the cascade positions reach. Hand-curated because the L-series datasheet publishes it
+    only as a figure — one it promises as tables it does not contain
   * Whether the device has `MCLKCFG.UDIV` and the STOP1 sub-mode (`clock_tree` in
     [`parts.yaml`](./data/parts.yaml)). Neither can be keyed off the SYSCTL version: MSPM0L112x and
     MSPM0L211x share `sysctl_l122x_l222x` with MSPM0L122x and MSPM0L222x, but have no STOP1
