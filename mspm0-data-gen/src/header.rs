@@ -68,7 +68,9 @@ pub struct Header {
 /// header gives it zero width, the same superset-IP pattern as elsewhere.
 #[derive(Debug, Clone, Copy)]
 pub struct HeaderFlash {
-    /// Bits in one flash word, the minimum programming unit. 64 everywhere except the G518x's 128.
+    /// Bits the widest single program command writes. 64 everywhere except the G518x's 128, which
+    /// programs two flash words at once — the flash word itself is 64 bits on every device, and
+    /// the header's own comment calling this the word width is wrong.
     pub datawidth_bits: u8,
 
     /// Implemented bits in `CMDWEPROTA`, one sector each. 0 means the register does not exist and
