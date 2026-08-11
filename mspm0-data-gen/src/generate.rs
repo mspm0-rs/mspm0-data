@@ -8,9 +8,9 @@ use std::{
 
 use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
-    Adc, Chip, Comp, Dma, DmaChannel, Flashctl, Interrupt, Memory, MemoryKind, Package, PackagePin,
-    Peripheral, PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain, PowerMode, Sysctl,
-    Timer, Uart, Unicomm, Vref,
+    Adc, Chip, Comp, Dma, DmaChannel, Flashctl, Interrupt, IoStructure, Memory, MemoryKind, Package,
+    PackagePin, Peripheral, PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain,
+    PowerMode, Sysctl, Timer, Uart, Unicomm, Vref,
 };
 use regex::Regex;
 
@@ -65,6 +65,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
     // Data shared across all chips in a family.
     let packages = get_packages(&family.family, sysconfig)?;
     let iomux = generate_pincm(sysconfig)?;
+    let io_structure = generate_io_structure(&family.family, sysconfig)?;
     let wakeup_pins = generate_wakeup_pins(sysconfig);
     let mut peripherals = generate_peripherals2(&family.family, header, sysconfig)?;
     let interrupts = generate_irqs(&family.family, header, int_groups)?;
@@ -127,6 +128,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
                 .collect::<anyhow::Result<_>>()?,
             packages: packages.collect(),
             iomux: iomux.clone(),
+            io_structure: io_structure.clone(),
             wakeup_pins: wakeup_pins.clone(),
             peripherals: peripherals.clone(),
             interrupts: interrupts.clone(),
@@ -199,6 +201,53 @@ fn get_packages(family: &str, sysconfig: &SysconfigFile) -> anyhow::Result<Vec<P
     }
 
     Ok(packages)
+}
+
+/// Read each pin's IO structure from sysconfig's `io_type`.
+///
+/// An unrecognised value is an error rather than a skipped pin: the structure decides which PINCM
+/// fields do anything, so a pin quietly missing from the map would read as a pin with no
+/// restrictions.
+fn generate_io_structure(
+    family: &str,
+    sysconfig: &SysconfigFile,
+) -> anyhow::Result<BTreeMap<String, IoStructure>> {
+    let mut structures = BTreeMap::new();
+
+    for device_pin in sysconfig.device_pins.values() {
+        // Multi-bonded pins are listed separately under each function, as in generate_pincm.
+        if device_pin.name.contains('/') {
+            continue;
+        }
+
+        // A pin with no PINCM is not usable as I/O, and sysconfig gives those no io_type either.
+        if device_pin.attributes.iomux_pincm.parse::<u32>().is_err() {
+            continue;
+        }
+
+        let io_type = device_pin.attributes.io_type.as_deref().context(format!(
+            "{family}: {} has a PINCM but no io_type",
+            device_pin.name
+        ))?;
+
+        let structure = match io_type {
+            "SD" => IoStructure::Standard,
+            "SDL" => IoStructure::StandardLowLeakage,
+            "SDW" => IoStructure::StandardWithWake,
+            "HD" => IoStructure::HighDrive,
+            "HS" => IoStructure::HighSpeed,
+            "OD" => IoStructure::OpenDrain,
+            "USB" => IoStructure::Usb,
+            other => bail!(
+                "{family}: {} has the unknown io_type {other}",
+                device_pin.name
+            ),
+        };
+
+        structures.insert(device_pin.name.to_string(), structure);
+    }
+
+    Ok(structures)
 }
 
 fn generate_pincm(sysconfig: &SysconfigFile) -> anyhow::Result<BTreeMap<String, u32>> {

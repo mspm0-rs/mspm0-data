@@ -1,8 +1,8 @@
 use std::{collections::HashSet, sync::LazyLock};
 
 use mspm0_data_types::{
-    AdcInternalSource, Chip, MemoryKind, Package, Peripheral, PeripheralType, PowerDomain,
-    PowerMode,
+    AdcInternalSource, Chip, IoStructure, MemoryKind, Package, Peripheral, PeripheralType,
+    PowerDomain, PowerMode,
 };
 use proc_macro2::{Literal, TokenStream};
 use quote::quote;
@@ -36,7 +36,18 @@ pub fn pins(chip: &Chip, package: &Package) -> TokenStream {
             None => quote! { None },
         };
 
-        Some(quote! { Pin { pin: #signal, pincm: #pincm, wakeup: #wakeup } })
+        let structure = match chip.io_structure.get(signal) {
+            Some(IoStructure::Standard) => quote! { IoStructure::Standard },
+            Some(IoStructure::StandardLowLeakage) => quote! { IoStructure::StandardLowLeakage },
+            Some(IoStructure::StandardWithWake) => quote! { IoStructure::StandardWithWake },
+            Some(IoStructure::HighDrive) => quote! { IoStructure::HighDrive },
+            Some(IoStructure::HighSpeed) => quote! { IoStructure::HighSpeed },
+            Some(IoStructure::OpenDrain) => quote! { IoStructure::OpenDrain },
+            Some(IoStructure::Usb) => quote! { IoStructure::Usb },
+            None => panic!("{signal} has a PINCM but no IO structure"),
+        };
+
+        Some(quote! { Pin { pin: #signal, pincm: #pincm, wakeup: #wakeup, structure: #structure } })
     });
 
     quote! { &[#(#pins),*] }

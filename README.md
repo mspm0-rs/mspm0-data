@@ -39,6 +39,8 @@ These are the data sources currently used.
   * Peripheral PF (pin function) mappings.
   * Peripheral pin names.
   * Which pins have wakeup logic (`io_wakeup`).
+  * Which IO structure each pin is built from (`io_type`), and so which of its PINCM fields do
+    anything. Corroborated per pin by the datasheets' pin-attributes tables.
   * Number of ADC conversion channels (`SYS_ADC_MEMCTL_DIM`).
   * How many counters a basic timer instance has (`SYS_NUM_COUNTERS`), and a cross-check of the
     datasheet's capture/compare channel counts (`SYS_NUM_CC`).

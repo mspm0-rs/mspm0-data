@@ -1,7 +1,7 @@
 use std::{collections::HashSet, sync::LazyLock};
 
 use anyhow::bail;
-use mspm0_data_types::{AdcInternalSource, Chip, PeripheralType, PowerDomain};
+use mspm0_data_types::{AdcInternalSource, Chip, IoStructure, PeripheralType, PowerDomain};
 use regex::Regex;
 
 /// Run every check, returning one error per failure.
@@ -35,6 +35,7 @@ pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
         clock_frequencies_consistent,
         retention_known,
         wakeup_pins_known,
+        io_structures_known,
     ];
 
     CHECKS
@@ -342,6 +343,37 @@ fn flashctl_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
                  words, so the header read likely broke",
                 peripheral.name,
                 flashctl.word_bytes,
+            );
+        }
+    }
+
+    Ok(())
+}
+
+/// Every pin has an IO structure, and no pin wakes the device without the logic to do it.
+///
+/// The second half is a subset check, not an equality: a structure which can carry wakeup logic
+/// does not always have it — the mspm0c110x's open-drain pins do not.
+fn io_structures_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    for pin in chip.iomux.keys() {
+        if !chip.io_structure.contains_key(pin) {
+            bail!("{name}: {pin} has a PINCM but no IO structure");
+        }
+    }
+
+    let Some(wakeup_pins) = &chip.wakeup_pins else {
+        return Ok(());
+    };
+
+    for pin in wakeup_pins {
+        let structure = chip.io_structure.get(pin);
+        if !matches!(
+            structure,
+            Some(IoStructure::StandardWithWake | IoStructure::HighDrive | IoStructure::OpenDrain)
+        ) {
+            bail!(
+                "{name}: {pin} wakes the device from SHUTDOWN but is {structure:?}, which has no \
+                 wakeup logic"
             );
         }
     }

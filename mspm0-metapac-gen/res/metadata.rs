@@ -807,6 +807,70 @@ pub struct Pin {
     /// `None` when the vendor data does not describe wakeup logic for this chip, which is not the
     /// same as `Some(false)`.
     pub wakeup: Option<bool>,
+
+    /// Which IO structure the pin is built from, and so which of its PINCM fields do anything.
+    pub structure: IoStructure,
+}
+
+/// The IO structure a pin is built from, which decides what its PINCM fields do.
+///
+/// The IOMUX register is the same for every pin, so a field a pin's structure does not implement
+/// is written, read back, and ignored. What each structure implements:
+///
+/// | structure | `INV` | `DRV` | `HYSTEN` | `PIPU` | `PIPD` | wake |
+/// |---|---|---|---|---|---|---|
+/// | [`Standard`](IoStructure::Standard), [`StandardLowLeakage`](IoStructure::StandardLowLeakage) | yes | | | yes | yes | |
+/// | [`StandardWithWake`](IoStructure::StandardWithWake) | yes | | | yes | yes | yes |
+/// | [`HighDrive`](IoStructure::HighDrive) | yes | yes | | yes | yes | yes |
+/// | [`HighSpeed`](IoStructure::HighSpeed) | yes | yes | | yes | yes | |
+/// | [`OpenDrain`](IoStructure::OpenDrain) | yes | | yes | | yes | yes |
+///
+/// The table is SLAU846 Table 8-1, and TI's own `GPIOPin.syscfg.js` gates its options by exactly
+/// these rules. Three caveats before treating it as complete:
+///
+/// - **Wake is not derivable from the structure.** On mspm0c110x and msps003fx the open-drain
+///   pins have no wakeup logic — sysconfig marks `io_wakeup` false on them, and the C1104
+///   datasheet's feature table has no wakeup column at all. Use [`Pin::wakeup`].
+/// - **The per-device feature tables are not reliable in either direction.** The MSPM0G3519's
+///   omits the open-drain row although its own pin table gives PA0 and PA1 that structure; the
+///   MSPM0L2117's carries two low-drive rows although no pin on the device is low-drive; the
+///   MSPM0L2117's also leaves high-drive's drive-strength cell empty against every other
+///   datasheet, the TRM and TI's own tool; and the MSPM0H3216's marks no structure as having a
+///   pulldown. Per-pin data is the reliable part.
+/// - **Not every device has every structure**, and no device has all of them.
+///
+/// The source is sysconfig's per-pin `io_type`, which the datasheets' per-pin tables corroborate
+/// with no disagreement on any pin of any family.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub enum IoStructure {
+    /// Standard drive (`SDIO`).
+    Standard,
+
+    /// Standard drive, low leakage (`SDL` in sysconfig, which TI's tool calls "Low-leakage
+    /// Standard"). The datasheets' pin tables print it as plain standard drive, and every rule in
+    /// TI's tool treats the two identically, so the difference is leakage current rather than
+    /// anything the IOMUX can express.
+    ///
+    /// One pin per family on the older G and L families — PA2 everywhere it appears — and every
+    /// pin of msps003fx.
+    StandardLowLeakage,
+
+    /// Standard drive with wakeup logic (`SDIO` with wake).
+    StandardWithWake,
+
+    /// High drive (`HDIO`), the 20mA output.
+    HighDrive,
+
+    /// High speed (`HSIO`).
+    HighSpeed,
+
+    /// 5V-tolerant open drain (`ODIO`). The only structure with hysteresis control, and the only
+    /// one with no pullup: `PIPU` on one of these pins does nothing.
+    OpenDrain,
+
+    /// A USB 2.0 full-speed pin (`USBIO`), on mspm0g518x only. Powered from `VUSB33` rather than
+    /// `VDD`, and treated as standard drive by TI's tool.
+    Usb,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
