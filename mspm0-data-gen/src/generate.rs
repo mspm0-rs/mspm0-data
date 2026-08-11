@@ -1189,16 +1189,26 @@ fn apply_dma(
     svd: Option<&Svd>,
     peripherals: &mut BTreeMap<String, Peripheral>,
 ) -> anyhow::Result<()> {
-    // The SVD enumerates `LONGLONG` exactly where the header defines the constant, on all fifteen
-    // families which have one, so a disagreement means a source bump changed one of them.
+    // The SVD enumerates `LONGLONG` and carries `DMAAUTOEN` exactly where the header defines the
+    // matching constant, on all fifteen families which have one, so a disagreement means a source
+    // bump changed one of them.
     if let Some(svd) = svd {
-        ensure!(
-            svd.dma_long_long == header.dma_long_long,
-            "{}: the header {} 128-bit DMA transfers but the SVD {}",
-            family.family,
-            if header.dma_long_long { "has" } else { "lacks" },
-            if svd.dma_long_long { "has" } else { "lacks" },
-        );
+        for (feature, from_header, from_svd) in [
+            ("128-bit DMA transfers", header.dma_long_long, svd.dma_long_long),
+            (
+                "the DMA's automatic enable",
+                header.dma_auto_enable,
+                svd.dma_auto_enable,
+            ),
+        ] {
+            ensure!(
+                from_header == from_svd,
+                "{}: the header {} {feature} but the SVD {}",
+                family.family,
+                if from_header { "has" } else { "lacks" },
+                if from_svd { "has" } else { "lacks" },
+            );
+        }
     }
 
     for peripheral in peripherals
@@ -1207,6 +1217,7 @@ fn apply_dma(
     {
         peripheral.dma = Some(Dma {
             long_long_transfers: header.dma_long_long,
+            auto_enable: header.dma_auto_enable,
         });
     }
 

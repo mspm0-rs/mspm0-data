@@ -26,6 +26,11 @@ const BLOCK_ASYNC: &str = "BLOCKASYNC";
 /// Enumerated only by the SVDs of devices which implement the width.
 const LONG_LONG: &str = "LONGLONG";
 
+/// The `DMACTL` field which enables a channel on a write to its address or size registers.
+///
+/// Present only in the SVDs of devices which implement it.
+const AUTO_ENABLE: &str = "DMAAUTOEN";
+
 /// One `<peripheral>` element, capturing its `derivedFrom` if it has one.
 static PERIPHERAL: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
@@ -74,6 +79,13 @@ pub struct Svd {
     ///
     /// A cross-check on the header's `DMA_SYS_MMR_LLONG`, not a source: four families have no SVD.
     pub dma_long_long: bool,
+
+    /// Whether `DMACTL` has the `DMAAUTOEN` field, cross-checking `DMA_SYS_MMR_AUTO` the same way.
+    ///
+    /// The SVDs only describe fields the device implements here, which is what makes both checks
+    /// worth having — `DMASRCINCR`'s stride encodings and `DMAEM` are in every SVD, including the
+    /// families whose header says those two features are absent.
+    pub dma_auto_enable: bool,
 }
 
 impl Svd {
@@ -114,6 +126,7 @@ impl Svd {
         Ok(Self {
             block_async,
             dma_long_long: content.contains(&format!("<name>{LONG_LONG}</name>")),
+            dma_auto_enable: content.contains(&format!("<name>{AUTO_ENABLE}</name>")),
         })
     }
 }

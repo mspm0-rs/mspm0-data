@@ -531,8 +531,10 @@ fn generate_peripheral(
     let dma = match peripheral.dma {
         Some(dma) => {
             let long_long_transfers = dma.long_long_transfers;
+            let auto_enable = dma.auto_enable;
             quote! { Some(Dma {
                 long_long_transfers: #long_long_transfers,
+                auto_enable: #auto_enable,
             }) }
         }
         None => quote! { None },

@@ -57,6 +57,11 @@ pub struct Header {
     /// "Long long (128-bit) transfer" row a tick. driverlib gates `DL_DMA_WIDTH_LONG_LONG` on the
     /// same constant.
     pub dma_long_long: bool,
+
+    /// Whether the DMA implements automatic channel enable, from `DMA_SYS_MMR_AUTO`.
+    ///
+    /// Read separately from `dma_long_long` although the two constants have never disagreed.
+    pub dma_auto_enable: bool,
     // TODO: Available IOMUX indices
     // TODO: PF values (for non-analog)
     // TODO: DMA triggers (used for dma transfers)
@@ -109,6 +114,7 @@ impl Header {
             nvic_priority_bits,
             flash,
             dma_long_long: content.contains("DMA_SYS_MMR_LLONG"),
+            dma_auto_enable: content.contains("DMA_SYS_MMR_AUTO"),
         })
     }
 

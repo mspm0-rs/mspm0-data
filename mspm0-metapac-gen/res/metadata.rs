@@ -300,6 +300,19 @@ pub struct Dma {
     /// `DMAChannel.syscfg.js` gates the option on a family list missing four families that have
     /// it.
     pub long_long_transfers: bool,
+
+    /// Whether `DMACTL.AUTOEN` does anything. The field is in the register block on every device,
+    /// because one block serves them all, but the older DMA implements no automatic enable and
+    /// writing it there is accepted and ignored.
+    ///
+    /// True on exactly the same seven families as [`Dma::long_long_transfers`] — the two features
+    /// arrived together, and the header states them as separate constants
+    /// (`DMA_SYS_MMR_AUTO`) which have never disagreed. Recorded separately anyway: nothing says
+    /// TI must keep shipping them as a pair.
+    ///
+    /// Same three sources, agreeing on all 18 families: the header constant, the presence of the
+    /// `DMAAUTOEN` field in the SVDs which have one, and the datasheet's "Auto enable" row.
+    pub auto_enable: bool,
 }
 
 /// The parts of the SYSCTL which its register block does not describe.
