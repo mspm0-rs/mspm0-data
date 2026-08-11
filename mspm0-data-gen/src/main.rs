@@ -16,6 +16,7 @@ mod timers;
 mod uart;
 mod util;
 mod verify;
+mod temp_sensor;
 mod vref;
 mod wakeup;
 
@@ -87,6 +88,7 @@ fn main() -> anyhow::Result<()> {
     let wake = wakeup::parse()?;
     let vref = vref::parse()?;
     let comp = comp::parse()?;
+    let temp_sensor = temp_sensor::parse()?;
     let parts = parts::PartsFile::read()?;
 
     // TODO: Expanded family names (ex. C110X -> C1103 & C1104)
@@ -107,6 +109,7 @@ fn main() -> anyhow::Result<()> {
         wake,
         vref,
         comp,
+        temp_sensor,
     };
 
     stopwatch.section("Generate data");

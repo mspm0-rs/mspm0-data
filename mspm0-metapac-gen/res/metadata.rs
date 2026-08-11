@@ -65,6 +65,86 @@ pub struct Metadata {
 
     /// How long this device takes to reach RUN from each sleep mode.
     pub wake_ns: WakeTimes,
+
+    /// What `FACTORYREGION.TEMP_SENSE0` has to be combined with to give a temperature.
+    ///
+    /// `None` where the datasheet's temperature sensor rows have not been transcribed.
+    pub temperature_sensor: Option<TemperatureSensor>,
+}
+
+/// The temperature sensor's conversion constants.
+///
+/// `FACTORYREGION.TEMP_SENSE0` holds one ADC code per device: the sensor's output at the factory
+/// trim temperature, in 12-bit mode. It means nothing on its own. The temperature of a later
+/// reading is
+///
+/// ```text
+/// T = (V_sample - V_trim) / tsc + tstrim
+/// ```
+///
+/// where `V_trim` is `TEMP_SENSE0` scaled by the reference the factory used, and `V_sample` is the
+/// live code scaled by the reference the driver used. Those two references are not always the same
+/// one, which is what `calibration_reference` is for.
+///
+/// None of these has a machine-readable source: no register holds them, no SDK header defines them
+/// and sysconfig has no attribute for them. They come from the datasheet's Temperature Sensor rows.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct TemperatureSensor {
+    /// The factory trim temperature in degrees Celsius, from the `TSTRIM` row's TYP column. 30 on
+    /// every device so far; the MIN and MAX columns say the trim was taken somewhere in 27-33, so
+    /// a consumer wanting an error bound has one.
+    pub tstrim_c: i16,
+
+    /// The sensor's slope in microvolts per degree Celsius, from the `TSc` row's TYP column.
+    /// Always negative -- the output falls as the die warms. Ranges -1750 to -1900 across the
+    /// portfolio, so it cannot be assumed.
+    pub tsc_uv_per_c: i32,
+
+    /// The ADC sample window the sensor needs, in nanoseconds: the MAX of the datasheet's
+    /// `tSET,TS` row.
+    ///
+    /// **This is a minimum sample time, not a settling figure to note and move past.** The
+    /// datasheets' own footnote says so: "This is the maximum time required for the temperature
+    /// sensor to settle when measured by the ADC. It may be used to specify the minimum ADC sample
+    /// time." Sampling faster returns a plausible number that is wrong, with nothing to indicate
+    /// it. 10us or 12.5us depending on the family.
+    ///
+    /// `None` on mspm0l122x and mspm0l222x, whose shared datasheet has no such row.
+    pub settling_ns: Option<u32>,
+
+    /// The ADC sample window the factory measurement itself used, in nanoseconds.
+    ///
+    /// Not always `settling_ns`: the older L datasheets state a 12.5us calibration sample against
+    /// their own 10us settling maximum. Reproducing the factory measurement and merely letting the
+    /// sensor settle are different requirements, and the wider of the two is safe for both.
+    ///
+    /// `None` where the datasheet does not state it.
+    pub calibration_sample_ns: Option<u32>,
+
+    /// Which ADC reference `TEMP_SENSE0` was measured against.
+    ///
+    /// **A driver reading the sensor against a different reference has to scale `TEMP_SENSE0` by
+    /// this one, not by its own.** Getting it wrong does not produce a small error: on an L1306,
+    /// converting against VDD instead of the 1.4V reference turns 26.8C into 527C.
+    ///
+    /// It genuinely varies per device -- VDD on the four older G families, the 1.4V internal
+    /// reference on ten families, 4.05V on mspm0h321x -- so there is no portfolio default to fall
+    /// back on, and no register or header states it.
+    pub calibration_reference: CalibrationReference,
+}
+
+/// The ADC reference a device's temperature sensor was calibrated against.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub enum CalibrationReference {
+    /// `VRSEL = 0h`, the supply, stated as 3.3V. mspm0g110x, mspm0g150x, mspm0g310x and
+    /// mspm0g350x.
+    Vdd,
+
+    /// `VRSEL = 2h` with the 1.4V internal reference buffer.
+    Internal1V4,
+
+    /// `VRSEL = 4h`, the 4.05V internal reference. mspm0h321x only.
+    Internal4V05,
 }
 
 /// Time to reach RUN from each sleep mode, in nanoseconds.

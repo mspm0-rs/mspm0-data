@@ -6,7 +6,7 @@
 
 use std::collections::BTreeMap;
 
-use mspm0_data_types::{Vref, WakeTimes};
+use mspm0_data_types::{TemperatureSensor, Vref, WakeTimes};
 
 use crate::{
     adc_channels::AdcChannels,
@@ -41,6 +41,7 @@ pub struct Sources {
     pub wake: BTreeMap<String, WakeTimes>,
     pub vref: BTreeMap<String, Vref>,
     pub comp: BTreeMap<String, CompTiming>,
+    pub temp_sensor: BTreeMap<String, TemperatureSensor>,
 }
 
 /// What one family is described by.
@@ -61,6 +62,7 @@ pub struct FamilySources<'a> {
     pub wake: Option<WakeTimes>,
     pub vref: Option<Vref>,
     pub comp: Option<CompTiming>,
+    pub temp_sensor: Option<TemperatureSensor>,
 
     /// Not narrowed to the family: `generate_irqs` looks groups up per chip, not per family.
     pub int_groups: &'a BTreeMap<String, Groups>,
@@ -104,6 +106,7 @@ impl Sources {
             wake: self.wake.get(family).copied(),
             vref: self.vref.get(family).copied(),
             comp: self.comp.get(family).copied(),
+            temp_sensor: self.temp_sensor.get(family).copied(),
             int_groups: &self.int_groups,
         })
     }

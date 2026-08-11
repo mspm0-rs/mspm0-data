@@ -59,6 +59,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
         wake,
         vref,
         comp,
+        temp_sensor,
         int_groups,
     } = *sources;
 
@@ -142,6 +143,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
             clock_tree,
             errata: errata.map(|e| e.errata.clone()).unwrap_or_default(),
             wake_ns: wake.unwrap_or_default(),
+            temperature_sensor: temp_sensor,
         };
 
         for err in verify::verify(&chip, &part_number.name) {

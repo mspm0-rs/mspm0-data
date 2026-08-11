@@ -36,6 +36,7 @@ pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
         retention_known,
         wakeup_pins_known,
         io_structures_known,
+        temperature_sensor_known,
     ];
 
     CHECKS
@@ -345,6 +346,30 @@ fn flashctl_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
                 flashctl.word_bytes,
             );
         }
+    }
+
+    Ok(())
+}
+
+/// The temperature sensor's conversion constants are present and the slope has the right sign.
+///
+/// Every datasheet so far states all of them, so an absent set means the extraction lost a family
+/// rather than a device without a sensor. The sign check is the cheap guard against a MIN/TYP/MAX
+/// column misread: the sensor's output falls as the die warms on every device.
+fn temperature_sensor_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    let Some(sensor) = chip.temperature_sensor else {
+        bail!(
+            "{name}: no temperature sensor constants; data/temp_sensor/{}.yaml is missing",
+            chip.family
+        );
+    };
+
+    if sensor.tsc_uv_per_c >= 0 {
+        bail!(
+            "{name}: the temperature coefficient is {}uV/C, but the sensor's output falls as the \
+             die warms on every device",
+            sensor.tsc_uv_per_c,
+        );
     }
 
     Ok(())

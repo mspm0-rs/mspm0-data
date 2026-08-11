@@ -6,7 +6,7 @@ use std::{
 };
 
 use anyhow::Context;
-use mspm0_data_types::{Chip, Package};
+use mspm0_data_types::{CalibrationReference, Chip, Package};
 use proc_macro2::Literal;
 use quote::quote;
 
@@ -195,6 +195,30 @@ fn generate_chip_metadata(
         }
     };
 
+    let temperature_sensor = match &chip.temperature_sensor {
+        Some(sensor) => {
+            let tstrim_c = Literal::i16_unsuffixed(sensor.tstrim_c);
+            let tsc_uv_per_c = Literal::i32_unsuffixed(sensor.tsc_uv_per_c);
+            let settling_ns = ns(sensor.settling_ns);
+            let calibration_sample_ns = ns(sensor.calibration_sample_ns);
+            let reference = match sensor.calibration_reference {
+                CalibrationReference::Vdd => quote!(CalibrationReference::Vdd),
+                CalibrationReference::Internal1V4 => quote!(CalibrationReference::Internal1V4),
+                CalibrationReference::Internal4V05 => quote!(CalibrationReference::Internal4V05),
+            };
+            quote! {
+                Some(TemperatureSensor {
+                    tstrim_c: #tstrim_c,
+                    tsc_uv_per_c: #tsc_uv_per_c,
+                    settling_ns: #settling_ns,
+                    calibration_sample_ns: #calibration_sample_ns,
+                    calibration_reference: #reference,
+                })
+            }
+        }
+        None => quote!(None),
+    };
+
     // Memory is the one part of the metadata which varies by part number rather than by family
     let memory = metadata::memory(chip);
     let include = format!("../{deduped_file}");
@@ -222,6 +246,7 @@ fn generate_chip_metadata(
             clock_tree: #clock_tree,
             errata: &[#(#errata),*],
             wake_ns: #wake_ns,
+            temperature_sensor: #temperature_sensor,
         };
     }
     .to_string();
