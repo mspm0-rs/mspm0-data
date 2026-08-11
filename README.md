@@ -88,6 +88,10 @@ These are the data sources currently used.
   * Which functional advisories apply ([`data/errata/`](./data/errata))
 * Manually entered
   * IIDX values for interrupts within a `INT_GROUP`
+  * Whether the BOR warning thresholds BOR1–BOR3 exist (`bor_warning_levels` in
+    [`parts.yaml`](./data/parts.yaml)), from each datasheet's `VBOR1`–`VBOR3` rows. The SVDs
+    enumerate four levels on every device, and driverlib's per-family enums disagree with the
+    datasheets in both directions, so only the datasheet answers
   * The flash erase-sector size (`flash_sector_bytes` in [`parts.yaml`](./data/parts.yaml)), from
     each datasheet's "minimum erase resolution" bullet. 1KB everywhere so far, recorded per family
     so no driver has to trust driverlib's single portfolio-wide constant

@@ -59,6 +59,11 @@ pub struct PartFamily {
     /// bullet. 1024 on every family so far; stated per device so the question stays closed.
     pub flash_sector_bytes: u32,
 
+    /// Whether the BOR warning thresholds BOR1–BOR3 exist, from the datasheet's `VBOR1`–`VBOR3`
+    /// rows. False only on mspm0h321x so far. The register interface and the SVDs cannot say,
+    /// and driverlib's per-family enums contradict the datasheets in both directions.
+    pub bor_warning_levels: bool,
+
     /// The parts of the clock tree with no machine-readable source.
     pub clock_tree: ClockTreeSpec,
 

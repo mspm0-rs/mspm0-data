@@ -26,6 +26,9 @@ families:
   # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
   # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
   flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
   clock_tree:
     ulpclk_div: false
     stop1: false
@@ -72,6 +75,9 @@ families:
   # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
   # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
   flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
   clock_tree:
     ulpclk_div: false
     stop1: false
@@ -124,6 +130,9 @@ families:
   # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
   # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
   flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
   clock_tree:
     hfclk_hz: { min: 4000000, max: 32000000 } # fHFXT and fHFIN
     ulpclk_div: false
@@ -188,6 +197,9 @@ families:
   # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
   # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
   flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
   clock_tree:
     hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
     ulpclk_div: true
@@ -261,6 +273,9 @@ families:
   # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
   # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
   flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
   clock_tree:
     hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
     ulpclk_div: true
@@ -334,6 +349,9 @@ families:
   # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
   # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
   flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
   clock_tree:
     hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
     ulpclk_div: true
@@ -420,6 +438,9 @@ families:
   # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
   # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
   flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
   clock_tree:
     hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
     ulpclk_div: true
@@ -483,6 +504,9 @@ families:
   # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
   # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
   flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
   clock_tree:
     hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
     ulpclk_div: true
@@ -552,6 +576,9 @@ families:
   # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
   # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
   flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
   clock_tree:
     hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
     ulpclk_div: true
@@ -637,6 +664,9 @@ families:
   # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
   # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
   flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
   clock_tree:
     hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
     ulpclk_div: true
@@ -679,6 +709,9 @@ families:
   # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
   # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
   flash_sector_bytes: 1024
+  # The H3216 datasheet publishes no VBOR1-VBOR3 rows and qualifies its BOR hysteresis
+  # "Level 0": BOR0 is the only threshold.
+  bor_warning_levels: false
   clock_tree:
     hfclk_hz: { min: 4000000, max: 32000000 } # fHFXT and fHFIN
     ulpclk_div: false
@@ -724,6 +757,9 @@ families:
   # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
   # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
   flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
   clock_tree:
     ulpclk_div: false
     stop1: true
@@ -778,6 +814,9 @@ families:
   # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
   # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
   flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
   clock_tree:
     hfclk_hz: { min: 4000000, max: 32000000 } # fHFXT and fHFIN
     ulpclk_div: false
@@ -845,6 +884,9 @@ families:
   # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
   # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
   flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
   clock_tree:
     hfclk_hz: { min: 4000000, max: 32000000 } # fHFXT and fHFIN
     ulpclk_div: false
@@ -904,6 +946,9 @@ families:
   # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
   # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
   flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
   clock_tree:
     ulpclk_div: false
     stop1: true
@@ -984,6 +1029,9 @@ families:
   # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
   # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
   flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
   clock_tree:
     ulpclk_div: false
     stop1: true
@@ -1050,6 +1098,9 @@ families:
   # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
   # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
   flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
   clock_tree:
     hfclk_hz: { min: 4000000, max: 32000000 } # fHFXT and fHFIN
     ulpclk_div: false
@@ -1117,6 +1168,9 @@ families:
   # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
   # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
   flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
   clock_tree:
     hfclk_hz: { min: 4000000, max: 32000000 } # fHFXT and fHFIN
     ulpclk_div: false

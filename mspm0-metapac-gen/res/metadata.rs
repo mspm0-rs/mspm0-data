@@ -265,6 +265,34 @@ pub struct Peripheral {
     ///
     /// `None` for peripherals which are not the FLASHCTL.
     pub flashctl: Option<Flashctl>,
+
+    /// The parts of the SYSCTL which its register block does not describe.
+    ///
+    /// `None` for peripherals which are not the SYSCTL.
+    pub sysctl: Option<Sysctl>,
+}
+
+/// The parts of the SYSCTL which its register block does not describe.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct Sysctl {
+    /// Whether the BOR warning thresholds BOR1–BOR3 exist. When true, `BORTHRESHOLD.LEVEL`
+    /// values 1–3 arm an early-warning interrupt above the BOR0 reset level; when false the
+    /// device implements only BOR0 and the upper `LEVEL` encodings select nothing the datasheet
+    /// documents. False only on the MSPM0H321x so far, whose datasheet publishes no
+    /// `VBOR1`–`VBOR3` rows and qualifies its BOR hysteresis "Level 0"; every other family's
+    /// datasheet states all three with rising, falling and STANDBY figures. The register
+    /// interface cannot say: the field is two bits and the SVDs enumerate four levels
+    /// everywhere, and driverlib's per-family enums contradict the datasheets in *both*
+    /// directions (`dl_sysctl_mspm0c110x.h` allows only level 0 against the C1104's full table,
+    /// `dl_sysctl_mspm0h321x.h` offers all four against the H3216's one).
+    ///
+    /// A new threshold takes effect only after `BORCLRCMD` is written with its key and `GO` —
+    /// `BORTHRESHOLD.LEVEL` alone changes nothing, and no TI code performs the second write.
+    /// Confirm via `SYSSTATUS.BORCURTHRESHOLD` after the documented ~15µs; do not poll it in
+    /// place of the delay, since it reads the old level until the new one lands and a refused
+    /// change would hang the poll. On mspm0l110x/l130x/l134x, `PMCU_ERR_03`: BOR1–3 are not
+    /// functional in STANDBY.
+    pub bor_warning_levels: bool,
 }
 
 /// How the flash controller writes and protects its flash.

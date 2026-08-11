@@ -10,7 +10,7 @@ use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
     Adc, Chip, Comp, DmaChannel, Flashctl, Interrupt, Memory, MemoryKind, Package, PackagePin,
     Peripheral, PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain, PowerMode, Timer,
-    Uart, Unicomm, Vref,
+    Sysctl, Uart, Unicomm, Vref,
 };
 use regex::Regex;
 
@@ -88,6 +88,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
     apply_vref(vref, &mut peripherals);
     apply_comp(sysconfig, comp, &mut peripherals);
     apply_flashctl(family, header, &mut peripherals);
+    apply_sysctl(family, &mut peripherals);
 
     for part_number in family.part_numbers.iter() {
         // Filter for package types available on the part number.
@@ -323,6 +324,7 @@ fn generate_peripherals2(
                 vref: None,
                 comp: None,
                 flashctl: None,
+                sysctl: None,
             };
 
             // Lookup the pins
@@ -562,6 +564,7 @@ fn generate_missing(
             vref: None,
             comp: None,
             flashctl: None,
+            sysctl: None,
         },
     );
 
@@ -599,6 +602,7 @@ fn generate_missing(
             vref: None,
             comp: None,
             flashctl: None,
+            sysctl: None,
         },
     );
 
@@ -644,6 +648,7 @@ fn generate_missing(
                     vref: None,
                     comp: None,
                     flashctl: None,
+                    sysctl: None,
                 });
 
             let pin = device_pin
@@ -712,6 +717,7 @@ fn generate_missing(
                 vref: None,
                 comp: None,
                 flashctl: None,
+                sysctl: None,
             },
         );
     }
@@ -1068,6 +1074,7 @@ fn apply_unicomm(
                 vref: None,
                 comp: None,
                 flashctl: None,
+                sysctl: None,
             });
         }
     }
@@ -1154,6 +1161,17 @@ fn apply_comp(
 /// `__MSPM0_HAS_ECC__`; the sector size is the datasheet's, curated in `parts.yaml`. Not from the
 /// SVDs, which describe `CMDWEPROTA` on parts whose header gives it zero width, nor from
 /// driverlib, whose `DL_FLASHCTL_SECTOR_SIZE` is one portfolio-wide constant.
+fn apply_sysctl(family: &PartFamily, peripherals: &mut BTreeMap<String, Peripheral>) {
+    for peripheral in peripherals
+        .values_mut()
+        .filter(|peripheral| peripheral.ty == PeripheralType::Sysctl)
+    {
+        peripheral.sysctl = Some(Sysctl {
+            bor_warning_levels: family.bor_warning_levels,
+        });
+    }
+}
+
 fn apply_flashctl(
     family: &PartFamily,
     header: &Header,

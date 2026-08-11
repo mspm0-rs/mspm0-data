@@ -518,6 +518,16 @@ fn generate_peripheral(
         None => quote! { None },
     };
 
+    let sysctl = match peripheral.sysctl {
+        Some(sysctl) => {
+            let bor_warning_levels = sysctl.bor_warning_levels;
+            quote! { Some(Sysctl {
+                bor_warning_levels: #bor_warning_levels,
+            }) }
+        }
+        None => quote! { None },
+    };
+
     Some(quote! {
         Peripheral {
             name: #name,
@@ -540,6 +550,7 @@ fn generate_peripheral(
             vref: #vref,
             comp: #comp,
             flashctl: #flashctl,
+            sysctl: #sysctl,
         }
     })
 }
