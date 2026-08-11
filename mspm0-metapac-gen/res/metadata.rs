@@ -839,8 +839,9 @@ pub struct Pin {
 ///   pulldown. Per-pin data is the reliable part.
 /// - **Not every device has every structure**, and no device has all of them.
 ///
-/// The source is sysconfig's per-pin `io_type`, which the datasheets' per-pin tables corroborate
-/// with no disagreement on any pin of any family.
+/// The source is sysconfig's per-pin `io_type`. The datasheets' per-pin tables corroborate it on
+/// 723 of the 847 pins, across all 18 families, with no disagreement on any of them; the shortfall
+/// is rows the table extraction did not recover, not pins the two sources describe differently.
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub enum IoStructure {
     /// Standard drive (`SDIO`).
