@@ -50,6 +50,13 @@ pub struct Header {
 
     /// The flash-controller facts the header states as `FLASHCTL_SYS_*` constants.
     pub flash: HeaderFlash,
+
+    /// Whether the DMA implements 128-bit transfers, from `DMA_SYS_MMR_LLONG`.
+    ///
+    /// The constant is defined, always as `1`, exactly on the devices whose datasheet gives the
+    /// "Long long (128-bit) transfer" row a tick. driverlib gates `DL_DMA_WIDTH_LONG_LONG` on the
+    /// same constant.
+    pub dma_long_long: bool,
     // TODO: Available IOMUX indices
     // TODO: PF values (for non-analog)
     // TODO: DMA triggers (used for dma transfers)
@@ -99,6 +106,7 @@ impl Header {
             irq_numbers,
             nvic_priority_bits,
             flash,
+            dma_long_long: content.contains("DMA_SYS_MMR_LLONG"),
         })
     }
 

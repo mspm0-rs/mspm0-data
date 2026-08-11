@@ -528,6 +528,16 @@ fn generate_peripheral(
         None => quote! { None },
     };
 
+    let dma = match peripheral.dma {
+        Some(dma) => {
+            let long_long_transfers = dma.long_long_transfers;
+            quote! { Some(Dma {
+                long_long_transfers: #long_long_transfers,
+            }) }
+        }
+        None => quote! { None },
+    };
+
     Some(quote! {
         Peripheral {
             name: #name,
@@ -551,6 +561,7 @@ fn generate_peripheral(
             comp: #comp,
             flashctl: #flashctl,
             sysctl: #sysctl,
+            dma: #dma,
         }
     })
 }

@@ -52,10 +52,13 @@ These are the data sources currently used.
   * Flash geometry: the programming word width, the `CMDWEPROT*` register widths and whether the
     flash has ECC (`FLASHCTL_SYS_*`, `__MSPM0_HAS_ECC__`). Not from the SVDs, which describe
     `CMDWEPROTA` on parts whose header gives it zero width
+  * Whether the DMA implements the 128-bit transfer width (`DMA_SYS_MMR_LLONG`), cross-checked
+    against the SVD and matching every datasheet's "Long long (128-bit) transfer" row
 * mspm0 SVDs
   * Register blocks
   * Which peripheral instances have a `CLKCFG.BLOCKASYNC` bit. TI does not publish an SVD for every
     family, so this is optional per family.
+  * A cross-check on the DMA's 128-bit transfer width, which the header states directly.
 * Device datasheets, read by the scripts in [`tools/`](./tools)
   * How deep a sleep each PD1 peripheral is retained through, and how deep each peripheral
     stays usable, from the "Supported Functionality by Operating Mode" table

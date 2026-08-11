@@ -270,6 +270,36 @@ pub struct Peripheral {
     ///
     /// `None` for peripherals which are not the SYSCTL.
     pub sysctl: Option<Sysctl>,
+
+    /// The parts of the DMA which its register block does not describe.
+    ///
+    /// `None` for peripherals which are not the DMA.
+    pub dma: Option<Dma>,
+}
+
+/// The parts of the DMA which its register block does not describe.
+///
+/// A device-wide statement, not a per-channel one. Where the widest transfer exists it is
+/// available on the basic channels as well as the full ones, so [`DmaChannel::full`] answers a
+/// different question and cannot stand in for this one.
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct Dma {
+    /// Whether `DMACTL.DMASRCWDTH` and `DMADSTWDTH` honour the 128-bit `LONGLONG` encoding (`4h`).
+    /// The other four widths — 8, 16, 32 and 64 bits — exist on every device.
+    ///
+    /// TI builds the DMA in two variants and only DMA_B has the wide transfer: true on
+    /// mspm0c1105_c1106, mspm0g151x, mspm0g351x, mspm0g518x, mspm0h321x, mspm0l112x and
+    /// mspm0l211x, false on the other eleven families. What a device without it does with a `4h`
+    /// written to either field is documented nowhere, so a driver has to gate on this rather than
+    /// try the width and check.
+    ///
+    /// Three sources state it per device and agree on all 18 families: the header's
+    /// `DMA_SYS_MMR_LLONG`, the `LONGLONG` enumerated value in the SVDs which have one, and the
+    /// datasheet's "Long long (128-bit) transfer" row (older datasheets carry no such table and
+    /// say it in the DMA feature list, which stops at "long word (64-bit)"). Not sysconfig, whose
+    /// `DMAChannel.syscfg.js` gates the option on a family list missing four families that have
+    /// it.
+    pub long_long_transfers: bool,
 }
 
 /// The parts of the SYSCTL which its register block does not describe.

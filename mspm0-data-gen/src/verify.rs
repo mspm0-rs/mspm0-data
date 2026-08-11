@@ -20,6 +20,7 @@ pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
         opa_input_sources_exist,
         comp_features_known,
         flashctl_known,
+        dma_widths_known,
         // Peripherals which don't actually exist
         no_gpamp_c110x_l151x,
         // Low power data which is only as complete as the data sources
@@ -342,6 +343,24 @@ fn flashctl_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
                 peripheral.name,
                 flashctl.word_bytes,
             );
+        }
+    }
+
+    Ok(())
+}
+
+/// The DMA says which transfer widths it implements.
+///
+/// Every chip has a DMA and the header states the fact for every device, so an instance without it
+/// means the peripheral stopped being typed `Dma` rather than that a source is missing data.
+fn dma_widths_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    for peripheral in chip
+        .peripherals
+        .values()
+        .filter(|peripheral| peripheral.ty == PeripheralType::Dma)
+    {
+        if peripheral.dma.is_none() {
+            bail!("{name}: {} has no transfer width data", peripheral.name);
         }
     }
 

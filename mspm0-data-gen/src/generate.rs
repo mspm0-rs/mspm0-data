@@ -8,9 +8,9 @@ use std::{
 
 use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
-    Adc, Chip, Comp, DmaChannel, Flashctl, Interrupt, Memory, MemoryKind, Package, PackagePin,
-    Peripheral, PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain, PowerMode, Timer,
-    Sysctl, Uart, Unicomm, Vref,
+    Adc, Chip, Comp, Dma, DmaChannel, Flashctl, Interrupt, Memory, MemoryKind, Package, PackagePin,
+    Peripheral, PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain, PowerMode, Sysctl,
+    Timer, Uart, Unicomm, Vref,
 };
 use regex::Regex;
 
@@ -89,6 +89,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
     apply_comp(sysconfig, comp, &mut peripherals);
     apply_flashctl(family, header, &mut peripherals);
     apply_sysctl(family, &mut peripherals);
+    apply_dma(family, header, svd, &mut peripherals)?;
 
     for part_number in family.part_numbers.iter() {
         // Filter for package types available on the part number.
@@ -325,6 +326,7 @@ fn generate_peripherals2(
                 comp: None,
                 flashctl: None,
                 sysctl: None,
+                dma: None,
             };
 
             // Lookup the pins
@@ -565,6 +567,7 @@ fn generate_missing(
             comp: None,
             flashctl: None,
             sysctl: None,
+            dma: None,
         },
     );
 
@@ -603,6 +606,7 @@ fn generate_missing(
             comp: None,
             flashctl: None,
             sysctl: None,
+            dma: None,
         },
     );
 
@@ -649,6 +653,7 @@ fn generate_missing(
                     comp: None,
                     flashctl: None,
                     sysctl: None,
+                    dma: None,
                 });
 
             let pin = device_pin
@@ -718,6 +723,7 @@ fn generate_missing(
                 comp: None,
                 flashctl: None,
                 sysctl: None,
+                dma: None,
             },
         );
     }
@@ -1075,6 +1081,7 @@ fn apply_unicomm(
                 comp: None,
                 flashctl: None,
                 sysctl: None,
+                dma: None,
             });
         }
     }
@@ -1170,6 +1177,40 @@ fn apply_sysctl(family: &PartFamily, peripherals: &mut BTreeMap<String, Peripher
             bor_warning_levels: family.bor_warning_levels,
         });
     }
+}
+
+/// Record the DMA-wide facts the register block cannot carry.
+///
+/// The width is a property of the DMA, not of a channel: where it exists the datasheet ticks it for
+/// the basic channels as well as the full ones.
+fn apply_dma(
+    family: &PartFamily,
+    header: &Header,
+    svd: Option<&Svd>,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) -> anyhow::Result<()> {
+    // The SVD enumerates `LONGLONG` exactly where the header defines the constant, on all fifteen
+    // families which have one, so a disagreement means a source bump changed one of them.
+    if let Some(svd) = svd {
+        ensure!(
+            svd.dma_long_long == header.dma_long_long,
+            "{}: the header {} 128-bit DMA transfers but the SVD {}",
+            family.family,
+            if header.dma_long_long { "has" } else { "lacks" },
+            if svd.dma_long_long { "has" } else { "lacks" },
+        );
+    }
+
+    for peripheral in peripherals
+        .values_mut()
+        .filter(|peripheral| peripheral.ty == PeripheralType::Dma)
+    {
+        peripheral.dma = Some(Dma {
+            long_long_transfers: header.dma_long_long,
+        });
+    }
+
+    Ok(())
 }
 
 fn apply_flashctl(

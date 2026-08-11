@@ -21,6 +21,11 @@ use regex::Regex;
 /// `SYSCTL.SYSOSCCFG.BLOCKASYNCALL`, which masks the requests of every peripheral at once.
 const BLOCK_ASYNC: &str = "BLOCKASYNC";
 
+/// The `DMACTL.DMASRCWDTH`/`DMADSTWDTH` value which selects a 128-bit transfer.
+///
+/// Enumerated only by the SVDs of devices which implement the width.
+const LONG_LONG: &str = "LONGLONG";
+
 /// One `<peripheral>` element, capturing its `derivedFrom` if it has one.
 static PERIPHERAL: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
@@ -64,6 +69,11 @@ pub struct Svd {
     /// This varies per instance rather than per peripheral type: on mspm0g120x only `UC0`, `UC2`,
     /// `UC4`, `UC5` and `UC9` have the bit, despite every `UC` instance being the same IP.
     pub block_async: BTreeSet<String>,
+
+    /// Whether `DMACTL.DMASRCWDTH` enumerates the 128-bit `LONGLONG` value.
+    ///
+    /// A cross-check on the header's `DMA_SYS_MMR_LLONG`, not a source: four families have no SVD.
+    pub dma_long_long: bool,
 }
 
 impl Svd {
@@ -101,6 +111,9 @@ impl Svd {
             .cloned()
             .collect::<BTreeSet<_>>();
 
-        Ok(Self { block_async })
+        Ok(Self {
+            block_async,
+            dma_long_long: content.contains(&format!("<name>{LONG_LONG}</name>")),
+        })
     }
 }
