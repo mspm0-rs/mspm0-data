@@ -115,8 +115,14 @@ pub struct TemperatureSensor {
     /// The ADC sample window the factory measurement itself used, in nanoseconds.
     ///
     /// Not always `settling_ns`: the older L datasheets state a 12.5us calibration sample against
-    /// their own 10us settling maximum. Reproducing the factory measurement and merely letting the
-    /// sensor settle are different requirements, and the wider of the two is safe for both.
+    /// their own 10us settling maximum. "Long enough for the sensor to settle" and "the window the
+    /// stored code was taken with" are different conditions, and only the second makes a live
+    /// reading directly comparable with `TEMP_SENSE0`. Sample at the wider of the two and both
+    /// hold.
+    ///
+    /// This is the quiet one of the five. A window that is long enough to settle but shorter than
+    /// the factory's gives a reading which looks entirely reasonable and drifts, where a wrong
+    /// `calibration_reference` gives a number nobody can miss.
     ///
     /// `None` where the datasheet does not state it.
     pub calibration_sample_ns: Option<u32>,
@@ -128,8 +134,11 @@ pub struct TemperatureSensor {
     /// converting against VDD instead of the 1.4V reference turns 26.8C into 527C.
     ///
     /// It genuinely varies per device -- VDD on the four older G families, the 1.4V internal
-    /// reference on ten families, 4.05V on mspm0h321x -- so there is no portfolio default to fall
-    /// back on, and no register or header states it.
+    /// reference on twelve families, 4.05V on mspm0h321x -- so there is no portfolio default to
+    /// fall back on, and no register or header states it. The sharpest case is g350x against
+    /// g351x: same series, adjacent part numbers, different references. TI's own
+    /// `adc12_internal_temp_sensor_mathacl` example gets that pair wrong, computing against 3.3V
+    /// for both.
     pub calibration_reference: CalibrationReference,
 }
 
