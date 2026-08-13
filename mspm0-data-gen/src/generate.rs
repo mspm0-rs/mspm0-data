@@ -1275,6 +1275,9 @@ fn apply_dma(
             long_long_transfers: header.dma_long_long,
             auto_enable: header.dma_auto_enable,
             stride_mode: header.dma_stride,
+            // `DMA_SYS_MMR_EM` tracks gather alone. Fill and table are on every device's full
+            // channels, ticked by every datasheet which carries the table.
+            gather_mode: header.dma_extended_mode,
         });
     }
 

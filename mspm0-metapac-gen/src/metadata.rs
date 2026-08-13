@@ -544,10 +544,12 @@ fn generate_peripheral(
             let long_long_transfers = dma.long_long_transfers;
             let auto_enable = dma.auto_enable;
             let stride_mode = dma.stride_mode;
+            let gather_mode = dma.gather_mode;
             quote! { Some(Dma {
                 long_long_transfers: #long_long_transfers,
                 auto_enable: #auto_enable,
                 stride_mode: #stride_mode,
+                gather_mode: #gather_mode,
             }) }
         }
         None => quote! { None },

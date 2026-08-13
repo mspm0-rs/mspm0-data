@@ -70,6 +70,14 @@ pub struct Header {
     /// driverlib does not gate on this one: `DL_DMA_ADDR_STRIDE_2` through `_9` are declared on
     /// every device.
     pub dma_stride: bool,
+
+    /// Whether the DMA implements gather mode, from `DMA_SYS_MMR_EM`.
+    ///
+    /// **The constant is named for extended mode and does not mean the device has none.**
+    /// `DMACTL.EM` selects four modes and the older DMA implements three of them: every datasheet
+    /// with the table gives "Table & Fill Mode" a tick on its full channels, `DMA_SYS_MMR_EM` or
+    /// not. Only gather, `EM` value 1, follows the constant, on all ten families which state both.
+    pub dma_extended_mode: bool,
     // TODO: Available IOMUX indices
     // TODO: PF values (for non-analog)
     // TODO: DMA triggers (used for dma transfers)
@@ -124,6 +132,7 @@ impl Header {
             dma_long_long: content.contains("DMA_SYS_MMR_LLONG"),
             dma_auto_enable: content.contains("DMA_SYS_MMR_AUTO"),
             dma_stride: content.contains("DMA_SYS_MMR_STRIDE"),
+            dma_extended_mode: content.contains("DMA_SYS_MMR_EM"),
         })
     }
 

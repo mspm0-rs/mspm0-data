@@ -426,6 +426,27 @@ pub struct Dma {
     /// The field is four bits wide on every device, so a stride value can always be written. What
     /// a device without stride does with one is not documented anywhere.
     pub stride_mode: bool,
+
+    /// Whether `DMACTL.EM` implements gather mode, value `1h`, which walks a table of addresses
+    /// and copies from each to one destination.
+    ///
+    /// **This is not "the device has extended modes".** `EM` selects four, and every device
+    /// implements three: fill (`2h`) and table (`3h`) are ticked on the full channels of every
+    /// datasheet carrying the table, whether or not the part has gather. A driver keyed on
+    /// "extended mode" as one bit would refuse fill and table on the eleven families that have
+    /// them.
+    ///
+    /// **Extended modes are full-channel only**, on every device. The TRM says "In FULL channels,
+    /// the DMA controller has two extended modes", and every datasheet marks both the gather and
+    /// the table-and-fill rows `-` in its BASIC column. Combine with [`DmaChannel::full`] before
+    /// offering any of them — unlike [`Dma::stride_mode`], [`Dma::long_long_transfers`] and
+    /// [`Dma::auto_enable`], which the datasheets tick for basic channels too.
+    ///
+    /// Three sources state gather per device and agree: the header's `DMA_SYS_MMR_EM`, the
+    /// datasheet's "Gather Mode" row, and the TRMs' Table 5-1. That last one is right about this
+    /// row and wrong about two others in the same table, so it corroborates rather than settles —
+    /// read Table 5-1 a row at a time, never as a whole.
+    pub gather_mode: bool,
 }
 
 /// The parts of the SYSCTL which its register block does not describe.
