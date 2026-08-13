@@ -14,6 +14,7 @@ pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
         register_blocks_exist,
         vref_startup_known,
         adc_channels_known,
+        adc_wakeup_known,
         adc_internal_sources_exist,
         uart_features_known,
         opa_inputs_known,
@@ -143,6 +144,43 @@ fn adc_channels_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
             bail!(
                 "{name}: {} has no internal channels; data/adc_channels/{}.yaml is missing or lost \
                  the instance",
+                peripheral.name,
+                chip.family
+            );
+        }
+    }
+
+    Ok(())
+}
+
+/// Report an ADC instance with no wake-up figure.
+///
+/// All sixteen datasheets state `Twakeup`, so a missing figure means
+/// `data/adc_wakeup/<family>.yaml` is absent or the extraction failed. Exactly one of the two
+/// columns is filled: a family stating both, or neither, is a change in the source worth looking at
+/// rather than something to average.
+fn adc_wakeup_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    for peripheral in chip
+        .peripherals
+        .values()
+        .filter(|peripheral| peripheral.ty == PeripheralType::Adc)
+    {
+        let Some(adc) = peripheral.adc.as_ref() else {
+            continue;
+        };
+
+        if adc.wakeup_max_ns.is_none() && adc.wakeup_typ_ns.is_none() {
+            bail!(
+                "{name}: {} has no ADC wake-up time; data/adc_wakeup/{}.yaml is missing",
+                peripheral.name,
+                chip.family
+            );
+        }
+
+        if adc.wakeup_max_ns.is_some() && adc.wakeup_typ_ns.is_some() {
+            bail!(
+                "{name}: {} states both a typical and a maximum ADC wake-up time; the datasheets \
+                 fill one column, so check which data/adc_wakeup/{}.yaml means",
                 peripheral.name,
                 chip.family
             );

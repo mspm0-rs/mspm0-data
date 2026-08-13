@@ -999,6 +999,37 @@ pub struct Adc {
     /// Empty when the family's datasheet has no such table, which none so far lacks.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub internal_channels: BTreeMap<u8, AdcInternalSource>,
+
+    /// Guaranteed ceiling on the time the ADC needs to wake from automatic power down, in
+    /// nanoseconds, from the datasheet's `Twakeup` MAX column.
+    ///
+    /// `CTL0.PWRDN` resets to `0`, automatic power down, where the ADC switches off after each
+    /// conversion. The TRM makes the wake the caller's problem rather than the hardware's: it is
+    /// paid for out of the programmed sample window, so `SCOMPx` has to cover this figure **plus**
+    /// the sampling the signal itself needs. A window sized only for the signal samples an input
+    /// that has not finished waking, and nothing reports it. With `PWRDN = 1` the ADC stays
+    /// powered and none of this applies.
+    ///
+    /// **`None` means the datasheet publishes no ceiling, not that the wake is free.** On
+    /// mspm0l110x, mspm0l130x and mspm0l134x the figure appears in the TYP column instead and is in
+    /// [`Adc::wakeup_typ_ns`]. There is no worst case to design against on those three, which a
+    /// consumer needing a guarantee has to decide about rather than round away — the two columns
+    /// are separate fields so that a typical cannot be mistaken for a bound.
+    ///
+    /// 5000 on the fifteen families which state a maximum. Stated once per datasheet, under the
+    /// condition "assumes internal reference is active" -- thirteen datasheets, two of which serve
+    /// two families each.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub wakeup_max_ns: Option<u32>,
+
+    /// Typical time the ADC needs to wake from automatic power down, in nanoseconds, from the
+    /// datasheet's `Twakeup` TYP column.
+    ///
+    /// 1000 on mspm0l110x, mspm0l130x and mspm0l134x, which publish no maximum. `None` on the
+    /// fifteen families which state a ceiling instead — see [`Adc::wakeup_max_ns`] for what this
+    /// figure is for and why the two are not merged.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub wakeup_typ_ns: Option<u32>,
 }
 
 /// An internal signal an ADC channel samples instead of a package pin.

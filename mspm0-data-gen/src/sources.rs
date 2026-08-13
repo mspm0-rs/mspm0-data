@@ -10,6 +10,7 @@ use mspm0_data_types::{TemperatureSensor, Vref, WakeTimes};
 
 use crate::{
     adc_channels::AdcChannels,
+    adc_wakeup::AdcWakeup,
     clock_tree::{ClockTreeFile, ClockTrees},
     comp::CompTiming,
     errata::Errata,
@@ -29,6 +30,7 @@ pub struct Sources {
     pub parts: PartsFile,
     pub headers: Headers,
     pub adc_channels: BTreeMap<String, AdcChannels>,
+    pub adc_wakeup: BTreeMap<String, AdcWakeup>,
     pub sysconfig: Sysconfig,
     pub svds: Svds,
     pub clock_trees: ClockTrees,
@@ -52,6 +54,7 @@ pub struct FamilySources<'a> {
     pub header: &'a Header,
     pub sysconfig: &'a SysconfigFile,
     pub adc_channels: Option<&'a AdcChannels>,
+    pub adc_wakeup: Option<AdcWakeup>,
     pub svd: Option<&'a Svd>,
     pub clock_tree: Option<&'a ClockTreeFile>,
     pub operating_modes: Option<&'a OperatingModes>,
@@ -96,6 +99,7 @@ impl Sources {
             header,
             sysconfig,
             adc_channels: self.adc_channels.get(family),
+            adc_wakeup: self.adc_wakeup.get(family).copied(),
             svd: self.svds.files.get(family),
             clock_tree: self.clock_trees.files.get(family),
             operating_modes: self.operating_modes.get(family),

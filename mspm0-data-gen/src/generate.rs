@@ -17,6 +17,7 @@ use regex::Regex;
 use crate::comp::CompTiming;
 use crate::{
     adc_channels::AdcChannels,
+    adc_wakeup::AdcWakeup,
     header::Header,
     int_group::Groups,
     opa::Opas,
@@ -49,6 +50,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
         header,
         sysconfig,
         adc_channels,
+        adc_wakeup,
         svd,
         clock_tree,
         operating_modes,
@@ -83,7 +85,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
     apply_standby1_timers(family, &mut peripherals)?;
     apply_timers(family, sysconfig, timers, &mut peripherals)?;
     apply_clock_ranges(family, &mut peripherals);
-    apply_adc(family, sysconfig, adc_channels, &mut peripherals)?;
+    apply_adc(family, sysconfig, adc_channels, adc_wakeup, &mut peripherals)?;
     apply_unicomm(family, header, &mut peripherals)?;
     apply_uart(family, sysconfig, uart, &mut peripherals)?;
     apply_opa(opa, &mut peripherals);
@@ -1378,6 +1380,7 @@ fn apply_adc(
     family: &PartFamily,
     sysconfig: &SysconfigFile,
     adc_channels: Option<&AdcChannels>,
+    adc_wakeup: Option<AdcWakeup>,
     peripherals: &mut BTreeMap<String, Peripheral>,
 ) -> anyhow::Result<()> {
     let chip_name = &family.family;
@@ -1424,6 +1427,10 @@ fn apply_adc(
             memctl,
             vrsel,
             internal_channels,
+            // Only the column the datasheet fills is set. A `None` maximum is the statement that
+            // the family publishes no ceiling, so it must not be filled in from the typical.
+            wakeup_max_ns: adc_wakeup.and_then(|w| w.max_ns),
+            wakeup_typ_ns: adc_wakeup.and_then(|w| w.typ_ns),
         });
     }
 

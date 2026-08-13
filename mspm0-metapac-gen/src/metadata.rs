@@ -409,11 +409,21 @@ fn generate_peripheral(
                 let source = adc_internal_source(*source);
                 quote! { AdcInternalChannel { channel: #channel, source: #source } }
             });
+            let ns = |value: Option<u32>| match value {
+                Some(ns) => {
+                    let ns = Literal::u32_unsuffixed(ns);
+                    quote! { Some(#ns) }
+                }
+                None => quote! { None },
+            };
+            let (wakeup_max_ns, wakeup_typ_ns) = (ns(adc.wakeup_max_ns), ns(adc.wakeup_typ_ns));
             quote! {
                 Some(Adc {
                     memctl: #memctl,
                     vrsel: #vrsel,
                     internal_channels: &[#(#internal_channels),*],
+                    wakeup_max_ns: #wakeup_max_ns,
+                    wakeup_typ_ns: #wakeup_typ_ns,
                 })
             }
         }
