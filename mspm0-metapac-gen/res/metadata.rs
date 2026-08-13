@@ -402,6 +402,30 @@ pub struct Dma {
     /// Same three sources, agreeing on all 18 families: the header constant, the presence of the
     /// `DMAAUTOEN` field in the SVDs which have one, and the datasheet's "Auto enable" row.
     pub auto_enable: bool,
+
+    /// Whether `DMACTL.DMASRCINCR` and `DMADSTINCR` implement the stride encodings, `8h`
+    /// (`STRIDE_2`) through `Fh` (`STRIDE_9`), which advance the address by 2 to 9 times the
+    /// transfer width instead of by one.
+    ///
+    /// True on the same seven families as [`Dma::long_long_transfers`] and [`Dma::auto_enable`].
+    /// Recorded separately for the same reason: the three arrived together and nothing says TI
+    /// must keep shipping them as a set. Do not read one off another.
+    ///
+    /// **Only two sources can answer, and neither is the SVD.** The header's `DMA_SYS_MMR_STRIDE`
+    /// and the datasheet's "Stride mode" row state it per device and agree on all ten families
+    /// which have both. Everything else describes the IP superset and ticks stride everywhere: all
+    /// 21 SVDs enumerate `STRIDE_2`–`STRIDE_9` whatever the device, the shared `hw_dma.h` defines
+    /// the encodings unconditionally, and driverlib declares `DL_DMA_ADDR_STRIDE_*` without the
+    /// `#ifdef` it puts on `DL_DMA_WIDTH_LONG_LONG`. The SVDs do discriminate `LONGLONG` and
+    /// `DMAAUTOEN`, so their stride values are unmaintained rather than a second opinion.
+    ///
+    /// The TRMs' Table 5-1 ticks stride for DMA_A and is wrong. That same table denies DMA_A a
+    /// repeated mode, which its own Table 5-2 contradicts by typing `DMATM` 2 and 3 full-feature,
+    /// as does every DMA_A datasheet's "Repeat Mode: Yes".
+    ///
+    /// The field is four bits wide on every device, so a stride value can always be written. What
+    /// a device without stride does with one is not documented anywhere.
+    pub stride_mode: bool,
 }
 
 /// The parts of the SYSCTL which its register block does not describe.

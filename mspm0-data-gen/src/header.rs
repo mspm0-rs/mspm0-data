@@ -62,6 +62,14 @@ pub struct Header {
     ///
     /// Read separately from `dma_long_long` although the two constants have never disagreed.
     pub dma_auto_enable: bool,
+
+    /// Whether the DMA implements stride addressing, from `DMA_SYS_MMR_STRIDE`.
+    ///
+    /// The constant is defined, always as `1`, exactly on the devices whose datasheet gives the
+    /// "Stride mode" row a tick — ten families state both and agree. Unlike `dma_long_long`,
+    /// driverlib does not gate on this one: `DL_DMA_ADDR_STRIDE_2` through `_9` are declared on
+    /// every device.
+    pub dma_stride: bool,
     // TODO: Available IOMUX indices
     // TODO: PF values (for non-analog)
     // TODO: DMA triggers (used for dma transfers)
@@ -115,6 +123,7 @@ impl Header {
             flash,
             dma_long_long: content.contains("DMA_SYS_MMR_LLONG"),
             dma_auto_enable: content.contains("DMA_SYS_MMR_AUTO"),
+            dma_stride: content.contains("DMA_SYS_MMR_STRIDE"),
         })
     }
 

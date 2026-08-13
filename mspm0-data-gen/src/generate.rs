@@ -1243,6 +1243,11 @@ fn apply_dma(
     // The SVD enumerates `LONGLONG` and carries `DMAAUTOEN` exactly where the header defines the
     // matching constant, on all fifteen families which have one, so a disagreement means a source
     // bump changed one of them.
+    //
+    // Stride is deliberately not checked this way. Every SVD enumerates `STRIDE_2`-`STRIDE_9` in
+    // `DMASRCINCR`, including the families whose header and datasheet both deny stride, so the
+    // check would fail on every DMA_A device. The datasheet's "Stride mode" row is the second
+    // source there, and it agrees with the header on all ten families which state both.
     if let Some(svd) = svd {
         for (feature, from_header, from_svd) in [
             ("128-bit DMA transfers", header.dma_long_long, svd.dma_long_long),
@@ -1269,6 +1274,7 @@ fn apply_dma(
         peripheral.dma = Some(Dma {
             long_long_transfers: header.dma_long_long,
             auto_enable: header.dma_auto_enable,
+            stride_mode: header.dma_stride,
         });
     }
 
