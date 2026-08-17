@@ -2,8 +2,9 @@
 //! come from the register YAMLs.
 //!
 //! The SVDs are scanned textually rather than parsed, since every fact read here is a presence test
-//! on a field name. Parsing properly would mean depending on `svd-parser` directly: chiptool does not
-//! re-export it, and is itself pinned to a commit, so the dependency would have to track that commit.
+//! on a field name, in one case narrowed to the register holding it. Parsing properly would mean
+//! depending on `svd-parser` directly: chiptool does not re-export it, and is itself pinned to a
+//! commit, so the dependency would have to track that commit.
 
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -19,7 +20,15 @@ use regex::Regex;
 ///
 /// Only peripherals which can raise such a request have it. Note that this is distinct from
 /// `SYSCTL.SYSOSCCFG.BLOCKASYNCALL`, which masks the requests of every peripheral at once.
+///
+/// It is read from the peripheral's own `<instance>_CLKCFG` and nowhere else, because SYSCTL's body
+/// also contains every other peripheral's clock config as `SYSCTL_MGMT_<other>_CLKCFG` — twelve such
+/// registers on a G350x, each carrying the field. A test over the whole body reports SYSCTL as having
+/// a bit it does not have: no SYSCTL in the SDK defines a `CLKCFG` at all.
 const BLOCK_ASYNC: &str = "BLOCKASYNC";
+
+/// The register carrying [`BLOCK_ASYNC`], suffixed onto the instance name.
+const CLKCFG: &str = "_CLKCFG";
 
 /// The `DMACTL.DMASRCWDTH`/`DMADSTWDTH` value which selects a 128-bit transfer.
 ///
@@ -39,7 +48,12 @@ static PERIPHERAL: LazyLock<Regex> = LazyLock::new(|| {
     .unwrap()
 });
 
-/// The first `<name>` of a peripheral, which is its instance name.
+/// One `<register>` element. Never carries attributes in any of these files.
+static REGISTER: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?s)<register>(?<body>.*?)</register>").unwrap());
+
+/// The first `<name>` of a peripheral, which is its instance name. Within a `<register>` body the
+/// same match is the register's own name, since it precedes the fields.
 static NAME: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"<name>([^<]+)</name>").unwrap());
 
 #[derive(Debug)]
@@ -102,10 +116,15 @@ impl Svd {
                 .context(format!("{path:?}: peripheral without a name"))?[1]
                 .to_string();
 
-            // The field name only ever appears as a `<name>`, so a substring test over the
-            // peripheral's body is enough to tell whether one of its registers has the field.
+            let clkcfg = format!("{name}{CLKCFG}");
             let tag = format!("<name>{BLOCK_ASYNC}</name>");
-            own.insert(name.clone(), body.contains(&tag));
+            let has_block_async = REGISTER.captures_iter(body).any(|register| {
+                let register = &register["body"];
+
+                NAME.captures(register).is_some_and(|n| n[1] == *clkcfg) && register.contains(&tag)
+            });
+
+            own.insert(name.clone(), has_block_async);
 
             // Peripherals in these SVDs are always fully expanded, but resolve `derivedFrom`
             // anyway so a source bump which starts using it does not silently drop instances.
