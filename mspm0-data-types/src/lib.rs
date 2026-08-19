@@ -99,6 +99,12 @@ pub enum PeripheralType {
 
     AesAdv,
 
+    /// The beeper, a square wave output driven from LFCLK.
+    ///
+    /// Documented as part of SYSCTL and addressed through it, but described here as a peripheral of
+    /// its own so it gets a register block rather than four registers' worth of SYSCTL variants.
+    Beeper,
+
     Aes,
 
     Canfd,
@@ -165,6 +171,18 @@ pub enum PeripheralType {
 
     Unicomm,
 
+    /// The UART register map of a UNICOMM instance, at a fixed offset below it.
+    UnicommUart,
+
+    /// The I2C controller register map of a UNICOMM instance, at a fixed offset below it.
+    UnicommI2cc,
+
+    /// The I2C target register map of a UNICOMM instance, at a fixed offset below it.
+    UnicommI2ct,
+
+    /// The SPI register map of a UNICOMM instance, at a fixed offset below it.
+    UnicommSpi,
+
     Usbfs,
 
     Vref,
@@ -181,6 +199,7 @@ impl fmt::Display for PeripheralType {
             PeripheralType::Adc => "adc",
             PeripheralType::Aes => "aes",
             PeripheralType::AesAdv => "aesadv",
+            PeripheralType::Beeper => "beeper",
             PeripheralType::Canfd => "canfd",
             PeripheralType::Comp => "comp",
             PeripheralType::Cpuss => "cpuss",
@@ -210,6 +229,10 @@ impl fmt::Display for PeripheralType {
             PeripheralType::Trng => "trng",
             PeripheralType::Uart => "uart",
             PeripheralType::Unicomm => "unicomm",
+            PeripheralType::UnicommUart => "unicommuart",
+            PeripheralType::UnicommI2cc => "unicommi2cc",
+            PeripheralType::UnicommI2ct => "unicommi2ct",
+            PeripheralType::UnicommSpi => "unicommspi",
             PeripheralType::Usbfs => "usbfs",
             PeripheralType::Vref => "vref",
             PeripheralType::Wuc => "wuc",
@@ -251,6 +274,40 @@ pub struct Peripheral {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sys_fentries: Option<usize>,
+
+    /// Which register maps this UNICOMM instance implements.
+    ///
+    /// `None` for peripherals which are not UNICOMM instances.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unicomm: Option<Unicomm>,
+}
+
+/// Which register maps a UNICOMM instance implements.
+///
+/// UNICOMM is one peripheral which is a UART, an SPI, an I2C controller or an I2C target depending
+/// on `IPMODE.SELECT`, with a register map per mode at a fixed offset below the instance's own
+/// address. **No instance implements all four**, and which it implements does not follow the
+/// instance name: on MSPM0G518x `UC0` is a UART or either half of an I2C but never an SPI, `UC2` is
+/// an SPI only, and `UC3` is a UART or an SPI.
+///
+/// An instance with one mode has nothing to select and no `IPMODE` register to select it with, so
+/// writing `IPMODE` is only meaningful where more than one of these is true.
+///
+/// Read from the instance table in the SDK's device header, which populates a register pointer per
+/// mode the instance has.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Unicomm {
+    /// Implements the UART register map, `0x80000` below the instance address.
+    pub uart: bool,
+
+    /// Implements the I2C controller register map, `0x60000` below the instance address.
+    pub i2c_controller: bool,
+
+    /// Implements the I2C target register map, `0x40000` below the instance address.
+    pub i2c_target: bool,
+
+    /// Implements the SPI register map, `0x20000` below the instance address.
+    pub spi: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

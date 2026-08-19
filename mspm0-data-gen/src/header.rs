@@ -1,6 +1,7 @@
 use std::{collections::BTreeMap, fs, path::Path, sync::LazyLock};
 
 use anyhow::Context;
+use mspm0_data_types::Unicomm;
 use regex::Regex;
 
 #[derive(Debug)]
@@ -38,6 +39,9 @@ impl Headers {
 pub struct Header {
     pub peripheral_addresses: BTreeMap<String, u32>,
 
+    /// Which register maps each UNICOMM instance implements, keyed by instance name.
+    pub unicomm_modes: BTreeMap<String, Unicomm>,
+
     pub irq_numbers: BTreeMap<i32, Vec<String>>,
     // TODO: flash info
     // TODO: Available IOMUX indices
@@ -54,11 +58,53 @@ impl Header {
         // The Cortex-M0 only has 32 IRQs. This means that "interrupt groups" need to be resolved
         // for truly handling IRQs.
         let irq_numbers = Self::get_irq_numbers(chip_name, &content)?;
+        let unicomm_modes = Self::get_unicomm_modes(&content);
 
         Ok(Self {
             peripheral_addresses,
+            unicomm_modes,
             irq_numbers,
         })
+    }
+
+    /// Read which register maps each UNICOMM instance implements.
+    ///
+    /// A UNICOMM instance is a UART, an SPI, an I2C controller or an I2C target depending on
+    /// `IPMODE.SELECT`, but no instance implements all four. The header's own instance table is the
+    /// only source which says which: it initializes a pointer per map the instance has and leaves
+    /// the rest null.
+    ///
+    /// ```c,no_run
+    /// static const UNICOMM_Inst_Regs UC4_Inst = {
+    ///     .inst      = (UNICOMM_Regs *) UC4_BASE,
+    ///     .uart      = (UNICOMMUART_Regs *) UC4_UART_BASE,
+    ///     .spi       = (UNICOMMSPI_Regs *) UC4_SPI_BASE,
+    ///     .fixedMode = false
+    /// };
+    /// ```
+    ///
+    /// `fixedMode` is not read: it is true exactly when one map is initialized, which the maps
+    /// themselves already say.
+    fn get_unicomm_modes(content: &str) -> BTreeMap<String, Unicomm> {
+        static INSTANCE: LazyLock<Regex> = LazyLock::new(|| {
+            Regex::new(r"(?s)UNICOMM_Inst_Regs\s+(?<instance>\w+)_Inst\s*=\s*\{(?<body>[^}]*)\}")
+                .unwrap()
+        });
+
+        INSTANCE
+            .captures_iter(content)
+            .map(|capture| {
+                let body = &capture["body"];
+                let modes = Unicomm {
+                    uart: body.contains(".uart"),
+                    i2c_controller: body.contains(".i2cc"),
+                    i2c_target: body.contains(".i2ct"),
+                    spi: body.contains(".spi"),
+                };
+
+                (capture["instance"].to_string(), modes)
+            })
+            .collect()
     }
 
     fn get_peripheral_addresses(

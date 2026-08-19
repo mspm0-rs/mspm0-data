@@ -115,18 +115,10 @@ block/SYSCTL:
     description: SRAM Write Boundary.
     byte_offset: 4472
     fieldset: SRAMBOUNDARY
-  - name: SRAMBOUNDARYHIGH
-    description: SRAM Write Boundary High.
-    byte_offset: 4476
-    fieldset: SRAMBOUNDARYHIGH
   - name: SYSTEMCFG
     description: System configuration.
     byte_offset: 4480
     fieldset: SYSTEMCFG
-  - name: SRAMCFG
-    description: System SRAM configuration.
-    byte_offset: 4484
-    fieldset: SRAMCFG
   - name: WRITELOCK
     description: SYSCTL register write lockout.
     byte_offset: 4608
@@ -208,6 +200,19 @@ block/SYSCTL:
     byte_offset: 4908
     access: Write
     fieldset: FCCCMD
+  - name: USBFLLCTL
+    description: USB FLL control.
+    byte_offset: 4928
+    fieldset: USBFLLCTL
+  - name: USBFLLADJ
+    description: USB FLL manual adjustment.
+    byte_offset: 4932
+    fieldset: USBFLLADJ
+  - name: USBFLLSTAT
+    description: USB FLL status.
+    byte_offset: 4936
+    access: Read
+    fieldset: USBFLLSTAT
   - name: SHUTDNSTORE
     description: Shutdown storage memory (byte 0).
     array:
@@ -464,11 +469,11 @@ fieldset/GENCLKCFG:
     description: EXCLKDIVEN enables or disables the divider function of the CLK_OUT external clock output block.
     bit_offset: 7
     bit_size: 1
-  - name: CANCLKSRC
-    description: CANCLKSRC selects the CANCLK source.
-    bit_offset: 8
+  - name: USBCLKSRC
+    description: USBCLKSRC selects the USBCLK source.
+    bit_offset: 10
     bit_size: 1
-    enum: CANCLKSRC
+    enum: USBCLKSRC
   - name: MFPCLKSRC
     description: MFPCLKSRC selects the MFPCLK (middle frequency precision clock) source.
     bit_offset: 9
@@ -503,6 +508,10 @@ fieldset/GENCLKCFG:
     description: FCCTRIGCNT specifies the number of trigger clock periods in the trigger window. FCCTRIGCNT=0h (one trigger clock period) up to 1Fh (32 trigger clock periods) may be specified.
     bit_offset: 24
     bit_size: 5
+  - name: FCCLFCLKSRC
+    description: FCCLFCLKSRC selects between the system LFCLK and an externally sourced LFCLK.
+    bit_offset: 29
+    bit_size: 1
 fieldset/GENCLKEN:
   description: General clock enable control.
   fields:
@@ -538,6 +547,11 @@ fieldset/HSCLKCFG:
     bit_offset: 0
     bit_size: 1
     enum: HSCLKSEL
+  - name: USBFLL4HSCLK
+    description: USBFLL4HSCLK selects the USBFLL as the HSCLK source, overriding HSCLKSEL.
+    bit_offset: 1
+    bit_size: 1
+    enum: USBFLL4HSCLK
 fieldset/HSCLKEN:
   description: High-speed clock (HSCLK) source enable/disable.
   fields:
@@ -602,6 +616,10 @@ fieldset/INT:
   - name: HSCLKGOOD
     description: HSCLK GOOD.
     bit_offset: 7
+    bit_size: 1
+  - name: USBFLLERR
+    description: USB FLL error.
+    bit_offset: 8
     bit_size: 1
 fieldset/LFCLKCFG:
   description: Low frequency crystal oscillator (LFXT) configuration.
@@ -792,24 +810,6 @@ fieldset/SRAMBOUNDARY:
     description: 'SRAM boundary configuration. The value configured into this acts such that: SRAM accesses to addresses less than or equal value will be RW only. SRAM accesses to addresses greater than value will be RX only. Value of 0 is not valid (system will have no stack). If set to 0, the system acts as if the entire SRAM is RWX. Any non-zero value can be configured, including a value = SRAM size.'
     bit_offset: 5
     bit_size: 15
-fieldset/SRAMBOUNDARYHIGH:
-  description: SRAM Write Boundary High.
-  fields:
-  - name: ADDR
-    description: 'SRAM boundary high configuration. The value configured into this acts such that: SRAM accesses to greater than value will be RW only. SRAM accesses to addresses less than or equal to value will be RX until meeting SRAMBOUNDARY MMR Value. Value of 0 is default. If value set to less than or equal to SRAMBOUNDARY MMR, the system will only use the SRAMBOUNDARY MMR as criteria.'
-    bit_offset: 5
-    bit_size: 15
-fieldset/SRAMCFG:
-  description: System SRAM configuration.
-  fields:
-  - name: BANKOFF1
-    description: SRAM BANK1 power level for RUN mode.
-    bit_offset: 1
-    bit_size: 1
-  - name: BANKSTOP1
-    description: SRAM BANK1 power level for STOP mode.
-    bit_offset: 9
-    bit_size: 1
 fieldset/SWDCFG:
   description: Disable the SWD function on the SWD pins.
   fields:
@@ -1006,14 +1006,6 @@ fieldset/SYSSTATUS:
     description: PMUIREFGOOD is set by hardware when the PMU current reference is ready.
     bit_offset: 6
     bit_size: 1
-  - name: MCAN0READY
-    description: MCAN0READY indicates when the MCAN0 peripheral is ready.
-    bit_offset: 8
-    bit_size: 1
-  - name: MCAN1READY
-    description: MCAN1READY indicates when the MCAN1 peripheral is ready.
-    bit_offset: 9
-    bit_size: 1
   - name: EXTRSTPINDIS
     description: EXTRSTPINDIS indicates when user has disabled the use of external reset pin.
     bit_offset: 12
@@ -1026,9 +1018,13 @@ fieldset/SYSSTATUS:
     description: SHDNIOLOCK indicates when IO is locked due to SHUTDOWN.
     bit_offset: 14
     bit_size: 1
-  - name: SRAMBANK1READY
-    description: SRAM BANK1 READY STATE.
-    bit_offset: 17
+  - name: NPUREADY
+    description: NPUREADY indicates when the NPU is ready.
+    bit_offset: 24
+    bit_size: 1
+  - name: USBFS0READY
+    description: USBFS0READY indicates when the USBFS0 peripheral is ready.
+    bit_offset: 25
     bit_size: 1
   - name: REBOOTATTEMPTS
     description: REBOOTATTEMPTS indicates the number of boot attempts taken before the user application starts.
@@ -1060,6 +1056,56 @@ fieldset/SYSTEMCFG:
     description: FLASHECCRSTDIS specifies whether a flash ECC double error detect (DED) will trigger a SYSRST or an NMI.
     bit_offset: 2
     bit_size: 1
+fieldset/USBFLLADJ:
+  description: USB FLL manual adjustment.
+  fields:
+  - name: FRQADJ
+    description: Frequency lock loop adjust.
+    bit_offset: 0
+    bit_size: 6
+  - name: FRQMOD
+    description: Frequency lock loop modulator value.
+    bit_offset: 8
+    bit_size: 3
+fieldset/USBFLLCTL:
+  description: USB FLL control.
+  fields:
+  - name: CLKEN
+    description: USB oscillator enable.
+    bit_offset: 0
+    bit_size: 1
+  - name: FLLEN
+    description: USB oscillator frequency lock loop enable.
+    bit_offset: 1
+    bit_size: 1
+  - name: REFSEL
+    description: Reference clock selection for the frequency lock loop.
+    bit_offset: 8
+    bit_size: 1
+    enum: REFSEL
+fieldset/USBFLLSTAT:
+  description: USB FLL status.
+  fields:
+  - name: CLKRDY
+    description: USB oscillator ready indication.
+    bit_offset: 0
+    bit_size: 1
+  - name: FLLLOCK
+    description: USB oscillator frequency lock loop lock indication.
+    bit_offset: 1
+    bit_size: 1
+  - name: REFRDY
+    description: Reference clock for the frequency lock loop ready indication.
+    bit_offset: 8
+    bit_size: 1
+  - name: FRQADJ
+    description: Current frequency lock loop adjust.
+    bit_offset: 16
+    bit_size: 6
+  - name: FRQMOD
+    description: Current frequency lock loop modulator value.
+    bit_offset: 24
+    bit_size: 3
 fieldset/WRITELOCK:
   description: SYSCTL register write lockout.
   fields:
@@ -1099,15 +1145,6 @@ enum/BORCURTHRESHOLD:
   - name: BORLEVEL3
     description: A BOR3- violation generates a BORLVL interrupt.
     value: 3
-enum/CANCLKSRC:
-  bit_size: 1
-  variants:
-  - name: HFCLK
-    description: CANCLK source is HFCLK.
-    value: 0
-  - name: SYSPLLOUT1
-    description: CANCLK source is SYSPLLCLK1.
-    value: 1
 enum/CURHSCLKSEL:
   bit_size: 1
   variants:
@@ -1177,6 +1214,9 @@ enum/EXCLKSRC:
   - name: SYSPLLOUT1
     description: CLK_OUT is SYSPLLCLK1 (SYSPLLCLK1 must be <=48MHz).
     value: 5
+  - name: USBFLL
+    description: CLK_OUT is USBFLL (at 60MHz it must be divided for external output).
+    value: 6
 enum/EXRSTPIN_KEY:
   bit_size: 8
   variants:
@@ -1651,6 +1691,15 @@ enum/RESETLEVEL_LEVEL:
   - name: BOOTLOADEREXIT
     description: Issue a SYSRST and exit the boot strap loader (BSL).
     value: 4
+enum/REFSEL:
+  bit_size: 1
+  variants:
+  - name: USBSOF
+    description: Use the USB start-of-frame as the reference clock.
+    value: 0
+  - name: LFCLK
+    description: Use LFCLK as the reference clock.
+    value: 1
 enum/SHDNIOREL_KEY:
   bit_size: 8
   variants:
@@ -1724,6 +1773,24 @@ enum/UDIV:
     value: 0
   - name: DIVIDE2
     description: ULPCLK is MCLK/2 (divided-by-2).
+    value: 1
+enum/USBCLKSRC:
+  bit_size: 1
+  variants:
+  - name: USBFLLCLK
+    description: USBCLK source is USBFLL.
+    value: 0
+  - name: SYSPLLOUT1
+    description: USBCLK source is SYSPLLCLK1.
+    value: 1
+enum/USBFLL4HSCLK:
+  bit_size: 1
+  variants:
+  - name: SYSPLL_HFCLK
+    description: HSCLK is sourced from HSCLKCFG.HSCLKSEL.
+    value: 0
+  - name: USBFLL
+    description: HSCLK is sourced from the USBFLL.
     value: 1
 enum/XT1DRIVE:
   bit_size: 2

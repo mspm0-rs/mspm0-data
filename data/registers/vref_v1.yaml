@@ -1,0 +1,157 @@
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: STAT
+    description: Status Register.
+    byte_offset: 20
+    access: Read
+    fieldset: STAT
+block/VREF:
+  description: PERIPHERALREGION.
+  items:
+  - name: GPRCM
+    byte_offset: 2048
+    block: GPRCM
+  - name: CLKDIV
+    description: Clock Divider.
+    byte_offset: 4096
+    fieldset: CLKDIV
+  - name: CLKSEL
+    description: Clock Selection.
+    byte_offset: 4104
+    fieldset: CLKSEL
+  - name: CTL0
+    description: Control 0.
+    byte_offset: 4352
+    fieldset: CTL0
+  - name: CTL1
+    description: Control 1.
+    byte_offset: 4356
+    fieldset: CTL1
+  - name: CTL2
+    description: Control 2.
+    byte_offset: 4360
+    fieldset: CTL2
+fieldset/CLKDIV:
+  description: Clock Divider.
+  fields:
+  - name: RATIO
+    description: Selects divide ratio of module clock to be used in sample and hold logic.
+    bit_offset: 0
+    bit_size: 3
+fieldset/CLKSEL:
+  description: Clock Selection.
+  fields:
+  - name: LFCLK_SEL
+    description: Selects LFCLK as clock source if enabled.
+    bit_offset: 1
+    bit_size: 1
+  - name: MFCLK_SEL
+    description: Selects MFCLK as clock source if enabled.
+    bit_offset: 2
+    bit_size: 1
+  - name: BUSCLK_SEL
+    description: Selects BUSCLK as clock source if enabled.
+    bit_offset: 3
+    bit_size: 1
+fieldset/CTL0:
+  description: Control 0.
+  fields:
+  - name: ENABLE
+    description: 'Enables reference buffer n. Each buffer feeds a different set of on-chip analog consumers rather than being interchangeable: hw_vref.h names buffer 1 COMP_VREF and buffer 2 ADC_VREF, and index 0 is the one TI''s own driverlib enables. SLAU846 Figure 23-1 is a superset diagram, so a device need not implement all three; nothing published says which it has.'
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 3
+      stride: 1
+  - name: BUFCONFIG
+    description: Selects the output voltage of the reference buffers. Changing from 2.5V to 1.4V has a very slow slew rate and READY stays set throughout, so that transition has to be timed by the caller.
+    bit_offset: 7
+    bit_size: 1
+    enum: BUFCONFIG
+  - name: SHMODE
+    description: This bit enable sample and hold mode.
+    bit_offset: 8
+    bit_size: 1
+fieldset/CTL1:
+  description: Control 1.
+  fields:
+  - name: READY
+    description: 'Reference buffer n has settled. One bit per ENABLE, but not at the same offsets: READY0 is bit 0, READY1 bit 2 and READY2 bit 3, with bit 1 unused. Beware VREF_ERR_01, which leaves the bit set once the buffer has been enabled a first time since reset, so on an affected device it cannot report a later enable and the datasheet startup time is the only signal.'
+    bit_offset: 0
+    bit_size: 1
+    array:
+      offsets: [0, 2, 3]
+fieldset/CTL2:
+  description: Control 2.
+  fields:
+  - name: SHCYCLE
+    description: Sample and Hold cycle count Total cycles of module clock for sample and hold phase when VREF is working in sample and hold mode in STANDBY to save power. This field should be greater than HCYCLE field. The difference between this field and HCYCLE gives the number of cycles of sample phase. Please refer VREF section of datasheet for recommended values of sample and hold times.
+    bit_offset: 0
+    bit_size: 16
+  - name: HCYCLE
+    description: Hold cycle count Total cycles of module clock for hold phase when VREF is working in sample and hold mode in STANDBY to save power. Please refer VREF section of datasheet for recommended values of sample and hold times.
+    bit_offset: 16
+    bit_size: 16
+fieldset/PWREN:
+  description: Power enable.
+  fields:
+  - name: ENABLE
+    description: Enable the power.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change.
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral.
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register.
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key.
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/STAT:
+  description: Status Register.
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+enum/BUFCONFIG:
+  bit_size: 1
+  variants:
+  - name: OUTPUT2P5V
+    description: Configure Output Buffer to 2.5v.
+    value: 0
+  - name: OUTPUT1P4V
+    description: Configure Output Buffer to 1.4v.
+    value: 1
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177

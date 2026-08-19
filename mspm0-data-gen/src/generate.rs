@@ -9,7 +9,7 @@ use std::{
 use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
     Chip, DmaChannel, Interrupt, Memory, Package, PackagePin, Peripheral, PeripheralPin,
-    PeripheralType, PowerDomain,
+    PeripheralType, PowerDomain, Unicomm,
 };
 use regex::Regex;
 
@@ -64,10 +64,11 @@ fn generate_family(
     // Data shared across all chips in a family.
     let packages = get_packages(&family.family, sysconfig)?;
     let iomux = generate_pincm(&family.family, sysconfig)?;
-    let peripherals = generate_peripherals2(&family.family, header, sysconfig)?;
+    let mut peripherals = generate_peripherals2(&family.family, header, sysconfig)?;
     let interrupts = generate_irqs(&family.family, header, int_groups)?;
     let dma_channels = generate_dma_channels(&family.family, sysconfig)?;
     let adc_memctl = generate_adc_memctl_dim(&family.family, sysconfig)?;
+    apply_unicomm(family, header, &mut peripherals)?;
 
     for part_number in family.part_numbers.iter() {
         // Filter for package types available on the part number.
@@ -279,6 +280,7 @@ fn generate_peripherals2(
                 power_domain,
                 pins: vec![],
                 sys_fentries,
+                unicomm: None,
             };
 
             // Lookup the pins
@@ -527,6 +529,7 @@ fn generate_missing(
             power_domain: PowerDomain::Pd1,
             pins: vec![],
             sys_fentries: None,
+            unicomm: None,
         },
     );
 
@@ -550,6 +553,7 @@ fn generate_missing(
             power_domain: PowerDomain::Pd1,
             pins: vec![],
             sys_fentries: None,
+            unicomm: None,
         },
     );
 
@@ -581,6 +585,7 @@ fn generate_missing(
                     power_domain: PowerDomain::Pd0,
                     pins: vec![],
                     sys_fentries: None,
+                    unicomm: None,
                 });
 
             let pin = device_pin
@@ -599,6 +604,45 @@ fn generate_missing(
                 });
             }
         }
+    }
+
+    // The beeper is documented as one SYSCTL register and addressed through it, so sysconfig does
+    // not list it and its register block was carved out of the SYSCTL maps. Every family below
+    // puts BEEPCFG at 0x1190 with the same two fields, per its hw_sysctl_*.h.
+    //
+    // Keyed on the family and not on the SYSCTL version: mspm0l112x and mspm0l211x have the beeper
+    // and share `sysctl_l122x_l222x` with mspm0l122x and mspm0l222x, which do not.
+    const BEEPER_FAMILIES: &[&str] = &[
+        "mspm0c110x",
+        "mspm0c1105_c1106",
+        "msps003fx",
+        "mspm0h321x",
+        "mspm0l112x",
+        "mspm0l211x",
+    ];
+
+    if BEEPER_FAMILIES.contains(&chip_name) {
+        let address = get_peripheral_addresses(chip_name, "SYSCTL", header, sysconfig)?
+            .context(format!("{chip_name}: BEEPER needs SYSCTL's address"))?;
+
+        let version = PERIMAP
+            .get(&format!("{}:{}", chip_name, PeripheralType::Beeper))
+            .map(|s| s.to_string());
+
+        peripherals.insert(
+            "BEEPER".to_string(),
+            Peripheral {
+                name: "BEEPER".to_string(),
+                ty: PeripheralType::Beeper,
+                version,
+                address: Some(address),
+                // It is part of SYSCTL, which is in PD0 on every family that has a beeper.
+                power_domain: PowerDomain::Pd0,
+                pins: vec![],
+                sys_fentries: None,
+                unicomm: None,
+            },
+        );
     }
 
     Ok(())
@@ -695,8 +739,16 @@ fn get_peripheral_type_version(chip_name: &str, name: &str) -> (PeripheralType, 
     } else {
         PeripheralType::Unknown
     };
+
+    // TIMB is a basic timer and has its own register block, so the key names the instance kind
+    // rather than the peripheral type. TIMA and TIMG share one, and both keep the plain `tim` key.
+    let key = if ty == PeripheralType::Tim && name.starts_with("TIMB") {
+        "timb"
+    } else {
+        &ty.to_string()
+    };
     let version = PERIMAP
-        .get(&format!("{}:{}", chip_name, ty))
+        .get(&format!("{}:{}", chip_name, key))
         .map(|s| s.to_string());
 
     (ty, version)
@@ -891,6 +943,118 @@ fn generate_adc_memctl_dim(chip_name: &str, sysconfig: &SysconfigFile) -> anyhow
         chip_name
     );
     Ok(result.unwrap())
+}
+
+/// Offset of each UNICOMM register map below the instance's own address.
+///
+/// Fixed by the IP: `mspm0g518x.h` computes them with `UC_UART_BASE(UC0_BASE)` and friends over
+/// `UC_*_OFFSET`, and the L-series headers write every base out literally. `apply_unicomm` checks
+/// each literal against these.
+const UNICOMM_MODE_OFFSETS: &[(&str, u32)] = &[
+    ("UART", 0x80000),
+    ("I2CC", 0x60000),
+    ("I2CT", 0x40000),
+    ("SPI", 0x20000),
+];
+
+/// The register map each UNICOMM mode is described by, and how [`Unicomm`] reports it.
+const UNICOMM_MODE_TYPES: &[(&str, PeripheralType, fn(&Unicomm) -> bool)] = &[
+    ("UART", PeripheralType::UnicommUart, |m| m.uart),
+    ("I2CC", PeripheralType::UnicommI2cc, |m| m.i2c_controller),
+    ("I2CT", PeripheralType::UnicommI2ct, |m| m.i2c_target),
+    ("SPI", PeripheralType::UnicommSpi, |m| m.spi),
+];
+
+/// Record which register maps each UNICOMM instance implements.
+fn apply_unicomm(
+    family: &PartFamily,
+    header: &Header,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) -> anyhow::Result<()> {
+    for (name, peripheral) in peripherals.iter_mut() {
+        if peripheral.ty != PeripheralType::Unicomm {
+            continue;
+        }
+
+        let modes = header.unicomm_modes.get(name).context(format!(
+            "{}: {name} is not in the header's UNICOMM instance table",
+            family.family
+        ))?;
+
+        ensure!(
+            modes.uart || modes.i2c_controller || modes.i2c_target || modes.spi,
+            "{}: {name} implements no UNICOMM register map",
+            family.family
+        );
+
+        // Where the header states a map's address rather than computing it, hold it to the offset
+        // a consumer is told to use. A part which moved one would otherwise be silently wrong.
+        if let Some(address) = peripheral.address {
+            for (mode, offset) in UNICOMM_MODE_OFFSETS {
+                let Some(&stated) = header.peripheral_addresses.get(&format!("{name}_{mode}"))
+                else {
+                    continue;
+                };
+
+                ensure!(
+                    stated == address - offset,
+                    "{}: {name}_{mode} is at {stated:#x}, not {:#x} as the offset from {name} says",
+                    family.family,
+                    address - offset
+                );
+            }
+        }
+
+        peripheral.unicomm = Some(*modes);
+    }
+
+    // Each mode the instance implements becomes a peripheral of its own, so that a consumer gets
+    // the right register block at the right address rather than having to subtract an offset from
+    // the instance. TI's own SVDs model them this way too, as UC0_UART, UC0_I2CC and so on.
+    //
+    // The instance is what the device has: it owns the pins, the interrupt and the low power
+    // facts, and the views repeat only what is true of them as a window onto the same silicon.
+    let mut views = Vec::new();
+
+    for peripheral in peripherals.values() {
+        let (Some(modes), Some(address)) = (peripheral.unicomm, peripheral.address) else {
+            continue;
+        };
+
+        for (mode, ty, implemented) in UNICOMM_MODE_TYPES {
+            if !implemented(&modes) {
+                continue;
+            }
+
+            let offset = UNICOMM_MODE_OFFSETS
+                .iter()
+                .find(|(name, _)| name == mode)
+                .map(|(_, offset)| offset)
+                .expect("every mode has an offset");
+
+            let name = format!("{}_{mode}", peripheral.name);
+            let version = PERIMAP
+                .get(&format!("{}:{ty}", family.family))
+                .map(|version| version.to_string());
+
+            views.push(Peripheral {
+                name: name.clone(),
+                ty: *ty,
+                version,
+                address: Some(address - offset),
+                power_domain: peripheral.power_domain,
+                pins: vec![],
+                sys_fentries: None,
+                unicomm: None,
+            });
+        }
+    }
+
+    for view in views {
+        peripherals.insert(view.name.clone(), view);
+    }
+
+    Ok(())
 }
 
 fn adc_vrsel_mapping(vrsel: &String) -> anyhow::Result<u8> {

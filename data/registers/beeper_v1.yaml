@@ -1,5 +1,5 @@
 block/BEEPER:
-  description: The MSPM0C110x/MSPS003 beeper. This technically exists in the SYSCTL block, but is separated. 
+  description: 'The beeper, addressed through SYSCTL: this is one register of that block, split out so the four SYSCTL variants which have it do not each carry a copy. Present on C110x, C1105/C1106, MSPS003, H321x, L112x and L211x.'
   items:
   - name: BEEPCFG
     description: BEEPER Configuration
@@ -12,21 +12,11 @@ fieldset/BEEPCFG:
     description: Beeper output enable
     bit_offset: 0
     bit_size: 1
-    enum: EN
   - name: FREQ
     description: Beeper Output Frequency Configuration
     bit_offset: 4
     bit_size: 2
     enum: FREQ
-enum/EN:
-  bit_size: 1
-  variants:
-  - name: DISABLE
-    description: Beeper Output Disabled
-    value: 0
-  - name: ENABLE
-    description: Beeper Output Enabled
-    value: 1
 enum/FREQ:
   bit_size: 2
   variants:
