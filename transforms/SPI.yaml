@@ -1,0 +1,181 @@
+# Transform using SPI0 from L222x
+transforms:
+  - !DeleteUselessEnums
+
+  # Remove useless prefixes
+  - !Rename
+    type: All
+    from: SPI0_(.+)
+    to: $1
+
+  - !RenameRegisters
+    block: .*
+    from: SPI0_(.+)
+    to: $1
+
+  - !RenameRegisters
+    block: GPRCM
+    from: GPRCM_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: SPI0
+    to: SPI
+
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
+  #
+  # TODO: Add this to chiptool
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLEARED
+      1: SET
+
+  # FREE is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STOP
+      1: RUN
+
+  # RESETASSERT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  # RESETSTKY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  # RESETSTKYCLR is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  # SPO is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: LOW
+      1: HIGH
+
+  # BUSY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: IDLE
+      1: ACTIVE
+
+  # RNF and TNF are useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: FULL
+      1: NOT_FULL
+
+  # Remove field prefixes in CPU_INT (except for IIDX)
+  - !RenameRegisters
+    block: CPU_INT
+    from: CPU_INT_(.*)
+    to: $1
+
+  # All CPU_INT fields are same layout
+  - !MergeFieldsets
+    from: CPU_INT_(IMASK|ISET|MIS|RIS|ICLR)
+    to: CPU_INT
+
+  # All DMA_TRIG_RX fields are same layout (except for IIDX)
+  - !RenameRegisters
+    block: DMA_TRIG_RX
+    from: DMA_TRIG_RX_(.*)
+    to: $1
+
+  # All DMA_TRIG_INT fields are same layout
+  - !MergeFieldsets
+    from: DMA_TRIG_RX_(IMASK|ISET|MIS|RIS|ICLR)
+    to: DMA_TRIG_RX_INT
+
+  # All DMA_TRIG_TX fields are same layout (except for IIDX)
+  - !RenameRegisters
+    block: DMA_TRIG_TX
+    from: DMA_TRIG_TX_(.*)
+    to: $1
+
+  # All DMA_TRIG_TX_INT fields are same layout
+  - !MergeFieldsets
+    from: DMA_TRIG_TX_(IMASK|ISET|MIS|RIS|ICLR)
+    to: DMA_TRIG_TX_INT
+
+  ## EVT_MODE
+  # Merge INTx_CFG enums
+  - !MergeEnums
+    from: INT(\d+)_CFG
+    to: INT_CFG
+
+  # Rename fields to match interrupt names
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT0_CFG
+    to: CPU
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT1_CFG
+    to: DMA_TRIG_RX
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT2_CFG
+    to: DMA_TRIG_TX
+
+  ## Add missing keys
+  - !AddFields
+    fieldset: RSTCTL
+    fields:
+    - name: KEY
+      description: Unlock key B1h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: RESET_KEY
+
+  - !AddFields
+    fieldset: PWREN
+    fields:
+    - name: KEY
+      description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: PWREN_KEY
+
+  - !AddFields
+    fieldset: CLKCFG
+    fields:
+    - name: KEY
+      description: KEY to Allow State Change A9h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: CLKCFG_KEY
+
+  - !Add
+    ir:
+      enum/RESET_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 177
+      enum/PWREN_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 38
+      enum/CLKCFG_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 0xA9
+
+  # Cleanup
+  - !Sort

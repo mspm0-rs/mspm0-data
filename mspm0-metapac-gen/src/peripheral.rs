@@ -20,6 +20,7 @@ const GENERATE_PERIPHERALS: &[PeripheralType] = &[
     PeripheralType::Iomux,
     PeripheralType::Mathacl,
     PeripheralType::Opa,
+    PeripheralType::Spi,
     PeripheralType::Sysctl,
     PeripheralType::Tim,
     PeripheralType::Trng,
