@@ -87,7 +87,8 @@ pub struct PackagePin {
     pub signals: Vec<String>,
 }
 
-// TODO: The rest
+// Every peripheral sysconfig names on a supported device needs a variant here: one that falls
+// through to `Unknown` is dropped from the generated metadata, which `verify.rs` reports.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum PeripheralType {
@@ -149,6 +150,9 @@ pub enum PeripheralType {
 
     Rtc,
 
+    /// Signal generator subsystem, whose instances sysconfig names `SPGx`.
+    Spgss,
+
     Spi,
 
     /// System Controller
@@ -204,6 +208,7 @@ impl fmt::Display for PeripheralType {
             PeripheralType::Npu => "npu",
             PeripheralType::Opa => "opa",
             PeripheralType::Rtc => "rtc",
+            PeripheralType::Spgss => "spgss",
             PeripheralType::Spi => "spi",
             PeripheralType::Sysctl => "sysctl",
             PeripheralType::Tim => "tim",
@@ -239,9 +244,24 @@ pub struct Peripheral {
     #[serde(flatten, rename = "type")]
     pub ty: PeripheralType,
 
+    /// Which register block describes this peripheral.
+    ///
+    /// Names the `data/registers/<type>_<version>.yaml` the generated PAC imports, so a version
+    /// present here is a promise that the block exists — `verify.rs` checks it. Instances of one
+    /// type normally share a version; where they do not, the version is what tells them apart, as
+    /// `btimer` does for the basic timers alongside `v1`.
+    ///
+    /// `None` when no register block has been curated for this peripheral yet. The peripheral is
+    /// still described — address, pins, power domain and interrupts are all independent of this —
+    /// but the PAC emits it as `pub const NAME: () = ();` rather than a typed block.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<String>,
 
+    /// Base address of the peripheral's register block.
+    ///
+    /// `None` for a peripheral which has no block of its own because it lives inside another, as
+    /// GPAMP does inside SYSCTL. Such a peripheral is omitted from the PAC entirely, and the HAL
+    /// reaches it through its host.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub address: Option<u32>,
 

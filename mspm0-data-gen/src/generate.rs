@@ -63,10 +63,10 @@ fn generate_family(
 ) -> anyhow::Result<()> {
     // Data shared across all chips in a family.
     let packages = get_packages(&family.family, sysconfig)?;
-    let iomux = generate_pincm(&family.family, sysconfig)?;
+    let iomux = generate_pincm(sysconfig)?;
     let peripherals = generate_peripherals2(&family.family, header, sysconfig)?;
     let interrupts = generate_irqs(&family.family, header, int_groups)?;
-    let dma_channels = generate_dma_channels(&family.family, sysconfig)?;
+    let dma_channels = generate_dma_channels(sysconfig)?;
     let adc_memctl = generate_adc_memctl_dim(&family.family, sysconfig)?;
 
     for part_number in family.part_numbers.iter() {
@@ -108,9 +108,9 @@ fn generate_family(
             adc_vrsel: adc_vrsel_mapping(&family.adc_vrsel)?,
         };
 
-        if let Err(err) = verify::verify(&chip, &part_number.name) {
+        for err in verify::verify(&chip, &part_number.name) {
             eprintln!("{err}");
-        };
+        }
 
         let data = serde_json::to_string_pretty(&chip)
             .context(format!("Serializing chip {}", part_number.name))?;
@@ -167,15 +167,12 @@ fn get_packages(family: &str, sysconfig: &SysconfigFile) -> anyhow::Result<Vec<P
     Ok(packages)
 }
 
-fn generate_pincm(
-    _chip_name: &str,
-    sysconfig: &SysconfigFile,
-) -> anyhow::Result<BTreeMap<String, u32>> {
+fn generate_pincm(sysconfig: &SysconfigFile) -> anyhow::Result<BTreeMap<String, u32>> {
     let mut pins = BTreeMap::new();
 
-    // TODO: Remove this hack as we have replaced it.
     for device_pin in sysconfig.device_pins.values() {
-        // TODO: Does this cause any problems?
+        // Multi-bonded pins, as in generate_peripherals2: named for both functions, listed
+        // separately under each.
         if device_pin.name.contains('/') {
             continue;
         }
@@ -267,7 +264,7 @@ fn generate_peripherals2(
             }
 
             let (ty, version) = get_peripheral_type_version(chip_name, &name);
-            let address = get_peripheral_addresses(chip_name, &name, header, sysconfig)?;
+            let address = get_peripheral_addresses(chip_name, &name, header)?;
             let power_domain = get_power_domain(peripheral, ty, chip_name)?;
             let sys_fentries = get_sys_fentries(peripheral, chip_name)?;
 
@@ -311,9 +308,8 @@ fn generate_peripherals2(
                                 .context(format!("Device pin with id {device_pin_id}, used by {pin_name_and_signal} (id: {pin_id}) is not present"))?;
                             let device_pin_name = &device_pin.name;
 
-                            // Remove pin entries with a `/` as these represent multi-bonded pins.
-                            //
-                            // TODO: Does this cause any problems?
+                            // Multi-bonded pins, which sysconfig names "PA1/NRST". The bank and
+                            // pin they alias are listed separately, so skipping them loses nothing.
                             if device_pin_name.contains('/') {
                                 continue;
                             }
@@ -322,11 +318,7 @@ fn generate_peripherals2(
                                 "PF was not valid integer for {device_pin_name}, {pin_name_and_signal}"
                             ))?;
 
-                            let pin = device_pin_name
-                                .split_once('/')
-                                .map(|(a, _)| a)
-                                .unwrap_or_else(|| device_pin_name)
-                                .to_string();
+                            let pin = device_pin_name.to_string();
 
                             if skip_peripheral_pin(device_pin_name, chip_name) {
                                 continue;
@@ -564,7 +556,7 @@ fn generate_missing(
             // Resolving the address always is unfortunately required because or_insert_with_key cannot handle
             // fallible closures.
             let bank = format!("GPIO{bank}");
-            let address = get_peripheral_addresses(chip_name, &bank, header, sysconfig)?
+            let address = get_peripheral_addresses(chip_name, &bank, header)?
                 .context(format!("{bank} must have address"))?;
 
             let version = PERIMAP
@@ -612,91 +604,69 @@ fn maybe_rename(name: &str) -> String {
     name.to_string()
 }
 
-fn get_peripheral_type_version(chip_name: &str, name: &str) -> (PeripheralType, Option<String>) {
-    if name.starts_with("SYSCTL") {
-        let version = PERIMAP
-            .get(&format!("{}:{}", chip_name, PeripheralType::Sysctl))
-            .map(|s| s.to_string());
-        return (PeripheralType::Sysctl, version);
-    }
+/// Peripheral instance name prefixes, and the type each names.
+///
+/// First match wins, so order matters where one prefix starts with another: `AESADV` has to come
+/// before `AES`. TIMA, TIMB and TIMG are all `Tim`.
+const PERIPHERAL_PREFIXES: &[(&str, PeripheralType)] = &[
+    ("ADC", PeripheralType::Adc),
+    ("AESADV", PeripheralType::AesAdv),
+    ("AES", PeripheralType::Aes),
+    ("CANFD", PeripheralType::Canfd),
+    ("COMP", PeripheralType::Comp),
+    ("CPUSS", PeripheralType::Cpuss),
+    ("CRC", PeripheralType::Crc),
+    ("DAC", PeripheralType::Dac),
+    ("DEBUGSS", PeripheralType::Debugss),
+    ("DMA", PeripheralType::Dma),
+    ("EVENT", PeripheralType::Event),
+    ("FLASHCTL", PeripheralType::FlashCtl),
+    ("GPAMP", PeripheralType::GpAmp),
+    ("GPIO", PeripheralType::Gpio),
+    ("I2C", PeripheralType::I2c),
+    ("I2S", PeripheralType::I2s),
+    ("IOMUX", PeripheralType::Iomux),
+    ("IWDT", PeripheralType::Iwdt),
+    ("KEYSTORECTL", PeripheralType::KeystoreCtl),
+    ("LCD", PeripheralType::Lcd),
+    ("LFSS", PeripheralType::Lfss),
+    ("MATHACL", PeripheralType::Mathacl),
+    ("NPU", PeripheralType::Npu),
+    ("OPA", PeripheralType::Opa),
+    ("RTC", PeripheralType::Rtc),
+    ("SPG", PeripheralType::Spgss),
+    ("SPI", PeripheralType::Spi),
+    ("SYSCTL", PeripheralType::Sysctl),
+    ("TIMA", PeripheralType::Tim),
+    ("TIMB", PeripheralType::Tim),
+    ("TIMG", PeripheralType::Tim),
+    ("TRNG", PeripheralType::Trng),
+    ("UART", PeripheralType::Uart),
+    ("UC", PeripheralType::Unicomm),
+    ("USBFS", PeripheralType::Usbfs),
+    ("VREF", PeripheralType::Vref),
+    ("WUC", PeripheralType::Wuc),
+    ("WWDT", PeripheralType::Wwdt),
+];
 
-    let ty = if name.starts_with("ADC") {
-        PeripheralType::Adc
-    } else if name.starts_with("AESADV") {
-        PeripheralType::AesAdv
-    } else if name.starts_with("AES") {
-        PeripheralType::Aes
-    } else if name.starts_with("CANFD") {
-        PeripheralType::Canfd
-    } else if name.starts_with("COMP") {
-        PeripheralType::Comp
-    } else if name.starts_with("CPUSS") {
-        PeripheralType::Cpuss
-    } else if name.starts_with("CRC") {
-        PeripheralType::Crc
-    } else if name.starts_with("DAC") {
-        PeripheralType::Dac
-    } else if name.starts_with("DEBUGSS") {
-        PeripheralType::Debugss
-    } else if name.starts_with("DMA") {
-        PeripheralType::Dma
-    } else if name.starts_with("EVENT") {
-        PeripheralType::Event
-    } else if name.starts_with("FLASHCTL") {
-        PeripheralType::FlashCtl
-    } else if name.starts_with("GPAMP") {
-        PeripheralType::GpAmp
-    } else if name.starts_with("GPIO") {
-        PeripheralType::Gpio
-    } else if name.starts_with("I2C") {
-        PeripheralType::I2c
-    } else if name.starts_with("I2S") {
-        PeripheralType::I2s
-    } else if name.starts_with("IOMUX") {
-        PeripheralType::Iomux
-    } else if name.starts_with("IWDT") {
-        PeripheralType::Iwdt
-    } else if name.starts_with("KEYSTORECTL") {
-        PeripheralType::KeystoreCtl
-    } else if name.starts_with("LCD") {
-        PeripheralType::Lcd
-    } else if name.starts_with("LFSS") {
-        PeripheralType::Lfss
-    } else if name.starts_with("MATHACL") {
-        PeripheralType::Mathacl
-    } else if name.starts_with("NPU") {
-        PeripheralType::Npu
-    } else if name.starts_with("OPA") {
-        PeripheralType::Opa
-    } else if name.starts_with("RTC") {
-        PeripheralType::Rtc
-    } else if name.starts_with("SPI") {
-        PeripheralType::Spi
-    } else if name.starts_with("TIMA") {
-        PeripheralType::Tim
-    } else if name.starts_with("TIMB") {
-        PeripheralType::Tim
-    } else if name.starts_with("TIMG") {
-        PeripheralType::Tim
-    } else if name.starts_with("TRNG") {
-        PeripheralType::Trng
-    } else if name.starts_with("UART") {
-        PeripheralType::Uart
-    } else if name.starts_with("UC") {
-        PeripheralType::Unicomm
-    } else if name.starts_with("USBFS") {
-        PeripheralType::Usbfs
-    } else if name.starts_with("VREF") {
-        PeripheralType::Vref
-    } else if name.starts_with("WUC") {
-        PeripheralType::Wuc
-    } else if name.starts_with("WWDT") {
-        PeripheralType::Wwdt
-    } else {
-        PeripheralType::Unknown
-    };
+/// The type of a peripheral, from its instance name.
+///
+/// `Unknown` for a name no prefix covers. That is not inert - such a peripheral is dropped from the
+/// generated metadata - so `verify::peripheral_types_known` reports it rather than letting a source
+/// bump quietly lose one.
+fn peripheral_type_from_name(name: &str) -> PeripheralType {
+    PERIPHERAL_PREFIXES
+        .iter()
+        .find(|(prefix, _)| name.starts_with(prefix))
+        .map(|(_, ty)| *ty)
+        .unwrap_or(PeripheralType::Unknown)
+}
+
+fn get_peripheral_type_version(chip_name: &str, name: &str) -> (PeripheralType, Option<String>) {
+    let ty = peripheral_type_from_name(name);
+
     let version = PERIMAP
-        .get(&format!("{}:{}", chip_name, ty))
+        .get(&format!("{chip_name}:{ty}"))
         .map(|s| s.to_string());
 
     (ty, version)
@@ -706,7 +676,6 @@ fn get_peripheral_addresses(
     chip_name: &str,
     name: &str,
     header: &Header,
-    _sysconfig: &SysconfigFile,
 ) -> anyhow::Result<Option<u32>> {
     let name = Cow::from(name);
 
@@ -807,10 +776,7 @@ fn generate_irqs(
     Ok(interrupts)
 }
 
-fn generate_dma_channels(
-    _chip_name: &str,
-    sysconfig: &SysconfigFile,
-) -> anyhow::Result<BTreeMap<u32, DmaChannel>> {
+fn generate_dma_channels(sysconfig: &SysconfigFile) -> anyhow::Result<BTreeMap<u32, DmaChannel>> {
     static PATTERN: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"DMA_CH(?<channel>\d+)").unwrap());
 
