@@ -417,6 +417,12 @@ fn generate_peripheral(
                 None => quote! { None },
             };
             let (wakeup_max_ns, wakeup_typ_ns) = (ns(adc.wakeup_max_ns), ns(adc.wakeup_typ_ns));
+            let sample_min_ns = ns(adc.sample_min_ns);
+            let pga_sample_ns = adc.pga_sample_ns.iter().map(|(gain, sample_ns)| {
+                let gain = Literal::u8_unsuffixed(*gain);
+                let sample_ns = Literal::u32_unsuffixed(*sample_ns);
+                quote! { AdcPgaSample { gain: #gain, ns: #sample_ns } }
+            });
             quote! {
                 Some(Adc {
                     memctl: #memctl,
@@ -424,6 +430,8 @@ fn generate_peripheral(
                     internal_channels: &[#(#internal_channels),*],
                     wakeup_max_ns: #wakeup_max_ns,
                     wakeup_typ_ns: #wakeup_typ_ns,
+                    sample_min_ns: #sample_min_ns,
+                    pga_sample_ns: &[#(#pga_sample_ns),*],
                 })
             }
         }

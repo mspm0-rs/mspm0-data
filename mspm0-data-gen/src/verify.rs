@@ -15,6 +15,8 @@ pub fn verify(chip: &Chip, name: &str) -> Vec<anyhow::Error> {
         vref_startup_known,
         adc_channels_known,
         adc_wakeup_known,
+        adc_sample_window_known,
+        adc_pga_sample_matches_opa,
         adc_internal_sources_exist,
         uart_features_known,
         opa_inputs_known,
@@ -183,6 +185,76 @@ fn adc_wakeup_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
                  fill one column, so check which data/adc_wakeup/{}.yaml means",
                 peripheral.name,
                 chip.family
+            );
+        }
+    }
+
+    Ok(())
+}
+
+/// Report an ADC instance with no minimum sample window.
+///
+/// Every one of the sixteen datasheets states the row, under one name or the other, so a missing
+/// figure means `data/adc_sample/<family>.yaml` is absent or the extraction failed. It is never a
+/// device which can sample for as little as it likes.
+fn adc_sample_window_known(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    for peripheral in chip
+        .peripherals
+        .values()
+        .filter(|peripheral| peripheral.ty == PeripheralType::Adc)
+    {
+        let missing = peripheral
+            .adc
+            .as_ref()
+            .is_none_or(|adc| adc.sample_min_ns.is_none());
+        if missing {
+            bail!(
+                "{name}: {} has no minimum ADC sample window; data/adc_sample/{}.yaml is missing",
+                peripheral.name,
+                chip.family
+            );
+        }
+    }
+
+    Ok(())
+}
+
+/// The PGA sample windows exist exactly where an OPA does.
+///
+/// Both directions matter and both have been wrong in a source. Seven datasheets print the
+/// `tSample_PGA` table while only four families have the amplifier, so carrying the map on a chip
+/// with no OPA would repeat the ADC channel map's superset mistake. A chip which *has* an OPA and
+/// no map is the other half: its OPA output channels then read as needing only the bare-pin window,
+/// which is short by an order of magnitude at high gain.
+fn adc_pga_sample_matches_opa(chip: &Chip, name: &str) -> anyhow::Result<()> {
+    let has_opa = chip
+        .peripherals
+        .values()
+        .any(|peripheral| peripheral.ty == PeripheralType::Opa);
+
+    for peripheral in chip
+        .peripherals
+        .values()
+        .filter(|peripheral| peripheral.ty == PeripheralType::Adc)
+    {
+        let Some(adc) = peripheral.adc.as_ref() else {
+            continue;
+        };
+
+        if has_opa && adc.pga_sample_ns.is_empty() {
+            bail!(
+                "{name}: {} has no PGA sample windows but the chip has an OPA; \
+                 data/adc_sample/{}.yaml lost the tSample_PGA table",
+                peripheral.name,
+                chip.family
+            );
+        }
+
+        if !has_opa && !adc.pga_sample_ns.is_empty() {
+            bail!(
+                "{name}: {} carries PGA sample windows but the chip has no OPA; the datasheet row \
+                 is footnoted \"Only applies for devices with OPA\"",
+                peripheral.name,
             );
         }
     }

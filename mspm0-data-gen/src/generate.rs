@@ -8,15 +8,16 @@ use std::{
 
 use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
-    Adc, Chip, Comp, Dma, DmaChannel, Flashctl, Interrupt, IoStructure, Memory, MemoryKind, Package,
-    PackagePin, Peripheral, PeripheralInterrupt, PeripheralPin, PeripheralType, PowerDomain,
-    PowerMode, Sysctl, Timer, Uart, Unicomm, Vref,
+    Adc, Chip, Comp, Dma, DmaChannel, Flashctl, Interrupt, IoStructure, Memory, MemoryKind,
+    Package, PackagePin, Peripheral, PeripheralInterrupt, PeripheralPin, PeripheralType,
+    PowerDomain, PowerMode, Sysctl, Timer, Uart, Unicomm, Vref,
 };
 use regex::Regex;
 
 use crate::comp::CompTiming;
 use crate::{
     adc_channels::AdcChannels,
+    adc_sample::AdcSample,
     adc_wakeup::AdcWakeup,
     header::Header,
     int_group::Groups,
@@ -50,6 +51,7 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
         header,
         sysconfig,
         adc_channels,
+        adc_sample,
         adc_wakeup,
         svd,
         clock_tree,
@@ -85,7 +87,14 @@ fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Resu
     apply_standby1_timers(family, &mut peripherals)?;
     apply_timers(family, sysconfig, timers, &mut peripherals)?;
     apply_clock_ranges(family, &mut peripherals);
-    apply_adc(family, sysconfig, adc_channels, adc_wakeup, &mut peripherals)?;
+    apply_adc(
+        family,
+        sysconfig,
+        adc_channels,
+        adc_sample,
+        adc_wakeup,
+        &mut peripherals,
+    )?;
     apply_unicomm(family, header, &mut peripherals)?;
     apply_uart(family, sysconfig, uart, &mut peripherals)?;
     apply_opa(opa, &mut peripherals);
@@ -1252,7 +1261,11 @@ fn apply_dma(
     // source there, and it agrees with the header on all ten families which state both.
     if let Some(svd) = svd {
         for (feature, from_header, from_svd) in [
-            ("128-bit DMA transfers", header.dma_long_long, svd.dma_long_long),
+            (
+                "128-bit DMA transfers",
+                header.dma_long_long,
+                svd.dma_long_long,
+            ),
             (
                 "the DMA's automatic enable",
                 header.dma_auto_enable,
@@ -1380,11 +1393,19 @@ fn apply_adc(
     family: &PartFamily,
     sysconfig: &SysconfigFile,
     adc_channels: Option<&AdcChannels>,
+    adc_sample: Option<&AdcSample>,
     adc_wakeup: Option<AdcWakeup>,
     peripherals: &mut BTreeMap<String, Peripheral>,
 ) -> anyhow::Result<()> {
     let chip_name = &family.family;
     let vrsel = adc_vrsel_mapping(&family.adc_vrsel)?;
+
+    // Seven datasheets print the `tSample_PGA` table and only four of those families have an OPA:
+    // the row is footnoted "Only applies for devices with OPA" because one document covers several
+    // devices. Gating on the instance is what keeps that superset out of the metadata.
+    let has_opa = peripherals
+        .values()
+        .any(|peripheral| peripheral.ty == PeripheralType::Opa);
 
     let mut memctl = BTreeMap::new();
     for peripheral in sysconfig
@@ -1431,6 +1452,11 @@ fn apply_adc(
             // the family publishes no ceiling, so it must not be filled in from the typical.
             wakeup_max_ns: adc_wakeup.and_then(|w| w.max_ns),
             wakeup_typ_ns: adc_wakeup.and_then(|w| w.typ_ns),
+            sample_min_ns: adc_sample.map(|s| s.min_ns),
+            pga_sample_ns: match (has_opa, adc_sample) {
+                (true, Some(sample)) => sample.pga_ns.clone(),
+                _ => BTreeMap::new(),
+            },
         });
     }
 

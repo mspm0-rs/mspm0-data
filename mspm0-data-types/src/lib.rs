@@ -1030,6 +1030,59 @@ pub struct Adc {
     /// figure is for and why the two are not merged.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub wakeup_typ_ns: Option<u32>,
+
+    /// The shortest sample window the datasheet supports, in nanoseconds, from the `tSample` row
+    /// (older documents) or `tSample_step` (newer), MIN column.
+    ///
+    /// `SAMPCLK` has no published ceiling; the window is what the datasheets bound. A `SCOMPx`
+    /// shorter than this converts an input which has not finished settling, and nothing reports it.
+    /// This is the bare-pin figure. An OPA output channel needs [`Adc::pga_sample_ns`] instead, and
+    /// where `CTL0.PWRDN` leaves automatic power down on, [`Adc::wakeup_max_ns`] is paid out of the
+    /// same window and adds to this.
+    ///
+    /// **The two row names are one quantity.** Only mspm0h321x prints a `Vstep`, and it is the only
+    /// 4.5–5.5V part, so the older documents left the step implicit at the device's own full scale.
+    /// No datasheet prints both rows, so that reading is the best supported rather than proven.
+    /// Where a datasheet states the row twice the larger is recorded: mspm0h321x is 188ns at a 4V
+    /// step and 400ns at 5V, and its recommended supply reaches 5.5V, so only the 5V figure bounds
+    /// the part.
+    ///
+    /// Whole nanoseconds, rounded **up** — 62.5ns on the G families becomes 63. Rounding a lower
+    /// bound down would hand out a window the datasheet does not support.
+    ///
+    /// Five values across eighteen families, and it follows neither the family nor the series: 63
+    /// on the six G families, 156 on l110x/l122x/l130x/l134x/l222x, 166 on c110x and msps003fx, 188
+    /// on c1105_c1106/g518x/l112x/l211x, 400 on h321x. `None` means the extraction is missing, not
+    /// that the device has no minimum — every datasheet states one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sample_min_ns: Option<u32>,
+
+    /// The sample window an OPA output channel needs, in nanoseconds, keyed by PGA gain.
+    ///
+    /// From the datasheet's `tSample_PGA` row, MIN column. It is per *gain* and not per channel,
+    /// and at high gain it is an order of magnitude above [`Adc::sample_min_ns`]: 1500ns at x32
+    /// against a 156ns bare pin on mspm0l130x. A driver programming the bare-pin figure for an OPA
+    /// channel is short by that much, with nothing to report it.
+    ///
+    /// **Every published figure is conditioned `CFGBASE.GBW = 1`, the high-bandwidth setting.** The
+    /// field resets to `0` and TI's `DL_OPA_init` leaves it there, so a caller which has not set it
+    /// is outside every published figure. No datasheet publishes a row for `GBW = 0`, and the low
+    /// setting is slower — the OPA's own `tSETTLE` is 2.5µs typical against 1.3µs — so at `GBW = 0`
+    /// these become an underestimate rather than a bound. What a given driver leaves the field at
+    /// is the driver's own fact, not the device's.
+    ///
+    /// **A gain absent from the map is unpublished, not derivable.** The G datasheets print six
+    /// gains (x1, x2, x4, x8, x16, x32) and the L datasheets print two, the endpoints only. The two
+    /// curves cross — L is slower at x1 (310ns against 220ns) and faster at x32 (1500ns against
+    /// 2600ns) — so neither can be interpolated onto the other, and nothing bounds the L families
+    /// between x1 and x32.
+    ///
+    /// Empty on every chip with no OPA. Seven datasheets print the table but only four families
+    /// have the amplifier: the row carries the footnote "Only applies for devices with OPA" because
+    /// one document covers several devices, so the map is attached only where an OPA instance
+    /// exists.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub pga_sample_ns: BTreeMap<u8, u32>,
 }
 
 /// An internal signal an ADC channel samples instead of a package pin.

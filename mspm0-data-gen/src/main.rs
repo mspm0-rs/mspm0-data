@@ -1,4 +1,5 @@
 mod adc_channels;
+mod adc_sample;
 mod adc_wakeup;
 mod clock_tree;
 mod comp;
@@ -13,11 +14,11 @@ mod perimap;
 mod sources;
 mod svd;
 mod sysconfig;
+mod temp_sensor;
 mod timers;
 mod uart;
 mod util;
 mod verify;
-mod temp_sensor;
 mod vref;
 mod wakeup;
 
@@ -80,6 +81,7 @@ fn main() -> anyhow::Result<()> {
     stopwatch.section("Read interrupt group mappings");
 
     let adc_channels = adc_channels::parse()?;
+    let adc_sample = adc_sample::parse()?;
     let adc_wakeup = adc_wakeup::parse()?;
     let int_groups = int_group::parse()?;
     let operating_modes = operating_modes::parse()?;
@@ -99,6 +101,7 @@ fn main() -> anyhow::Result<()> {
         parts,
         headers,
         adc_channels,
+        adc_sample,
         adc_wakeup,
         sysconfig,
         svds,
