@@ -115,6 +115,12 @@ pub struct PinAttributes {
     pub pad_name: String,
     pub io_type: Option<String>,
     pub iomux_pincm: String,
+
+    /// Whether the pin has wakeup logic, and can therefore wake the device from SHUTDOWN.
+    ///
+    /// Absent for pins which are not usable as I/O. Note that this is not the same as the pin being
+    /// able to wake the device at all: `FASTWAKE` works on any GPIO, but only down to STANDBY.
+    pub io_wakeup: Option<bool>,
 }
 
 #[allow(dead_code)]

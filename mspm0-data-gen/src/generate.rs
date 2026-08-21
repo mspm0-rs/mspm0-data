@@ -8,66 +8,101 @@ use std::{
 
 use anyhow::{anyhow, bail, ensure, Context};
 use mspm0_data_types::{
-    Chip, DmaChannel, Interrupt, Memory, Package, PackagePin, Peripheral, PeripheralPin,
-    PeripheralType, PowerDomain,
+    Adc, Chip, Comp, Dma, DmaChannel, Flashctl, Interrupt, IoStructure, Memory, MemoryKind,
+    Package, PackagePin, Peripheral, PeripheralInterrupt, PeripheralPin, PeripheralType,
+    PowerDomain, PowerMode, Sysctl, Timer, Uart, Unicomm, Vref,
 };
 use regex::Regex;
 
+use crate::comp::CompTiming;
 use crate::{
-    header::{Header, Headers},
+    adc_channels::AdcChannels,
+    adc_sample::AdcSample,
+    adc_wakeup::AdcWakeup,
+    header::Header,
     int_group::Groups,
-    parts::{PartFamily, PartMemory, PartsFile},
+    opa::Opas,
+    operating_modes::OperatingModes,
+    parts::{PartFamily, PartMemory},
     perimap::PERIMAP,
-    sysconfig::{self, PartPeripheralWrapper, Sysconfig, SysconfigFile},
+    sources::{FamilySources, Sources},
+    svd::Svd,
+    sysconfig::{self, PartPeripheralWrapper, SysconfigFile},
+    timers::Timers,
+    uart::Uarts,
     verify,
 };
 
-pub fn generate(
-    parts: &PartsFile,
-    headers: &Headers,
-    sysconfig: &Sysconfig,
-    int_groups: &BTreeMap<String, Groups>,
-) -> anyhow::Result<()> {
+pub fn generate(sources: &Sources) -> anyhow::Result<()> {
     fs::create_dir_all("./build/data/").unwrap();
 
-    for family in parts.families.iter() {
-        let sysconfig = sysconfig
-            .files
-            .get(&family.family.to_uppercase())
-            .context(format!("No sysconfig data available for {}", family.family))?;
+    for family in sources.parts.families.iter() {
+        let family_sources = sources.family(&family.family)?;
 
-        // MSPS003FX is the same as C110X except for package options and some pins.
-        let header_name = if family.family == "msps003fx" {
-            "mspm0c110x"
-        } else {
-            &family.family
-        };
-
-        let header = headers
-            .headers
-            .get(&header_name.to_lowercase())
-            .context(format!("Could not lookup header for {}", header_name))?;
-
-        generate_family(family, header, sysconfig, int_groups)
+        generate_family(family, &family_sources)
             .context(format!("Error when generating family: {}", family.family))?;
     }
 
     Ok(())
 }
 
-fn generate_family(
-    family: &PartFamily,
-    header: &Header,
-    sysconfig: &SysconfigFile,
-    int_groups: &BTreeMap<String, Groups>,
-) -> anyhow::Result<()> {
+fn generate_family(family: &PartFamily, sources: &FamilySources) -> anyhow::Result<()> {
+    let FamilySources {
+        header,
+        sysconfig,
+        adc_channels,
+        adc_sample,
+        adc_wakeup,
+        svd,
+        clock_tree,
+        operating_modes,
+        timers,
+        uart,
+        opa,
+        errata,
+        wake,
+        vref,
+        comp,
+        temp_sensor,
+        int_groups,
+    } = *sources;
+
     // Data shared across all chips in a family.
     let packages = get_packages(&family.family, sysconfig)?;
-    let iomux = generate_pincm(&family.family, sysconfig)?;
-    let peripherals = generate_peripherals2(&family.family, header, sysconfig)?;
+    let iomux = generate_pincm(sysconfig)?;
+    let io_structure = generate_io_structure(&family.family, sysconfig)?;
+    let wakeup_pins = generate_wakeup_pins(sysconfig);
+    let mut peripherals = generate_peripherals2(&family.family, header, sysconfig)?;
     let interrupts = generate_irqs(&family.family, header, int_groups)?;
-    let dma_channels = generate_dma_channels(&family.family, sysconfig)?;
-    let adc_memctl = generate_adc_memctl_dim(&family.family, sysconfig)?;
+    let dma_channels = generate_dma_channels(sysconfig)?;
+    let backup_domain = has_backup_domain(&family.family, sysconfig, &peripherals)?;
+    let clock_tree = clock_tree
+        .context(format!("{}: no clocktree.json", family.family))?
+        .clock_tree(family);
+
+    // Low power facts which are easier to attach once every peripheral is known.
+    apply_peripheral_interrupts(&mut peripherals, &interrupts);
+    apply_block_async(&mut peripherals, svd);
+    apply_operating_modes(operating_modes, &mut peripherals);
+    apply_standby1_timers(family, &mut peripherals)?;
+    apply_timers(family, sysconfig, timers, &mut peripherals)?;
+    apply_clock_ranges(family, &mut peripherals);
+    apply_adc(
+        family,
+        sysconfig,
+        adc_channels,
+        adc_sample,
+        adc_wakeup,
+        &mut peripherals,
+    )?;
+    apply_unicomm(family, header, &mut peripherals)?;
+    apply_uart(family, sysconfig, uart, &mut peripherals)?;
+    apply_opa(opa, &mut peripherals);
+    apply_vref(vref, &mut peripherals);
+    apply_comp(sysconfig, comp, &mut peripherals);
+    apply_flashctl(family, header, &mut peripherals);
+    apply_sysctl(family, &mut peripherals);
+    apply_dma(family, header, svd, &mut peripherals)?;
 
     for part_number in family.part_numbers.iter() {
         // Filter for package types available on the part number.
@@ -98,19 +133,33 @@ fn generate_family(
             datasheet_url: family.datasheet_url.clone(),
             reference_manual_url: family.reference_manual_url.clone(),
             errata_url: family.errata_url.clone(),
-            memory: part_number.memory.iter().map(convert_memory).collect(),
+            memory: part_number
+                .memory
+                .iter()
+                .map(convert_memory)
+                .collect::<anyhow::Result<_>>()?,
             packages: packages.collect(),
             iomux: iomux.clone(),
+            io_structure: io_structure.clone(),
+            wakeup_pins: wakeup_pins.clone(),
             peripherals: peripherals.clone(),
             interrupts: interrupts.clone(),
             dma_channels: dma_channels.clone(),
-            adc_memctl,
-            adc_vrsel: adc_vrsel_mapping(&family.adc_vrsel)?,
+            nvic_priority_bits: header.nvic_priority_bits,
+            max_mclk_hz: family.max_mclk_hz,
+            max_ulpclk_hz: family.max_ulpclk_hz,
+            sysosc_base_hz: family.sysosc_base_hz,
+            flash_wait_hz: family.flash_wait_hz.clone(),
+            backup_domain,
+            clock_tree,
+            errata: errata.map(|e| e.errata.clone()).unwrap_or_default(),
+            wake_ns: wake.unwrap_or_default(),
+            temperature_sensor: temp_sensor,
         };
 
-        if let Err(err) = verify::verify(&chip, &part_number.name) {
+        for err in verify::verify(&chip, &part_number.name) {
             eprintln!("{err}");
-        };
+        }
 
         let data = serde_json::to_string_pretty(&chip)
             .context(format!("Serializing chip {}", part_number.name))?;
@@ -167,15 +216,59 @@ fn get_packages(family: &str, sysconfig: &SysconfigFile) -> anyhow::Result<Vec<P
     Ok(packages)
 }
 
-fn generate_pincm(
-    _chip_name: &str,
+/// Read each pin's IO structure from sysconfig's `io_type`.
+///
+/// An unrecognised value is an error rather than a skipped pin: the structure decides which PINCM
+/// fields do anything, so a pin quietly missing from the map would read as a pin with no
+/// restrictions.
+fn generate_io_structure(
+    family: &str,
     sysconfig: &SysconfigFile,
-) -> anyhow::Result<BTreeMap<String, u32>> {
+) -> anyhow::Result<BTreeMap<String, IoStructure>> {
+    let mut structures = BTreeMap::new();
+
+    for device_pin in sysconfig.device_pins.values() {
+        // Multi-bonded pins are listed separately under each function, as in generate_pincm.
+        if device_pin.name.contains('/') {
+            continue;
+        }
+
+        // A pin with no PINCM is not usable as I/O, and sysconfig gives those no io_type either.
+        if device_pin.attributes.iomux_pincm.parse::<u32>().is_err() {
+            continue;
+        }
+
+        let io_type = device_pin.attributes.io_type.as_deref().context(format!(
+            "{family}: {} has a PINCM but no io_type",
+            device_pin.name
+        ))?;
+
+        let structure = match io_type {
+            "SD" => IoStructure::Standard,
+            "SDL" => IoStructure::StandardLowLeakage,
+            "SDW" => IoStructure::StandardWithWake,
+            "HD" => IoStructure::HighDrive,
+            "HS" => IoStructure::HighSpeed,
+            "OD" => IoStructure::OpenDrain,
+            "USB" => IoStructure::Usb,
+            other => bail!(
+                "{family}: {} has the unknown io_type {other}",
+                device_pin.name
+            ),
+        };
+
+        structures.insert(device_pin.name.to_string(), structure);
+    }
+
+    Ok(structures)
+}
+
+fn generate_pincm(sysconfig: &SysconfigFile) -> anyhow::Result<BTreeMap<String, u32>> {
     let mut pins = BTreeMap::new();
 
-    // TODO: Remove this hack as we have replaced it.
     for device_pin in sysconfig.device_pins.values() {
-        // TODO: Does this cause any problems?
+        // Multi-bonded pins, as in generate_peripherals2: named for both functions, listed
+        // separately under each.
         if device_pin.name.contains('/') {
             continue;
         }
@@ -267,7 +360,7 @@ fn generate_peripherals2(
             }
 
             let (ty, version) = get_peripheral_type_version(chip_name, &name);
-            let address = get_peripheral_addresses(chip_name, &name, header, sysconfig)?;
+            let address = get_peripheral_addresses(chip_name, &name, header)?;
             let power_domain = get_power_domain(peripheral, ty, chip_name)?;
             let sys_fentries = get_sys_fentries(peripheral, chip_name)?;
 
@@ -279,6 +372,23 @@ fn generate_peripherals2(
                 power_domain,
                 pins: vec![],
                 sys_fentries,
+                // Filled in by the `apply_*` passes once every peripheral is known.
+                interrupts: Vec::new(),
+                block_async: None,
+                retained_through: None,
+                usable_through: None,
+                clocked_in_standby1: None,
+                timer: None,
+                clock_range_hz: None,
+                adc: None,
+                unicomm: None,
+                uart: None,
+                opa: None,
+                vref: None,
+                comp: None,
+                flashctl: None,
+                sysctl: None,
+                dma: None,
             };
 
             // Lookup the pins
@@ -311,9 +421,8 @@ fn generate_peripherals2(
                                 .context(format!("Device pin with id {device_pin_id}, used by {pin_name_and_signal} (id: {pin_id}) is not present"))?;
                             let device_pin_name = &device_pin.name;
 
-                            // Remove pin entries with a `/` as these represent multi-bonded pins.
-                            //
-                            // TODO: Does this cause any problems?
+                            // Multi-bonded pins, which sysconfig names "PA1/NRST". The bank and
+                            // pin they alias are listed separately, so skipping them loses nothing.
                             if device_pin_name.contains('/') {
                                 continue;
                             }
@@ -322,11 +431,7 @@ fn generate_peripherals2(
                                 "PF was not valid integer for {device_pin_name}, {pin_name_and_signal}"
                             ))?;
 
-                            let pin = device_pin_name
-                                .split_once('/')
-                                .map(|(a, _)| a)
-                                .unwrap_or_else(|| device_pin_name)
-                                .to_string();
+                            let pin = device_pin_name.to_string();
 
                             if skip_peripheral_pin(device_pin_name, chip_name) {
                                 continue;
@@ -397,22 +502,74 @@ fn get_sys_fentries(
     Ok(Some(sys_fentries.parse::<usize>().unwrap()))
 }
 
+/// The device series a family belongs to.
+///
+/// Only exists to keep [`POWER_DOMAIN_FIXES`] from being applied to parts it was never checked
+/// against. Adding MSPM33 or a SimpleLink part means adding a variant and its own table, not
+/// extending the MSPM0 one — their power domains are laid out differently.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Series {
+    Mspm0,
+}
+
+impl Series {
+    fn of(family: &str) -> anyhow::Result<Self> {
+        if family.starts_with("mspm0") || family.starts_with("msps003") {
+            return Ok(Series::Mspm0);
+        }
+
+        bail!(
+            "{family}: unknown device series. Power domains are stated per series, so a new one \
+             needs its own table rather than MSPM0's"
+        )
+    }
+
+    /// The domain a peripheral is in whatever sysconfig claims, if it is one of the known-wrong ones.
+    fn power_domain_fix(self, ty: PeripheralType) -> Option<PowerDomain> {
+        let fixes = match self {
+            Series::Mspm0 => POWER_DOMAIN_FIXES,
+        };
+
+        fixes
+            .iter()
+            .find(|(fixed, _)| *fixed == ty)
+            .map(|(_, domain)| *domain)
+    }
+}
+
+/// Peripherals whose power domain sysconfig states wrongly, or not at all, on MSPM0.
+///
+/// Each of these holds for every MSPM0 family, so they are applied unconditionally rather than
+/// against a list of the families whose metadata happens to be wrong today — a new family got the
+/// bug and not the fix. Applying them by construction is also what enforces the invariant; there
+/// were six checks in `verify.rs` asserting exactly this list, and they could no longer fail.
+///
+/// GPAMP is here because sysconfig gives it no power domain at all, not because it gives a wrong
+/// one.
+const POWER_DOMAIN_FIXES: &[(PeripheralType, PowerDomain)] = &[
+    (PeripheralType::AesAdv, PowerDomain::Pd1),
+    (PeripheralType::Cpuss, PowerDomain::Pd1),
+    (PeripheralType::Crc, PowerDomain::Pd1),
+    (PeripheralType::GpAmp, PowerDomain::Pd0),
+    (PeripheralType::Spi, PowerDomain::Pd1),
+    (PeripheralType::Trng, PowerDomain::Pd1),
+];
+
 fn get_power_domain(
     peripheral: &sysconfig::Peripheral,
     ty: PeripheralType,
     chip_name: &str,
 ) -> anyhow::Result<PowerDomain> {
+    if let Some(domain) = Series::of(chip_name)?.power_domain_fix(ty) {
+        return Ok(domain);
+    }
+
     let Some(power_domain) = peripheral
         .attributes
         .get("power_domain")
         // G151x uses all caps power domain while other chips use lowercase.
         .or_else(|| peripheral.attributes.get("POWER_DOMAIN"))
     else {
-        // GPAMP does not have a specified power domain from sysconfig. It is always in PD0.
-        if peripheral.name == "GPAMP" {
-            return Ok(PowerDomain::Pd0);
-        }
-
         bail!("{chip_name}: {} has no power domain", peripheral.name)
     };
 
@@ -423,78 +580,8 @@ fn get_power_domain(
         )
     };
 
-    // A few notes on exceptions:
-    // - ADCx:
-    //   The ADCs technically are in both PD0 and PD1 power domains. We pick PD0 since the
-    //   ADC is in the more permissive power.
-    //
-    // - GPIOx:
-    //   Same rationale as ADCs
+    // The ADCs and GPIOs are in both PD0 and PD1; we take the more permissive of the two.
     let domain = match power_domain {
-        // Fix mistakes in SYSCTL
-        "PD_ULP_AON"
-            if (chip_name == "msps003fx"
-                || chip_name == "mspm0c110x"
-                || chip_name == "mspm0c1105_c1106"
-                || chip_name == "mspm0h321x"
-                || chip_name == "mspm0l110x"
-                || chip_name == "mspm0l122x"
-                || chip_name == "mspm0l130x"
-                || chip_name == "mspm0l134x"
-                || chip_name == "mspm0l222x"
-                || chip_name == "mspm0l112x"
-                || chip_name == "mspm0l211x")
-                && ty == PeripheralType::Cpuss =>
-        {
-            PowerDomain::Pd1
-        }
-        "PD_ULP_AON"
-            if (chip_name == "mspm0l122x"
-                || chip_name == "mspm0l222x"
-                || chip_name == "mspm0l112x"
-                || chip_name == "mspm0l211x")
-                && ty == PeripheralType::AesAdv =>
-        {
-            PowerDomain::Pd1
-        }
-        "PD_ULP_AON"
-            if (chip_name == "msps003fx"
-                || chip_name == "mspm0c110x"
-                || chip_name == "mspm0c1105_c1106"
-                || chip_name == "mspm0h321x"
-                || chip_name == "mspm0l110x"
-                || chip_name == "mspm0l122x"
-                || chip_name == "mspm0l130x"
-                || chip_name == "mspm0l134x"
-                || chip_name == "mspm0l222x")
-                && ty == PeripheralType::Crc =>
-        {
-            PowerDomain::Pd1
-        }
-        "PD_ULP_AON"
-            if (chip_name == "msps003fx"
-                || chip_name == "mspm0c110x"
-                || chip_name == "mspm0c1105_c1106"
-                || chip_name == "mspm0h321x"
-                || chip_name == "mspm0l110x"
-                || chip_name == "mspm0l122x"
-                || chip_name == "mspm0l130x"
-                || chip_name == "mspm0l134x"
-                || chip_name == "mspm0l222x")
-                && ty == PeripheralType::Spi =>
-        {
-            PowerDomain::Pd1
-        }
-        "PD_ULP_AON"
-            if (chip_name == "mspm0l122x" || chip_name == "mspm0l222x")
-                && ty == PeripheralType::Trng =>
-        {
-            PowerDomain::Pd1
-        }
-
-        // Q: GPAMP appears to be in PD0 but is None in most chips.
-
-        // Normal
         "PD_ULP_AON" => PowerDomain::Pd0,
         "PD_ULP_AAON" => PowerDomain::Pd1,
         "PD_VRTC_AON" => PowerDomain::Backup,
@@ -527,6 +614,22 @@ fn generate_missing(
             power_domain: PowerDomain::Pd1,
             pins: vec![],
             sys_fentries: None,
+            interrupts: Vec::new(),
+            block_async: None,
+            retained_through: None,
+            usable_through: None,
+            clocked_in_standby1: None,
+            timer: None,
+            clock_range_hz: None,
+            adc: None,
+            unicomm: None,
+            uart: None,
+            opa: None,
+            vref: None,
+            comp: None,
+            flashctl: None,
+            sysctl: None,
+            dma: None,
         },
     );
 
@@ -547,9 +650,25 @@ fn generate_missing(
             version,
             address: Some(address),
             // FACTORYREGION is read-only flash which is always available.
-            power_domain: PowerDomain::Pd1,
+            power_domain: PowerDomain::Pd0,
             pins: vec![],
             sys_fentries: None,
+            interrupts: Vec::new(),
+            block_async: None,
+            retained_through: None,
+            usable_through: None,
+            clocked_in_standby1: None,
+            timer: None,
+            clock_range_hz: None,
+            adc: None,
+            unicomm: None,
+            uart: None,
+            opa: None,
+            vref: None,
+            comp: None,
+            flashctl: None,
+            sysctl: None,
+            dma: None,
         },
     );
 
@@ -564,7 +683,7 @@ fn generate_missing(
             // Resolving the address always is unfortunately required because or_insert_with_key cannot handle
             // fallible closures.
             let bank = format!("GPIO{bank}");
-            let address = get_peripheral_addresses(chip_name, &bank, header, sysconfig)?
+            let address = get_peripheral_addresses(chip_name, &bank, header)?
                 .context(format!("{bank} must have address"))?;
 
             let version = PERIMAP
@@ -581,6 +700,22 @@ fn generate_missing(
                     power_domain: PowerDomain::Pd0,
                     pins: vec![],
                     sys_fentries: None,
+                    interrupts: Vec::new(),
+                    block_async: None,
+                    retained_through: None,
+                    usable_through: None,
+                    clocked_in_standby1: None,
+                    timer: None,
+                    clock_range_hz: None,
+                    adc: None,
+                    unicomm: None,
+                    uart: None,
+                    opa: None,
+                    vref: None,
+                    comp: None,
+                    flashctl: None,
+                    sysctl: None,
+                    dma: None,
                 });
 
             let pin = device_pin
@@ -601,6 +736,60 @@ fn generate_missing(
         }
     }
 
+    // The beeper is documented as one SYSCTL register and addressed through it, so sysconfig does
+    // not list it and its register block was carved out of the SYSCTL maps. Every family below
+    // puts BEEPCFG at 0x1190 with the same two fields, per its hw_sysctl_*.h.
+    //
+    // Keyed on the family and not on the SYSCTL version: mspm0l112x and mspm0l211x have the beeper
+    // and share `sysctl_l122x_l222x` with mspm0l122x and mspm0l222x, which do not.
+    const BEEPER_FAMILIES: &[&str] = &[
+        "mspm0c110x",
+        "mspm0c1105_c1106",
+        "msps003fx",
+        "mspm0h321x",
+        "mspm0l112x",
+        "mspm0l211x",
+    ];
+
+    if BEEPER_FAMILIES.contains(&chip_name) {
+        let address = get_peripheral_addresses(chip_name, "SYSCTL", header)?
+            .context(format!("{chip_name}: BEEPER needs SYSCTL's address"))?;
+
+        let version = PERIMAP
+            .get(&format!("{}:{}", chip_name, PeripheralType::Beeper))
+            .map(|s| s.to_string());
+
+        peripherals.insert(
+            "BEEPER".to_string(),
+            Peripheral {
+                name: "BEEPER".to_string(),
+                ty: PeripheralType::Beeper,
+                version,
+                address: Some(address),
+                // It is part of SYSCTL, which is in PD0 on every family that has a beeper.
+                power_domain: PowerDomain::Pd0,
+                pins: vec![],
+                sys_fentries: None,
+                interrupts: Vec::new(),
+                block_async: None,
+                retained_through: None,
+                usable_through: None,
+                clocked_in_standby1: None,
+                timer: None,
+                clock_range_hz: None,
+                adc: None,
+                unicomm: None,
+                uart: None,
+                opa: None,
+                vref: None,
+                comp: None,
+                flashctl: None,
+                sysctl: None,
+                dma: None,
+            },
+        );
+    }
+
     Ok(())
 }
 
@@ -612,91 +801,85 @@ fn maybe_rename(name: &str) -> String {
     name.to_string()
 }
 
-fn get_peripheral_type_version(chip_name: &str, name: &str) -> (PeripheralType, Option<String>) {
-    if name.starts_with("SYSCTL") {
-        let version = PERIMAP
-            .get(&format!("{}:{}", chip_name, PeripheralType::Sysctl))
-            .map(|s| s.to_string());
-        return (PeripheralType::Sysctl, version);
+/// Peripheral instance name prefixes, and the type each names.
+///
+/// First match wins, so order matters where one prefix starts with another: `AESADV` has to come
+/// before `AES`. TIMA, TIMB and TIMG are all `Tim` - which register block a timer instance uses is
+/// a separate question, answered by [`register_block_key`].
+const PERIPHERAL_PREFIXES: &[(&str, PeripheralType)] = &[
+    ("ADC", PeripheralType::Adc),
+    ("AESADV", PeripheralType::AesAdv),
+    ("AES", PeripheralType::Aes),
+    ("CANFD", PeripheralType::Canfd),
+    ("COMP", PeripheralType::Comp),
+    ("CPUSS", PeripheralType::Cpuss),
+    ("CRC", PeripheralType::Crc),
+    ("DAC", PeripheralType::Dac),
+    ("DEBUGSS", PeripheralType::Debugss),
+    ("DMA", PeripheralType::Dma),
+    ("EVENT", PeripheralType::Event),
+    ("FLASHCTL", PeripheralType::FlashCtl),
+    ("GPAMP", PeripheralType::GpAmp),
+    ("GPIO", PeripheralType::Gpio),
+    ("I2C", PeripheralType::I2c),
+    ("I2S", PeripheralType::I2s),
+    ("IOMUX", PeripheralType::Iomux),
+    ("IWDT", PeripheralType::Iwdt),
+    ("KEYSTORECTL", PeripheralType::KeystoreCtl),
+    ("LCD", PeripheralType::Lcd),
+    ("LFSS", PeripheralType::Lfss),
+    ("MATHACL", PeripheralType::Mathacl),
+    ("NPU", PeripheralType::Npu),
+    ("OPA", PeripheralType::Opa),
+    ("RTC", PeripheralType::Rtc),
+    ("SPG", PeripheralType::Spgss),
+    ("SPI", PeripheralType::Spi),
+    ("SYSCTL", PeripheralType::Sysctl),
+    ("TIMA", PeripheralType::Tim),
+    ("TIMB", PeripheralType::Tim),
+    ("TIMG", PeripheralType::Tim),
+    ("TRNG", PeripheralType::Trng),
+    ("UART", PeripheralType::Uart),
+    ("UC", PeripheralType::Unicomm),
+    ("USBFS", PeripheralType::Usbfs),
+    ("VREF", PeripheralType::Vref),
+    ("WUC", PeripheralType::Wuc),
+    ("WWDT", PeripheralType::Wwdt),
+];
+
+/// The type of a peripheral, from its instance name.
+///
+/// `Unknown` for a name no prefix covers. That is not inert - such a peripheral is dropped from the
+/// generated metadata - so `verify::peripheral_types_known` reports it rather than letting a source
+/// bump quietly lose one.
+fn peripheral_type_from_name(name: &str) -> PeripheralType {
+    PERIPHERAL_PREFIXES
+        .iter()
+        .find(|(prefix, _)| name.starts_with(prefix))
+        .map(|(_, ty)| *ty)
+        .unwrap_or(PeripheralType::Unknown)
+}
+
+/// The `data/registers` prefix a peripheral's register block is filed under.
+///
+/// Normally the peripheral type, since a chip has one block per type. TIMB is the exception: a
+/// basic timer has its own block but the same `Tim` type as TIMA and TIMG, so it needs a key of its
+/// own to reach `perimap`. The version it selects then gets a module name from `VARIANT_MODULES` in
+/// the metapac generator.
+fn register_block_key(name: &str, ty: PeripheralType) -> Cow<'static, str> {
+    if ty == PeripheralType::Tim && name.starts_with("TIMB") {
+        return Cow::Borrowed("timb");
     }
 
-    let ty = if name.starts_with("ADC") {
-        PeripheralType::Adc
-    } else if name.starts_with("AESADV") {
-        PeripheralType::AesAdv
-    } else if name.starts_with("AES") {
-        PeripheralType::Aes
-    } else if name.starts_with("CANFD") {
-        PeripheralType::Canfd
-    } else if name.starts_with("COMP") {
-        PeripheralType::Comp
-    } else if name.starts_with("CPUSS") {
-        PeripheralType::Cpuss
-    } else if name.starts_with("CRC") {
-        PeripheralType::Crc
-    } else if name.starts_with("DAC") {
-        PeripheralType::Dac
-    } else if name.starts_with("DEBUGSS") {
-        PeripheralType::Debugss
-    } else if name.starts_with("DMA") {
-        PeripheralType::Dma
-    } else if name.starts_with("EVENT") {
-        PeripheralType::Event
-    } else if name.starts_with("FLASHCTL") {
-        PeripheralType::FlashCtl
-    } else if name.starts_with("GPAMP") {
-        PeripheralType::GpAmp
-    } else if name.starts_with("GPIO") {
-        PeripheralType::Gpio
-    } else if name.starts_with("I2C") {
-        PeripheralType::I2c
-    } else if name.starts_with("I2S") {
-        PeripheralType::I2s
-    } else if name.starts_with("IOMUX") {
-        PeripheralType::Iomux
-    } else if name.starts_with("IWDT") {
-        PeripheralType::Iwdt
-    } else if name.starts_with("KEYSTORECTL") {
-        PeripheralType::KeystoreCtl
-    } else if name.starts_with("LCD") {
-        PeripheralType::Lcd
-    } else if name.starts_with("LFSS") {
-        PeripheralType::Lfss
-    } else if name.starts_with("MATHACL") {
-        PeripheralType::Mathacl
-    } else if name.starts_with("NPU") {
-        PeripheralType::Npu
-    } else if name.starts_with("OPA") {
-        PeripheralType::Opa
-    } else if name.starts_with("RTC") {
-        PeripheralType::Rtc
-    } else if name.starts_with("SPI") {
-        PeripheralType::Spi
-    } else if name.starts_with("TIMA") {
-        PeripheralType::Tim
-    } else if name.starts_with("TIMB") {
-        PeripheralType::Tim
-    } else if name.starts_with("TIMG") {
-        PeripheralType::Tim
-    } else if name.starts_with("TRNG") {
-        PeripheralType::Trng
-    } else if name.starts_with("UART") {
-        PeripheralType::Uart
-    } else if name.starts_with("UC") {
-        PeripheralType::Unicomm
-    } else if name.starts_with("USBFS") {
-        PeripheralType::Usbfs
-    } else if name.starts_with("VREF") {
-        PeripheralType::Vref
-    } else if name.starts_with("WUC") {
-        PeripheralType::Wuc
-    } else if name.starts_with("WWDT") {
-        PeripheralType::Wwdt
-    } else {
-        PeripheralType::Unknown
-    };
+    Cow::Owned(ty.to_string())
+}
+
+fn get_peripheral_type_version(chip_name: &str, name: &str) -> (PeripheralType, Option<String>) {
+    let ty = peripheral_type_from_name(name);
+    let key = register_block_key(name, ty);
+
     let version = PERIMAP
-        .get(&format!("{}:{}", chip_name, ty))
+        .get(&format!("{chip_name}:{key}"))
         .map(|s| s.to_string());
 
     (ty, version)
@@ -706,7 +889,6 @@ fn get_peripheral_addresses(
     chip_name: &str,
     name: &str,
     header: &Header,
-    _sysconfig: &SysconfigFile,
 ) -> anyhow::Result<Option<u32>> {
     let name = Cow::from(name);
 
@@ -807,10 +989,7 @@ fn generate_irqs(
     Ok(interrupts)
 }
 
-fn generate_dma_channels(
-    _chip_name: &str,
-    sysconfig: &SysconfigFile,
-) -> anyhow::Result<BTreeMap<u32, DmaChannel>> {
+fn generate_dma_channels(sysconfig: &SysconfigFile) -> anyhow::Result<BTreeMap<u32, DmaChannel>> {
     static PATTERN: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"DMA_CH(?<channel>\d+)").unwrap());
 
@@ -841,56 +1020,447 @@ fn generate_dma_channels(
     Ok(channels)
 }
 
-fn generate_adc_memctl_dim(chip_name: &str, sysconfig: &SysconfigFile) -> anyhow::Result<u8> {
-    // We parse the SYS_ADC_MEMCTL_DIM attribute in the ADC peripherals.
-    // Because we use the same adc pac for all ADC instances, we check if all existing MEMCTL_DIM
-    // attributes are equal.
-    let mut result = None;
+/// Record the facts about each ADC instance which the shared `adc_v1` register block cannot carry.
+///
+/// `MEMCTL` is per instance in sysconfig, so it is read per instance even though no part has two ADCs
+/// which disagree. `VRSEL` is stated once per family.
+/// Offset of each UNICOMM register map below the instance's own address.
+///
+/// Fixed by the IP: `mspm0g518x.h` computes them with `UC_UART_BASE(UC0_BASE)` and friends over
+/// `UC_*_OFFSET`, and the L-series headers write every base out literally. `apply_unicomm` checks
+/// each literal against these.
+const UNICOMM_MODE_OFFSETS: &[(&str, u32)] = &[
+    ("UART", 0x80000),
+    ("I2CC", 0x60000),
+    ("I2CT", 0x40000),
+    ("SPI", 0x20000),
+];
 
+/// The register map each UNICOMM mode is described by, and how [`Unicomm`] reports it.
+/// A UNICOMM mode view: the suffix its instance name takes, the peripheral type it becomes, and
+/// whether a given instance implements it.
+type UnicommMode = (&'static str, PeripheralType, fn(&Unicomm) -> bool);
+
+const UNICOMM_MODE_TYPES: &[UnicommMode] = &[
+    ("UART", PeripheralType::UnicommUart, |m| m.uart),
+    ("I2CC", PeripheralType::UnicommI2cc, |m| m.i2c_controller),
+    ("I2CT", PeripheralType::UnicommI2ct, |m| m.i2c_target),
+    ("SPI", PeripheralType::UnicommSpi, |m| m.spi),
+];
+
+/// Record which register maps each UNICOMM instance implements.
+fn apply_unicomm(
+    family: &PartFamily,
+    header: &Header,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) -> anyhow::Result<()> {
+    for (name, peripheral) in peripherals.iter_mut() {
+        if peripheral.ty != PeripheralType::Unicomm {
+            continue;
+        }
+
+        let modes = header.unicomm_modes.get(name).context(format!(
+            "{}: {name} is not in the header's UNICOMM instance table",
+            family.family
+        ))?;
+
+        ensure!(
+            modes.uart || modes.i2c_controller || modes.i2c_target || modes.spi,
+            "{}: {name} implements no UNICOMM register map",
+            family.family
+        );
+
+        // Where the header states a map's address rather than computing it, hold it to the offset
+        // a consumer is told to use. A part which moved one would otherwise be silently wrong.
+        if let Some(address) = peripheral.address {
+            for (mode, offset) in UNICOMM_MODE_OFFSETS {
+                let Some(&stated) = header.peripheral_addresses.get(&format!("{name}_{mode}"))
+                else {
+                    continue;
+                };
+
+                ensure!(
+                    stated == address - offset,
+                    "{}: {name}_{mode} is at {stated:#x}, not {:#x} as the offset from {name} says",
+                    family.family,
+                    address - offset
+                );
+            }
+        }
+
+        peripheral.unicomm = Some(*modes);
+    }
+
+    // Each mode the instance implements becomes a peripheral of its own, so that a consumer gets
+    // the right register block at the right address rather than having to subtract an offset from
+    // the instance. TI's own SVDs model them this way too, as UC0_UART, UC0_I2CC and so on.
+    //
+    // The instance is what the device has: it owns the pins, the interrupt and the low power
+    // facts, and the views repeat only what is true of them as a window onto the same silicon.
+    let mut views = Vec::new();
+
+    for peripheral in peripherals.values() {
+        let (Some(modes), Some(address)) = (peripheral.unicomm, peripheral.address) else {
+            continue;
+        };
+
+        for (mode, ty, implemented) in UNICOMM_MODE_TYPES {
+            if !implemented(&modes) {
+                continue;
+            }
+
+            let offset = UNICOMM_MODE_OFFSETS
+                .iter()
+                .find(|(name, _)| name == mode)
+                .map(|(_, offset)| offset)
+                .expect("every mode has an offset");
+
+            let name = format!("{}_{mode}", peripheral.name);
+            let version = PERIMAP
+                .get(&format!("{}:{ty}", family.family))
+                .map(|version| version.to_string());
+
+            views.push(Peripheral {
+                name: name.clone(),
+                ty: *ty,
+                version,
+                address: Some(address - offset),
+                power_domain: peripheral.power_domain,
+                pins: vec![],
+                sys_fentries: None,
+                interrupts: Vec::new(),
+                block_async: None,
+                retained_through: peripheral.retained_through,
+                usable_through: peripheral.usable_through,
+                clocked_in_standby1: None,
+                timer: None,
+                clock_range_hz: None,
+                adc: None,
+                unicomm: None,
+                uart: None,
+                opa: None,
+                vref: None,
+                comp: None,
+                flashctl: None,
+                sysctl: None,
+                dma: None,
+            });
+        }
+    }
+
+    for view in views {
+        peripherals.insert(view.name.clone(), view);
+    }
+
+    Ok(())
+}
+
+/// Attach each OPA instance's input-mux maps from `data/opa`.
+fn apply_opa(opas: Option<&Opas>, peripherals: &mut BTreeMap<String, Peripheral>) {
+    for (name, peripheral) in peripherals.iter_mut() {
+        if peripheral.ty != PeripheralType::Opa {
+            continue;
+        }
+
+        // Absent data is a gap verify.rs reports, like the other curated per-instance facts.
+        peripheral.opa = opas.and_then(|family| family.get(name)).cloned();
+    }
+}
+
+/// Attach the family's VREF startup time to its VREF instance.
+///
+/// Left absent rather than defaulted when the family has no figure: a consumer which has to wait out
+/// `VREF_ERR_01` needs to refuse rather than guess, and a guessed number is one that silently returns
+/// an unsettled reference.
+fn apply_vref(vref: Option<Vref>, peripherals: &mut BTreeMap<String, Peripheral>) {
+    let Some(vref) = vref else {
+        return;
+    };
+
+    for peripheral in peripherals
+        .values_mut()
+        .filter(|peripheral| peripheral.ty == PeripheralType::Vref)
+    {
+        peripheral.vref = Some(vref);
+    }
+}
+
+/// Attach each COMP instance's facts: whether it implements the `CTL2.REFSRC` internal-reference
+/// positions, and the family's timing figures from `data/comp`.
+///
+/// `SYS_COMP_INT_VREF` is present (as `"1"`) exactly on the instances which have them and absent
+/// otherwise. It agrees with every SVD which enumerates `REFSRC` — the five newer-generation SVDs
+/// list values 5 through 7 and the four older ones stop at 3 — and with the two datasheets which
+/// state the feature in prose (the L1228's "dedicated internal reference", the G5187's "internal
+/// VREF1"), so unlike `SYS_LIN_EN` it is safe to read directly. driverlib is *not* a cross-check:
+/// its `DL_COMP_REF_SOURCE_INT_VREF` gate names only L122X_L222X, against both of the above.
+fn apply_comp(
+    sysconfig: &SysconfigFile,
+    timing: Option<CompTiming>,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) {
+    for peripheral in sysconfig.peripherals.values() {
+        let name = maybe_rename(&peripheral.name);
+        let Some(comp) = peripherals.get_mut(&name) else {
+            continue;
+        };
+        if comp.ty != PeripheralType::Comp {
+            continue;
+        }
+
+        let int_vref = peripheral
+            .attributes
+            .get("SYS_COMP_INT_VREF")
+            .is_some_and(|value| value.as_str() == Some("1"));
+
+        // Absent timing is a gap verify.rs reports, like the VREF startup figure.
+        comp.comp = Some(Comp {
+            int_vref,
+            enable_fast_ns: timing.and_then(|t| t.enable_fast_ns),
+            enable_ulp_ns: timing.and_then(|t| t.enable_ulp_ns),
+            dac_settle_ns: timing.and_then(|t| t.dac_settle_ns),
+            dac_settle_pin_ns: timing.and_then(|t| t.dac_settle_pin_ns),
+        });
+    }
+}
+
+/// Attach the flash geometry and protection layout to the FLASHCTL instance.
+///
+/// The widths and the ECC flag come from the per-device header's `FLASHCTL_SYS_*` constants and
+/// `__MSPM0_HAS_ECC__`; the sector size is the datasheet's, curated in `parts.yaml`. Not from the
+/// SVDs, which describe `CMDWEPROTA` on parts whose header gives it zero width, nor from
+/// driverlib, whose `DL_FLASHCTL_SECTOR_SIZE` is one portfolio-wide constant.
+fn apply_sysctl(family: &PartFamily, peripherals: &mut BTreeMap<String, Peripheral>) {
+    for peripheral in peripherals
+        .values_mut()
+        .filter(|peripheral| peripheral.ty == PeripheralType::Sysctl)
+    {
+        peripheral.sysctl = Some(Sysctl {
+            bor_warning_levels: family.bor_warning_levels,
+        });
+    }
+}
+
+/// Record the DMA-wide facts the register block cannot carry.
+///
+/// The width is a property of the DMA, not of a channel: where it exists the datasheet ticks it for
+/// the basic channels as well as the full ones.
+fn apply_dma(
+    family: &PartFamily,
+    header: &Header,
+    svd: Option<&Svd>,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) -> anyhow::Result<()> {
+    // The SVD enumerates `LONGLONG` and carries `DMAAUTOEN` exactly where the header defines the
+    // matching constant, on all fifteen families which have one, so a disagreement means a source
+    // bump changed one of them.
+    //
+    // Stride is deliberately not checked this way. Every SVD enumerates `STRIDE_2`-`STRIDE_9` in
+    // `DMASRCINCR`, including the families whose header and datasheet both deny stride, so the
+    // check would fail on every DMA_A device. The datasheet's "Stride mode" row is the second
+    // source there, and it agrees with the header on all ten families which state both.
+    if let Some(svd) = svd {
+        for (feature, from_header, from_svd) in [
+            (
+                "128-bit DMA transfers",
+                header.dma_long_long,
+                svd.dma_long_long,
+            ),
+            (
+                "the DMA's automatic enable",
+                header.dma_auto_enable,
+                svd.dma_auto_enable,
+            ),
+        ] {
+            ensure!(
+                from_header == from_svd,
+                "{}: the header {} {feature} but the SVD {}",
+                family.family,
+                if from_header { "has" } else { "lacks" },
+                if from_svd { "has" } else { "lacks" },
+            );
+        }
+    }
+
+    for peripheral in peripherals
+        .values_mut()
+        .filter(|peripheral| peripheral.ty == PeripheralType::Dma)
+    {
+        peripheral.dma = Some(Dma {
+            long_long_transfers: header.dma_long_long,
+            auto_enable: header.dma_auto_enable,
+            stride_mode: header.dma_stride,
+            // `DMA_SYS_MMR_EM` tracks gather alone. Fill and table are on every device's full
+            // channels, ticked by every datasheet which carries the table.
+            gather_mode: header.dma_extended_mode,
+        });
+    }
+
+    Ok(())
+}
+
+fn apply_flashctl(
+    family: &PartFamily,
+    header: &Header,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) {
+    for peripheral in peripherals
+        .values_mut()
+        .filter(|peripheral| peripheral.ty == PeripheralType::FlashCtl)
+    {
+        peripheral.flashctl = Some(Flashctl {
+            sector_bytes: family.flash_sector_bytes,
+            word_bytes: header.flash.datawidth_bits / 8,
+            weprota_bits: header.flash.weprota_bits,
+            weprotb_bits: header.flash.weprotb_bits,
+            weprotc_bits: header.flash.weprotc_bits,
+            has_ecc: header.flash.has_ecc,
+        });
+    }
+}
+
+/// Attach each UART instance's extended-feature flags from `data/uart`.
+fn apply_uart(
+    family: &PartFamily,
+    sysconfig: &SysconfigFile,
+    uarts: Option<&Uarts>,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) -> anyhow::Result<()> {
+    for (name, peripheral) in peripherals.iter_mut() {
+        if !matches!(
+            peripheral.ty,
+            PeripheralType::Uart | PeripheralType::UnicommUart
+        ) {
+            continue;
+        }
+
+        // Absent data is a gap verify.rs reports, like the other datasheet extractions.
+        peripheral.uart = uarts.and_then(|family| family.get(name)).copied();
+    }
+
+    let Some(uarts) = uarts else {
+        return Ok(());
+    };
+
+    // Cross-check against sysconfig, which is per instance and agrees with every datasheet read so
+    // far, so a disagreement means the table was misread rather than that the two sources describe
+    // different things. `SYS_UARTADV` marks the legacy extend instances; the UNICOMM hosts state
+    // the features themselves, with DALI and Manchester folded into one attribute just as the
+    // MSPM0G5187 table folds them into one row. `SYS_LIN_EN` is deliberately not consulted: it is
+    // `1` on the main UARTs of mspm0g350x and its siblings, against their datasheet and SVD.
+    for peripheral in sysconfig.peripherals.values() {
+        if let Some(adv) = peripheral.attributes.get("SYS_UARTADV") {
+            let Some(uart) = uarts.get(&peripheral.name) else {
+                continue;
+            };
+            let extend = uart.lin || uart.dali || uart.irda || uart.iso7816 || uart.manchester;
+            ensure!(
+                adv.as_str() == Some(if extend { "true" } else { "false" }),
+                "{}: data/uart says {} {} extend but sysconfig SYS_UARTADV disagrees",
+                family.family,
+                peripheral.name,
+                if extend { "is" } else { "is not" },
+            );
+        }
+
+        let checks: [(&str, fn(&Uart) -> bool); 5] = [
+            ("SYS_UART_LIN_EN", |uart| uart.lin),
+            ("SYS_UART_IRDA_EN", |uart| uart.irda),
+            ("SYS_UART_SMARTCARD_EN", |uart| uart.iso7816),
+            ("SYS_UART_DALI_MENC_EN", |uart| uart.dali),
+            ("SYS_UART_DALI_MENC_EN", |uart| uart.manchester),
+        ];
+        for (attribute, check) in checks {
+            let Some(value) = peripheral.attributes.get(attribute) else {
+                continue;
+            };
+            let Some(uart) = uarts.get(&format!("{}_UART", peripheral.name)) else {
+                continue;
+            };
+            ensure!(
+                value.as_str() == Some(if check(uart) { "true" } else { "false" }),
+                "{}: data/uart and sysconfig {attribute} disagree about {}_UART",
+                family.family,
+                peripheral.name,
+            );
+        }
+    }
+
+    Ok(())
+}
+
+fn apply_adc(
+    family: &PartFamily,
+    sysconfig: &SysconfigFile,
+    adc_channels: Option<&AdcChannels>,
+    adc_sample: Option<&AdcSample>,
+    adc_wakeup: Option<AdcWakeup>,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) -> anyhow::Result<()> {
+    let chip_name = &family.family;
+    let vrsel = adc_vrsel_mapping(&family.adc_vrsel)?;
+
+    // Seven datasheets print the `tSample_PGA` table and only four of those families have an OPA:
+    // the row is footnoted "Only applies for devices with OPA" because one document covers several
+    // devices. Gating on the instance is what keeps that superset out of the metadata.
+    let has_opa = peripherals
+        .values()
+        .any(|peripheral| peripheral.ty == PeripheralType::Opa);
+
+    let mut memctl = BTreeMap::new();
     for peripheral in sysconfig
         .peripherals
         .values()
         .filter(|p| p.name.starts_with("ADC"))
     {
-        let name = &peripheral.name;
-        // make names consistent sometimes
-        let name = maybe_rename(name);
+        let name = maybe_rename(&peripheral.name);
 
-        let raw_memctl_dim = &peripheral
+        let raw = peripheral
             .attributes
             .get("SYS_ADC_MEMCTL_DIM")
-            .unwrap_or_else(|| {
-                panic!(
-                    "SYS_ADC_MEMCTL_DIM should exist for {} in {}",
-                    name, chip_name
-                )
-            });
-        let memctl_error = format!(
-            "SYS_ADC_MEMCTL_DIM: {} should be an u32 as string for {} in {}",
-            raw_memctl_dim, name, chip_name
-        );
-        let memctl_dim = raw_memctl_dim
-            .as_str()
-            .expect(memctl_error.as_str())
-            .parse::<u8>()
-            .expect(memctl_error.as_str());
-        match result {
-            Some(m) => ensure!(
-                m == memctl_dim,
-                "{}: Found unequal memctl dim attributes {}, {}",
-                chip_name,
-                m,
-                memctl_dim
-            ),
-            None => result = Some(memctl_dim),
-        };
+            .context(format!("{chip_name}: {name} has no SYS_ADC_MEMCTL_DIM"))?;
+        let raw = raw.as_str().context(format!(
+            "{chip_name}: {name} SYS_ADC_MEMCTL_DIM is not a string value"
+        ))?;
+        let dim = raw.parse::<u8>().context(format!(
+            "{chip_name}: {name} SYS_ADC_MEMCTL_DIM `{raw}` is not a number"
+        ))?;
+
+        memctl.insert(name, dim);
     }
-    ensure!(
-        result.is_some(),
-        "{}: Unable to find any SYS_ADC_MEMCTL_DIM",
-        chip_name
-    );
-    Ok(result.unwrap())
+
+    for (name, peripheral) in peripherals.iter_mut() {
+        if peripheral.ty != PeripheralType::Adc {
+            continue;
+        }
+
+        let memctl = *memctl
+            .get(name)
+            .context(format!("{chip_name}: {name} has no MEMCTL count"))?;
+
+        // Absent data is a gap verify.rs reports, like the other datasheet extractions.
+        let internal_channels = adc_channels
+            .and_then(|family| family.get(name))
+            .cloned()
+            .unwrap_or_default();
+
+        peripheral.adc = Some(Adc {
+            memctl,
+            vrsel,
+            internal_channels,
+            // Only the column the datasheet fills is set. A `None` maximum is the statement that
+            // the family publishes no ceiling, so it must not be filled in from the typical.
+            wakeup_max_ns: adc_wakeup.and_then(|w| w.max_ns),
+            wakeup_typ_ns: adc_wakeup.and_then(|w| w.typ_ns),
+            sample_min_ns: adc_sample.map(|s| s.min_ns),
+            pga_sample_ns: match (has_opa, adc_sample) {
+                (true, Some(sample)) => sample.pga_ns.clone(),
+                _ => BTreeMap::new(),
+            },
+        });
+    }
+
+    Ok(())
 }
 
 fn adc_vrsel_mapping(vrsel: &String) -> anyhow::Result<u8> {
@@ -913,10 +1483,276 @@ fn skip_peripheral_pin(pin_name: &String, chip_name: &str) -> bool {
     false
 }
 
-fn convert_memory(memory: &PartMemory) -> Memory {
-    Memory {
+fn convert_memory(memory: &PartMemory) -> anyhow::Result<Memory> {
+    let kind = match memory.name.as_str() {
+        "FLASH" => MemoryKind::Flash,
+        "RAM" | "RAM_BANK" => MemoryKind::Ram,
+        name => bail!("Unknown memory partition `{name}`, cannot tell what kind of memory it is"),
+    };
+
+    // Flash is non-volatile, and SRAM survives everything short of SHUTDOWN. Only the parts with a
+    // second RAM bank differ, and they say so in parts.yaml.
+    let retained_through = memory.retained_through.unwrap_or(match kind {
+        MemoryKind::Flash => PowerMode::Shutdown,
+        MemoryKind::Ram => PowerMode::Standby1,
+    });
+
+    Ok(Memory {
         name: memory.name.clone(),
+        kind,
         length: memory.length,
         address: memory.address,
+        retained_through,
+    })
+}
+
+/// Device pins which have wakeup logic, and can therefore wake the device from SHUTDOWN.
+///
+/// `None` when the family's sysconfig omits `io_wakeup` entirely, which is a gap in the vendor data
+/// rather than a device with no wake-capable pin.
+fn generate_wakeup_pins(sysconfig: &SysconfigFile) -> Option<BTreeSet<String>> {
+    let pins = sysconfig
+        .device_pins
+        .values()
+        // Multi-bonded pins are excluded everywhere else too, see `generate_pincm`.
+        .filter(|pin| !pin.name.contains('/'))
+        .collect::<Vec<_>>();
+
+    // Missing and `false` are different answers, and only GPIO pins carry the attribute at all.
+    if pins.iter().all(|pin| pin.attributes.io_wakeup.is_none()) {
+        return None;
     }
+
+    Some(
+        pins.iter()
+            .filter(|pin| pin.attributes.io_wakeup.unwrap_or(false))
+            .map(|pin| pin.name.clone())
+            .collect(),
+    )
+}
+
+/// Whether the chip has an independent `VBAT` supply, and therefore a real backup power domain.
+///
+/// The presence of a `VBAT` device pin is the authoritative answer, and is what TRM §30 uses to
+/// distinguish the RTC variants.
+fn has_backup_domain(
+    chip_name: &str,
+    sysconfig: &SysconfigFile,
+    peripherals: &BTreeMap<String, Peripheral>,
+) -> anyhow::Result<bool> {
+    let vbat = sysconfig
+        .device_pins
+        .values()
+        .any(|pin| pin.name.split('/').any(|signal| signal == "VBAT"));
+
+    // Cross-check against the power domain sysconfig assigns to the peripherals. A chip with a VBAT
+    // pin must place something in the backup domain and vice versa; if the two disagree then one of
+    // the two sources has changed meaning and the flag cannot be trusted.
+    let backup_peripherals = peripherals
+        .values()
+        .any(|peripheral| peripheral.power_domain == PowerDomain::Backup);
+
+    ensure!(
+        vbat == backup_peripherals,
+        "{chip_name}: VBAT pin present is {vbat} but a peripheral in the backup power domain \
+         present is {backup_peripherals}"
+    );
+
+    Ok(vbat)
+}
+
+/// Attach each peripheral to the interrupts it raises.
+///
+/// A peripheral either owns NVIC interrupts of its own or sits inside an `INT_GROUP` and shares the
+/// group's interrupt, distinguished by an `IIDX` value. Both are matched by name, which is the only
+/// thing tying them together in the vendor data.
+///
+/// Every match is collected rather than the first. No MSPM0 peripheral has more than one, but the
+/// MSPM33 parts route a peripheral's interrupt outputs to several NVIC lines.
+fn apply_peripheral_interrupts(
+    peripherals: &mut BTreeMap<String, Peripheral>,
+    interrupts: &BTreeMap<i32, Interrupt>,
+) {
+    for (name, peripheral) in peripherals.iter_mut() {
+        let own = interrupts
+            .values()
+            .filter(|interrupt| &interrupt.name == name)
+            .map(|interrupt| PeripheralInterrupt {
+                name: interrupt.name.clone(),
+                num: interrupt.num,
+                group_iidx: None,
+            });
+
+        let shared = interrupts.values().filter_map(|interrupt| {
+            let (&iidx, _) = interrupt.group.iter().find(|(_, member)| *member == name)?;
+
+            Some(PeripheralInterrupt {
+                name: interrupt.name.clone(),
+                num: interrupt.num,
+                group_iidx: Some(iidx),
+            })
+        });
+
+        peripheral.interrupts = own.chain(shared).collect();
+    }
+}
+
+/// Mark the peripheral instances which have their own `CLKCFG.BLOCKASYNC` bit.
+fn apply_block_async(peripherals: &mut BTreeMap<String, Peripheral>, svd: Option<&Svd>) {
+    let Some(svd) = svd else {
+        // No SVD for this family, so leave every instance unknown rather than claiming that none of
+        // them can be masked. `verify` reports this.
+        return;
+    };
+
+    for (name, peripheral) in peripherals.iter_mut() {
+        peripheral.block_async = Some(svd.block_async.contains(name));
+    }
+}
+
+/// Record what the datasheet's operating-mode table says about each peripheral.
+///
+/// Retention applies only to PD1, since nothing else is automatically disabled by SYSCTL. Usability
+/// applies to any peripheral the table has a row for.
+fn apply_operating_modes(
+    modes: Option<&OperatingModes>,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) {
+    let Some(modes) = modes else {
+        return;
+    };
+
+    for (name, peripheral) in peripherals.iter_mut() {
+        if peripheral.power_domain == PowerDomain::Pd1 {
+            peripheral.retained_through = modes.retained_through.get(name).copied();
+        }
+
+        peripheral.usable_through = modes.usable_through.get(name).copied();
+    }
+}
+
+/// Record the input clock range of the peripherals whose datasheet specifies one.
+///
+/// The ADC and the TRNG are the only two so far. Both are stated once per datasheet, so they apply to
+/// every instance of the family: the parts which have two ADCs give one `fADCCLK` covering both.
+fn apply_clock_ranges(family: &PartFamily, peripherals: &mut BTreeMap<String, Peripheral>) {
+    for peripheral in peripherals.values_mut() {
+        peripheral.clock_range_hz = match peripheral.ty {
+            PeripheralType::Adc => Some(family.adc_clock_hz.into()),
+            PeripheralType::Trng => family.trng_clock_hz.map(Into::into),
+            _ => None,
+        };
+    }
+}
+
+/// Record what each timer instance can do.
+///
+/// Matched by instance name, which is what the datasheet table names its rows. That the same name
+/// can mean different capabilities on another family is exactly why this is read per family rather
+/// than from one table.
+fn apply_timers(
+    family: &PartFamily,
+    sysconfig: &SysconfigFile,
+    timers: Option<&Timers>,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) -> anyhow::Result<()> {
+    let Some(timers) = timers else {
+        return Ok(());
+    };
+
+    // Sysconfig's own count of capture/compare channels, where it has one. It agrees with the
+    // datasheet on every instance which has both, so a disagreement means the table was misread
+    // rather than that the two sources describe different things.
+    //
+    // Only the count is cross-checked. `SYS_FLAVOR` cannot stand in for the rest: `flavorC` with two
+    // channels covers `TIMG6` both with and without shadow load, since mspm0g151x, mspm0g351x and
+    // mspm0g518x drop it where the earlier G families keep it.
+    let mut channels = BTreeMap::new();
+    for peripheral in sysconfig.peripherals.values() {
+        let Some(count) = peripheral.attributes.get("SYS_NUM_CC") else {
+            continue;
+        };
+        let Some(count) = count.as_str().and_then(|count| count.parse::<u8>().ok()) else {
+            bail!(
+                "{}: {} SYS_NUM_CC is not a number: {count}",
+                family.family,
+                peripheral.name
+            );
+        };
+
+        channels.insert(maybe_rename(&peripheral.name), count);
+    }
+
+    // How many of the counter array's counters an instance implements. Only the basic timers have
+    // more than one, and sysconfig is the only per-instance source: the datasheets state it as a
+    // feature of TIMBx in general, in the same words on the G-series parts which have four and the
+    // L-series ones which have two.
+    let mut counters = BTreeMap::new();
+    for peripheral in sysconfig.peripherals.values() {
+        let Some(count) = peripheral.attributes.get("SYS_NUM_COUNTERS") else {
+            continue;
+        };
+        let Some(count) = count.as_str().and_then(|count| count.parse::<u8>().ok()) else {
+            bail!(
+                "{}: {} SYS_NUM_COUNTERS is not a number: {count}",
+                family.family,
+                peripheral.name
+            );
+        };
+
+        counters.insert(maybe_rename(&peripheral.name), count);
+    }
+
+    for (name, peripheral) in peripherals.iter_mut() {
+        if peripheral.ty != PeripheralType::Tim {
+            continue;
+        }
+
+        let timer = timers.timers.get(name).copied().map(|timer| Timer {
+            // Absent means the instance is not a counter array, so it has the one counter.
+            counters: counters.get(name).copied().unwrap_or(1),
+            ..timer
+        });
+        peripheral.timer = timer;
+
+        if let (Some(timer), Some(&count)) = (timer, channels.get(name)) {
+            ensure!(
+                timer.ccp_channels == count,
+                "{}, {name}: data/timers says {} capture/compare channels but sysconfig says {count}",
+                family.family,
+                timer.ccp_channels
+            );
+        }
+    }
+
+    Ok(())
+}
+
+/// Record which timers keep receiving a clock in STANDBY1.
+fn apply_standby1_timers(
+    family: &PartFamily,
+    peripherals: &mut BTreeMap<String, Peripheral>,
+) -> anyhow::Result<()> {
+    for timer in family.standby1_timers.iter() {
+        let peripheral = peripherals.get(timer).context(format!(
+            "{}: standby1_timers names {timer}, which is not a peripheral of this family",
+            family.family
+        ))?;
+
+        ensure!(
+            peripheral.ty == PeripheralType::Tim,
+            "{}: standby1_timers names {timer}, which is not a timer",
+            family.family
+        );
+    }
+
+    for (name, peripheral) in peripherals.iter_mut() {
+        if peripheral.ty != PeripheralType::Tim {
+            continue;
+        }
+
+        peripheral.clocked_in_standby1 = Some(family.standby1_timers.contains(name));
+    }
+
+    Ok(())
 }

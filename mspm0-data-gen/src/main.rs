@@ -1,12 +1,26 @@
+mod adc_channels;
+mod adc_sample;
+mod adc_wakeup;
 mod clock_tree;
+mod comp;
+mod errata;
 mod generate;
 mod header;
 mod int_group;
+mod opa;
+mod operating_modes;
 mod parts;
 mod perimap;
+mod sources;
+mod svd;
 mod sysconfig;
+mod temp_sensor;
+mod timers;
+mod uart;
 mod util;
 mod verify;
+mod vref;
+mod wakeup;
 
 use std::{path::PathBuf, time::Instant};
 
@@ -58,17 +72,54 @@ fn main() -> anyhow::Result<()> {
     stopwatch.section("Sysconfig metadata");
 
     let sysconfig = sysconfig::Sysconfig::parse(&data_sources)?;
-    let _clock_trees = clock_tree::ClockTree::read_clock_trees(&data_sources)?;
+    let clock_trees = clock_tree::ClockTrees::parse(&data_sources)?;
+
+    stopwatch.section("Parsing SVDs");
+
+    let svds = svd::Svds::parse(&data_sources)?;
 
     stopwatch.section("Read interrupt group mappings");
 
-    let int_groups = int_group::Groups::parse()?;
+    let adc_channels = adc_channels::parse()?;
+    let adc_sample = adc_sample::parse()?;
+    let adc_wakeup = adc_wakeup::parse()?;
+    let int_groups = int_group::parse()?;
+    let operating_modes = operating_modes::parse()?;
+    let timers = timers::parse()?;
+    let uart = uart::parse()?;
+    let opa = opa::parse()?;
+    let errata = errata::parse()?;
+    let wake = wakeup::parse()?;
+    let vref = vref::parse()?;
+    let comp = comp::parse()?;
+    let temp_sensor = temp_sensor::parse()?;
     let parts = parts::PartsFile::read()?;
 
     // TODO: Expanded family names (ex. C110X -> C1103 & C1104)
 
+    let sources = sources::Sources {
+        parts,
+        headers,
+        adc_channels,
+        adc_sample,
+        adc_wakeup,
+        sysconfig,
+        svds,
+        clock_trees,
+        operating_modes,
+        int_groups,
+        timers,
+        uart,
+        opa,
+        errata,
+        wake,
+        vref,
+        comp,
+        temp_sensor,
+    };
+
     stopwatch.section("Generate data");
-    generate::generate(&parts, &headers, &sysconfig, &int_groups)?;
+    generate::generate(&sources)?;
 
     stopwatch.stop();
 

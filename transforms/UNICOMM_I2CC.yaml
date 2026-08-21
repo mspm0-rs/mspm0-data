@@ -1,0 +1,120 @@
+# Transform for UART registers based on UC0_I2CC on G350x
+transforms:
+  - !DeleteUselessEnums
+
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
+  #
+  # TODO: Add this to chiptool
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLEARED
+      1: SET
+
+  # FREE is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STOP
+      1: RUN
+
+  # RESETASSERT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  # RESETSTKY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  # RESETSTKYCLR is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  # INTEVAL is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: DISABLE
+      1: EVAL
+
+  # TODO: Something better than a cursed rename as merge
+  - !MergeBlocks
+    from: UC0_I2CC
+    main: UC0_I2CC
+    to: UNICOMMI2CC
+
+  # Remove prefixes
+  - !RenameRegisters
+    block: .*
+    from: UC0_I2CC_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: UC0_I2CC_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: UC0_I2CC_(.+)
+    to: $1
+
+  ## Interrupts
+  # CPU_INT interrupt fields are all the same layout.
+  - !MergeFieldsets
+    from: CPU_INT_(IMASK|ISET|MIS|RIS|ICLR)
+    to: CPU_INT
+
+  # Remove redundant prefixes in the CPU_INT block
+  - !RenameRegisters
+    block: .*
+    from: CPU_INT_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: CPU_INT_(.+)
+    to: $1
+
+  ## DMA Triggers
+  # DMA_TRIG0 and DMA_TRIG1 are not the same block here and are not merged. The standalone I2C is
+  # one peripheral for both roles, so both of its trigger blocks carry all four FIFO trigger bits;
+  # a UNICOMM instance is a controller or a target, so DMA_TRIG0 has only TXTRG and DMA_TRIG1 only
+  # RXTRG.
+  - !RenameRegisters
+    block: DMA_TRIG(\d+)
+    from: DMA_TRIG(\d+)_(.+)
+    to: $2
+
+  # Within one trigger the interrupt registers do share a layout.
+  - !MergeFieldsets
+    from: DMA_TRIG0_(IMASK|ISET|MIS|RIS|ICLR)
+    to: DMA_TRIG0
+
+  - !MergeFieldsets
+    from: DMA_TRIG1_(IMASK|ISET|MIS|RIS|ICLR)
+    to: DMA_TRIG1
+
+  ## CMODE/TMODE: same enum
+  - !MergeEnums
+    from: (C|T)MODE
+    to: MODE
+
+
+  # ICLR has the same layout as the other CPU_INT registers. The standalone uart_v1 and i2c_v1
+  # carry one fieldset for all five, and two identical fieldsets is the bloat the README warns of.
+  - !MergeFieldsets
+    from: (CPU_INT|ICLR)
+    to: CPU_INT
+    check: NoCheck
+
+  ## Cleanup
+  - !Sort

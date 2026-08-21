@@ -35,10 +35,14 @@ block/DMA:
     description: Peripheral Debug Control.
     byte_offset: 4120
     fieldset: PDBGCTL
+  # Stride 48, not the 44 every SVD's dimIncrement gives: 44 is the block's own size, so index 1
+  # landed four bytes low. hw_dma.h puts DMA_CPU_INT.IIDX at 0x1020 and DMA_GEN_EVENT.IIDX at
+  # 0x1050, and the eleven SVDs which describe the two groups as separate clusters agree. The ten
+  # which state one two-element array are the only dissenters.
   - name: INT_EVENT
     array:
       len: 2
-      stride: 44
+      stride: 48
     byte_offset: 4128
     block: INT_EVENT
   - name: EVT_MODE
@@ -124,15 +128,19 @@ fieldset/CTL:
     bit_offset: 4
     bit_size: 3
     enum: PREIRQ
+  # Three bits, not the two the older SVDs give it: hw_dma.h masks both fields 0x700/0x7000 for
+  # every device and all four TRMs number the field 10-8, while the SVDs of families without the
+  # 128-bit width describe only the encodings those devices implement. Peripheral::dma says which
+  # devices honour LONGLONG.
   - name: SRCWDTH
-    description: DMA source width. This bit selects the source data width as a byte, half word, word or long word.
+    description: DMA source width. This bit selects the source data width as a byte, half word, word, long word or long-long word.
     bit_offset: 8
-    bit_size: 2
+    bit_size: 3
     enum: WDTH
   - name: DSTWDTH
-    description: DMA destination width. This bit selects the destination as a byte, half word, word or long word.
+    description: DMA destination width. This bit selects the destination as a byte, half word, word, long word or long-long word.
     bit_offset: 12
-    bit_size: 2
+    bit_size: 3
     enum: WDTH
   - name: SRCINCR
     description: DMA source increment. This bit selects automatic incrementing or decrementing of the source address DMASA for each transfer. The amount of change to the DMASA is based on the definitin in the DMASRCWDTH. For example an increment of 1 (+1) on a WORD transfer will increment the DMASA by 4.
@@ -504,7 +512,7 @@ enum/TM:
     description: Repeated block transfer. Each trigger transfers the complete block defined in DMASZ. After the last transfer the DMASA, DMADA, DAMSZ registers are restored to its initial value and the DMAEN stays enabled.
     value: 3
 enum/WDTH:
-  bit_size: 2
+  bit_size: 3
   variants:
   - name: BYTE
     description: Destination data width is BYTE (8-bit).
@@ -518,3 +526,6 @@ enum/WDTH:
   - name: LONG
     description: Destination data width is LONG-WORD (64-bit).
     value: 3
+  - name: LONGLONG
+    description: Destination data width is LONG-LONG-WORD (128-bit). Only on devices whose Peripheral::dma reports long_long_transfers.
+    value: 4

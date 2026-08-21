@@ -225,19 +225,19 @@ block/SYSCTL:
   - name: FRXPROTMAINSTART
     description: Flash RX Protection Start Address.
     byte_offset: 12312
-    fieldset: FRXPROTMAINSTART
+    fieldset: FPROTADDR
   - name: FRXPROTMAINEND
     description: Flash RX Protection End Address.
     byte_offset: 12316
-    fieldset: FRXPROTMAINEND
+    fieldset: FPROTADDR
   - name: FIPPROTMAINSTART
     description: Flash IP Protection Start Address.
     byte_offset: 12320
-    fieldset: FIPPROTMAINSTART
+    fieldset: FPROTADDR
   - name: FIPPROTMAINEND
     description: Flash IP Protection End Address.
     byte_offset: 12324
-    fieldset: FIPPROTMAINEND
+    fieldset: FPROTADDR
   - name: FLBANKSWPPOLICY
     description: Flash Bank Swap Policy.
     byte_offset: 12344
@@ -404,18 +404,11 @@ fieldset/FCCCMD:
     bit_offset: 24
     bit_size: 8
     enum: FCCCMD_KEY
-fieldset/FIPPROTMAINEND:
-  description: Flash IP Protection End Address.
+fieldset/FPROTADDR:
+  description: A flash protection boundary address.
   fields:
   - name: ADDR
-    description: Flash IP Protection End Address 64B granularity.
-    bit_offset: 6
-    bit_size: 16
-fieldset/FIPPROTMAINSTART:
-  description: Flash IP Protection Start Address.
-  fields:
-  - name: ADDR
-    description: Flash IP Protection Start Address 64B granularity.
+    description: The boundary address, at 64 byte granularity.
     bit_offset: 6
     bit_size: 16
 fieldset/FLBANKSWP:
@@ -432,20 +425,6 @@ fieldset/FLBANKSWPPOLICY:
     description: '1: Disables Policy To Allow Flash Bank Swapping.'
     bit_offset: 0
     bit_size: 1
-fieldset/FRXPROTMAINEND:
-  description: Flash RX Protection End Address.
-  fields:
-  - name: ADDR
-    description: Flash RX Protection End Address 64B granularity.
-    bit_offset: 6
-    bit_size: 16
-fieldset/FRXPROTMAINSTART:
-  description: Flash RX Protection Start Address.
-  fields:
-  - name: ADDR
-    description: Flash RX Protection Start Address 64B granularity.
-    bit_offset: 6
-    bit_size: 16
 fieldset/FWENABLE:
   description: Security Firewall Enable Register.
   fields:
@@ -539,10 +518,9 @@ fieldset/HFCLKCLKCFG:
   description: High-frequency clock (HFCLK) configuration.
   fields:
   - name: HFXTTIME
-    description: HFXTTIME specifies the HFXT startup time in 64us resolution. If the HFCLK startup monitor is enabled (HFCLKFLTCHK), HFXT will be checked after this time expires.
+    description: HFXT startup time in 64us resolution, from 0 (minimum startup time, approximately zero) to 255 (maximum, approximately 16.32ms). If the HFCLK startup monitor is enabled (HFCLKFLTCHK), HFXT is checked after this time expires.
     bit_offset: 0
     bit_size: 8
-    enum: HFXTTIME
   - name: HFXTRSEL
     description: HFXT Range Select.
     bit_offset: 12
@@ -696,14 +674,13 @@ fieldset/NMI:
     description: Clr the BORLVL NMI.
     bit_offset: 0
     bit_size: 1
-  - name: WWDT0
-    description: Watch Dog 0 Fault.
+  - name: WWDT
+    description: Watch dog fault, one bit per WWDT instance.
     bit_offset: 1
     bit_size: 1
-  - name: WWDT1
-    description: Watch Dog 0 Fault.
-    bit_offset: 2
-    bit_size: 1
+    array:
+      len: 2
+      stride: 1
   - name: LFCLKFAIL
     description: LFXT-EXLF Monitor Fail.
     bit_offset: 3
@@ -1333,15 +1310,6 @@ enum/HFXTRSEL:
   - name: RANGE32TO48
     description: 32MHz < HFXT frequency <= 48MHz.
     value: 3
-enum/HFXTTIME:
-  bit_size: 8
-  variants:
-  - name: MINSTARTTIME
-    description: Minimum startup time (approximatly zero).
-    value: 0
-  - name: MAXSTARTTIME
-    description: Maximum startup time (approximatly 16.32ms).
-    value: 255
 enum/HSCLKMUX:
   bit_size: 1
   variants:

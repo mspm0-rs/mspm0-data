@@ -16,6 +16,26 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau893
   errata_url: https://www.ti.com/lit/pdf/slaz753
   adc_vrsel: VDD_INTREF
+  # Every frequency here, and the STANDBY1 timers, come from the MSPM0C1104 datasheet.
+  max_mclk_hz: 24000000
+  max_ulpclk_hz: 24000000
+  sysosc_base_hz: 24000000
+  # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
+  flash_wait_hz: [24000000]
+  adc_clock_hz: { min: 12000000, max: 24000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
+  clock_tree:
+    ulpclk_div: false
+    stop1: false
+  standby1_timers:
+  - TIMA0
+  - TIMG8
+  - TIMG14
   part_numbers:
   - name: msps003f3 # Part number
     memory:
@@ -45,6 +65,26 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau893
   errata_url: https://www.ti.com/lit/pdf/slaz753
   adc_vrsel: VDD_INTREF
+  # Every frequency here, and the STANDBY1 timers, come from the MSPM0C1104 datasheet.
+  max_mclk_hz: 24000000
+  max_ulpclk_hz: 24000000
+  sysosc_base_hz: 24000000
+  # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
+  flash_wait_hz: [24000000]
+  adc_clock_hz: { min: 12000000, max: 24000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
+  clock_tree:
+    ulpclk_div: false
+    stop1: false
+  standby1_timers:
+  - TIMA0
+  - TIMG8
+  - TIMG14
   part_numbers:
   - name: mspm0c1103
     memory:
@@ -80,6 +120,26 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau893
   errata_url: https://www.ti.com/lit/pdf/slaz761
   adc_vrsel: VDD_INTREF
+  # Every frequency here, and the STANDBY1 timers, come from the MSPM0C1106 datasheet.
+  max_mclk_hz: 32000000
+  max_ulpclk_hz: 32000000
+  sysosc_base_hz: 32000000
+  # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
+  flash_wait_hz: [24000000, 32000000]
+  adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
+  clock_tree:
+    hfclk_hz: { min: 4000000, max: 32000000 } # fHFXT and fHFIN
+    ulpclk_div: false
+    stop1: false
+  standby1_timers:
+  - TIMG8
+  - TIMG14
   part_numbers:
   - name: mspm0c1105
     memory:
@@ -127,6 +187,26 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slaz742
   adc_vrsel: VDD_INTREF_EXTREF
+  # Every frequency here, and the STANDBY1 timers, come from the MSPM0G1107 datasheet.
+  max_mclk_hz: 80000000
+  max_ulpclk_hz: 40000000
+  sysosc_base_hz: 32000000
+  # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
+  flash_wait_hz: [24000000, 48000000, 80000000]
+  adc_clock_hz: { min: 4000000, max: 48000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
+  clock_tree:
+    hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
+    ulpclk_div: true
+    stop1: true
+  standby1_timers:
+  - TIMG0
+  - TIMG8
   part_numbers:
   - name: mspm0g1105
     memory:
@@ -182,6 +262,27 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slaz742
   adc_vrsel: VDD_INTREF_EXTREF
+  # Every frequency here, and the STANDBY1 timers, come from the MSPM0G1507 datasheet.
+  max_mclk_hz: 80000000
+  max_ulpclk_hz: 40000000
+  sysosc_base_hz: 32000000
+  # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
+  flash_wait_hz: [24000000, 48000000, 80000000]
+  adc_clock_hz: { min: 4000000, max: 48000000 } # fADCCLK
+  trng_clock_hz: { min: 9500000, max: 25000000 } # TRNGCLKF
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
+  clock_tree:
+    hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
+    ulpclk_div: true
+    stop1: true
+  standby1_timers:
+  - TIMG0
+  - TIMG8
   part_numbers:
   - name: mspm0g1505
     memory:
@@ -237,6 +338,29 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slaz758
   adc_vrsel: VDD_INTREF_EXTREF
+  # Every frequency here, and the STANDBY1 timers, come from the MSPM0G1519 datasheet.
+  max_mclk_hz: 80000000
+  max_ulpclk_hz: 40000000
+  sysosc_base_hz: 32000000
+  # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
+  flash_wait_hz: [24000000, 48000000, 80000000]
+  adc_clock_hz: { min: 4000000, max: 48000000 } # fADCCLK
+  trng_clock_hz: { min: 9500000, max: 25000000 } # TRNGCLKF
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
+  clock_tree:
+    hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
+    ulpclk_div: true
+    stop1: true
+  standby1_timers:
+  - TIMG0
+  - TIMG8
+  - TIMG9
+  - TIMG14
   part_numbers:
   - name: mspm0g1518
     memory:
@@ -254,6 +378,11 @@ families:
     - name: RAM_BANK
       length: 64
       address: 0x20210000
+      # The upper RAM bank is wiped out when the device enters any low-power mode stronger than
+      # SLEEP. The datasheet is finer grained than this -- Table 8-1 gives `DIS / OFF` for STOP,
+      # meaning it depends on the configured SRAM power level, and `OFF` for STANDBY -- so this is
+      # the conservative reading.
+      retained_through: Sleep
     packages:
     - PM
     - PN
@@ -279,6 +408,11 @@ families:
     - name: RAM_BANK
       length: 64
       address: 0x20210000
+      # The upper RAM bank is wiped out when the device enters any low-power mode stronger than
+      # SLEEP. The datasheet is finer grained than this -- Table 8-1 gives `DIS / OFF` for STOP,
+      # meaning it depends on the configured SRAM power level, and `OFF` for STANDBY -- so this is
+      # the conservative reading.
+      retained_through: Sleep
     packages:
     - PM
     - PN
@@ -293,6 +427,27 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slaz742
   adc_vrsel: VDD_INTREF_EXTREF
+  # Every frequency here, and the STANDBY1 timers, come from the MSPM0G3107 datasheet.
+  max_mclk_hz: 80000000
+  max_ulpclk_hz: 40000000
+  sysosc_base_hz: 32000000
+  # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
+  flash_wait_hz: [24000000, 48000000, 80000000]
+  adc_clock_hz: { min: 4000000, max: 48000000 } # fADCCLK
+  trng_clock_hz: { min: 9500000, max: 25000000 } # TRNGCLKF
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
+  clock_tree:
+    hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
+    ulpclk_div: true
+    stop1: true
+  standby1_timers:
+  - TIMG0
+  - TIMG8
   part_numbers:
   - name: mspm0g3105
     memory:
@@ -338,6 +493,27 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slaz742
   adc_vrsel: VDD_INTREF_EXTREF
+  # Every frequency here, and the STANDBY1 timers, come from the MSPM0G3507 datasheet.
+  max_mclk_hz: 80000000
+  max_ulpclk_hz: 40000000
+  sysosc_base_hz: 32000000
+  # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
+  flash_wait_hz: [24000000, 48000000, 80000000]
+  adc_clock_hz: { min: 4000000, max: 48000000 } # fADCCLK
+  trng_clock_hz: { min: 9500000, max: 25000000 } # TRNGCLKF
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
+  clock_tree:
+    hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
+    ulpclk_div: true
+    stop1: true
+  standby1_timers:
+  - TIMG0
+  - TIMG8
   part_numbers:
   - name: mspm0g3505
     memory:
@@ -389,6 +565,29 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slaz758
   adc_vrsel: VDD_INTREF_EXTREF
+  # Every frequency here, and the STANDBY1 timers, come from the MSPM0G3519 datasheet.
+  max_mclk_hz: 80000000
+  max_ulpclk_hz: 40000000
+  sysosc_base_hz: 32000000
+  # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
+  flash_wait_hz: [24000000, 48000000, 80000000]
+  adc_clock_hz: { min: 4000000, max: 48000000 } # fADCCLK
+  trng_clock_hz: { min: 9500000, max: 25000000 } # TRNGCLKF
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
+  clock_tree:
+    hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
+    ulpclk_div: true
+    stop1: true
+  standby1_timers:
+  - TIMG0
+  - TIMG8
+  - TIMG9
+  - TIMG14
   part_numbers:
   - name: mspm0g3518
     memory:
@@ -406,6 +605,11 @@ families:
     - name: RAM_BANK
       length: 64
       address: 0x20210000
+      # The upper RAM bank is wiped out when the device enters any low-power mode stronger than
+      # SLEEP. The datasheet is finer grained than this -- Table 8-1 gives `DIS / OFF` for STOP,
+      # meaning it depends on the configured SRAM power level, and `OFF` for STANDBY -- so this is
+      # the conservative reading.
+      retained_through: Sleep
     packages:
     - PM
     - PN
@@ -430,6 +634,11 @@ families:
     - name: RAM_BANK
       length: 64
       address: 0x20210000
+      # The upper RAM bank is wiped out when the device enters any low-power mode stronger than
+      # SLEEP. The datasheet is finer grained than this -- Table 8-1 gives `DIS / OFF` for STOP,
+      # meaning it depends on the configured SRAM power level, and `OFF` for STANDBY -- so this is
+      # the conservative reading.
+      retained_through: Sleep
     packages:
     - PM
     - PN
@@ -445,6 +654,26 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau846
   errata_url: https://www.ti.com/lit/pdf/slvsjm6
   adc_vrsel: VDD_INTREF
+  # Every frequency here, and the STANDBY1 timers, come from the MSPM0G5187 datasheet.
+  max_mclk_hz: 80000000
+  max_ulpclk_hz: 40000000
+  sysosc_base_hz: 32000000
+  # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
+  flash_wait_hz: [24000000, 48000000, 80000000]
+  adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
+  clock_tree:
+    hfclk_hz: { min: 4000000, max: 48000000 } # fHFXT and fHFIN
+    ulpclk_div: true
+    stop1: true
+  standby1_timers:
+  - TIMG0
+  - TIMB0
   part_numbers:
   - name: mspm0g5187
     memory:
@@ -470,6 +699,25 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau923
   errata_url: https://www.ti.com/lit/pdf/slaz763
   adc_vrsel: VDD_INTREF
+  # Every frequency here, and the STANDBY1 timers, come from the MSPM0H3216 datasheet.
+  max_mclk_hz: 32000000
+  max_ulpclk_hz: 32000000
+  sysosc_base_hz: 32000000
+  # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
+  flash_wait_hz: [24000000, 32000000]
+  adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
+  # The H3216 datasheet publishes no VBOR1-VBOR3 rows and qualifies its BOR hysteresis
+  # "Level 0": BOR0 is the only threshold.
+  bor_warning_levels: false
+  clock_tree:
+    hfclk_hz: { min: 4000000, max: 32000000 } # fHFXT and fHFIN
+    ulpclk_div: false
+    stop1: false
+  standby1_timers:
+  - TIMG14
   part_numbers:
   - name: mspm0h3215
     memory:
@@ -499,6 +747,25 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz741
   adc_vrsel: VDD_INTREF_EXTREF
+  # Every frequency here, and the STANDBY1 timers, come from the MSPM0L1106 datasheet.
+  max_mclk_hz: 32000000
+  max_ulpclk_hz: 32000000
+  sysosc_base_hz: 32000000
+  # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
+  flash_wait_hz: [24000000, 32000000]
+  adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
+  clock_tree:
+    ulpclk_div: false
+    stop1: true
+  standby1_timers:
+  - TIMG0
+  - TIMG1
   part_numbers:
   - name: mspm0l1105
     memory:
@@ -537,6 +804,29 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz766
   adc_vrsel: VDD_INTREF_EXTREF
+  # Every frequency here, and the STANDBY1 timers, come from the MSPM0L2117 datasheet.
+  max_mclk_hz: 32000000
+  max_ulpclk_hz: 32000000
+  sysosc_base_hz: 32000000
+  # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
+  flash_wait_hz: [24000000, 32000000]
+  adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
+  clock_tree:
+    hfclk_hz: { min: 4000000, max: 32000000 } # fHFXT and fHFIN
+    ulpclk_div: false
+    stop1: false
+  standby1_timers:
+  - TIMG14
+  - TIMB0
+  - TIMB1
+  - TIMB2
+  - TIMB3
   part_numbers:
   - name: mspm0l1126
     memory:
@@ -583,6 +873,31 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz755
   adc_vrsel: VDD_INTREF_EXTREF
+  # Every frequency here, and the STANDBY1 timers, come from the MSPM0L1228 datasheet.
+  max_mclk_hz: 32000000
+  max_ulpclk_hz: 32000000
+  sysosc_base_hz: 32000000
+  # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
+  flash_wait_hz: [24000000, 32000000]
+  adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
+  trng_clock_hz: { min: 9500000, max: 25000000 } # TRNGCLKF
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
+  clock_tree:
+    hfclk_hz: { min: 4000000, max: 32000000 } # fHFXT and fHFIN
+    ulpclk_div: false
+    stop1: true
+  standby1_timers:
+  - TIMA0
+  - TIMG0
+  - TIMG4
+  - TIMG5
+  - TIMG8
+  - TIMG12
   part_numbers:
   - name: mspm0l1227
     memory:
@@ -621,6 +936,25 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz741
   adc_vrsel: VDD_INTREF_EXTREF
+  # Every frequency here, and the STANDBY1 timers, come from the MSPM0L1306 datasheet.
+  max_mclk_hz: 32000000
+  max_ulpclk_hz: 32000000
+  sysosc_base_hz: 32000000
+  # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
+  flash_wait_hz: [24000000, 32000000]
+  adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
+  clock_tree:
+    ulpclk_div: false
+    stop1: true
+  standby1_timers:
+  - TIMG0
+  - TIMG1
   part_numbers:
   - name: mspm0l1303
     memory:
@@ -685,6 +1019,25 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz741
   adc_vrsel: VDD_INTREF_EXTREF
+  # Every frequency here, and the STANDBY1 timers, come from the MSPM0L1346 datasheet.
+  max_mclk_hz: 32000000
+  max_ulpclk_hz: 32000000
+  sysosc_base_hz: 32000000
+  # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
+  flash_wait_hz: [24000000, 32000000]
+  adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
+  clock_tree:
+    ulpclk_div: false
+    stop1: true
+  standby1_timers:
+  - TIMG0
+  - TIMG1
   part_numbers:
   - name: mspm0l1343
     memory:
@@ -735,6 +1088,29 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz766
   adc_vrsel: VDD_INTREF_EXTREF
+  # Every frequency here, and the STANDBY1 timers, come from the MSPM0L2117 datasheet.
+  max_mclk_hz: 32000000
+  max_ulpclk_hz: 32000000
+  sysosc_base_hz: 32000000
+  # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
+  flash_wait_hz: [24000000, 32000000]
+  adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
+  clock_tree:
+    hfclk_hz: { min: 4000000, max: 32000000 } # fHFXT and fHFIN
+    ulpclk_div: false
+    stop1: false
+  standby1_timers:
+  - TIMG14
+  - TIMB0
+  - TIMB1
+  - TIMB2
+  - TIMB3
   part_numbers:
   - name: mspm0l2116
     memory:
@@ -781,6 +1157,31 @@ families:
   reference_manual_url: https://www.ti.com/lit/pdf/slau847
   errata_url: https://www.ti.com/lit/pdf/slaz755
   adc_vrsel: VDD_INTREF_EXTREF
+  # Every frequency here, and the STANDBY1 timers, come from the MSPM0L2228 datasheet.
+  max_mclk_hz: 32000000
+  max_ulpclk_hz: 32000000
+  sysosc_base_hz: 32000000
+  # MCLK ceiling for each MCLKCFG.FLASHWAIT setting, from zero wait states up.
+  flash_wait_hz: [24000000, 32000000]
+  adc_clock_hz: { min: 4000000, max: 32000000 } # fADCCLK
+  trng_clock_hz: { min: 9500000, max: 25000000 } # TRNGCLKF
+  # Erase granularity, from the datasheet's "minimum erase resolution of 1KB" bullet and
+  # its "program time for 1kB sector" row. Stated per device; 1KB on every family so far.
+  flash_sector_bytes: 1024
+  # BOR warning thresholds BOR1-BOR3, from the datasheet's VBOR1-VBOR3 rows (rising,
+  # falling and STANDBY figures all stated).
+  bor_warning_levels: true
+  clock_tree:
+    hfclk_hz: { min: 4000000, max: 32000000 } # fHFXT and fHFIN
+    ulpclk_div: false
+    stop1: true
+  standby1_timers:
+  - TIMA0
+  - TIMG0
+  - TIMG4
+  - TIMG5
+  - TIMG8
+  - TIMG12
   part_numbers:
   - name: mspm0l2227
     memory:

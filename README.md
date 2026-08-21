@@ -12,6 +12,14 @@
 - 🚧 DMA mappings
 - ✔️ Per package pinouts
 - 🚧 Links to applicable technical reference manual and datasheet PDFs.
+- ✔️ Low power data
+  - Power domain per peripheral
+  - How deep a sleep each peripheral and memory region is retained through
+  - How deep a sleep each peripheral stays usable in (the datasheet `EN`/`DIS`/`OPT`/`NS`/`OFF` table)
+  - Which timers stay clocked in STANDBY1
+  - Which peripheral instances have a `CLKCFG.BLOCKASYNC` bit
+  - Which pins can wake the device from SHUTDOWN
+  - MCLK and ULPCLK ceilings, backup power domain presence
 
 ✔️ = done, 🚧 = work in progress, ❌ = to do
 
@@ -30,19 +38,99 @@ These are the data sources currently used.
   * Mapping from GPIO pin to IOMUX::PINCM register.
   * Peripheral PF (pin function) mappings.
   * Peripheral pin names.
+  * Which pins have wakeup logic (`io_wakeup`).
+  * Which IO structure each pin is built from (`io_type`), and so which of its PINCM fields do
+    anything. Corroborated per pin by the datasheets' pin-attributes tables.
+  * Number of ADC conversion channels (`SYS_ADC_MEMCTL_DIM`).
+  * How many counters a basic timer instance has (`SYS_NUM_COUNTERS`), and a cross-check of the
+    datasheet's capture/compare channel counts (`SYS_NUM_CC`).
+* SysConfig `clocktree.json`
+  * Which crystal drivers, external clock inputs and SYSPLL a family has. A node is present exactly
+    when the family has that hardware.
 * mspm0-sdk header files
   * Interrupt number, name
   * Peripheral addresses
-* mspm0 SVDs: register blocks
+  * NVIC interrupt priority bits
+  * Flash geometry: the programming word width, the `CMDWEPROT*` register widths and whether the
+    flash has ECC (`FLASHCTL_SYS_*`, `__MSPM0_HAS_ECC__`). Not from the SVDs, which describe
+    `CMDWEPROTA` on parts whose header gives it zero width
+  * Whether the DMA implements the 128-bit transfer width (`DMA_SYS_MMR_LLONG`), cross-checked
+    against the SVD and matching every datasheet's "Long long (128-bit) transfer" row
+* mspm0 SVDs
+  * Register blocks
+  * Which peripheral instances have a `CLKCFG.BLOCKASYNC` bit. TI does not publish an SVD for every
+    family, so this is optional per family.
+  * A cross-check on the DMA's 128-bit transfer width, which the header states directly.
+* Device datasheets, read by the scripts in [`tools/`](./tools)
+  * How deep a sleep each PD1 peripheral is retained through, and how deep each peripheral
+    stays usable, from the "Supported Functionality by Operating Mode" table
+    ([`data/operating_modes/`](./data/operating_modes))
+  * What each timer instance can do, from the TIMx configuration table
+    ([`data/timers/`](./data/timers))
+  * How long the device takes to reach RUN from each sleep mode, from the wake-up timing table
+    ([`data/wakeup/`](./data/wakeup))
+  * How long VREF takes to settle after being enabled, from the `Tstartup` row, and whether the
+    internal reference is buffered out to the `VREF+` pin, from the output drive-strength row
+    ([`data/vref/`](./data/vref)). `CTL1.READY` would answer the first, but `VREF_ERR_01` leaves
+    that bit set after the first enable since reset. On an affected device the datasheet figure is
+    the only signal
+  * Which ADC channels sample an internal signal instead of a pin (the temperature sensor, the
+    OPA, GPAMP and DAC outputs, the internal reference, the supply monitors), from the ADC
+    channel-mapping table ([`data/adc_channels/`](./data/adc_channels)). The SDK states the same
+    mapping per SDK family, and a family overstates its parts: it routes the OPA outputs on
+    MSPM0G110x, which has no OPA
+  * Which extended-UART features (LIN, DALI, IrDA, ISO7816, Manchester) each UART instance
+    implements, from the "UART Features" table ([`data/uart/`](./data/uart)). One register block
+    serves every instance, so this is the only place the difference is stated per part
+  * The comparator timing figures — enable time per mode, and the reference DAC's settling time,
+    internal and pin-loaded — from the `ten` and `tdac_settle` rows ([`data/comp/`](./data/comp)).
+    Neither has a status bit behind it, so waiting them out is the only way to know the output is
+    meaningful
+  * The temperature sensor's conversion constants — the factory trim temperature, the sensor's
+    slope, the minimum ADC sample window and the reference the factory calibrated against
+    ([`data/temp_sensor/`](./data/temp_sensor)). `FACTORYREGION.TEMP_SENSE0` means nothing without
+    them, and the calibration reference varies per device: VDD on the older G families, the 1.4-V
+    internal reference on most, 4.05 V on the MSPM0H321x. Three datasheets contradict themselves
+    about it; [`data/temp_sensor_overrides.yaml`](./data/temp_sensor_overrides.yaml) records which
+    half hardware agreed with
+  * Which timers stay clocked in STANDBY1 (`standby1_timers` in [`parts.yaml`](./data/parts.yaml))
+  * MCLK and ULPCLK ceilings, the SYSOSC base frequency, the flash wait-state bands, `fADCCLK` and
+    `TRNGCLKF` (all in [`parts.yaml`](./data/parts.yaml))
+* Device errata sheets
+  * Which functional advisories apply ([`data/errata/`](./data/errata))
 * Manually entered
   * IIDX values for interrupts within a `INT_GROUP`
+  * Whether the BOR warning thresholds BOR1–BOR3 exist (`bor_warning_levels` in
+    [`parts.yaml`](./data/parts.yaml)), from each datasheet's `VBOR1`–`VBOR3` rows. The SVDs
+    enumerate four levels on every device, and driverlib's per-family enums disagree with the
+    datasheets in both directions, so only the datasheet answers
+  * The flash erase-sector size (`flash_sector_bytes` in [`parts.yaml`](./data/parts.yaml)), from
+    each datasheet's "minimum erase resolution" bullet. 1KB everywhere so far, recorded per family
+    so no driver has to trust driverlib's single portfolio-wide constant
+  * What each OPA input-mux position selects ([`data/opa/`](./data/opa)), including which peer
+    instance the cascade positions reach. Hand-curated because the L-series datasheet publishes it
+    only as a figure — one it promises as tables it does not contain
+  * Whether the device has `MCLKCFG.UDIV` and the STOP1 sub-mode (`clock_tree` in
+    [`parts.yaml`](./data/parts.yaml)). Neither can be keyed off the SYSCTL version: MSPM0L112x and
+    MSPM0L211x share `sysctl_l122x_l222x` with MSPM0L122x and MSPM0L222x, but have no STOP1
+
+Run `./d download-docs` to fetch the datasheets, errata sheets and reference manuals into `./files/`;
+the `tools/` scripts read them from there.
 
 # Adding a new chip
 
 1. Update the data sources to include the new chip. You will need to get the SVD and sysconfig metadata.
-2. Add the new chip family and part numbers to [`parts.yaml`](./data/parts.yaml)
+2. Add the new chip family and part numbers to [`parts.yaml`](./data/parts.yaml). Besides the part
+   numbers and memory this needs every frequency, the `clock_tree` entries and `standby1_timers`,
+   all from the datasheet.
 3. If needed, add any chip specific register blocks like `sysctl`.
 4. Check the peripheral mapping in [`perimap.rs`](./mspm0-data-gen/src/perimap.rs) to use the correct peripherals.
+5. Fetch the documents with `./d download-docs`, then regenerate the extracted data:
+   `tools/operating_modes.py`, `tools/timers.py`, `tools/wakeup.py`, `tools/vref.py`,
+   `tools/adc_channels.py`, `tools/uart.py`, `tools/comp.py`, `tools/errata.py` and
+   `tools/temp_sensor.py`, each with `--write files`.
+6. Run `./d gen` and read its output. `verify.rs` reports every per-chip gap it can detect, including
+   a family with no timer, errata or operating-mode data.
 
 # Adding support for a new peripheral
 
@@ -89,7 +177,7 @@ SVDs have some widespread annoyances that should be fixed when adding register Y
 
 ## Peripheral mapping (perimap)
 
-The `mspm0-metapac-gen` binary has a map to match peripherals to the right version in all chips, the [perimap](./mspm0-data-gen/src/perimap.rs).
+The `mspm0-data-gen` binary has a map to match peripherals to the right version in all chips, the [perimap](./mspm0-data-gen/src/perimap.rs).
 
 When parsing a chip, for each peripheral a "key" string is constructed using this format: `FAMILY:PERIPHERAL_NAME`, where:
 
@@ -103,3 +191,13 @@ When parsing a chip, for each peripheral a "key" string is constructed using thi
 ("mspm0c110x:sysctl", ("sysctl", "c110x")),
 ("mspm0g..0x:sysctl", ("sysctl", "g350x_g310x_g150x_g110x")),
 ```
+
+`PERIPHERAL_NAME` is the peripheral type, so every instance of a type on a chip gets the same
+version. Where one type covers instances with different register blocks, the key has to say which:
+`timb` does that for the basic timers alongside `tim`, in `get_peripheral_type_version`. Such a
+version also needs an entry in `VARIANT_MODULES` in
+[`peripheral.rs`](./mspm0-metapac-gen/src/peripheral.rs) to give it a module name of its own.
+Without one, the metapac generator panics on the two blocks colliding.
+
+A version also means the register block exists. `verify.rs` fails if a perimap entry names a YAML
+that has not been written, so do not add the entry ahead of the block.

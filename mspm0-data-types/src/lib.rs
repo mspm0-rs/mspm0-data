@@ -1,5 +1,8 @@
 use serde::{Deserialize, Serialize};
-use std::{collections::BTreeMap, fmt};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fmt,
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Chip {
@@ -31,6 +34,21 @@ pub struct Chip {
     /// Mapping from device pin to IOMUX register index.
     pub iomux: BTreeMap<String, u32>,
 
+    /// Which IO structure each device pin is built from, keyed the same way as `iomux`.
+    ///
+    /// Every pin with a PINCM has one.
+    pub io_structure: BTreeMap<String, IoStructure>,
+
+    /// Device pins which have wakeup logic and can therefore wake the device from SHUTDOWN.
+    ///
+    /// The `FASTWAKE` mechanism, which wakes the device from STOP and STANDBY, works on any GPIO
+    /// pin and is therefore not described here.
+    ///
+    /// `None` when sysconfig does not describe wakeup logic for this family, which is not the same as
+    /// the family having no wake-capable pin.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub wakeup_pins: Option<BTreeSet<String>>,
+
     /// The peripherals available on the chip.
     pub peripherals: BTreeMap<String, Peripheral>,
 
@@ -40,13 +58,256 @@ pub struct Chip {
     /// DMA channels available on the chip.
     pub dma_channels: BTreeMap<u32, DmaChannel>,
 
-    /// Number configurable channels (MEMCTL) in the ADC peripheral.
-    pub adc_memctl: u8,
+    /// Number of bits used by the NVIC for interrupt priority levels.
+    pub nvic_priority_bits: u8,
 
-    /// Number of options for VRSEL of the ADC peripheral.
+    /// Maximum frequency of MCLK, in Hz.
     ///
-    /// This is requried because we use a single adc_v1 pac for all chips.
-    pub adc_vrsel: u8,
+    /// MCLK sources the CPU and the PD1 peripherals.
+    pub max_mclk_hz: u32,
+
+    /// Maximum frequency of ULPCLK, in Hz.
+    ///
+    /// ULPCLK sources the PD0 peripherals. Note that this is the ceiling in RUN and SLEEP modes;
+    /// entering STOP throttles ULPCLK to 4MHz and STANDBY to 32kHz on every device.
+    pub max_ulpclk_hz: u32,
+
+    /// Frequency SYSOSC runs at in its factory trimmed base mode (`SYSOSCCFG.FREQ = 0`), in Hz.
+    ///
+    /// This is the rate the device boots at, and the rate SYSOSC returns to when a peripheral raises
+    /// an asynchronous fast clock request. It does not follow [`Chip::max_mclk_hz`]: the two happen
+    /// to agree on the one part where the base rate is not 32MHz.
+    ///
+    /// The fixed low-power operating point (`SYSOSCCFG.FREQ = 1`) is not described separately: it is
+    /// 4MHz on every device whose datasheet specifies one, and whether it exists at all is what
+    /// [`ClockTree::stop1`] says.
+    pub sysosc_base_hz: u32,
+
+    /// MCLK ceiling, in Hz, for each `MCLKCFG.FLASHWAIT` setting, starting at zero wait states.
+    ///
+    /// `[24_000_000, 48_000_000, 80_000_000]` means zero wait states up to 24MHz, one up to 48MHz
+    /// and two up to 80MHz. A single entry means the device's MCLK ceiling is within the zero wait
+    /// state band, so software never has a reason to raise `FLASHWAIT`.
+    ///
+    /// SYSCTL manages wait states on its own unless MCLK is sourced from a high speed clock, which
+    /// is the case where a consumer has to program them.
+    pub flash_wait_hz: Vec<u32>,
+
+    /// Whether the chip has an independent `VBAT` supply and therefore a real backup power domain
+    /// (PDB).
+    ///
+    /// Peripherals in the backup power domain are the only wake sources which survive SHUTDOWN.
+    pub backup_domain: bool,
+
+    /// Which clock sources and dividers this device's SYSCTL provides.
+    pub clock_tree: ClockTree,
+
+    /// Errata which apply to this device, by TI's identifier (`GPIO_ERR_01`, `UART_ERR_03`, ...).
+    ///
+    /// The functional advisories of the family's errata sheet, meaning the ones TI describes as
+    /// affecting "the device's operation, function, or parametrics". The preprogrammed-software,
+    /// debug-only and fixed-by-compiler advisories are not here.
+    ///
+    /// An erratum is listed when any silicon revision is affected, since a consumer built for a part
+    /// has to run on whichever revision it meets.
+    pub errata: Vec<String>,
+
+    /// How long this device takes to reach RUN from each sleep mode.
+    pub wake_ns: WakeTimes,
+
+    /// What `FACTORYREGION.TEMP_SENSE0` has to be combined with to give a temperature.
+    ///
+    /// `None` when `data/temp_sensor/<family>.yaml` is missing, which `verify.rs` reports.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub temperature_sensor: Option<TemperatureSensor>,
+}
+
+/// The temperature sensor's conversion constants.
+///
+/// `FACTORYREGION.TEMP_SENSE0` holds one ADC code per device: the sensor's output at the factory
+/// trim temperature, in 12-bit mode. It means nothing on its own. The temperature of a later
+/// reading is
+///
+/// ```text
+/// T = (V_sample - V_trim) / tsc + tstrim
+/// ```
+///
+/// where `V_trim` is `TEMP_SENSE0` scaled by the reference the factory used, and `V_sample` is the
+/// live code scaled by the reference the driver used. Those two references are not always the same
+/// one, which is what [`TemperatureSensor::calibration_reference`] is for.
+///
+/// None of these has a machine-readable source: no register holds them, no SDK header defines them
+/// and sysconfig has no attribute for them. They come from the datasheet's Temperature Sensor
+/// rows, extracted by `tools/temp_sensor.py`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TemperatureSensor {
+    /// The factory trim temperature in degrees Celsius, from the `TSTRIM` row's TYP column. 30 on
+    /// every device so far; the MIN and MAX columns say the trim was taken somewhere in 27–33, so
+    /// a consumer wanting an error bound has one.
+    pub tstrim_c: i16,
+
+    /// The sensor's slope in microvolts per degree Celsius, from the `TSc` row's TYP column.
+    /// Always negative — the output falls as the die warms. Ranges −1750 to −1900 across the
+    /// portfolio, so it cannot be assumed.
+    pub tsc_uv_per_c: i32,
+
+    /// The ADC sample window the sensor needs, in nanoseconds: the MAX of the datasheet's
+    /// `tSET,TS` row.
+    ///
+    /// **This is a minimum sample time, not a settling figure to note and move past.** The
+    /// datasheets' own footnote says so: "This is the maximum time required for the temperature
+    /// sensor to settle when measured by the ADC. It may be used to specify the minimum ADC sample
+    /// time." Sampling faster returns a plausible number that is wrong, with nothing to indicate
+    /// it. 10µs or 12.5µs depending on the family.
+    ///
+    /// `None` on mspm0l122x and mspm0l222x, whose shared datasheet has no such row.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub settling_ns: Option<u32>,
+
+    /// The ADC sample window the factory measurement itself used, in nanoseconds.
+    ///
+    /// Not always [`TemperatureSensor::settling_ns`]: the older L datasheets state a 12.5µs
+    /// calibration sample against their own 10µs settling maximum. "Long enough for the sensor to
+    /// settle" and "the window the stored code was taken with" are different conditions, and only
+    /// the second makes a live reading directly comparable with `TEMP_SENSE0`. Sample at the wider
+    /// of the two and both hold.
+    ///
+    /// This is the quiet one of the five. A window that is long enough to settle but shorter than
+    /// the factory's gives a reading which looks entirely reasonable and drifts, where a wrong
+    /// [`TemperatureSensor::calibration_reference`] gives a number nobody can miss.
+    ///
+    /// `None` where the datasheet does not state it.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub calibration_sample_ns: Option<u32>,
+
+    /// Which ADC reference `TEMP_SENSE0` was measured against.
+    ///
+    /// **A driver reading the sensor against a different reference has to scale `TEMP_SENSE0` by
+    /// this one, not by its own.** Getting it wrong does not produce a small error: on an L1306,
+    /// converting against VDD instead of the 1.4V reference turns 26.8°C into 527°C.
+    ///
+    /// It genuinely varies per device — VDD on the four older G families, the 1.4V internal
+    /// reference on twelve families, 4.05V on mspm0h321x — so there is no portfolio default to
+    /// fall back on, and no register or header states it. The sharpest case is g350x against
+    /// g351x: same series, adjacent part numbers, different references. TI's own
+    /// `adc12_internal_temp_sensor_mathacl` example gets that pair wrong, computing against 3.3V
+    /// for both.
+    pub calibration_reference: CalibrationReference,
+}
+
+/// The ADC reference a device's temperature sensor was calibrated against.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CalibrationReference {
+    /// `VRSEL = 0h`, the supply, stated as 3.3V. mspm0g110x, mspm0g150x, mspm0g310x and
+    /// mspm0g350x.
+    #[serde(rename = "vdd")]
+    Vdd,
+
+    /// `VRSEL = 2h` with the 1.4V internal reference buffer.
+    #[serde(rename = "internal_1v4")]
+    Internal1V4,
+
+    /// `VRSEL = 4h`, the 4.05V internal reference. mspm0h321x only.
+    #[serde(rename = "internal_4v05")]
+    Internal4V05,
+}
+
+/// Time to reach RUN from each sleep mode, in nanoseconds.
+///
+/// This is what decides whether a sleep is worth entering: a mode whose wake-up costs more than the
+/// time left before the next deadline is not usable for that deadline.
+///
+/// The sub-modes are named as the datasheet's wake-up timing table names them, which is also how
+/// `SYSCTL` describes them: STOP0/1/2 and STANDBY0/1 are selected by different register fields and
+/// have measurably different costs.
+///
+/// Every figure is **typical, not a guaranteed ceiling**. The datasheets give one unqualified number
+/// per mode, in a cell spanning their MIN, TYP and MAX columns, so there is no worst case to report.
+/// A consumer needing a margin has to add its own.
+///
+/// `None` means the datasheet has no figure: either the device does not have that mode, or the figure
+/// is given in CPU cycles rather than a time, which is how several state SLEEP0.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct WakeTimes {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sleep0: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sleep1: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sleep2: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stop0: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stop1: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stop2: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub standby0: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub standby1: Option<u32>,
+
+    /// SHUTDOWN is a reset rather than a wake, so this is a boot time. Where the datasheet gives it
+    /// for fast boot both enabled and disabled, the slower figure is the one recorded.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub shutdown: Option<u32>,
+}
+
+/// The clock sources and dividers a device provides.
+///
+/// These are presence questions with a definite answer, so they are `bool` rather than
+/// `Option<bool>`.
+///
+/// Do not expect a consumer to be able to derive these from the SYSCTL version. mspm0c110x and
+/// mspm0c1105_c1106 share `sysctl_c110x` but only the latter has a high frequency crystal driver, and
+/// mspm0l112x and mspm0l211x share `sysctl_l122x_l222x` but have no STOP1 where mspm0l122x does.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ClockTree {
+    /// Has a high frequency crystal driver (`HSCLKEN.HFXTEN`, `HFXIN`/`HFXOUT` pins).
+    pub hfxt: bool,
+
+    /// Has an external digital HFCLK input (`HSCLKEN.USEEXTHFCLK`, `HFCLKIN` pin).
+    ///
+    /// Separate from [`ClockTree::hfxt`]: mspm0c110x accepts a digital HFCLK but has no crystal
+    /// driver.
+    pub hfclk_in: bool,
+
+    /// The range HFCLK must stay within, from the datasheet's `fHFXT` and `fHFIN`.
+    ///
+    /// Both paths share one range on every device which specifies them, so this covers a crystal and
+    /// a digital input alike. It is **not** the SYSPLL reference range: `fSYSPLLREF` is 4-48MHz on
+    /// every device with a SYSPLL, which HFCLK is only on the G families.
+    ///
+    /// `None` where the datasheet gives no figure: the families with no HFCLK path, and
+    /// mspm0c110x, which has an `HFCLKIN` pin but no `fHFIN` row.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hfclk_hz: Option<ClockRange>,
+
+    /// Has a low frequency crystal driver (`LFXTCTL.SETUSELFXT`, `LFXIN`/`LFXOUT` pins).
+    pub lfxt: bool,
+
+    /// Has an external digital LFCLK input (`EXLFCTL.SETUSEEXLF`, `LFCLKIN` pin).
+    pub lfclk_in: bool,
+
+    /// Has a SYSPLL, and therefore something other than HFCLK to select as HSCLK.
+    ///
+    /// Where this is `false` there is nothing to choose between, but that is **not** the same as
+    /// there being no `HSCLKCFG.HSCLKSEL` field: only mspm0c110x and the l110x/l130x/l134x families
+    /// lack one. The rest still have the field, still reset it to the SYSPLL position they cannot
+    /// use, and still require software to write `HFCLKCLK` before MCLK can run from HSCLK - the
+    /// TRMs say to set the bit (SLAU893 2.7, SLAU923, SLAU847), and TI's own SVDs document no
+    /// encoding for the reset value on those parts.
+    pub syspll: bool,
+
+    /// Has `MCLKCFG.UDIV`, the MCLK to ULPCLK divider.
+    ///
+    /// Only the devices whose ULPCLK ceiling is below their MCLK ceiling have one.
+    pub ulpclk_div: bool,
+
+    /// Has the STOP1 sub-mode, in which SYSOSC drops to 4MHz rather than stopping
+    /// (`SYSOSCCFG.USE4MHZSTOP`).
+    ///
+    /// Where this is `false` the device's STOP mode is only STOP0 and STOP2.
+    pub stop1: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -70,6 +331,68 @@ pub struct Package {
     pub pins: Vec<PackagePin>,
 }
 
+/// The IO structure a pin is built from, which decides what its PINCM fields do.
+///
+/// The IOMUX register is the same for every pin, so a field a pin's structure does not implement
+/// is written, read back, and ignored. What each structure implements:
+///
+/// | structure | `INV` | `DRV` | `HYSTEN` | `PIPU` | `PIPD` | wake |
+/// |---|---|---|---|---|---|---|
+/// | [`Standard`](IoStructure::Standard), [`StandardLowLeakage`](IoStructure::StandardLowLeakage) | yes | | | yes | yes | |
+/// | [`StandardWithWake`](IoStructure::StandardWithWake) | yes | | | yes | yes | yes |
+/// | [`HighDrive`](IoStructure::HighDrive) | yes | yes | | yes | yes | yes |
+/// | [`HighSpeed`](IoStructure::HighSpeed) | yes | yes | | yes | yes | |
+/// | [`OpenDrain`](IoStructure::OpenDrain) | yes | | yes | | yes | yes |
+///
+/// The table is SLAU846 Table 8-1, and TI's own `GPIOPin.syscfg.js` gates its options by exactly
+/// these rules. Three caveats before treating it as complete:
+///
+/// - **Wake is not derivable from the structure.** On mspm0c110x and msps003fx the open-drain
+///   pins have no wakeup logic — sysconfig marks `io_wakeup` false on them, and the C1104
+///   datasheet's feature table has no wakeup column at all. Use [`Chip::wakeup_pins`].
+/// - **The per-device feature tables are not reliable in either direction.** The MSPM0G3519's
+///   omits the open-drain row although its own pin table gives PA0 and PA1 that structure; the
+///   MSPM0L2117's carries two low-drive rows although no pin on the device is low-drive; the
+///   MSPM0L2117's also leaves high-drive's drive-strength cell empty against every other
+///   datasheet, the TRM and TI's own tool; and the MSPM0H3216's marks no structure as having a
+///   pulldown. Per-pin data is the reliable part.
+/// - **Not every device has every structure**, and no device has all of them.
+///
+/// The source is sysconfig's per-pin `io_type`. The datasheets' per-pin tables corroborate it on
+/// 723 of the 847 pins, across all 18 families, with no disagreement on any of them; the shortfall
+/// is rows the table extraction did not recover, not pins the two sources describe differently.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum IoStructure {
+    /// Standard drive (`SDIO`).
+    Standard,
+
+    /// Standard drive, low leakage (`SDL` in sysconfig, which TI's tool calls "Low-leakage
+    /// Standard"). The datasheets' pin tables print it as plain standard drive, and every rule in
+    /// TI's tool treats the two identically, so the difference is leakage current rather than
+    /// anything the IOMUX can express.
+    ///
+    /// One pin per family on the older G and L families — PA2 everywhere it appears — and every
+    /// pin of msps003fx.
+    StandardLowLeakage,
+
+    /// Standard drive with wakeup logic (`SDIO` with wake).
+    StandardWithWake,
+
+    /// High drive (`HDIO`), the 20mA output.
+    HighDrive,
+
+    /// High speed (`HSIO`).
+    HighSpeed,
+
+    /// 5V-tolerant open drain (`ODIO`). The only structure with hysteresis control, and the only
+    /// one with no pullup: `PIPU` on one of these pins does nothing.
+    OpenDrain,
+
+    /// A USB 2.0 full-speed pin (`USBIO`), on mspm0g518x only. Powered from `VUSB33` rather than
+    /// `VDD`, and treated as standard drive by TI's tool.
+    Usb,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PackagePin {
     /// The position by pin name.
@@ -87,7 +410,8 @@ pub struct PackagePin {
     pub signals: Vec<String>,
 }
 
-// TODO: The rest
+// Every peripheral sysconfig names on a supported device needs a variant here: one that falls
+// through to `Unknown` is dropped from the generated metadata, which `verify.rs` reports.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum PeripheralType {
@@ -98,6 +422,12 @@ pub enum PeripheralType {
     Adc,
 
     AesAdv,
+
+    /// The beeper, a square wave output driven from LFCLK.
+    ///
+    /// Documented as part of SYSCTL and addressed through it, but described here as a peripheral of
+    /// its own so it gets a register block rather than four registers' worth of SYSCTL variants.
+    Beeper,
 
     Aes,
 
@@ -149,6 +479,9 @@ pub enum PeripheralType {
 
     Rtc,
 
+    /// Signal generator subsystem, whose instances sysconfig names `SPGx`.
+    Spgss,
+
     Spi,
 
     /// System Controller
@@ -164,6 +497,18 @@ pub enum PeripheralType {
     Uart,
 
     Unicomm,
+
+    /// The UART register map of a UNICOMM instance, at a fixed offset below it.
+    UnicommUart,
+
+    /// The I2C controller register map of a UNICOMM instance, at a fixed offset below it.
+    UnicommI2cc,
+
+    /// The I2C target register map of a UNICOMM instance, at a fixed offset below it.
+    UnicommI2ct,
+
+    /// The SPI register map of a UNICOMM instance, at a fixed offset below it.
+    UnicommSpi,
 
     Usbfs,
 
@@ -181,6 +526,7 @@ impl fmt::Display for PeripheralType {
             PeripheralType::Adc => "adc",
             PeripheralType::Aes => "aes",
             PeripheralType::AesAdv => "aesadv",
+            PeripheralType::Beeper => "beeper",
             PeripheralType::Canfd => "canfd",
             PeripheralType::Comp => "comp",
             PeripheralType::Cpuss => "cpuss",
@@ -204,12 +550,17 @@ impl fmt::Display for PeripheralType {
             PeripheralType::Npu => "npu",
             PeripheralType::Opa => "opa",
             PeripheralType::Rtc => "rtc",
+            PeripheralType::Spgss => "spgss",
             PeripheralType::Spi => "spi",
             PeripheralType::Sysctl => "sysctl",
             PeripheralType::Tim => "tim",
             PeripheralType::Trng => "trng",
             PeripheralType::Uart => "uart",
             PeripheralType::Unicomm => "unicomm",
+            PeripheralType::UnicommUart => "unicommuart",
+            PeripheralType::UnicommI2cc => "unicommi2cc",
+            PeripheralType::UnicommI2ct => "unicommi2ct",
+            PeripheralType::UnicommSpi => "unicommspi",
             PeripheralType::Usbfs => "usbfs",
             PeripheralType::Vref => "vref",
             PeripheralType::Wuc => "wuc",
@@ -239,9 +590,24 @@ pub struct Peripheral {
     #[serde(flatten, rename = "type")]
     pub ty: PeripheralType,
 
+    /// Which register block describes this peripheral.
+    ///
+    /// Names the `data/registers/<type>_<version>.yaml` the generated PAC imports, so a version
+    /// present here is a promise that the block exists — `verify.rs` checks it. Instances of one
+    /// type normally share a version; where they do not, the version is what tells them apart, as
+    /// `btimer` does for the basic timers alongside `v1`.
+    ///
+    /// `None` when no register block has been curated for this peripheral yet. The peripheral is
+    /// still described — address, pins, power domain and interrupts are all independent of this —
+    /// but the PAC emits it as `pub const NAME: () = ();` rather than a typed block.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<String>,
 
+    /// Base address of the peripheral's register block.
+    ///
+    /// `None` for a peripheral which has no block of its own because it lives inside another, as
+    /// GPAMP does inside SYSCTL. Such a peripheral is omitted from the PAC entirely, and the HAL
+    /// reaches it through its host.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub address: Option<u32>,
 
@@ -251,6 +617,767 @@ pub struct Peripheral {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sys_fentries: Option<usize>,
+
+    /// The interrupts raised by this peripheral.
+    ///
+    /// Usually one, and empty for a peripheral which raises none. A peripheral can have several: the
+    /// MSPM33 parts route a peripheral's interrupt outputs to more than one NVIC line, so the HSADC
+    /// has five. Note this is the opposite multiplicity to an `INT_GROUP`, where several peripherals
+    /// share one line and are told apart by [`PeripheralInterrupt::group_iidx`]; the two can coexist.
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub interrupts: Vec<PeripheralInterrupt>,
+
+    /// Whether this peripheral instance has its own `CLKCFG.BLOCKASYNC` bit, masking the asynchronous
+    /// fast clock request it raises.
+    ///
+    /// `None` when no SVD is published for the family. `mspm0-metapac-gen/res/metadata.rs` documents
+    /// what `false` does not mean.
+    pub block_async: Option<bool>,
+
+    /// The deepest mode through which this peripheral keeps its configuration.
+    ///
+    /// [`PowerMode::Standby1`] means the configuration survives everything short of SHUTDOWN;
+    /// [`PowerMode::Sleep`] means it is already gone by STOP0, so the peripheral must be fully
+    /// reconfigured on wake. All PD1 peripherals need re-enabling after STOP or STANDBY regardless.
+    ///
+    /// [`PowerMode::Sleep`] is the shallowest value this takes. PD1 is powered in RUN and SLEEP
+    /// alike, so a row already `OFF` by STOP0 says nothing finer than "not through STOP".
+    ///
+    /// `None` when `power_domain` is not [`PowerDomain::Pd1`].
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub retained_through: Option<PowerMode>,
+
+    /// The deepest mode in which the datasheet says this peripheral can be used.
+    ///
+    /// Derived from the same table as [`Peripheral::retained_through`], reading `EN` and `OPT` as
+    /// usable and `DIS`, `OFF` and `NS` as not.
+    ///
+    /// `None` when the row does not resolve to a single mode: either its values differ between the
+    /// policies within a mode group, or one value spans every column.
+    ///
+    /// [`PowerMode::Standby1`] here does **not** mean a timer can wake the core. This is the
+    /// table's peripheral row; whether a timer is still clocked is a separate row and is reported
+    /// by [`Peripheral::clocked_in_standby1`]. The two coincide on 13 of the 18 families and
+    /// diverge on the L-series.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub usable_through: Option<PowerMode>,
+
+    /// Whether this timer keeps receiving ULPCLK or LFCLK in STANDBY1.
+    ///
+    /// STANDBY1 unclocks all of PD0 except a handful of general purpose timers, so these are the
+    /// only timers which can wake the core from the deepest sleep. `None` for peripherals which are
+    /// not timers.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub clocked_in_standby1: Option<bool>,
+
+    /// What this timer instance can do.
+    ///
+    /// `None` for peripherals which are not timers, and for timers of a family which publishes no
+    /// SVD and has no entry in `data/timers.yaml`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub timer: Option<Timer>,
+
+    /// The range this peripheral's functional clock input must stay within.
+    ///
+    /// For the ADC this is `fADCCLK`, the rate of the source selected by `CLKCFG.SAMPCLK` before
+    /// `CTL0.SCLKDIV` divides it down. For the TRNG it is `TRNGCLKF`, the rate reaching the module
+    /// after `CLKDIV.RATIO`.
+    ///
+    /// `None` where the datasheet specifies no such range for the peripheral, which is every
+    /// peripheral other than those two so far.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub clock_range_hz: Option<ClockRange>,
+
+    /// What this ADC instance provides.
+    ///
+    /// `None` for peripherals which are not ADCs.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub adc: Option<Adc>,
+
+    /// Which register maps this UNICOMM instance implements.
+    ///
+    /// `None` for peripherals which are not UNICOMM instances.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unicomm: Option<Unicomm>,
+
+    /// Which extended-UART features this UART implements.
+    ///
+    /// `None` for peripherals which are neither a UART nor a UNICOMM UART function.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub uart: Option<Uart>,
+
+    /// What this OPA instance's input muxes select.
+    ///
+    /// `None` for peripherals which are not OPAs.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub opa: Option<Opa>,
+
+    /// The parts of the VREF instance which the `vref_v1` register block does not describe.
+    ///
+    /// `None` for peripherals which are not the VREF.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub vref: Option<Vref>,
+
+    /// The parts of this COMP instance which its register block does not describe.
+    ///
+    /// `None` for peripherals which are not comparators.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub comp: Option<Comp>,
+
+    /// How this flash controller writes and protects its flash.
+    ///
+    /// `None` for peripherals which are not the FLASHCTL.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub flashctl: Option<Flashctl>,
+
+    /// The parts of the SYSCTL which its register block does not describe.
+    ///
+    /// `None` for peripherals which are not the SYSCTL.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sysctl: Option<Sysctl>,
+
+    /// The parts of the DMA which its register block does not describe.
+    ///
+    /// `None` for peripherals which are not the DMA.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dma: Option<Dma>,
+}
+
+/// The parts of the SYSCTL which its register block does not describe.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Sysctl {
+    /// Whether the BOR warning thresholds BOR1–BOR3 exist. When true, `BORTHRESHOLD.LEVEL`
+    /// values 1–3 arm an early-warning interrupt above the BOR0 reset level; when false the
+    /// device implements only BOR0 and the upper `LEVEL` encodings select nothing the datasheet
+    /// documents. False only on the MSPM0H321x so far, whose datasheet publishes no
+    /// `VBOR1`–`VBOR3` rows and qualifies its BOR hysteresis "Level 0"; every other family's
+    /// datasheet states all three with rising, falling and STANDBY figures. The register
+    /// interface cannot say: the field is two bits and the SVDs enumerate four levels
+    /// everywhere, and driverlib's per-family enums contradict the datasheets in *both*
+    /// directions (`dl_sysctl_mspm0c110x.h` allows only level 0 against the C1104's full table,
+    /// `dl_sysctl_mspm0h321x.h` offers all four against the H3216's one).
+    ///
+    /// A new threshold takes effect only after `BORCLRCMD` is written with its key and `GO` —
+    /// `BORTHRESHOLD.LEVEL` alone changes nothing, and no TI code performs the second write.
+    /// Confirm via `SYSSTATUS.BORCURTHRESHOLD` after the documented ~15µs; do not poll it in
+    /// place of the delay, since it reads the old level until the new one lands and a refused
+    /// change would hang the poll. On mspm0l110x/l130x/l134x, `PMCU_ERR_03`: BOR1–3 are not
+    /// functional in STANDBY.
+    pub bor_warning_levels: bool,
+}
+
+/// The parts of the DMA which its register block does not describe.
+///
+/// A device-wide statement, not a per-channel one. Where the widest transfer exists it is
+/// available on the basic channels as well as the full ones, so [`DmaChannel::full`] answers a
+/// different question and cannot stand in for this one.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Dma {
+    /// Whether `DMACTL.DMASRCWDTH` and `DMADSTWDTH` honour the 128-bit `LONGLONG` encoding (`4h`).
+    /// The other four widths — 8, 16, 32 and 64 bits — exist on every device.
+    ///
+    /// TI builds the DMA in two variants and only DMA_B has the wide transfer: true on
+    /// mspm0c1105_c1106, mspm0g151x, mspm0g351x, mspm0g518x, mspm0h321x, mspm0l112x and
+    /// mspm0l211x, false on the other eleven families. What a device without it does with a `4h`
+    /// written to either field is documented nowhere, so a driver has to gate on this rather than
+    /// try the width and check.
+    ///
+    /// Three sources state it per device and agree on all 18 families: the header's
+    /// `DMA_SYS_MMR_LLONG`, the `LONGLONG` enumerated value in the SVDs which have one, and the
+    /// datasheet's "Long long (128-bit) transfer" row (older datasheets carry no such table and
+    /// say it in the DMA feature list, which stops at "long word (64-bit)"). Not sysconfig, whose
+    /// `DMAChannel.syscfg.js` gates the option on a family list missing four families that have
+    /// it.
+    pub long_long_transfers: bool,
+
+    /// Whether `DMACTL.AUTOEN` does anything. The field is in the register block on every device,
+    /// because one block serves them all, but the older DMA implements no automatic enable and
+    /// writing it there is accepted and ignored.
+    ///
+    /// True on exactly the same seven families as [`Dma::long_long_transfers`] — the two features
+    /// arrived together, and the header states them as separate constants
+    /// (`DMA_SYS_MMR_AUTO`) which have never disagreed. Recorded separately anyway: nothing says
+    /// TI must keep shipping them as a pair.
+    ///
+    /// Same three sources, agreeing on all 18 families: the header constant, the presence of the
+    /// `DMAAUTOEN` field in the SVDs which have one, and the datasheet's "Auto enable" row.
+    pub auto_enable: bool,
+
+    /// Whether `DMACTL.DMASRCINCR` and `DMADSTINCR` implement the stride encodings, `8h`
+    /// (`STRIDE_2`) through `Fh` (`STRIDE_9`), which advance the address by 2 to 9 times the
+    /// transfer width instead of by one.
+    ///
+    /// True on the same seven families as [`Dma::long_long_transfers`] and [`Dma::auto_enable`].
+    /// Recorded separately for the same reason: the three arrived together and nothing says TI
+    /// must keep shipping them as a set. Do not read one off another.
+    ///
+    /// **Only two sources can answer, and neither is the SVD.** The header's `DMA_SYS_MMR_STRIDE`
+    /// and the datasheet's "Stride mode" row state it per device and agree on all ten families
+    /// which have both. Everything else describes the IP superset and ticks stride everywhere: all
+    /// 21 SVDs enumerate `STRIDE_2`–`STRIDE_9` whatever the device, the shared `hw_dma.h` defines
+    /// the encodings unconditionally, and driverlib declares `DL_DMA_ADDR_STRIDE_*` without the
+    /// `#ifdef` it puts on `DL_DMA_WIDTH_LONG_LONG`. The SVDs do discriminate `LONGLONG` and
+    /// `DMAAUTOEN`, so their stride values are unmaintained rather than a second opinion.
+    ///
+    /// The TRMs' Table 5-1 ticks stride for DMA_A and is wrong. That same table denies DMA_A a
+    /// repeated mode, which its own Table 5-2 contradicts by typing `DMATM` 2 and 3 full-feature,
+    /// as does every DMA_A datasheet's "Repeat Mode: Yes".
+    ///
+    /// The field is four bits wide on every device, so a stride value can always be written. What
+    /// a device without stride does with one is not documented anywhere.
+    pub stride_mode: bool,
+
+    /// Whether `DMACTL.EM` implements gather mode, value `1h`, which walks a table of addresses
+    /// and copies from each to one destination.
+    ///
+    /// **This is not "the device has extended modes".** `EM` selects four, and every device
+    /// implements three: fill (`2h`) and table (`3h`) are ticked on the full channels of every
+    /// datasheet carrying the table, whether or not the part has gather. A driver keyed on
+    /// "extended mode" as one bit would refuse fill and table on the eleven families that have
+    /// them.
+    ///
+    /// **Extended modes are full-channel only**, on every device. The TRM says "In FULL channels,
+    /// the DMA controller has two extended modes", and every datasheet marks both the gather and
+    /// the table-and-fill rows `-` in its BASIC column. Combine with [`DmaChannel::full`] before
+    /// offering any of them — unlike [`Dma::stride_mode`], [`Dma::long_long_transfers`] and
+    /// [`Dma::auto_enable`], which the datasheets tick for basic channels too.
+    ///
+    /// Three sources state gather per device and agree: the header's `DMA_SYS_MMR_EM`, the
+    /// datasheet's "Gather Mode" row, and the TRMs' Table 5-1. That last one is right about this
+    /// row and wrong about two others in the same table, so it corroborates rather than settles —
+    /// read Table 5-1 a row at a time, never as a whole.
+    pub gather_mode: bool,
+}
+
+/// How the flash controller writes and protects its flash.
+///
+/// One `flashctl` register block serves every device, so these are the per-device facts a flash
+/// driver needs and the block cannot state. They describe the controller: no current device varies
+/// its flash geometry per bank, and the sources state them once per device, so a per-`MemoryRegion`
+/// statement would only repeat them.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Flashctl {
+    /// Erase granularity in bytes. 1024 on every device so far — stated per device by the
+    /// datasheet ("minimum erase resolution of 1KB"), recorded per device so a driver need not
+    /// assume TI's portfolio-wide driverlib constant holds for a part it was never checked on.
+    pub sector_bytes: u32,
+
+    /// The widest single program command in bytes. 8 on every device except the G518x's 16,
+    /// which programs two flash words in one command (TI's `programMemory128` sets
+    /// `CMDTYPE.SIZE` to `TWO_WORDS`). Not the minimum programming unit: the flash word is
+    /// 8 bytes on every device, the G518x included ("Flash word size is 64 data bits (8 bytes)"
+    /// in its own datasheet), and a word can only be programmed once per erase. The value is the
+    /// header's `FLASHCTL_SYS_DATAWIDTH`, whose comment miscalls it the flash-word width.
+    pub word_bytes: u8,
+
+    /// Implemented bits in `CMDWEPROTA`, each write-protecting one sector of physical bank 0.
+    /// 0 means the register does not exist and `CMDWEPROTB` alone protects MAIN memory — TI's
+    /// newer scheme; 16 bits on the C110x, 32 on the other older families.
+    ///
+    /// These registers reset to fully protected on every program or erase completion, so a driver
+    /// clears the relevant bit before every operation, not once.
+    pub weprota_bits: u8,
+
+    /// Implemented bits in `CMDWEPROTB`, each write-protecting eight sectors. Which eight depends
+    /// on more than these widths: on a single-bank part with `CMDWEPROTA` its bit 0 starts above
+    /// `CMDWEPROTA`'s 32 sectors, while on a multi-bank part it starts at each bank's base — the
+    /// three mask formulas in TI's `dl_flashctl.c` `DL_FlashCTL_unprotectSector` are the
+    /// reference, and the bank count is a runtime fact (`FACTORYREGION`), not a metadata one.
+    pub weprotb_bits: u8,
+
+    /// Implemented bits in `CMDWEPROTC`. 0 on every current device; carried so the day TI ships
+    /// one it is data rather than a schema change.
+    pub weprotc_bits: u8,
+
+    /// Whether the flash carries ECC — a 72-bit stored word of 64 data bits plus 8 ECC bits.
+    /// False on the C, H321x and L110x/L130x/L134x families, whose datasheets hedge their flash
+    /// word footnote with "on devices with ECC" and never state the ECC variant.
+    pub has_ecc: bool,
+}
+
+/// The parts of one COMP instance which its register block does not describe.
+///
+/// Both COMP register blocks enumerate every `CTL2.REFSRC` value the IP has ever had, so on its own
+/// the PAC offers reference sources some devices do not implement — the same shape as the OPA mux
+/// positions, where a selection that does not exist selects nothing and reads as a healthy
+/// configuration.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Comp {
+    /// Whether `CTL2.REFSRC` positions 5 (`VDDA`), 6 (`INTVREF_DAC`) and 7 (`INTVREF`) select a
+    /// source on this instance. The three come and go together; positions 0 through 3 exist on
+    /// every comparator, and 4 is reserved everywhere.
+    ///
+    /// When false, writing 5 through 7 selects no reference. The internal-reference positions are
+    /// the only way to a reference in modes where the VREF module is unavailable; when this is
+    /// false, `REFSRC` 2 and 3 reach the VREF module's output instead, which follows the VREF
+    /// configuration (internal where the device generates one, the `VREF+`/`VREF-` pins otherwise).
+    pub int_vref: bool,
+
+    /// Time from `CTL1.ENABLE` in high-speed mode (`CTL1.MODE = 0`) until the comparator meets its
+    /// propagation-delay specification, in nanoseconds. Nothing reports this — there is no ready
+    /// bit — so waiting it out is the only option. The figure's cell spans the datasheet's MIN,
+    /// TYP and MAX columns, so it is a stated figure rather than a guaranteed ceiling; the same
+    /// holds for the other three figures here.
+    ///
+    /// `None` when the family's datasheet has no `ten` row.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub enable_fast_ns: Option<u32>,
+
+    /// Time from `CTL1.ENABLE` in low-power mode (`CTL1.MODE = 1`) until the comparator meets its
+    /// propagation-delay specification, in nanoseconds. 10us on every device so far, where
+    /// high-speed mode reaches its own specification in 5us on the newer-generation comparators.
+    ///
+    /// `None` when the family's datasheet has no `ten` row.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub enable_ulp_ns: Option<u32>,
+
+    /// Time for the 8-bit reference DAC to settle to 1 LSB after a full-scale code change, in
+    /// nanoseconds, unloaded. This is the internal path — what the comparator itself, or an OPA
+    /// sampling the DAC through its input mux, sees.
+    ///
+    /// `None` when the family's datasheet has no `tdac_settle` row.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dac_settle_ns: Option<u32>,
+
+    /// The same settling figure with the DAC driven out to a package pin (`CTL1.DACOUTEN`) under
+    /// the datasheet's stated load. Stated exactly on the families whose COMP has that bit, and
+    /// slower than the internal path — 6us against 1.5us so far.
+    ///
+    /// `None` when the datasheet does not state the pin-loaded row, including every device whose
+    /// DAC cannot reach a pin.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dac_settle_pin_ns: Option<u32>,
+}
+
+/// The parts of the VREF instance which the single `vref_v1` register block does not describe.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Vref {
+    /// Time from `CTL0.ENABLE` to a settled reference, in nanoseconds.
+    ///
+    /// `CTL1.READY` reports this and is the better signal, but `VREF_ERR_01` leaves the bit set once
+    /// a buffer has been enabled a first time since reset, so on a device carrying that erratum it
+    /// cannot report a later enable and this figure is the only way to know. Check
+    /// [`Chip::errata`] rather than assuming either way.
+    ///
+    /// Typical rather than a guaranteed ceiling: the datasheet cell spans its MIN, TYP and MAX
+    /// columns. Where a datasheet states the row under several conditions this is the slowest of
+    /// them, which on the G5187 means the 200us figure with a 1uF capacitor on `VREF+` rather than
+    /// the 20us one without.
+    ///
+    /// `None` when the family's datasheet has no `Tstartup` row.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub startup_ns: Option<u32>,
+
+    /// Whether the internal reference is buffered out to the `VREF+` package pin.
+    ///
+    /// True on the G families, whose datasheets state an output drive strength for the pin and
+    /// require the decoupling capacitor for internal-reference use. False on the C/H/L families,
+    /// where `VREF+` only brings an external reference in — and on devices with no VREF pins at
+    /// all. Anything reading the `VREF+` pin node, such as an OPA input mux position routed to it,
+    /// sees the internal reference only where this is true; with an external reference driving the
+    /// pin it works regardless.
+    #[serde(default)]
+    pub output_to_pin: bool,
+}
+
+/// The parts of one ADC instance which the single `adc_v1` register block does not describe.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Adc {
+    /// Number of configurable conversion channels (`MEMCTL`).
+    pub memctl: u8,
+
+    /// Number of options `CTL2.VRSEL` accepts.
+    pub vrsel: u8,
+
+    /// Channels hard-wired to an internal signal rather than a package pin.
+    ///
+    /// From the datasheet's "ADC Channel Mapping" table, read by `tools/adc_channels.py`. Channels
+    /// not listed go to package pins or nowhere. The routing differs per instance and per family --
+    /// the OPA0 output is ADC0 channel 13 on mspm0g350x and channel 12 on mspm0l130x -- so a
+    /// consumer must not key it on the instance name.
+    ///
+    /// Empty when the family's datasheet has no such table, which none so far lacks.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub internal_channels: BTreeMap<u8, AdcInternalSource>,
+
+    /// Guaranteed ceiling on the time the ADC needs to wake from automatic power down, in
+    /// nanoseconds, from the datasheet's `Twakeup` MAX column.
+    ///
+    /// `CTL0.PWRDN` resets to `0`, automatic power down, where the ADC switches off after each
+    /// conversion. The TRM makes the wake the caller's problem rather than the hardware's: it is
+    /// paid for out of the programmed sample window, so `SCOMPx` has to cover this figure **plus**
+    /// the sampling the signal itself needs. A window sized only for the signal samples an input
+    /// that has not finished waking, and nothing reports it. With `PWRDN = 1` the ADC stays
+    /// powered and none of this applies.
+    ///
+    /// **`None` means the datasheet publishes no ceiling, not that the wake is free.** On
+    /// mspm0l110x, mspm0l130x and mspm0l134x the figure appears in the TYP column instead and is in
+    /// [`Adc::wakeup_typ_ns`]. There is no worst case to design against on those three, which a
+    /// consumer needing a guarantee has to decide about rather than round away — the two columns
+    /// are separate fields so that a typical cannot be mistaken for a bound.
+    ///
+    /// 5000 on the fifteen families which state a maximum. Stated once per datasheet, under the
+    /// condition "assumes internal reference is active" -- thirteen datasheets, two of which serve
+    /// two families each.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub wakeup_max_ns: Option<u32>,
+
+    /// Typical time the ADC needs to wake from automatic power down, in nanoseconds, from the
+    /// datasheet's `Twakeup` TYP column.
+    ///
+    /// 1000 on mspm0l110x, mspm0l130x and mspm0l134x, which publish no maximum. `None` on the
+    /// fifteen families which state a ceiling instead — see [`Adc::wakeup_max_ns`] for what this
+    /// figure is for and why the two are not merged.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub wakeup_typ_ns: Option<u32>,
+
+    /// The shortest sample window the datasheet supports, in nanoseconds, from the `tSample` row
+    /// (older documents) or `tSample_step` (newer), MIN column.
+    ///
+    /// `SAMPCLK` has no published ceiling; the window is what the datasheets bound. A `SCOMPx`
+    /// shorter than this converts an input which has not finished settling, and nothing reports it.
+    /// This is the bare-pin figure. An OPA output channel needs [`Adc::pga_sample_ns`] instead, and
+    /// where `CTL0.PWRDN` leaves automatic power down on, [`Adc::wakeup_max_ns`] is paid out of the
+    /// same window and adds to this.
+    ///
+    /// **The two row names are one quantity.** Only mspm0h321x prints a `Vstep`, and it is the only
+    /// 4.5–5.5V part, so the older documents left the step implicit at the device's own full scale.
+    /// No datasheet prints both rows, so that reading is the best supported rather than proven.
+    /// Where a datasheet states the row twice the larger is recorded: mspm0h321x is 188ns at a 4V
+    /// step and 400ns at 5V, and its recommended supply reaches 5.5V, so only the 5V figure bounds
+    /// the part.
+    ///
+    /// Whole nanoseconds, rounded **up** — 62.5ns on the G families becomes 63. Rounding a lower
+    /// bound down would hand out a window the datasheet does not support.
+    ///
+    /// Five values across eighteen families, and it follows neither the family nor the series: 63
+    /// on the six G families, 156 on l110x/l122x/l130x/l134x/l222x, 166 on c110x and msps003fx, 188
+    /// on c1105_c1106/g518x/l112x/l211x, 400 on h321x. `None` means the extraction is missing, not
+    /// that the device has no minimum — every datasheet states one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sample_min_ns: Option<u32>,
+
+    /// The sample window an OPA output channel needs, in nanoseconds, keyed by PGA gain.
+    ///
+    /// From the datasheet's `tSample_PGA` row, MIN column. It is per *gain* and not per channel,
+    /// and at high gain it is an order of magnitude above [`Adc::sample_min_ns`]: 1500ns at x32
+    /// against a 156ns bare pin on mspm0l130x. A driver programming the bare-pin figure for an OPA
+    /// channel is short by that much, with nothing to report it.
+    ///
+    /// **Every published figure is conditioned `CFGBASE.GBW = 1`, the high-bandwidth setting.** The
+    /// field resets to `0` and TI's `DL_OPA_init` leaves it there, so a caller which has not set it
+    /// is outside every published figure. No datasheet publishes a row for `GBW = 0`, and the low
+    /// setting is slower — the OPA's own `tSETTLE` is 2.5µs typical against 1.3µs — so at `GBW = 0`
+    /// these become an underestimate rather than a bound. What a given driver leaves the field at
+    /// is the driver's own fact, not the device's.
+    ///
+    /// **A gain absent from the map is unpublished, not derivable.** The G datasheets print six
+    /// gains (x1, x2, x4, x8, x16, x32) and the L datasheets print two, the endpoints only. The two
+    /// curves cross — L is slower at x1 (310ns against 220ns) and faster at x32 (1500ns against
+    /// 2600ns) — so neither can be interpolated onto the other, and nothing bounds the L families
+    /// between x1 and x32.
+    ///
+    /// Empty on every chip with no OPA. Seven datasheets print the table but only four families
+    /// have the amplifier: the row carries the footnote "Only applies for devices with OPA" because
+    /// one document covers several devices, so the map is attached only where an OPA instance
+    /// exists.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub pga_sample_ns: BTreeMap<u8, u32>,
+}
+
+/// An internal signal an ADC channel samples instead of a package pin.
+///
+/// Variants exist for the signals the current datasheets route; a new family may add more.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum AdcInternalSource {
+    /// The temperature sensor. Its single-point calibration value is in `FACTORYREGION`.
+    TemperatureSensor,
+
+    /// The OPA0 output.
+    Opa0,
+
+    /// The OPA1 output.
+    Opa1,
+
+    /// The GPAMP output.
+    Gpamp,
+
+    /// The DAC0 output. The channel is shared with a package pin, which cannot sample external
+    /// signals while the DAC drives it.
+    Dac0,
+
+    /// The internal voltage reference, `VREF` or `VREFINT` in the datasheets. Not the `VREF+`/
+    /// `VREF-` pins, which are external and stay in the pin data.
+    Vref,
+
+    /// The supply monitor, "Supply/Battery Monitor" in most datasheets.
+    SupplyMonitor,
+
+    /// The VBAT backup-supply monitor.
+    VbatMonitor,
+
+    /// The VUSB supply monitor.
+    VusbMonitor,
+}
+
+/// An inclusive frequency range, in Hz.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ClockRange {
+    pub min_hz: u32,
+    pub max_hz: u32,
+}
+
+/// The capabilities of one timer instance.
+///
+/// Every MSPM0 timer shares the `tim_v1` register block, so the generated PAC says nothing about
+/// which of these an instance actually implements. Instances differ widely: `TIMA0` has deadband
+/// insertion and a fault handler, `TIMG12` is 32-bit with no prescaler, and `TIMB0` is a bare
+/// counter with no capture/compare at all.
+///
+/// Capability does not follow the instance name, so a consumer must not key a table on it: `TIMG2`
+/// has two capture/compare channels on mspm0l110x, and sysconfig gives the mspm0l112x one the same
+/// `SYS_FLAVOR` as `TIMA0`.
+///
+/// Read from the datasheet's TIMx configuration table by `tools/timers.py`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Timer {
+    /// Counter width in bits, either 16 or 32.
+    pub bits: u8,
+
+    /// Independent counters the instance implements.
+    ///
+    /// One on every general-purpose and advanced timer. The basic timers are a counter array and
+    /// are the only instances where this is not 1: four counters on the G-series `TIMBx`, two on
+    /// the L-series ones. The `tim_btimer` register block addresses the eight the TRM documents, so
+    /// this is what says which of those exist.
+    ///
+    /// Unlike the rest of this struct it does not come from `data/timers`: the datasheets state it
+    /// only as a feature of `TIMBx` in general, in wording which is identical on devices that
+    /// disagree. It is sysconfig's `SYS_NUM_COUNTERS`, which is per instance.
+    #[serde(default = "one")]
+    pub counters: u8,
+
+    /// Whether the instance has the 8-bit prescaler.
+    pub prescaler: bool,
+
+    /// Whether the instance has the repeat counter.
+    pub repeat_counter: bool,
+
+    /// Capture/compare channels which have a `CCPx` output.
+    ///
+    /// Zero for the basic timers (`TIMBx`), which cannot capture or compare at all. The datasheet
+    /// calls these the external channels; the compare-only channels behind them (`CC_45`, on the
+    /// advanced timers only) are not described here, since only the L-series datasheets say how
+    /// many there are.
+    pub ccp_channels: u8,
+
+    /// PWM outputs the instance drives, counting a channel's complementary output separately.
+    ///
+    /// Twice [`Timer::ccp_channels`] on the instances with deadband insertion, since those pair
+    /// each channel with a `CCPx_CMPL` output, and equal to it on the rest.
+    pub external_pwm_channels: u8,
+
+    /// Whether the instance has the phase load register.
+    pub phase_load: bool,
+
+    /// Whether the load register is shadowed.
+    pub shadow_load: bool,
+
+    /// Whether the capture/compare registers are shadowed.
+    pub shadow_ccs: bool,
+
+    /// Whether the instance has deadband insertion.
+    pub deadband: bool,
+
+    /// Whether the instance has a fault handler.
+    pub fault_handler: bool,
+
+    /// Whether the instance can decode quadrature and Hall inputs.
+    pub qei_hall: bool,
+}
+
+/// Default for [`Timer::counters`], which `data/timers` does not carry.
+fn one() -> u8 {
+    1
+}
+
+/// Which register maps a UNICOMM instance implements.
+///
+/// UNICOMM is one peripheral which is a UART, an SPI, an I2C controller or an I2C target depending
+/// on `IPMODE.SELECT`, with a register map per mode at a fixed offset below the instance's own
+/// address. **No instance implements all four**, and which it implements does not follow the
+/// instance name: on MSPM0G518x `UC0` is a UART or either half of an I2C but never an SPI, `UC2` is
+/// an SPI only, and `UC3` is a UART or an SPI.
+///
+/// An instance with one mode has nothing to select and no `IPMODE` register to select it with, so
+/// writing `IPMODE` is only meaningful where more than one of these is true.
+///
+/// Read from the instance table in the SDK's device header, which populates a register pointer per
+/// mode the instance has.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Unicomm {
+    /// Implements the UART register map, `0x80000` below the instance address.
+    pub uart: bool,
+
+    /// Implements the I2C controller register map, `0x60000` below the instance address.
+    pub i2c_controller: bool,
+
+    /// Implements the I2C target register map, `0x40000` below the instance address.
+    pub i2c_target: bool,
+
+    /// Implements the SPI register map, `0x20000` below the instance address.
+    pub spi: bool,
+}
+
+/// What an OPA instance's three input muxes select at each position.
+///
+/// The register block is shared, so which positions exist — and which peer instance the cascade
+/// positions reach — comes from the datasheet: the "OPAx Input Channel Mapping" tables on the
+/// G families, and the "Device Analog Connections" figure on the L families, whose datasheet
+/// promises those tables and does not contain them.
+///
+/// Position 0 is `Open` (deliberately no connection) on every mux of every instance and is not
+/// listed. **Any other position absent from its map selects nothing**: the input floats, which on
+/// the M-mux means the gain ladder pivots about a floating node and produces plausible-looking
+/// wrong results. The known holes are on the L families, which lack `PSEL` 2 (`IN1+`), 3 (DAC12)
+/// and 8 (ground), and `MSEL` 3 (DAC12).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Opa {
+    /// The non-inverting input mux, `CFG.PSEL`.
+    pub pmux: BTreeMap<u8, OpaInput>,
+
+    /// The inverting input mux, `CFG.NSEL`.
+    pub nmux: BTreeMap<u8, OpaInput>,
+
+    /// The gain-ladder bottom mux, `CFG.MSEL`.
+    pub mmux: BTreeMap<u8, OpaInput>,
+}
+
+/// A source an OPA input-mux position selects.
+///
+/// Pin polarity follows the mux: on the P-mux [`OpaInput::In0`] is the `OPAx_IN0+` package pin, on
+/// the N-mux and M-mux it is the corresponding `-` pin.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum OpaInput {
+    /// The instance's own `INn+`/`INn-` package pin; the payload is `n`.
+    In(u8),
+
+    /// The 12-bit DAC output. It reaches the mux through the `DAC_OUT` package pin, which is also
+    /// the `OPAx_IN2±` input: the datasheets warn against external circuitry on that pin while the
+    /// DAC drives the OPA.
+    Dac12,
+
+    /// The 8-bit reference DAC of the COMP instance named by the payload. On the G families
+    /// `OPAn` is fed by `COMPn`'s DAC; on the L families both OPAs are fed by `COMP0`'s.
+    Dac8(u8),
+
+    /// The `VREF+` pin node. The internal reference reaches it only where [`Vref::output_to_pin`]
+    /// is true; an external reference on the pin works regardless.
+    VrefPlus,
+
+    /// The gain-ladder top of the OPA instance named by the payload — the cascade connection.
+    Rtop(u8),
+
+    /// The gain-ladder bottom of the OPA instance named by the payload — the cascade connection.
+    Rbot(u8),
+
+    /// The instance's own gain-ladder tap.
+    OwnRtap,
+
+    /// The instance's own gain-ladder top.
+    OwnRtop,
+
+    /// The GPAMP output.
+    Gpamp,
+
+    /// Ground.
+    Ground,
+}
+
+/// Which extended-UART features a UART instance implements.
+///
+/// Every legacy UART shares the `uart_v1` register block and every UNICOMM UART function shares
+/// `unicommuart_v1`, so the block does not say which instance implements these. The datasheet's
+/// "UART Features" table does, read by `tools/uart.py` into `data/uart/`.
+///
+/// TI's Extend/Main naming is deliberately not recorded: the UNICOMM UARTs do not nest that way.
+/// On MSPM0G518x `UC1` has LIN but no smart card and `UC3` smart card but no LIN, so the features
+/// stand alone. A legacy extend instance has all five; a legacy main instance has none.
+///
+/// The features do not follow the instance name -- UART1 is main on mspm0l130x and extend on
+/// mspm0l122x -- so a consumer must not key them on it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Uart {
+    /// LIN mode: the `LINCTL`/`LINCNT`/`LINC0`/`LINC1` registers and their interrupts.
+    pub lin: bool,
+
+    /// DALI (IEC 62386) support.
+    pub dali: bool,
+
+    /// IrDA encoding and decoding.
+    pub irda: bool,
+
+    /// ISO 7816 smart card mode.
+    pub iso7816: bool,
+
+    /// The Manchester codec (`CTL0.MENC`).
+    pub manchester: bool,
+}
+
+/// An operating mode, ordered from shallowest to deepest.
+///
+/// Ordering is meaningful and is what makes retention comparable: a peripheral retained through
+/// [`PowerMode::Standby1`] is also retained in every shallower mode, so a consumer can ask
+/// `retained_through >= PowerMode::Stop0` rather than enumerating cases.
+///
+/// STOP and STANDBY are split per sub-mode because each disables a superset of the one before it.
+/// **RUN and SLEEP are deliberately not**, and adding their sub-modes would break the ordering:
+/// RUN1 and RUN2 are clock-source policies rather than depths, so RUN2 runs the CPU with SYSOSC
+/// off while the deeper SLEEP0 turns it back on. Across the datasheets, every row whose usability
+/// switches back on does so at `RUN2 -> SLEEP0` or `SLEEP2 -> STOP0` — MCAN, USB, I2S, OPA and the
+/// MFCLK-fed peripherals — and none within STOP or within STANDBY.
+///
+/// Not every family has every sub-mode: the C-series, MSPM0H321x and MSPM0L2117 tables have no
+/// STOP1 column, so [`PowerMode::Stop1`] never appears for those and [`PowerMode::Stop2`] is the
+/// next mode after [`PowerMode::Stop0`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum PowerMode {
+    Run,
+    Sleep,
+    Stop0,
+    Stop1,
+    Stop2,
+
+    /// PD0 is still clocked here, which is what separates it from [`PowerMode::Standby1`].
+    Standby0,
+
+    /// PD0 is unclocked apart from the handful of timers marked
+    /// [`Peripheral::clocked_in_standby1`], so those are the only peripherals which can wake the
+    /// core from here.
+    Standby1,
+
+    /// Nothing but the `SHUTDNSTORE` bytes in SYSCTL survives this, so it appears only for
+    /// non-volatile memory.
+    Shutdown,
+}
+
+/// The interrupt raised by a peripheral.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct PeripheralInterrupt {
+    /// Name of the NVIC interrupt.
+    ///
+    /// For a peripheral inside an `INT_GROUP` this is the name of the group (e.g. `GROUP1`), not
+    /// the name of the peripheral.
+    pub name: String,
+
+    /// Number of the NVIC interrupt.
+    pub num: i32,
+
+    /// The peripheral's `IIDX` value within its `INT_GROUP`.
+    ///
+    /// `None` if the peripheral has an NVIC interrupt of its own rather than sharing a group.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub group_iidx: Option<u32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -288,9 +1415,25 @@ pub struct Memory {
     /// The memory partition.
     pub name: String,
 
+    /// What kind of memory this partition is.
+    pub kind: MemoryKind,
+
     /// Amount of memory in KB.
     pub length: u32,
 
     /// Address of the memory.
     pub address: u32,
+
+    /// The deepest mode through which the contents of this partition survive.
+    ///
+    /// Flash is non-volatile, so it is [`PowerMode::Shutdown`]. SRAM is normally
+    /// [`PowerMode::Standby1`], since only the `SHUTDNSTORE` bytes in SYSCTL survive SHUTDOWN. The
+    /// upper SRAM bank of the parts which have one is the exception.
+    pub retained_through: PowerMode,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum MemoryKind {
+    Flash,
+    Ram,
 }
