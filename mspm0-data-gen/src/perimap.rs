@@ -1,6 +1,7 @@
 use crate::util::RegexMap;
 
 pub static PERIMAP: RegexMap<&str> = RegexMap::new(&[
+    (".*:aesadv", "v1"),
     (".*:uart", "v1"),
     (".*:gpio", "v1"),
     (".*:dma", "v1"),

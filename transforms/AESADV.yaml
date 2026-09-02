@@ -1,0 +1,272 @@
+# Transform for AESADV registers based on L2228
+transforms:
+  # Must manually delete OFB_GCM_CCM_CONT since chiptool explodes in !DeleteUselessEnums and tries to find a variant with 0 value.
+  # But this enum only has a 1 value.
+  - !DeleteEnums
+    from: OFB_GCM_CCM_CONT
+
+  - !DeleteUselessEnums
+
+  - !DeleteEnums
+    from: FREE
+
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
+  #
+  # TODO: Add this to chiptool
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLEARED
+      1: SET
+
+  # FREE is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STOP
+      1: RUN
+
+  # RESETASSERT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  # RESETSTKY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  # RESETSTKYCLR is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: ENABLED
+      1: DISABLED
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: DECRYPT
+      1: ENCRYPT
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: DMA_DISABLE
+      1: DMA_ENABLE
+
+  # Remove prefixes
+  - !RenameRegisters
+    block: .*
+    from: AESADV_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: AESADV_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: AESADV_(.+)
+    to: $1
+
+  ## Interrupts
+  ## INT_EVENT0 -> CPU_INT
+  - !MergeBlocks
+    from: INT_EVENT0
+    main: INT_EVENT0
+    to: CPU_INT
+
+  - !RenameRegisters
+    block: .*
+    from: INT_EVENT0(.*)
+    to: CPU_INT$1
+
+  - !RenameFields
+    fieldset: .*
+    from: INT_EVENT0(.+)
+    to: CPU_INT$1
+
+  - !Rename
+    type: All
+    from: INT_EVENT0(.+)
+    to: CPU_INT$1
+
+  - !RenameRegisters
+    block: AESADV
+    from: INT_EVENT1
+    to: DMA_TRIG_DATAIN
+
+  - !RenameRegisters
+    block: AESADV
+    from: INT_EVENT2
+    to: DMA_TRIG_DATAOUT
+
+  # CPU_INT interrupt fields are all the same layout.
+  - !MergeFieldsets
+    from: CPU_INT_(IMASK|ISET|MIS|RIS|ICLR)
+    to: CPU_INT
+
+  # Remove redundant prefixes in the CPU_INT block
+  - !RenameRegisters
+    block: .*
+    from: CPU_INT_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: CPU_INT_(.+)
+    to: $1
+
+  ## DMA Triggers
+  # IN
+  - !MergeBlocks
+    from: INT_EVENT1
+    main: INT_EVENT1
+    to: DMA_TRIG_DATAIN
+
+  - !RenameRegisters
+    block: DMA_TRIG_DATAIN
+    from: INT_EVENT1_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: INT_EVENT1(.+)
+    to: DMA_TRIG_DATAIN$1
+
+  # DMA_TRIG_DATAIN interrupt fields are all the same layout.
+  - !MergeFieldsets
+    from: DMA_TRIG_DATAIN_(IMASK|ISET|MIS|RIS|ICLR)
+    to: DMA_TRIG_DATAIN_INT
+
+  # OUT
+  - !MergeBlocks
+    from: INT_EVENT2
+    main: INT_EVENT2
+    to: DMA_TRIG_DATAOUT
+
+  - !RenameRegisters
+    block: DMA_TRIG_DATAOUT
+    from: INT_EVENT2_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: INT_EVENT2(.+)
+    to: DMA_TRIG_DATAOUT$1
+
+  # DMA_TRIG_DATAOUT interrupt fields are all the same layout.
+  - !MergeFieldsets
+    from: DMA_TRIG_DATAOUT_(IMASK|ISET|MIS|RIS|ICLR)
+    to: DMA_TRIG_DATAOUT_INT
+
+  # Merge enums. Same is used for events or interrupts
+  - !MergeEnums
+    from: (EVT)(\d+)_CFG
+    to: EVT_CFG
+
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT0_CFG
+    to: CPU_INT
+
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: EVT1_CFG
+    to: DMA_TRIG_DATAIN
+
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: EVT2_CFG
+    to: DMA_TRIG_DATAOUT
+
+  # All of these fieldsets are useless (just a 32-bit value)
+  - !DeleteFieldsets
+    from: (DATA|GCMCCM_TAG|GHASH_H|IV|KEY|TAG)(\d+)
+
+  - !MakeRegisterArray
+    blocks: AESADV
+    from: GCMCCM_TAG(\d+)
+    to: GCMCCM_TAG
+
+  - !MakeRegisterArray
+    blocks: AESADV
+    from: GHASH_H(\d+)
+    to: GHASH_H
+
+  - !MakeRegisterArray
+    blocks: AESADV
+    from: KEY(\d+)
+    to: KEY
+
+  - !MakeRegisterArray
+    blocks: AESADV
+    from: IV(\d+)
+    to: IV
+
+  - !MakeRegisterArray
+    blocks: AESADV
+    from: DATA(\d+)
+    to: DATA
+
+  - !MakeRegisterArray
+    blocks: AESADV
+    from: TAG(\d+)
+    to: TAG
+
+  # DMA only reads from these, does not need a fieldset.
+  - !DeleteFieldsets
+    from: DATA_(IN|OUT)
+
+  # u32 access only
+  - !DeleteFieldsets
+    from: (AAD_LENGTH|BLK_CNT0|BLK_CNT1|CCM_ALN_WRD|FORCE_IN_AV|C_LENGTH_0|C_LENGTH_1)
+
+  # CTR_WIDTH has an extra variant with value 0.
+  - !DeleteEnumVariants
+    enum: CTR_WIDTH
+    from: (CTR32)
+
+  ## Add missing keys
+  - !AddFields
+    fieldset: RSTCTL
+    fields:
+    - name: KEY
+      description: Unlock key B1h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: RESET_KEY
+
+  - !AddFields
+    fieldset: PWREN
+    fields:
+    - name: KEY
+      description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: PWREN_KEY
+
+  - !Add
+    ir:
+      enum/RESET_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 177
+      enum/PWREN_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 38
+
+  ## Cleanup
+  - !Sort

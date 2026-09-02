@@ -1,0 +1,554 @@
+block/AESADV:
+  description: PERIPHERALREGION.
+  items:
+  - name: GPRCM
+    array:
+      len: 1
+      stride: 24
+    byte_offset: 2048
+    block: GPRCM
+  - name: PDBGCTL
+    description: Peripheral Debug Control.
+    byte_offset: 4120
+    access: Read
+    fieldset: PDBGCTL
+  - name: CPU_INT
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4128
+    block: CPU_INT
+  - name: DMA_TRIG_DATAIN
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4176
+    block: DMA_TRIG_DATAIN
+  - name: DMA_TRIG_DATAOUT
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4224
+    block: DMA_TRIG_DATAOUT
+  - name: EVT_MODE
+    description: Event Mode.
+    byte_offset: 4320
+    fieldset: EVT_MODE
+  - name: GCMCCM_TAG
+    description: CBC-MAC third key (LSW) / GCM &amp; CCM Intermediate TAG (LSW).
+    array:
+      len: 4
+      stride: 4
+    byte_offset: 4352
+    access: Write
+  - name: GHASH_H
+    description: CCM &amp; CBC-MAC second key (LSW) / GCM Hash Key input (LSW).
+    array:
+      len: 4
+      stride: 4
+    byte_offset: 4368
+    access: Write
+  - name: KEY
+    description: KEY (LSW).
+    array:
+      len: 8
+      stride: 4
+    byte_offset: 4384
+    access: Write
+  - name: IV
+    description: IV (LSW).
+    array:
+      len: 4
+      stride: 4
+    byte_offset: 4416
+  - name: CTRL
+    description: Input/Output Buffer Control and Mode selection.
+    byte_offset: 4432
+    fieldset: CTRL
+  - name: C_LENGTH_0
+    description: Crypto data length (LSW).
+    byte_offset: 4436
+    access: Write
+  - name: C_LENGTH_1
+    description: Crypto data length (MSW).
+    byte_offset: 4440
+    access: Write
+  - name: AAD_LENGTH
+    description: AAD Data Length.
+    byte_offset: 4444
+    access: Write
+  - name: DATA
+    description: Data input (LSW) / Data output (LSW).
+    array:
+      len: 4
+      stride: 4
+    byte_offset: 4448
+  - name: TAG
+    description: Hash result (LSW).
+    array:
+      len: 4
+      stride: 4
+    byte_offset: 4464
+    access: Read
+  - name: STATUS
+    description: Status.
+    byte_offset: 4480
+    access: Read
+    fieldset: STATUS
+  - name: DATA_IN
+    description: Data in alias register.
+    byte_offset: 4484
+    access: Write
+  - name: DATA_OUT
+    description: Data out alias register.
+    byte_offset: 4488
+    access: Read
+  - name: FORCE_IN_AV
+    description: Data control register for input data.
+    byte_offset: 4560
+    access: Write
+  - name: CCM_ALN_WRD
+    description: AES-CCM AAD alignment data word.
+    byte_offset: 4564
+  - name: BLK_CNT0
+    description: Internal block counter (LSW).
+    byte_offset: 4568
+  - name: BLK_CNT1
+    description: Internal block counter (MSW).
+    byte_offset: 4572
+  - name: DMA_HS
+    description: Control register for DMA handshaking.
+    byte_offset: 4596
+    fieldset: DMA_HS
+block/CPU_INT:
+  items:
+  - name: IIDX
+    description: Interrupt Index Register.
+    byte_offset: 0
+    access: Read
+    fieldset: CPU_INT_IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: CPU_INT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: CPU_INT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: CPU_INT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: CPU_INT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: CPU_INT
+block/DMA_TRIG_DATAIN:
+  items:
+  - name: IIDX
+    description: Interrupt Index Register.
+    byte_offset: 0
+    access: Read
+    fieldset: DMA_TRIG_DATAIN_IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: DMA_TRIG_DATAIN_INT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: DMA_TRIG_DATAIN_INT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: DMA_TRIG_DATAIN_INT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: DMA_TRIG_DATAIN_INT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: DMA_TRIG_DATAIN_INT
+block/DMA_TRIG_DATAOUT:
+  items:
+  - name: IIDX
+    description: Interrupt Index Register.
+    byte_offset: 0
+    access: Read
+    fieldset: DMA_TRIG_DATAOUT_IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: DMA_TRIG_DATAOUT_INT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: DMA_TRIG_DATAOUT_INT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: DMA_TRIG_DATAOUT_INT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: DMA_TRIG_DATAOUT_INT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: DMA_TRIG_DATAOUT_INT
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: STAT
+    description: Status Register.
+    byte_offset: 20
+    access: Read
+    fieldset: STAT
+fieldset/CPU_INT:
+  description: Interrupt clear.
+  fields:
+  - name: OUTPUTRDY
+    description: This indicates that the core has an output available to be read out. This should not be used if DMA handshake is used (AES_DMA_HS.DMA_DATA_ACK set to 1).
+    bit_offset: 0
+    bit_size: 1
+  - name: INPUTRDY
+    description: This indicates that the engine can take new input. This should not be used if DMA handshake is used (AES_DMA_HS.DMA_DATA_ACK set to 1).
+    bit_offset: 1
+    bit_size: 1
+  - name: SAVEDCNTXTRDY
+    description: This bit indicates that an AES authentication TAG and/or IV block(s) is/are available for the CPU to retrieve. This bit is only asserted if the save_context bit is set to 1b. The bit is mutually exclusive with the context_ready bit.
+    bit_offset: 2
+    bit_size: 1
+  - name: CNTXTRDY
+    description: This bit indicates that the context data registers can be overwritten, and the CPU is permitted to write next context.
+    bit_offset: 3
+    bit_size: 1
+fieldset/CPU_INT_IIDX:
+  description: Interrupt Index Register.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 8
+    enum: CPU_INT_IIDX_STAT
+fieldset/CTRL:
+  description: Input/Output Buffer Control and Mode selection.
+  fields:
+  - name: OUTPUT_RDY
+    description: Output Ready. If 1b, this read-only status bit indicates that an AES output block is available for the CPU to retrieve.
+    bit_offset: 0
+    bit_size: 1
+  - name: INPUT_RDY
+    description: Ready for input. If 1b, this read-only status bit indicates that the 16-byte input buffer is empty, and the CPU is permitted to write the next block of data. After reset, this bit is 0. After writing a context, this bit will become 1b.
+    bit_offset: 1
+    bit_size: 1
+  - name: DIR
+    description: 'Direction. If set to 1b an encrypt operation is performed. If set to 0b a decrypt operation is performed. Note: This bit must be written with a 1b when CBC-MAC is selected.'
+    bit_offset: 2
+    bit_size: 1
+  - name: KEYSIZE
+    description: Specifies the encryption strength / key width.
+    bit_offset: 3
+    bit_size: 2
+    enum: KEYSIZE
+  - name: CBC
+    description: If set to 1b, cipher-block-chaining (CBC) mode is selected.
+    bit_offset: 5
+    bit_size: 1
+  - name: CTR
+    description: 'If set to 1b, AES counter mode (CTR) is selected. Note: This bit must also be set for GCM and CCM, when encryption/decryption is required.'
+    bit_offset: 6
+    bit_size: 1
+  - name: CTR_WIDTH
+    description: When the CTR bit is set, specifies the counter width for AES-CTR mode. When the CFB bit is set, specifies the CFB mode feedback width:.
+    bit_offset: 7
+    bit_size: 2
+    enum: CTR_WIDTH
+  - name: ICM
+    description: When the CFB bit is set, specifies the CFB mode feedback width:.
+    bit_offset: 9
+    bit_size: 1
+  - name: CFB
+    description: If set to 1b, AES cipher feedback mode CFB is selected. Use the ctr_width field to specify the feedback width.
+    bit_offset: 10
+    bit_size: 1
+  - name: CBCMAC
+    description: If set to 1b, AES-CBC MAC is selected, the Direction bit must be set to 1 for this mode.
+    bit_offset: 15
+    bit_size: 1
+  - name: GCM
+    description: 'If not set to 00b, AES-GCM mode is selected, this is a combined mode, using the Galois field multiplier GF(2128) for authentication and AES-CTR mode for encryption, the bits specify the GCM mode: 01b = GHASH with H loaded and Y0-encrypted forced to zero 10b = GHASH with H loaded and Y0-encrypted calculated internally 11b = Autonomous GHASH (both H and Y0-encrypted calculated internally) Note: Besides GCM, the CTR mode bits must also be set to 1b to enable GCM with AES-CTR; if the CTR bit is not set a GHASH (authentication) only operation is performed. A GHASH only operation is only allowed if the GCM mode is set to ''01b'' and the direction bit is set to ''0b''. Other modes may not be selected in combination with GCM. Table 14 below shows the valid combinations for the GCM and CTR mode bits, all other options are invalid and must not be selected.'
+    bit_offset: 16
+    bit_size: 2
+    enum: GCM
+  - name: CCM
+    description: If set to 1b, AES-CCM is selected, this is a combined mode, using AES for both authentication and encryption. In addition to the CCM bit, the CTR mode bit must be set such that AES-CTR is enabled. Other combinations with CCM are invalid.
+    bit_offset: 18
+    bit_size: 1
+  - name: CCML
+    description: Defines L that indicates the width of the length field for CCM operations; the length field in bytes equals the value of CMM-L plus one. All values are supported.
+    bit_offset: 19
+    bit_size: 3
+  - name: CCMM
+    description: 'Defines M that indicates the length of the authentication field for CCM operations; the authentication field length equals two times (the value of CCM-M plus one). Note: The EIP-39 always returns a 128-bit authentication field, of which the M least significant bytes are valid. All values are supported.'
+    bit_offset: 22
+    bit_size: 3
+  - name: OFB_GCM_CCM_CONT
+    description: 'This bit has a dual use, depending on the selection of CCM/GCM, see bits [18:16]. If CCM/GCM is not selected: If this bit is set to 1b, full block AES output feedback mode (OFB-128) is selected. If CCM/GCM is selected: Continue processing of an interrupted AES-GCM or AES-CCM operation in the AAD phase. Set this write-only signal to 1b together with the regular mode bit settings for a GCM or CCM operation, to continue processing from the next full AAD block (128 bits) boundary. Before setting this bit all applicable context to resume processing must have been loaded into the engine: Keys, IV, intermediate digest/TAG, block counter and the CCM align data word (the latter is for CCM mode only). The mode can be written together with this bit, as it is part of the same register.'
+    bit_offset: 26
+    bit_size: 1
+  - name: GET_DIGEST
+    description: 'Interrupt processing and generate an intermediate digest during an AES-GCM or AES-CCM operation. Set this write-only signal to 1b to interrupt GCM or CCM processing at the next full block (128 bits) boundary. An intermediate digest may be requested during the encryption/decryption data phase or in the AAD phase. Note: Interruption can only be done on full block (128 bits) boundaries. The minimum number of remaining bytes to resume and finalize the operation, must be greater than or equal to 1.'
+    bit_offset: 27
+    bit_size: 1
+  - name: GCM_CONT
+    description: 'Continue processing of an interrupted AES-GCM or AES-CCM operation in the crypto/payload phase. Set this write-only signal to 1b together with the regular mode bit settings for a GCM or CCM operation, to continue processing from the next full block (128 bits) boundary. Before setting this bit all applicable context to resume processing must have been loaded into the engine: Keys, IV, intermediate digest/TAG and block counter. The mode can be written together with this bit, as it is part of the same register.'
+    bit_offset: 28
+    bit_size: 1
+  - name: SAVE_CNTXT
+    description: This bit is used to indicate that an authentication TAG or result IV needs to be stored as a result context. If this bit is set, context output DMA and/or interrupt will be asserted if the operation is finished, and related signals are enabled. Typically, this value must be set for authentication modes returning a TAG (CBC-MAC, GCM and CCM), or for basic encryption modes that require future continuation with the current result IV. If this bit is set, the engine will hold its full context until the TAG and/or IV registers are read. Only after reading the TAG or IV, a new DMA request for a new (input) context will be asserted. If this bit is not set, the engine will assert the context input DMA request signal directly after starting to process the last block with the current context.
+    bit_offset: 29
+    bit_size: 1
+  - name: SAVED_CNTXT_RDY
+    description: If 1b, this read-only status bit indicates that an AES authentication TAG and/or IV block(s) is/are available for the Host to retrieve. This bit is only asserted if the save_context bit is set to 1b. The bit is mutually exclusive with the context_ready bit.
+    bit_offset: 30
+    bit_size: 1
+  - name: CNTXT_RDY
+    description: If 1b, this read-only status bit indicates that the context data registers can be overwritten, and the CPU is permitted to write the next context.
+    bit_offset: 31
+    bit_size: 1
+fieldset/DMA_HS:
+  description: Control register for DMA handshaking.
+  fields:
+  - name: DMA_DATA_ACK
+    description: When this bit is 0b, input and output data acknowledge is I/O register based, as specified in the description of the AES_DATA_IN_n / AES_DATA_OUT_n registers. When this bit is 1b, input and ouput data acknowledge is based on DMA handshake signals.
+    bit_offset: 0
+    bit_size: 1
+fieldset/DMA_TRIG_DATAIN_IIDX:
+  description: Interrupt Index Register.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 8
+    enum: DMA_TRIG_DATAIN_IIDX_STAT
+fieldset/DMA_TRIG_DATAIN_INT:
+  description: Interrupt clear.
+  fields:
+  - name: TRIG0
+    description: TRIG0 event.
+    bit_offset: 0
+    bit_size: 1
+fieldset/DMA_TRIG_DATAOUT_IIDX:
+  description: Interrupt Index Register.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 8
+    enum: DMA_TRIG_DATAOUT_IIDX_STAT
+fieldset/DMA_TRIG_DATAOUT_INT:
+  description: Interrupt clear.
+  fields:
+  - name: TRIG1
+    description: TRIG1 event.
+    bit_offset: 0
+    bit_size: 1
+fieldset/EVT_MODE:
+  description: Event Mode.
+  fields:
+  - name: CPU_INT
+    description: Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT0].
+    bit_offset: 0
+    bit_size: 2
+    enum: INT0_CFG
+  - name: DMA_TRIG_DATAIN
+    description: Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT1].
+    bit_offset: 2
+    bit_size: 2
+    enum: EVT_CFG
+  - name: DMA_TRIG_DATAOUT
+    description: Event line mode select for event corresponding to [IPSTANDARD.INT_EVENT2].
+    bit_offset: 4
+    bit_size: 2
+    enum: EVT_CFG
+fieldset/PDBGCTL:
+  description: Peripheral Debug Control.
+  fields:
+  - name: FREE
+    description: Free run control.
+    bit_offset: 0
+    bit_size: 1
+fieldset/PWREN:
+  description: Power enable.
+  fields:
+  - name: ENABLE
+    description: Enable the power.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral.
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register.
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key B1h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/STAT:
+  description: Status Register.
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+fieldset/STATUS:
+  description: Status.
+  fields:
+  - name: KEYWR
+    description: Key write status. 0 - user write to KEY register is allowed. 1 - user write to KEY register is ignored. In order to allow user write, perform a module reset.
+    bit_offset: 0
+    bit_size: 1
+enum/CPU_INT_IIDX_STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No interrupt pending.
+    value: 0
+  - name: OUTPUTRDY
+    description: This indicates that the core has an output available to be read out. This should not be used if DMA handshake is used (AES_DMA_HS.DMA_DATA_ACK set to 1).
+    value: 1
+  - name: INPUTRDY
+    description: This indicates that the engine can take new input. This should not be used if DMA handshake is used (AES_DMA_HS.DMA_DATA_ACK set to 1).
+    value: 2
+  - name: SAVEDCNTXTRDY
+    description: This bit indicates that an AES authentication TAG and/or IV block(s) is/are available for the CPU to retrieve. This bit is only asserted if the save_context bit is set to 1b. The bit is mutually exclusive with the context_ready bit.
+    value: 3
+  - name: CNTXTRDY
+    description: This bit indicates that the context data registers can be overwritten, and the CPU is permitted to write new context.
+    value: 4
+enum/CTR_WIDTH:
+  bit_size: 2
+  variants:
+  - name: CFB128
+    description: CFB-128 mode.
+    value: 0
+  - name: CTR64
+    description: 64-bit counter.
+    value: 1
+  - name: CTR96
+    description: 96-bit counter.
+    value: 2
+  - name: CTR128
+    description: 128-bit counter.
+    value: 3
+enum/DMA_TRIG_DATAIN_IIDX_STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No interrupt pending.
+    value: 0
+  - name: TRIG0
+    description: AES trigger 0 DMA (Data Input trigger).
+    value: 1
+enum/DMA_TRIG_DATAOUT_IIDX_STAT:
+  bit_size: 8
+  variants:
+  - name: NO_INTR
+    description: No interrupt pending.
+    value: 0
+  - name: TRIG1
+    description: AES DMA Trigger 1 (Data Output trigger).
+    value: 1
+enum/EVT_CFG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: The interrupt or event line is disabled.
+    value: 0
+  - name: SOFTWARE
+    description: The interrupt or event line is in software mode. Software must clear the RIS.
+    value: 1
+  - name: HARDWARE
+    description: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.
+    value: 2
+enum/GCM:
+  bit_size: 2
+  variants:
+  - name: FORCE_ZERO
+    description: GHASH with H loaded and Y0-encrypted forced to 0.
+    value: 1
+  - name: LOAD_HASH_KEY
+    description: GHASH with H loaded and Y0-encrypted calculated internally.
+    value: 2
+  - name: AUTONOMOUS
+    description: Autonomous GHASH (both H and Y0-encrypted calculated internally).
+    value: 3
+enum/INT0_CFG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: The interrupt or event line is disabled.
+    value: 0
+  - name: SOFTWARE
+    description: The interrupt or event line is in software mode. Software must clear the RIS.
+    value: 1
+  - name: HARDWARE
+    description: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.
+    value: 2
+enum/KEYSIZE:
+  bit_size: 2
+  variants:
+  - name: K128
+    description: 128-bit key.
+    value: 1
+  - name: K256
+    description: 256-bit key.
+    value: 3
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177
