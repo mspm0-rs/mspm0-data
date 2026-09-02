@@ -69,7 +69,13 @@ case "$CMD" in
         # directories sit under build/mspm0-metapac/ so that `build-metapac` clears them.
         #
         # JOBS=1 restores the sequential behaviour. Do not regenerate while this runs.
-        jobs=${JOBS:-$(nproc)}
+        if [[ -n ${JOBS:-} ]]; then
+            jobs=$JOBS
+        elif [[ $(uname) == Darwin ]]; then
+            jobs=$(sysctl -n hw.physicalcpu)
+        else
+            jobs=$(nproc)
+        fi
         chips=(build/mspm0-metapac/src/chips/*/)
         logs=$(mktemp -d)
 
