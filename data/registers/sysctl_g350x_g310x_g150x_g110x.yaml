@@ -427,10 +427,9 @@ fieldset/HFCLKCLKCFG:
   description: High-frequency clock (HFCLK) configuration.
   fields:
   - name: HFXTTIME
-    description: HFXTTIME specifies the HFXT startup time in 64us resolution. If the HFCLK startup monitor is enabled (HFCLKFLTCHK), HFXT will be checked after this time expires.
+    description: HFXT startup time in 64us resolution, from 0 (minimum startup time, approximately zero) to 255 (maximum, approximately 16.32ms). If the HFCLK startup monitor is enabled (HFCLKFLTCHK), HFXT is checked after this time expires.
     bit_offset: 0
     bit_size: 8
-    enum: HFXTTIME
   - name: HFXTRSEL
     description: HFXT Range Select.
     bit_offset: 12
@@ -577,14 +576,13 @@ fieldset/NMI:
     description: Clr the BORLVL NMI.
     bit_offset: 0
     bit_size: 1
-  - name: WWDT0
-    description: Watch Dog 0 Fault.
+  - name: WWDT
+    description: Watch dog fault, one bit per WWDT instance.
     bit_offset: 1
     bit_size: 1
-  - name: WWDT1
-    description: Watch Dog 0 Fault.
-    bit_offset: 2
-    bit_size: 1
+    array:
+      len: 2
+      stride: 1
   - name: LFCLKFAIL
     description: LFXT-EXLF Monitor Fail.
     bit_offset: 3
@@ -1219,15 +1217,6 @@ enum/HFXTRSEL:
   - name: RANGE32TO48
     description: 32MHz &lt; HFXT frequency &lt;= 48MHz.
     value: 3
-enum/HFXTTIME:
-  bit_size: 8
-  variants:
-  - name: MINSTARTTIME
-    description: Minimum startup time (approximatly zero).
-    value: 0
-  - name: MAXSTARTTIME
-    description: Maximum startup time (approximatly 16.32ms).
-    value: 255
 enum/HSCLKMUX:
   bit_size: 1
   variants:

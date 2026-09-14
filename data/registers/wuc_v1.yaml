@@ -1,0 +1,20 @@
+block/WUC:
+  description: 'The wake-up controller. It watches for enabled interrupts while PD1 is power-gated in STOP and STANDBY, when the CPU and NVIC cannot, and hands the device back to the PMCU with the interrupt latched so the core still sees it after powering up. That needs no configuration and SLAU847 SS3.3.1.3 calls it transparent to software: these two subscriber ports are the whole programmable surface, and they let a generic event channel wake the device instead of an NVIC interrupt.'
+  items:
+  - name: FSUB
+    description: Subscriber Port.
+    array:
+      len: 2
+      stride: 4
+    byte_offset: 1024
+    fieldset: FPORT
+fieldset/FPORT:
+  description: Subscriber Configuration Register.
+  # CHANID is four bits: SLAU847 Table 3-26 numbers it 3-0, and the range in its own description
+  # needs no more. The SVDs give it 2, 3, 4 or 9 bits across the 21 files and hw_wuc.h masks it
+  # 0xFF; adc_v1 and comp_dacout already carry the same field at four.
+  fields:
+  - name: CHANID
+    description: 0 = disconnected. 1-15 = connected to channelID = CHANID.
+    bit_offset: 0
+    bit_size: 4

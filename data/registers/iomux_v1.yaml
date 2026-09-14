@@ -2,8 +2,7 @@ block/IOMUX:
   description: PERIPHERALREGION.
   items:
   - name: PINCM
-    description: Pin Control Management Register in SECCFG region.
-    # Note: the HAL is responsible for checking entry in the PINCM array is valid to access.
+    description: Pin Control Management Register in SECCFG region. The array is sized for the largest device, so the caller is responsible for checking that an entry exists on the chip in hand before accessing it.
     array:
       len: 251
       stride: 4

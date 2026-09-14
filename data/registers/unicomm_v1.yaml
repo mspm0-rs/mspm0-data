@@ -1,0 +1,140 @@
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: CLKCFG
+    description: Peripheral Clock Configuration Register.
+    byte_offset: 8
+    fieldset: CLKCFG
+  - name: STAT
+    description: Status Register.
+    byte_offset: 20
+    access: Read
+    fieldset: STAT
+block/UNICOMM:
+  description: PERIPHERALREGION.
+  items:
+  - name: GPRCM
+    array:
+      len: 1
+      stride: 24
+    byte_offset: 2048
+    block: GPRCM
+  - name: IPMODE
+    description: Mode Selection Register.
+    byte_offset: 4352
+    fieldset: IPMODE
+  - name: BASEADDR
+    description: Base address of the SRAM range DMA may read and write, used in security configuration.
+    byte_offset: 4356
+    fieldset: BASEADDR
+  - name: RANGE
+    description: Size of the SRAM range DMA may read and write, used in security configuration.
+    byte_offset: 4360
+    fieldset: RANGE
+fieldset/BASEADDR:
+  description: Base address of the SRAM range DMA may read and write.
+  fields:
+  - name: ADDR
+    description: Base address, in units of 64 bytes.
+    bit_offset: 6
+    bit_size: 25
+fieldset/CLKCFG:
+  description: Peripheral Clock Configuration Register.
+  fields:
+  - name: BLOCKASYNC
+    description: Async Clock Request is blocked from starting SYSOSC or forcing bus clock to 32MHz.
+    bit_offset: 8
+    bit_size: 1
+  - name: KEY
+    description: KEY to Allow State Change A9h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: CLKCFG_KEY
+fieldset/IPMODE:
+  description: Mode Selection Register.
+  fields:
+  - name: SELECT
+    description: Which of the instance's register maps is active. Only the modes `Peripheral::unicomm` reports are implemented; an instance which implements one has no choice to make and ignores this register.
+    bit_offset: 0
+    bit_size: 2
+    enum: SELECT
+fieldset/PWREN:
+  description: Power enable.
+  fields:
+  - name: ENABLE
+    description: Enable the power.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RANGE:
+  description: Size of the SRAM range DMA may read and write.
+  fields:
+  - name: RANGE
+    description: Range in bytes.
+    bit_offset: 0
+    bit_size: 20
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral.
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register.
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key B1h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/STAT:
+  description: Status Register.
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+enum/CLKCFG_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 169
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177
+enum/SELECT:
+  bit_size: 2
+  variants:
+  - name: UART
+    description: The UART register map is active.
+    value: 0
+  - name: SPI
+    description: The SPI register map is active.
+    value: 1
+  - name: I2C_CONTROLLER
+    description: The I2C controller register map is active.
+    value: 2
+  - name: I2C_TARGET
+    description: The I2C target register map is active. TI's headers call this the peripheral mode.
+    value: 3

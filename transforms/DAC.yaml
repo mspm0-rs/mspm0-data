@@ -1,0 +1,150 @@
+# Transform for DAC12 registers based on DAC0 on G151x.
+#
+# The G150x and G350x SVDs describe the same block with one INT_EVENT array of two rather than
+# separate CPU_INT and GEN_EVENT, and add an FSUB_1 at 404h which neither hw_dac12.h nor SLAU846
+# Table 20-7 has. G151x is extracted instead: its register list matches both.
+transforms:
+  - !DeleteUselessEnums
+
+  # DeleteUselessEnums leaves the interrupt flags, whose variants are CLR and SET.
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  # CALON is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: INACTIVE
+      1: ACTIVE
+
+  # RESETASSERT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  # RESETSTKY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  # RESETSTKYCLR is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  # TODO: Something better than a cursed rename as merge
+  - !MergeBlocks
+    from: DAC0
+    main: DAC0
+    to: DAC
+
+  # Remove prefixes
+  - !RenameRegisters
+    block: .*
+    from: DAC0_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: DAC0_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: DAC0_(.+)
+    to: $1
+
+  # Both interrupt blocks have the same layout and the same IIDX values, so they share one
+  # fieldset each, as comp_dacout does. The ADC keeps its three apart because their STAT value
+  # sets genuinely differ.
+  - !MergeEnums
+    from: (CPU_INT|GEN_EVENT)_IIDX_STAT
+    to: IIDX_STAT
+
+  - !MergeFieldsets
+    from: (?:CPU_INT|GEN_EVENT)_(?:IMASK|ISET|MIS|RIS|ICLR)
+    to: INT
+    check: NoCheck
+
+  - !MergeFieldsets
+    from: (?:CPU_INT|GEN_EVENT)_IIDX
+    to: IIDX
+
+  - !RenameRegisters
+    block: .*
+    from: (?:CPU_INT|GEN_EVENT)_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: (?:CPU_INT|GEN_EVENT)_(.+)
+    to: $1
+
+  ## Publisher/Subscriber ports
+  ## The CHANID enum only names the disconnected value, which the width already says.
+  - !DeleteEnums
+    from: (FSUB_0|FPUB_1)_CHANID
+    soft: false
+
+  - !MergeFieldsets
+    from: (FPUB|FSUB)_\d+
+    to: FPORT
+
+  - !RenameRegisters
+    block: .*
+    from: (FSUB|FPUB)_[0-1]
+    to: $1
+
+  ## Add missing keys
+  - !AddFields
+    fieldset: RSTCTL
+    fields:
+    - name: KEY
+      description: Unlock key B1h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: RESET_KEY
+
+  - !AddFields
+    fieldset: PWREN
+    fields:
+    - name: KEY
+      description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: PWREN_KEY
+
+  - !Add
+    ir:
+      enum/RESET_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 177
+      enum/PWREN_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 38
+
+  ## EVT_MODE
+  # The two event lines take the same three values.
+  - !MergeEnums
+    from: (INT0|EVT1)_CFG
+    to: INT_CFG
+
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT0_CFG
+    to: CPU
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: EVT1_CFG
+    to: GEN_EVENT
+
+  ## Cleanup
+  - !Sort

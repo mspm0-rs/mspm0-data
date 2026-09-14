@@ -215,7 +215,7 @@ fieldset/EXLFCTL:
   fields:
   - name: SETUSEEXLF
     description: Use external LF CLK IN.
-    bit_offset: 2
+    bit_offset: 0
     bit_size: 1
   - name: KEY
     bit_offset: 24
@@ -226,7 +226,7 @@ fieldset/EXRSTPIN:
   fields:
   - name: DISABLE
     description: Disable External Reset.
-    bit_offset: 2
+    bit_offset: 0
     bit_size: 1
   - name: KEY
     bit_offset: 24
@@ -268,9 +268,10 @@ fieldset/GENCLKCFG:
     bit_size: 1
     enum: MFPCLKSRC
   - name: HFCLK4MFPCLKDIV
-    description: HFCLK Divider 1..16.
+    description: Divider applied to HFCLK when HFCLK is used as the MFPCLK source.
     bit_offset: 12
     bit_size: 4
+    enum: HFCLK4MFPCLKDIV
   - name: FCCSELCLK
     bit_offset: 16
     bit_size: 4
@@ -298,7 +299,7 @@ fieldset/GENCLKEN:
     bit_offset: 0
     bit_size: 1
   - name: MFPCLKEN
-    description: Enable the MFCLK.
+    description: Enable the MFPCLK.
     bit_offset: 4
     bit_size: 1
 fieldset/HSCLKEN:
@@ -471,8 +472,10 @@ fieldset/SYSOSCFCLCTL:
 fieldset/SYSSTATUS:
   fields:
   - name: BORCURTHRESHOLD
+    description: Indicates the active brown-out reset supply monitor configuration.
     bit_offset: 2
     bit_size: 2
+    enum: BORCURTHRESHOLD
   - name: BORLVL
     bit_offset: 4
     bit_size: 1
@@ -499,7 +502,7 @@ fieldset/SYSSTATUSCLR:
   fields:
   - name: ALLECC
     description: Clear ALL ECC related SYSSTATUS indicators.
-    bit_offset: 2
+    bit_offset: 0
     bit_size: 1
   - name: KEY
     bit_offset: 24
@@ -539,6 +542,21 @@ enum/BORCLRCMD_KEY:
   variants:
   - name: KEY
     value: 199
+enum/BORCURTHRESHOLD:
+  bit_size: 2
+  variants:
+  - name: BORMIN
+    description: Default minimum threshold. A BOR0- violation triggers a BOR.
+    value: 0
+  - name: BORLEVEL1
+    description: A BOR1- violation generates a BORLVL interrupt.
+    value: 1
+  - name: BORLEVEL2
+    description: A BOR2- violation generates a BORLVL interrupt.
+    value: 2
+  - name: BORLEVEL3
+    description: A BOR3- violation generates a BORLVL interrupt.
+    value: 3
 enum/DSLEEP:
   bit_size: 2
   variants:
@@ -577,7 +595,7 @@ enum/EXCLKSRC:
     value: 1
   - name: LFCLK
     value: 2
-  - name: MFCLK
+  - name: MFPCLK
     description: 'NOTE: This must be divided in post divider.'
     value: 3
   - name: HFCLK
@@ -627,6 +645,57 @@ enum/FCCTRIGSRC:
     value: 0
   - name: LFCLK
     value: 1
+enum/HFCLK4MFPCLKDIV:
+  bit_size: 4
+  variants:
+  - name: DIV1
+    description: HFCLK is not divided before being used for MFPCLK.
+    value: 0
+  - name: DIV2
+    description: HFCLK is divided by 2 before being used for MFPCLK.
+    value: 1
+  - name: DIV3
+    description: HFCLK is divided by 3 before being used for MFPCLK.
+    value: 2
+  - name: DIV4
+    description: HFCLK is divided by 4 before being used for MFPCLK.
+    value: 3
+  - name: DIV5
+    description: HFCLK is divided by 5 before being used for MFPCLK.
+    value: 4
+  - name: DIV6
+    description: HFCLK is divided by 6 before being used for MFPCLK.
+    value: 5
+  - name: DIV7
+    description: HFCLK is divided by 7 before being used for MFPCLK.
+    value: 6
+  - name: DIV8
+    description: HFCLK is divided by 8 before being used for MFPCLK.
+    value: 7
+  - name: DIV9
+    description: HFCLK is divided by 9 before being used for MFPCLK.
+    value: 8
+  - name: DIV10
+    description: HFCLK is divided by 10 before being used for MFPCLK.
+    value: 9
+  - name: DIV11
+    description: HFCLK is divided by 11 before being used for MFPCLK.
+    value: 10
+  - name: DIV12
+    description: HFCLK is divided by 12 before being used for MFPCLK.
+    value: 11
+  - name: DIV13
+    description: HFCLK is divided by 13 before being used for MFPCLK.
+    value: 12
+  - name: DIV14
+    description: HFCLK is divided by 14 before being used for MFPCLK.
+    value: 13
+  - name: DIV15
+    description: HFCLK is divided by 15 before being used for MFPCLK.
+    value: 14
+  - name: DIV16
+    description: HFCLK is divided by 16 before being used for MFPCLK.
+    value: 15
 enum/HSCLKMUX:
   bit_size: 1
   variants:

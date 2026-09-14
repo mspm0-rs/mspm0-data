@@ -1,0 +1,24 @@
+# Values where a better source contradicts the datasheet's per-mode table.
+#
+# `tools/operating_modes.py` applies these last, after reading Table 8-1, and notes them in the
+# generated `data/operating_modes/<family>.yaml`. Every entry needs its evidence stated here, because
+# each one overrides the otherwise authoritative source.
+#
+# This file lives outside `data/operating_modes/` because everything in that directory is generated
+# and is parsed per family by `operating_modes.rs`.
+
+mspm0l122x:
+  retained_through:
+    # The MSPM0L1228 table marks TRNG `OPT` in every mode, which says it stays available but not what
+    # becomes of its configuration -- the same shape as the other Lx22x PD1 rows, which sit oddly
+    # with those peripherals being in PD1 at all. The TRM is unambiguous and unconditional where the
+    # table is not: 13.2.3 "Behavior in Low Power Modes" states "all TRNG configuration settings and
+    # data are lost when the device transitions to any operating mode below SLEEP", and that it
+    # "must be re-configured for use as needed when waking the device from STOP, STANDBY, or
+    # SHUTDOWN mode". Every other datasheet which has a TRNG row marks it `OFF`.
+    TRNG: Sleep
+
+mspm0l222x:
+  retained_through:
+    # As above; the MSPM0L2228 datasheet shares this table with the MSPM0L1228.
+    TRNG: Sleep

@@ -119,62 +119,62 @@ block/CPU_INT:
     description: Interrupt index.
     byte_offset: 0
     access: Read
-    fieldset: CPU_INT_IIDX
+    fieldset: IIDX
   - name: IMASK
     description: Interrupt mask.
     byte_offset: 8
-    fieldset: CPU_INT
+    fieldset: INT
   - name: RIS
     description: Raw interrupt status.
     byte_offset: 16
     access: Read
-    fieldset: CPU_INT
+    fieldset: INT
   - name: MIS
     description: Masked interrupt status.
     byte_offset: 24
     access: Read
-    fieldset: CPU_INT
+    fieldset: INT
   - name: ISET
     description: Interrupt set.
     byte_offset: 32
     access: Write
-    fieldset: CPU_INT
+    fieldset: INT
   - name: ICLR
     description: Interrupt clear.
     byte_offset: 40
     access: Write
-    fieldset: CPU_INT
+    fieldset: INT
 block/GEN_EVENT:
   items:
   - name: IIDX
     description: Interrupt index.
     byte_offset: 0
     access: Read
-    fieldset: GEN_EVENT_IIDX
+    fieldset: IIDX
   - name: IMASK
     description: Interrupt mask.
     byte_offset: 8
-    fieldset: GEN_EVENT_INT
+    fieldset: INT
   - name: RIS
     description: Raw interrupt status.
     byte_offset: 16
     access: Read
-    fieldset: GEN_EVENT_INT
+    fieldset: INT
   - name: MIS
     description: Masked interrupt status.
     byte_offset: 24
     access: Read
-    fieldset: GEN_EVENT_INT
+    fieldset: INT
   - name: ISET
     description: Interrupt set.
     byte_offset: 32
     access: Write
-    fieldset: GEN_EVENT_INT
+    fieldset: INT
   - name: ICLR
     description: Interrupt clear.
     byte_offset: 40
     access: Write
-    fieldset: GEN_EVENT_INT
+    fieldset: INT
 block/GPRCM:
   items:
   - name: PWREN
@@ -332,12 +332,12 @@ fieldset/CCCTL:
     description: 'Load Condition. #br# Specifies the condition that generates a load pulse.'
     bit_offset: 8
     bit_size: 3
-    enum: LCOND
+    enum: LZCOND
   - name: ZCOND
     description: 'Zero Condition. #br# This field specifies the condition that generates a zero pulse.'
     bit_offset: 12
     bit_size: 3
-    enum: ZCOND
+    enum: LZCOND
   - name: COC
     description: 'Capture or Compare. #br# Specifies whether the corresponding CC register is used as a capture register or a compare register (never both).'
     bit_offset: 17
@@ -347,7 +347,7 @@ fieldset/CCCTL:
     description: Capture and Compare Update Method This field controls how updates to the shadow capture and compare register are performed (when operating in compare mode, COC=0).
     bit_offset: 18
     bit_size: 3
-    enum: CCUPD
+    enum: UPD
   - name: CC2SELU
     description: Selects the source second CCU event.
     bit_offset: 22
@@ -361,7 +361,7 @@ fieldset/CCCTL:
     description: CCACT shadow register Update Method This field controls how updates to the CCACT shadow register are performed.
     bit_offset: 26
     bit_size: 3
-    enum: CCACTUPD
+    enum: UPD
   - name: CC2SELD
     description: Selects the source second CCD event.
     bit_offset: 29
@@ -420,93 +420,57 @@ fieldset/CPSV:
     description: Current Prescale Count Value.
     bit_offset: 0
     bit_size: 8
-fieldset/CPU_INT:
-  description: Interrupt clear.
+fieldset/INT:
+  description: The timer's events. Shared by IMASK, RIS, MIS, ISET and ICLR of both the CPU interrupt and the generic event blocks.
   fields:
   - name: Z
-    description: Zero event CLEAR.
+    description: Zero event.
     bit_offset: 0
     bit_size: 1
   - name: L
-    description: Load event CLEAR.
+    description: Load event.
     bit_offset: 1
     bit_size: 1
-  - name: CCD0
-    description: Capture or compare down event CLEAR.
+  - name: CCD
+    description: Capture or compare down event. Channels 4 and 5 are compare only, and sit above the CCU bits rather than next to CCD0-3.
     bit_offset: 4
     bit_size: 1
-  - name: CCD1
-    description: Capture or compare down event CLEAR.
-    bit_offset: 5
-    bit_size: 1
-  - name: CCD2
-    description: Capture or compare down event CLEAR.
-    bit_offset: 6
-    bit_size: 1
-  - name: CCD3
-    description: Capture or compare down event CLEAR.
-    bit_offset: 7
-    bit_size: 1
-  - name: CCU0
-    description: Capture or compare up event CLEAR.
+    array:
+      offsets: [0, 1, 2, 3, 8, 9]
+  - name: CCU
+    description: Capture or compare up event. Channels 4 and 5 are compare only, and sit above the CCD4 and CCD5 bits.
     bit_offset: 8
     bit_size: 1
-  - name: CCU1
-    description: Capture or compare up event CLEAR.
-    bit_offset: 9
-    bit_size: 1
-  - name: CCU2
-    description: Capture or compare up event CLEAR.
-    bit_offset: 10
-    bit_size: 1
-  - name: CCU3
-    description: Capture or compare up event CLEAR.
-    bit_offset: 11
-    bit_size: 1
-  - name: CCD4
-    description: Compare down event 4 CLEAR.
-    bit_offset: 12
-    bit_size: 1
-  - name: CCD5
-    description: Compare down event 5 CLEAR.
-    bit_offset: 13
-    bit_size: 1
-  - name: CCU4
-    description: Compare up event 4 CLEAR.
-    bit_offset: 14
-    bit_size: 1
-  - name: CCU5
-    description: Compare up event 5 CLEAR.
-    bit_offset: 15
-    bit_size: 1
+    array:
+      offsets: [0, 1, 2, 3, 6, 7]
   - name: F
-    description: Fault event CLEAR.
+    description: Fault event.
     bit_offset: 24
     bit_size: 1
   - name: TOV
-    description: Trigger Overflow event CLEAR.
+    description: Trigger Overflow event.
     bit_offset: 25
     bit_size: 1
   - name: REPC
-    description: Repeat Counter Zero event CLEAR.
+    description: Repeat Counter Zero event.
     bit_offset: 26
     bit_size: 1
   - name: DC
-    description: Direction change event
+    description: Direction change event.
     bit_offset: 27
     bit_size: 1
   - name: QEIERR
-    description: QEIERR event
+    description: QEIERR event.
     bit_offset: 28
     bit_size: 1
-fieldset/CPU_INT_IIDX:
+fieldset/IIDX:
   description: Interrupt index.
   fields:
   - name: STAT
     description: Interrupt index status.
     bit_offset: 0
     bit_size: 8
-    enum: CPU_INT_IIDX_STAT
+    enum: IIDX_STAT
 fieldset/CTRCTL:
   description: Counter Control Register.
   fields:
@@ -543,7 +507,7 @@ fieldset/CTRCTL:
     description: Debug Resume Behavior This bit specifies what the device does following the release/exit of debug mode.
     bit_offset: 17
     bit_size: 1
-    enum: DRB
+    enum: RB
   - name: FB
     description: Fault Behavior This bit specifies whether the counter continues running or suspends during a fault mode. There is a separate control under REPEAT to indicate whether counting is to suspend at next Counter==0.
     bit_offset: 18
@@ -553,7 +517,7 @@ fieldset/CTRCTL:
     description: Fault Resume Behavior This bit specifies what the device does following the release/exit of fault condition.
     bit_offset: 19
     bit_size: 1
-    enum: FRB
+    enum: RB
   - name: SLZERCNEZ
     description: Suppress Load and Zero Events if Repeat Counter is Not Equal to Zero. This bit suppresses the generation of the Z (zero) and L (load) events from the counter when the repeat counter (RC) value is not 0.
     bit_offset: 23
@@ -664,30 +628,20 @@ fieldset/FCTL:
     description: Trigger Fault Input Mask Specifies whether the selected trigger participates as a fault input. If enabled and the trigger asserts, the trigger is treated as a fault.
     bit_offset: 7
     bit_size: 1
-  - name: FSENAC0
-    description: Specifies whether the COMP0 output high/low is treated as fault condition.
+  - name: FSENAC
+    description: Specifies whether the COMPn output high/low is treated as fault condition.
     bit_offset: 8
     bit_size: 1
-  - name: FSENAC1
-    description: Specifies whether the COMP1 output high/low is treated as fault condition.
-    bit_offset: 9
-    bit_size: 1
-  - name: FSENAC2
-    description: Specifies whether the COMP2 output high/low is treated as fault condition.
-    bit_offset: 10
-    bit_size: 1
-  - name: FSENEXT0
-    description: Specifies whether the external fault pin0 high/low is treated as fault condition.
+    array:
+      len: 3
+      stride: 1
+  - name: FSENEXT
+    description: Specifies whether the external fault pin n high/low is treated as fault condition.
     bit_offset: 11
     bit_size: 1
-  - name: FSENEXT1
-    description: Specifies whether the external fault pin1 high/low is treated as fault condition.
-    bit_offset: 12
-    bit_size: 1
-  - name: FSENEXT2
-    description: Specifies whether the external fault pin2 high/low is treated as fault condition.
-    bit_offset: 13
-    bit_size: 1
+    array:
+      len: 3
+      stride: 1
 fieldset/FIFCTL:
   description: Fault input Filter control register.
   fields:
@@ -700,7 +654,7 @@ fieldset/FIFCTL:
     description: Consecutive Period/Voting Select This bit controls whether the input filter uses a stricter consecutive period count or majority voting.
     bit_offset: 3
     bit_size: 1
-    enum: FIFCTL_CPV
+    enum: CPV
   - name: FILTEN
     description: Filter Enable This bit controls whether the input is filtered by the input filter or bypasses to go directly to the optional pre-scale filter and then to the edge detect.
     bit_offset: 4
@@ -749,93 +703,6 @@ fieldset/GCTL:
   - name: SHDWLDEN
     description: Enables shadow to active load of bufferred registers and register fields.
     bit_offset: 0
-    bit_size: 1
-fieldset/GEN_EVENT_IIDX:
-  description: Interrupt index.
-  fields:
-  - name: STAT
-    description: Interrupt index status.
-    bit_offset: 0
-    bit_size: 8
-    enum: GEN_EVENT_IIDX_STAT
-fieldset/GEN_EVENT_INT:
-  description: Interrupt clear.
-  fields:
-  - name: Z
-    description: Zero event CLEAR.
-    bit_offset: 0
-    bit_size: 1
-  - name: L
-    description: Load event CLEAR.
-    bit_offset: 1
-    bit_size: 1
-  - name: CCD0
-    description: Capture or compare down event CLEAR.
-    bit_offset: 4
-    bit_size: 1
-  - name: CCD1
-    description: Capture or compare down event CLEAR.
-    bit_offset: 5
-    bit_size: 1
-  - name: CCD2
-    description: Capture or compare down event CLEAR.
-    bit_offset: 6
-    bit_size: 1
-  - name: CCD3
-    description: Capture or compare down event CLEAR.
-    bit_offset: 7
-    bit_size: 1
-  - name: CCU0
-    description: Capture or compare up event CLEAR.
-    bit_offset: 8
-    bit_size: 1
-  - name: CCU1
-    description: Capture or compare up event CLEAR.
-    bit_offset: 9
-    bit_size: 1
-  - name: CCU2
-    description: Capture or compare up event CLEAR.
-    bit_offset: 10
-    bit_size: 1
-  - name: CCU3
-    description: Capture or compare up event CLEAR.
-    bit_offset: 11
-    bit_size: 1
-  - name: CCD4
-    description: Compare down event 4 CLEAR.
-    bit_offset: 12
-    bit_size: 1
-  - name: CCD5
-    description: Compare down event 5 CLEAR.
-    bit_offset: 13
-    bit_size: 1
-  - name: CCU4
-    description: Compare up event 4 CLEAR.
-    bit_offset: 14
-    bit_size: 1
-  - name: CCU5
-    description: Compare up event 5 CLEAR.
-    bit_offset: 15
-    bit_size: 1
-  - name: F
-    description: Fault event CLEAR.
-    bit_offset: 24
-    bit_size: 1
-  - name: TOV
-    description: Trigger Overflow event CLEAR.
-    bit_offset: 25
-    bit_size: 1
-  - name: REPC
-    description: Repeat Counter Zero event CLEAR.
-    bit_offset: 26
-    bit_size: 1
-  - name: DC
-    description: Direction change event
-    bit_offset: 27
-    bit_size: 1
-  - name: QEIERR
-    description: QEIERR event
-    bit_offset: 28
     bit_size: 1
 fieldset/IFCTL:
   description: Input Filter Control Register 0/1.
@@ -1050,30 +917,6 @@ enum/CC2SELU:
   - name: SEL_CCU5
     description: Selects CCU from CC5.
     value: 5
-enum/CCACTUPD:
-  bit_size: 3
-  variants:
-  - name: Immediately
-    description: Value written to the CCACT register has immediate effect.
-    value: 0
-  - name: Zero_EVT
-    description: Following a zero event (CTR=0) Writes to the CCACTx_y register are stored in shadow register and transferred to CCACTx_y in the TIMCLK cycle following CTR equals 0.
-    value: 1
-  - name: Compare_Down_EVT
-    description: Following a CCD event (CTR=CC_xy) Writes to the CCACTx_y register are stored in shadow register and transferred to CCACTx_y in the TIMCLK cycle following CTR equals the CCx_y register value.
-    value: 2
-  - name: Compare_UP_EVT
-    description: Following a CCU event (CTR=CC_xy) Writes to the CCACTx_y register are stored in shadow register and transferred to CCACTx_y in the TIMCLK cycle following CTR equals the CCx_y register value.
-    value: 3
-  - name: ZERO_LOAD_EVT
-    description: Following a zero event (CTR=0) or load event (CTR = LOAD) Writes to the CCACTx_y register are stored in shadow register and transferred to CCACTx_y in the TIMCLK cycle following CTR equals 0 or CTR. Equals LDn. Note this update mechanism is defined for use only in configurations using up/down counting. This mode is not intended for use in down count configurations.
-    value: 4
-  - name: ZERO_RC_ZERO_EVT
-    description: Following a zero event (CTR=0) with repeat count also zero (RC=0). Writes to the CCACTx_y register are stored in shadow register and transferred to CCACTx_y in the TIMCLK cycle following CTR equals 0 and if RC equal 0.
-    value: 5
-  - name: TRIG
-    description: On a TRIG pulse, the value stored in CCACT_xy shadow register is loaded into CCACT_xy register.
-    value: 6
 enum/CCOND:
   bit_size: 3
   variants:
@@ -1131,7 +974,7 @@ enum/CCPO:
   - name: CNTDIR
     description: Counter direction.
     value: 13
-enum/CCUPD:
+enum/UPD:
   bit_size: 3
   variants:
   - name: Immediately
@@ -1176,7 +1019,7 @@ enum/COC:
   - name: CAPTURE
     description: Capture.
     value: 1
-enum/CPU_INT_IIDX_STAT:
+enum/IIDX_STAT:
   bit_size: 8
   variants:
   - name: NO_INTR
@@ -1239,15 +1082,6 @@ enum/CPU_INT_IIDX_STAT:
   - name: QEIERR
     description: Interrupt Source:QEI Incorrect state transition error (QEIERR).
     value: 29
-enum/CPV:
-  bit_size: 1
-  variants:
-  - name: Consecutive
-    description: Consecutive Periods The input must be at a specific logic level for the period defined by FP before it is passed to the filter output.
-    value: 0
-  - name: Voting
-    description: Voting The filter ignores one clock of opposite logic over the filter period. I.e. Over FP samples of the input, up to 1 sample may be of an opposite logic value (glitch) without affecting the output.
-    value: 1
 enum/CVAE:
   bit_size: 2
   variants:
@@ -1281,7 +1115,7 @@ enum/CxC:
   - name: QEI_3INP
     description: Controlled by 3-input QEI mode This value exists when TIMER support QEI feature.
     value: 5
-enum/DRB:
+enum/RB:
   bit_size: 1
   variants:
   - name: RESUME
@@ -1425,7 +1259,7 @@ enum/FB:
   - name: SUSP_COUNT
     description: Suspends counting.
     value: 1
-enum/FIFCTL_CPV:
+enum/CPV:
   bit_size: 1
   variants:
   - name: CONSEC_PER
@@ -1473,78 +1307,6 @@ enum/FP:
   - name: _8
     description: The division factor is 8.
     value: 2
-enum/FRB:
-  bit_size: 1
-  variants:
-  - name: RESUME
-    description: Resume counting.
-    value: 0
-  - name: CVAE_ACTION
-    description: Perform the action as specified by the CVAE field.
-    value: 1
-enum/GEN_EVENT_IIDX_STAT:
-  bit_size: 8
-  variants:
-  - name: NO_INTR
-    description: No interrupt pending.
-    value: 0
-  - name: Z
-    description: 'Interrupt Source: Zero event (Z).'
-    value: 1
-  - name: L
-    description: 'nterrupt Source: Load event (L).'
-    value: 2
-  - name: CCD0
-    description: 'Interrupt Source: Capture or compare down event (CCD0).'
-    value: 5
-  - name: CCD1
-    description: 'Interrupt Source: Capture or compare down event (CCD1).'
-    value: 6
-  - name: CCD2
-    description: 'Interrupt Source: Capture or compare down event (CCD2).'
-    value: 7
-  - name: CCD3
-    description: 'Interrupt Source: Capture or compare down event (CCD3).'
-    value: 8
-  - name: CCU0
-    description: 'Interrupt Source: Capture or compare up event (CCU0).'
-    value: 9
-  - name: CCU1
-    description: 'Interrupt Source: Capture or compare up event (CCU1).'
-    value: 10
-  - name: CCU2
-    description: 'Interrupt Source: Capture or compare up event (CCU2).'
-    value: 11
-  - name: CCU3
-    description: 'Interrupt Source: Capture or compare up event (CCU3).'
-    value: 12
-  - name: CCD4
-    description: 'Interrupt Source: Compare down event (CCD4).'
-    value: 13
-  - name: CCD5
-    description: 'Interrupt Source: Compare down event (CCD5).'
-    value: 14
-  - name: CCU4
-    description: 'Interrupt Source: Compare down event (CCU4).'
-    value: 15
-  - name: CCU5
-    description: 'Interrupt Source: Compare down event (CCU5).'
-    value: 16
-  - name: F
-    description: 'Interrupt Source: Fault Event generated an interrupt. (F).'
-    value: 25
-  - name: TOV
-    description: 'Interrupt Source: Trigger overflow (TOV).'
-    value: 26
-  - name: REPC
-    description: 'Interrupt Source: Repeat Counter Zero (REPC).'
-    value: 27
-  - name: DC
-    description: 'Interrupt Source: Direction Change (DC).'
-    value: 28
-  - name: QEIERR
-    description: Interrupt Source:QEI Incorrect state transition error (QEIERR).
-    value: 29
 enum/ISEL:
   bit_size: 4
   variants:
@@ -1578,7 +1340,7 @@ enum/ISEL:
   - name: COMP2
     description: Comparator 2 output.
     value: 9
-enum/LCOND:
+enum/LZCOND:
   bit_size: 3
   variants:
   - name: CC_TRIG_NO_EFFECT
@@ -1642,18 +1404,3 @@ enum/SWFRCACT:
   - name: CCP_LOW
     description: CCP output value is set low.
     value: 2
-enum/ZCOND:
-  bit_size: 3
-  variants:
-  - name: CC_TRIG_NO_EFFECT
-    description: CCP edges have no effect.
-    value: 0
-  - name: CC_TRIG_RISE
-    description: Rising edge of CCP or trigger assertion edge.
-    value: 1
-  - name: CC_TRIG_FALL
-    description: Falling edge of CCP or trigger de-assertion edge.
-    value: 2
-  - name: CC_TRIG_EDGE
-    description: Either edge of CCP or trigger change (assertion/de-assertion edge).
-    value: 3

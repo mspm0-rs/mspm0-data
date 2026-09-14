@@ -326,12 +326,14 @@ dependencies = [
  "glob",
  "heck",
  "mspm0-data-types",
+ "prettyplease",
  "proc-macro2",
  "quote",
  "regex",
  "serde",
  "serde_json",
  "serde_yaml",
+ "syn 2.0.119",
 ]
 
 [[package]]
@@ -359,6 +361,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a106d1259c23fac8e543272398ae0e3c0b8d33c88ed73d0cc71b0f1d902618"
 dependencies = [
  "portable-atomic",
+]
+
+[[package]]
+name = "prettyplease"
+version = "0.2.37"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "479ca8adacdd7ce8f1fb39ce9ecccbfe93a3f1344b3d0d97f20bc0196208f62b"
+dependencies = [
+ "proc-macro2",
+ "syn 2.0.119",
 ]
 
 [[package]]

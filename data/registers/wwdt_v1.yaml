@@ -73,19 +73,19 @@ block/WWDT:
     byte_offset: 4348
     access: Read
     fieldset: DESC
-  - name: WWDTCTL0
+  - name: CTL0
     description: Window Watchdog Timer Control Register 0.
     byte_offset: 4352
     fieldset: WWDTCTL0
-  - name: WWDTCTL1
+  - name: CTL1
     description: Window Watchdog Timer Control Register 0.
     byte_offset: 4356
     fieldset: WWDTCTL1
-  - name: WWDTCNTRST
+  - name: CNTRST
     description: Window Watchdog Timer Counter Reset Register.
     byte_offset: 4360
     fieldset: WWDTCNTRST
-  - name: WWDTSTAT
+  - name: STAT
     description: Window Watchdog Timer Status Register.
     byte_offset: 4364
     access: Read
@@ -198,15 +198,13 @@ fieldset/WWDTCTL0:
     bit_offset: 4
     bit_size: 3
     enum: PER
-  - name: WINDOW0
-    description: Closed window period in percentage of the timer interval. WWDTCTL1.WINSEL determines the active window setting (WWDTCTL0.WINDOW0 or WWDTCTL0.WINDOW1).
+  - name: WINDOW
+    description: Closed window period in percentage of the timer interval. CTL1.WINSEL picks which of the two is active.
     bit_offset: 8
     bit_size: 3
-    enum: WINDOW
-  - name: WINDOW1
-    description: Closed window period in percentage of the timer interval. WWDTCTL1.WINSEL determines the active window setting (WWDTCTL0.WINDOW0 or WWDTCTL0.WINDOW1).
-    bit_offset: 12
-    bit_size: 3
+    array:
+      len: 2
+      stride: 4
     enum: WINDOW
   - name: MODE
     description: Window Watchdog Timer Mode.
