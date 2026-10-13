@@ -239,6 +239,7 @@ fieldset/CLKSTATUS:
     description: CURHSCLKSEL indicates the current clock source for HSCLK.
     bit_offset: 16
     bit_size: 1
+    enum: CURHSCLKSEL
   - name: CURMCLKSEL
     description: CURMCLKSEL indicates if MCLK is currently sourced from LFCLK.
     bit_offset: 17
@@ -381,10 +382,9 @@ fieldset/HFCLKCLKCFG:
   description: High-frequency clock (HFCLK) configuration.
   fields:
   - name: HFXTTIME
-    description: HFXTTIME specifies the HFXT startup time in 64us resolution. If the HFCLK startup monitor is enabled (HFCLKFLTCHK), HFXT will be checked after this time expires.
+    description: HFXT startup time in 64us resolution, from 0 (minimum startup time, approximately zero) to 255 (maximum, approximately 16.32ms). If the HFCLK startup monitor is enabled (HFCLKFLTCHK), HFXT is checked after this time expires.
     bit_offset: 0
     bit_size: 8
-    enum: HFXTTIME
   - name: HFXTRSEL
     description: HFXT Range Select.
     bit_offset: 12
@@ -398,9 +398,10 @@ fieldset/HSCLKCFG:
   description: High-speed clock (HSCLK) source selection.
   fields:
   - name: HSCLKSEL
-    description: HSCLKSEL selects the HSCLK source (SYSPLL or HFCLK).
+    description: Selects the HSCLK source. This device has no SYSPLL, so HFCLKCLK is the only source it can select, and software must write it - the reset value leaves HSCLK unsourced.
     bit_offset: 0
     bit_size: 1
+    enum: HSCLKSEL
 fieldset/HSCLKEN:
   description: High-speed clock (HSCLK) source enable/disable.
   fields:
@@ -718,6 +719,15 @@ enum/BORCURTHRESHOLD:
   - name: BORLEVEL3
     description: A BOR3- violation generates a BORLVL interrupt.
     value: 3
+enum/CURHSCLKSEL:
+  bit_size: 1
+  variants:
+  - name: SYSPLL
+    description: HSCLK is currently sourced from the SYSPLL.
+    value: 0
+  - name: HFCLK
+    description: HSCLK is currently sourced from the HFCLK.
+    value: 1
 enum/DSLEEP:
   bit_size: 2
   variants:
@@ -904,15 +914,6 @@ enum/HFXTRSEL:
   - name: RANGE32TO48
     description: 32MHz < HFXT frequency <= 48MHz.
     value: 3
-enum/HFXTTIME:
-  bit_size: 8
-  variants:
-  - name: MINSTARTTIME
-    description: Minimum startup time (approximatly zero).
-    value: 0
-  - name: MAXSTARTTIME
-    description: Maximum startup time (approximatly 16.32ms).
-    value: 255
 enum/HSCLKMUX:
   bit_size: 1
   variants:
@@ -921,6 +922,15 @@ enum/HSCLKMUX:
     value: 0
   - name: HSCLK
     description: MCLK is sourced from HSCLK.
+    value: 1
+enum/HSCLKSEL:
+  bit_size: 1
+  variants:
+  - name: SYSPLL
+    description: The SYSPLL position of the mux, and the reset value. This device has no SYSPLL, so HSCLK has no source while this is selected.
+    value: 0
+  - name: HFCLKCLK
+    description: HSCLK is sourced from the HFCLK.
     value: 1
 enum/ID:
   bit_size: 5

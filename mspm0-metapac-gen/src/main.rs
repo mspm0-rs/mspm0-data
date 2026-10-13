@@ -6,7 +6,7 @@ use std::{
 };
 
 use anyhow::Context;
-use mspm0_data_types::{Chip, Package};
+use mspm0_data_types::{CalibrationReference, Chip, Package};
 use proc_macro2::Literal;
 use quote::quote;
 
@@ -128,23 +128,125 @@ fn generate_chip_metadata(
     });
 
     let family = &chip.family;
-    let adc_memctl = Literal::u8_unsuffixed(chip.adc_memctl);
-    let adc_vrsel = Literal::u8_unsuffixed(chip.adc_vrsel);
+    let nvic_priority_bits = Literal::u8_unsuffixed(chip.nvic_priority_bits);
+    let max_mclk_hz = Literal::u32_unsuffixed(chip.max_mclk_hz);
+    let max_ulpclk_hz = Literal::u32_unsuffixed(chip.max_ulpclk_hz);
+    let sysosc_base_hz = Literal::u32_unsuffixed(chip.sysosc_base_hz);
+    let flash_wait_hz = chip
+        .flash_wait_hz
+        .iter()
+        .map(|hz| Literal::u32_unsuffixed(*hz));
+    let backup_domain = chip.backup_domain;
+    let errata = chip.errata.iter();
+
+    let tree = &chip.clock_tree;
+    let hfclk_hz = match tree.hfclk_hz {
+        Some(range) => {
+            let min_hz = Literal::u32_unsuffixed(range.min_hz);
+            let max_hz = Literal::u32_unsuffixed(range.max_hz);
+            quote!(Some(ClockRange { min_hz: #min_hz, max_hz: #max_hz }))
+        }
+        None => quote!(None),
+    };
+    let (hfxt, hfclk_in, lfxt, lfclk_in, syspll, ulpclk_div, stop1) = (
+        tree.hfxt,
+        tree.hfclk_in,
+        tree.lfxt,
+        tree.lfclk_in,
+        tree.syspll,
+        tree.ulpclk_div,
+        tree.stop1,
+    );
+    let clock_tree = quote! {
+        ClockTree {
+            hfxt: #hfxt,
+            hfclk_in: #hfclk_in,
+            hfclk_hz: #hfclk_hz,
+            lfxt: #lfxt,
+            lfclk_in: #lfclk_in,
+            syspll: #syspll,
+            ulpclk_div: #ulpclk_div,
+            stop1: #stop1,
+        }
+    };
+
+    let wake = &chip.wake_ns;
+    let ns = |mode: Option<u32>| match mode {
+        Some(ns) => {
+            let ns = Literal::u32_unsuffixed(ns);
+            quote!(Some(#ns))
+        }
+        None => quote!(None),
+    };
+    let (sleep0, sleep1, sleep2) = (ns(wake.sleep0), ns(wake.sleep1), ns(wake.sleep2));
+    let (stop0, wake_stop1, stop2) = (ns(wake.stop0), ns(wake.stop1), ns(wake.stop2));
+    let (standby0, standby1, shutdown) = (ns(wake.standby0), ns(wake.standby1), ns(wake.shutdown));
+    let wake_ns = quote! {
+        WakeTimes {
+            sleep0: #sleep0,
+            sleep1: #sleep1,
+            sleep2: #sleep2,
+            stop0: #stop0,
+            stop1: #wake_stop1,
+            stop2: #stop2,
+            standby0: #standby0,
+            standby1: #standby1,
+            shutdown: #shutdown,
+        }
+    };
+
+    let temperature_sensor = match &chip.temperature_sensor {
+        Some(sensor) => {
+            let tstrim_c = Literal::i16_unsuffixed(sensor.tstrim_c);
+            let tsc_uv_per_c = Literal::i32_unsuffixed(sensor.tsc_uv_per_c);
+            let settling_ns = ns(sensor.settling_ns);
+            let calibration_sample_ns = ns(sensor.calibration_sample_ns);
+            let reference = match sensor.calibration_reference {
+                CalibrationReference::Vdd => quote!(CalibrationReference::Vdd),
+                CalibrationReference::Internal1V4 => quote!(CalibrationReference::Internal1V4),
+                CalibrationReference::Internal4V05 => quote!(CalibrationReference::Internal4V05),
+            };
+            quote! {
+                Some(TemperatureSensor {
+                    tstrim_c: #tstrim_c,
+                    tsc_uv_per_c: #tsc_uv_per_c,
+                    settling_ns: #settling_ns,
+                    calibration_sample_ns: #calibration_sample_ns,
+                    calibration_reference: #reference,
+                })
+            }
+        }
+        None => quote!(None),
+    };
+
+    // Memory is the one part of the metadata which varies by part number rather than by family
+    let memory = metadata::memory(chip);
     let include = format!("../{deduped_file}");
 
     let contents = quote! {
         include!(#include);
 
+        static MEMORY: &[MemoryRegion] = #memory;
+
         pub static METADATA: Metadata = Metadata {
             name: #name,
             family: #family,
+            memory: MEMORY,
             peripherals: PERIPHERALS,
             pins: PINS,
+            nvic_priority_bits: #nvic_priority_bits,
             interrupts: INTERRUPTS,
             interrupt_groups: INTERRUPT_GROUPS,
             dma_channels: DMA_CHANNELS,
-            adc_memctl: #adc_memctl,
-            adc_vrsel: #adc_vrsel,
+            max_mclk_hz: #max_mclk_hz,
+            max_ulpclk_hz: #max_ulpclk_hz,
+            sysosc_base_hz: #sysosc_base_hz,
+            flash_wait_hz: &[#(#flash_wait_hz),*],
+            backup_domain: #backup_domain,
+            clock_tree: #clock_tree,
+            errata: &[#(#errata),*],
+            wake_ns: #wake_ns,
+            temperature_sensor: #temperature_sensor,
         };
     }
     .to_string();

@@ -1,0 +1,42 @@
+# What each OPA instance's input muxes select, per position.
+#
+# HAND-CURATED from Figure 8-1 "Analog Connections" of the MSPM0L1346 datasheet (section
+# 8.24): its section 8.18 promises input channel mapping tables which are not in the
+# document, and the figure is the only per-device statement. The mux position numbers
+# in the figure are printed with gaps; the gaps are real. Position 0 is Open everywhere
+# and not listed; a position absent here does not exist on this family and selects
+# nothing - notably PSEL 2 (IN1+), 3 (DAC12), 8 (ground) and MSEL 3 (DAC12).
+OPA0:
+  pmux:
+    1: !In 0
+    4: !Dac8 0
+    5: VrefPlus
+    6: !Rtop 1
+    7: Gpamp
+  nmux:
+    1: !In 0
+    2: !In 1
+    3: !Rbot 1
+    4: OwnRtap
+    5: OwnRtop
+  mmux:
+    1: !In 1
+    2: Ground
+    4: !Rtop 1
+OPA1:
+  pmux:
+    1: !In 0
+    4: !Dac8 0
+    5: VrefPlus
+    6: !Rtop 0
+    7: Gpamp
+  nmux:
+    1: !In 0
+    2: !In 1
+    3: !Rbot 0
+    4: OwnRtap
+    5: OwnRtop
+  mmux:
+    1: !In 1
+    2: Ground
+    4: !Rtop 0

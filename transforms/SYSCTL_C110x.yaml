@@ -512,6 +512,18 @@ transforms:
       bit_size: 8
       enum: EXLFCTL_KEY
 
+  # EXLFCTL::SETUSEEXLF is at the wrong bit offset, so replace it
+  - !DeleteFields
+    fieldset: EXLFCTL
+    from: SETUSEEXLF
+
+  - !AddFields
+    fieldset: EXLFCTL
+    fields:
+    - name: SETUSEEXLF
+      bit_offset: 0
+      bit_size: 1
+
   # SHDNIOREL: Add key
   - !Add
     ir:
@@ -546,6 +558,18 @@ transforms:
       bit_size: 8
       enum: EXRSTPIN_KEY
 
+  # EXRSTPIN::DISABLE is at the wrong bit offset, so replace it
+  - !DeleteFields
+    fieldset: EXRSTPIN
+    from: DISABLE
+
+  - !AddFields
+    fieldset: EXRSTPIN
+    fields:
+    - name: DISABLE
+      bit_offset: 0
+      bit_size: 1
+
   # SYSSTATUSCLR: Add key
   - !Add
     ir:
@@ -562,6 +586,18 @@ transforms:
       bit_offset: 24
       bit_size: 8
       enum: SYSSTATUSCLR_KEY
+
+  # SYSSTATUSCLR::ALLECC is at the wrong bit offset, so replace it
+  - !DeleteFields
+    fieldset: SYSSTATUSCLR
+    from: ALLECC
+
+  - !AddFields
+    fieldset: SYSSTATUSCLR
+    fields:
+    - name: ALLECC
+      bit_offset: 0
+      bit_size: 1
 
   # SWDCFG: Add key
   - !Add

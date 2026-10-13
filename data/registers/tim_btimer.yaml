@@ -1,0 +1,382 @@
+block/CPU_INT:
+  items:
+  - name: IIDX
+    description: Interrupt index.
+    byte_offset: 0
+    access: Read
+    fieldset: IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: INT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: INT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: INT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: INT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: INT
+block/CTRREGS:
+  items:
+  - name: CTL0
+    description: CTL0 register.
+    byte_offset: 0
+    fieldset: CTL0
+  - name: LD
+    description: Counter period register.
+    byte_offset: 4
+    fieldset: LD
+  - name: CNT
+    description: Counter register.
+    byte_offset: 8
+    fieldset: CNT
+block/GEN_EVENT:
+  items:
+  - name: IIDX
+    description: Interrupt index.
+    byte_offset: 0
+    access: Read
+    fieldset: IIDX
+  - name: IMASK
+    description: Interrupt mask.
+    byte_offset: 8
+    fieldset: INT
+  - name: RIS
+    description: Raw interrupt status.
+    byte_offset: 16
+    access: Read
+    fieldset: INT
+  - name: MIS
+    description: Masked interrupt status.
+    byte_offset: 24
+    access: Read
+    fieldset: INT
+  - name: ISET
+    description: Interrupt set.
+    byte_offset: 32
+    access: Write
+    fieldset: INT
+  - name: ICLR
+    description: Interrupt clear.
+    byte_offset: 40
+    access: Write
+    fieldset: INT
+block/GPRCM:
+  items:
+  - name: PWREN
+    description: Power enable.
+    byte_offset: 0
+    fieldset: PWREN
+  - name: RSTCTL
+    description: Reset Control.
+    byte_offset: 4
+    access: Write
+    fieldset: RSTCTL
+  - name: STAT
+    description: Status Register.
+    byte_offset: 20
+    access: Read
+    fieldset: STAT
+block/TIM:
+  description: PERIPHERALREGION.
+  items:
+  - name: FSUB
+    description: Subscriber Port 0.
+    byte_offset: 1024
+    fieldset: FPORT
+  - name: FPUB
+    description: Publisher Port 0.
+    byte_offset: 1092
+    fieldset: FPORT
+  - name: GPRCM
+    array:
+      len: 1
+      stride: 24
+    byte_offset: 2048
+    block: GPRCM
+  - name: PDBGCTL
+    description: Peripheral Debug Control.
+    byte_offset: 4120
+    fieldset: PDBGCTL
+  - name: CPU_INT
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4128
+    block: CPU_INT
+  - name: GEN_EVENT
+    array:
+      len: 1
+      stride: 44
+    byte_offset: 4176
+    block: GEN_EVENT
+  - name: EVT_MODE
+    description: Event Mode.
+    byte_offset: 4320
+    access: Read
+    fieldset: EVT_MODE
+  - name: CTRREGS
+    description: One independent counter. The array is the eight the TRM documents and the interrupt registers have bits for; how many a device implements is `Timer::counters`, which is 4 on the G-series instances and 2 on the L-series ones.
+    array:
+      len: 8
+      stride: 256
+    byte_offset: 4352
+    block: CTRREGS
+fieldset/CNT:
+  description: Counter register.
+  fields:
+  - name: VALUE
+    description: Counter Value.
+    bit_offset: 0
+    bit_size: 16
+fieldset/CTL0:
+  description: CTL0 register.
+  fields:
+  - name: EN
+    description: Counter Enable.
+    bit_offset: 0
+    bit_size: 1
+  - name: STARTSEL
+    description: Selects the source used to start the counter.
+    bit_offset: 4
+    bit_size: 4
+  - name: STOPSEL
+    description: Selects the source used to stop the counter.
+    bit_offset: 8
+    bit_size: 4
+  - name: RESETSEL
+    description: Selects the source used to reset the counter.
+    bit_offset: 12
+    bit_size: 4
+  - name: CLKSEL
+    description: Clock sources.
+    bit_offset: 16
+    bit_size: 4
+fieldset/EVT_MODE:
+  description: Event Mode.
+  fields:
+  - name: CPU_INT_CFG
+    description: Event line mode select for event corresponding to CPU_INT.
+    bit_offset: 0
+    bit_size: 2
+    enum: EVT_CFG
+  - name: GEN_EVENT_CFG
+    description: Event line mode select for event corresponding to GEN_EVENT.
+    bit_offset: 2
+    bit_size: 2
+    enum: EVT_CFG
+fieldset/FPORT:
+  description: Publisher or subscriber port.
+  fields:
+  - name: CHANID
+    description: 0 = disconnected. 1-15 = connected to channelID = CHANID.
+    bit_offset: 0
+    bit_size: 4
+fieldset/IIDX:
+  description: Interrupt index.
+  fields:
+  - name: STAT
+    description: Interrupt index status.
+    bit_offset: 0
+    bit_size: 10
+    enum: IIDX_STAT
+fieldset/INT:
+  description: Interrupt mask, status, set or clear.
+  fields:
+  - name: CNTOVF
+    description: Counter period match.
+    bit_offset: 0
+    bit_size: 1
+    array:
+      len: 8
+      stride: 3
+  - name: CNTSTRT
+    description: Counter start.
+    bit_offset: 1
+    bit_size: 1
+    array:
+      len: 8
+      stride: 3
+  - name: CNTSTOP
+    description: Counter stop.
+    bit_offset: 2
+    bit_size: 1
+    array:
+      len: 8
+      stride: 3
+fieldset/LD:
+  description: Counter period register.
+  fields:
+  - name: VAL
+    description: Period value.
+    bit_offset: 0
+    bit_size: 16
+fieldset/PDBGCTL:
+  description: Peripheral Debug Control.
+  fields:
+  - name: FREE
+    description: Free run control.
+    bit_offset: 0
+    bit_size: 1
+  - name: SOFT
+    description: Soft halt boundary control. This function is only available, if [FREE] is set to 'STOP'.
+    bit_offset: 1
+    bit_size: 1
+    enum: SOFT
+fieldset/PWREN:
+  description: Power enable.
+  fields:
+  - name: ENABLE
+    description: Enable the power.
+    bit_offset: 0
+    bit_size: 1
+  - name: KEY
+    description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: PWREN_KEY
+fieldset/RSTCTL:
+  description: Reset Control.
+  fields:
+  - name: RESETASSERT
+    description: Assert reset to the peripheral.
+    bit_offset: 0
+    bit_size: 1
+  - name: RESETSTKYCLR
+    description: Clear the RESETSTKY bit in the STAT register.
+    bit_offset: 1
+    bit_size: 1
+  - name: KEY
+    description: Unlock key B1h = KEY to allow write access to this register
+    bit_offset: 24
+    bit_size: 8
+    enum: RESET_KEY
+fieldset/STAT:
+  description: Status Register.
+  fields:
+  - name: RESETSTKY
+    description: This bit indicates, if the peripheral was reset, since this bit was cleared by RESETSTKYCLR in the RSTCTL register.
+    bit_offset: 16
+    bit_size: 1
+enum/EVT_CFG:
+  bit_size: 2
+  variants:
+  - name: DISABLE
+    description: The interrupt or event line is disabled.
+    value: 0
+  - name: SOFTWARE
+    description: The interrupt or event line is in software mode. Software must clear the RIS.
+    value: 1
+  - name: HARDWARE
+    description: The interrupt or event line is in hardware mode. The hardware (another module) clears automatically the associated RIS flag.
+    value: 2
+enum/IIDX_STAT:
+  bit_size: 10
+  variants:
+  - name: NO_INTR
+    description: No bit is set means there is no pending interrupt request.
+    value: 0
+  - name: CNT0OVF
+    description: Counter0 period match interrupt.
+    value: 1
+  - name: CNT0STRT
+    description: Counter 0 start.
+    value: 2
+  - name: CNT0STOP
+    description: Counter0 stop.
+    value: 3
+  - name: CNT1OVF
+    description: Counter1 period match interrupt.
+    value: 4
+  - name: CNT1STRT
+    description: Counter 1 start.
+    value: 5
+  - name: CNT1STOP
+    description: Counter1 stop.
+    value: 6
+  - name: CNT2OVF
+    description: Counter2 period match interrupt.
+    value: 7
+  - name: CNT2STRT
+    description: Counter 2 start.
+    value: 8
+  - name: CNT2STOP
+    description: Counter2 stop.
+    value: 9
+  - name: CNT3OVF
+    description: Counter3 period match interrupt.
+    value: 10
+  - name: CNT3STRT
+    description: Counter 3 start.
+    value: 11
+  - name: CNT3STOP
+    description: Counter3 stop.
+    value: 12
+  - name: CNT4OVF
+    description: Counter4 period match interrupt.
+    value: 13
+  - name: CNT4STRT
+    description: Counter 4 start.
+    value: 14
+  - name: CNT4STOP
+    description: Counter4 stop.
+    value: 15
+  - name: CNT5OVF
+    description: Counter5 period match interrupt.
+    value: 16
+  - name: CNT5STRT
+    description: Counter 5 start.
+    value: 17
+  - name: CNT5STOP
+    description: Counter5 stop.
+    value: 18
+  - name: CNT6OVF
+    description: Counter6 period match interrupt.
+    value: 19
+  - name: CNT6STRT
+    description: Counter 6 start.
+    value: 20
+  - name: CNT6STOP
+    description: Counter6 stop.
+    value: 21
+  - name: CNT7OVF
+    description: Counter7 period match interrupt.
+    value: 22
+  - name: CNT7STRT
+    description: Counter 7 start.
+    value: 23
+  - name: CNT7STOP
+    description: Counter7 stop.
+    value: 24
+enum/PWREN_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 38
+enum/RESET_KEY:
+  bit_size: 8
+  variants:
+  - name: KEY
+    value: 177
+enum/SOFT:
+  bit_size: 1
+  variants:
+  - name: IMMEDIATE
+    description: The peripheral will halt immediately, even if the resultant state will result in corruption if the system is restarted.
+    value: 0
+  - name: DELAYED
+    description: The peripheral blocks the debug freeze until it has reached a boundary where it can resume without corruption.
+    value: 1

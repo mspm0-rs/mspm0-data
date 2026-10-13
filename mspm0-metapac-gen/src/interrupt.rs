@@ -9,11 +9,11 @@ pub fn generate(chip: &Chip) -> TokenStream {
     let interrupt_enum = interrupt_enum(chip);
     let group_enums = group_enums(chip);
     let rt_vectors = rt_vectors(chip);
+    let nvic_priority_bits = Literal::u8_unsuffixed(chip.nvic_priority_bits);
 
     quote! {
-        // FIXME define this from metadata
         #[cfg(feature = "rt")]
-        pub const NVIC_PRIO_BITS: u32 = 2;
+        pub const NVIC_PRIO_BITS: u8 = #nvic_priority_bits;
         #interrupt_enum
         #group_enums
         #rt_vectors

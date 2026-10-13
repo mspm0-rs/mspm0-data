@@ -166,7 +166,6 @@ fieldset/BANKINFO0:
     description: 'Main region size in sectors Minimum: 0x8 (8) Maximum: 0x200 (512).'
     bit_offset: 0
     bit_size: 12
-    enum: BANKINFO_MAINSIZE
 fieldset/BANKINFO1:
   description: Bank Information Register 1.
   fields:
@@ -174,17 +173,14 @@ fieldset/BANKINFO1:
     description: 'Non-main region size in sectors Minimum: 0x0 (0) Maximum: 0x10 (16).'
     bit_offset: 0
     bit_size: 8
-    enum: BANKINFO_NONMAINSIZE
   - name: TRIMSIZE
     description: 'Trim region size in sectors Minimum: 0x0 (0) Maximum: 0x10 (16).'
     bit_offset: 8
     bit_size: 8
-    enum: BANKINFO_TRIMSIZE
   - name: ENGRSIZE
     description: 'Engr region size in sectors Minimum: 0x0 (0) Maximum: 0x10 (16).'
     bit_offset: 16
     bit_size: 8
-    enum: BANKINFO_ENGRSIZE
 fieldset/CFGCMD:
   description: Command Configuration Register.
   fields:
@@ -255,6 +251,14 @@ fieldset/CMDCTL:
     bit_offset: 9
     bit_size: 4
     enum: REGIONSEL
+  # PREVEREN, POSTVEREN, PROGMASKDIS and ERASEMASKDIS are documented only by the SLAU847/893/923
+  # CMDCTL field tables; SLAU846 marks bits 20-18 and 15-14 reserved, and hw_flashctl.h and the
+  # SVDs omit all four (they do carry SSERASEDIS and DATAVEREN, so SLAU846's reserved span is
+  # wrong about bit 20 either way). Kept: the MASKDIS descriptions name the prever/postver
+  # machinery these bits control. The field tables give PREVEREN/POSTVEREN a 1h reset where the
+  # same sections' figures and [Reset =] headers say 0 — clearing them disables the
+  # verify-and-repulse loop, leaving marginal cells with no error, so never write CMDCTL whole:
+  # driverlib only ever read-modify-writes it (BANKSEL, REGIONSEL, ECCGENOVR).
   - name: PREVEREN
     description: Enable verify before program or erase. For program, bits already programmed to the requests value will be masked. For erase, sectors already erased will be masked.
     bit_offset: 14
@@ -290,14 +294,13 @@ fieldset/CMDCTL:
 fieldset/CMDDATAECC:
   description: Command Data Register ECC 0.
   fields:
-  - name: VAL0
-    description: ECC data for bits 63:0 of the data is placed here.
+  - name: VAL
+    description: 'ECC data for one 64 bit half of the data: index 0 covers bits 63:0 and index 1 bits 127:64.'
     bit_offset: 0
     bit_size: 8
-  - name: VAL1
-    description: ECC data for bits 127:64 of the data is placed here.
-    bit_offset: 8
-    bit_size: 8
+    array:
+      len: 2
+      stride: 8
 fieldset/CMDDATAINDEX:
   description: Command Data Index Register.
   fields:
@@ -378,7 +381,6 @@ fieldset/GBLINFO0:
     description: 'Number of banks instantiated Minimum: 1 Maximum: 5.'
     bit_offset: 16
     bit_size: 3
-    enum: NUMBANKS
 fieldset/GBLINFO1:
   description: Global Information Register 1.
   fields:
@@ -435,7 +437,7 @@ fieldset/STATADDR:
     description: Current Bank ID A bank indicator is stored in this register which represents the current bank on which the state machine is operating. There is 1 bit per bank.
     bit_offset: 21
     bit_size: 5
-    enum: BANKID
+    enum: BANK
 fieldset/STATCMD:
   description: Command Status Register.
   fields:
@@ -521,60 +523,6 @@ enum/BANK:
   - name: BANK4
     description: Bank 4.
     value: 16
-enum/BANKID:
-  bit_size: 5
-  variants:
-  - name: BANK0
-    description: Bank 0.
-    value: 1
-  - name: BANK1
-    description: Bank 1.
-    value: 2
-  - name: BANK2
-    description: Bank 2.
-    value: 4
-  - name: BANK3
-    description: Bank 3.
-    value: 8
-  - name: BANK4
-    description: Bank 4.
-    value: 16
-enum/BANKINFO_ENGRSIZE:
-  bit_size: 8
-  variants:
-  - name: MINSECTORS
-    description: Minimum value of [ENGRSIZE].
-    value: 0
-  - name: MAXSECTORS
-    description: Maximum value of [ENGRSIZE].
-    value: 32
-enum/BANKINFO_MAINSIZE:
-  bit_size: 12
-  variants:
-  - name: MINSECTORS
-    description: Minimum value of [MAINSIZE].
-    value: 8
-  - name: MAXSECTORS
-    description: Maximum value of [MAINSIZE].
-    value: 512
-enum/BANKINFO_NONMAINSIZE:
-  bit_size: 8
-  variants:
-  - name: MINSECTORS
-    description: Minimum value of [NONMAINSIZE].
-    value: 0
-  - name: MAXSECTORS
-    description: Maximum value of [NONMAINSIZE].
-    value: 32
-enum/BANKINFO_TRIMSIZE:
-  bit_size: 8
-  variants:
-  - name: MINSECTORS
-    description: Minimum value of [TRIMSIZE].
-    value: 0
-  - name: MAXSECTORS
-    description: Maximum value of [TRIMSIZE].
-    value: 32
 enum/COMMAND:
   bit_size: 3
   variants:
@@ -668,13 +616,6 @@ enum/MODE:
   - name: ERASEBNK
     description: Erase Bank.
     value: 15
-enum/NUMBANKS:
-  bit_size: 3
-  variants:
-  - name: MINBANKS
-    value: 1
-  - name: MAXBANKS
-    value: 5
 enum/REDWIDTH:
   bit_size: 3
   variants:

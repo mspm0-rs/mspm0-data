@@ -1,0 +1,219 @@
+# Transform for the UNICOMM UART register map, based on UC0_UART on G120x, which has the
+# GFCTL glitch filter and LINCTL.EN_FRM_ERR that the G518x SVD leaves out and hw_unicommuart.h
+# confirms.
+#
+# The wrapper (GPRCM, IPMODE) is a peripheral of its own, so this map has neither, and no
+# EVT_MODE: the mode maps do not carry one.
+transforms:
+  - !DeleteUselessEnums
+
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
+  #
+  # TODO: Add this to chiptool
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  # BUSY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLEARED
+      1: SET
+
+  # FREE is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STOP
+      1: RUN
+
+  # RESETASSERT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  # RESETSTKY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  # RESETSTKYCLR is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  # TXD_OUT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: LOW
+      1: HIGH
+
+  # INTEVAL is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: DISABLE
+      1: EVAL
+
+  # TODO: Something better than a cursed rename as merge
+  - !MergeBlocks
+    from: UC0_UART
+    main: UC0_UART
+    to: UNICOMMUART
+
+  # Remove prefixes
+  - !RenameRegisters
+    block: .*
+    from: UC0_UART_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: UC0_UART_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: UC0_UART_(.+)
+    to: $1
+
+  ## Interrupts
+  # The three event blocks are already named here, unlike the standalone UART's INT_EVENTn.
+  - !MergeFieldsets
+    from: CPU_INT_(IMASK|ISET|MIS|RIS|ICLR)
+    to: CPU_INT
+    check: NoCheck
+
+  - !RenameRegisters
+    block: .*
+    from: CPU_INT_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: CPU_INT_(.+)
+    to: $1
+
+  - !MergeFieldsets
+    from: DMA_TRIG_RX_(IMASK|ISET|MIS|RIS|ICLR)
+    to: DMA_TRIG_RX
+    check: NoCheck
+
+  - !RenameRegisters
+    block: .*
+    from: DMA_TRIG_RX_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: DMA_TRIG_RX_(.+)
+    to: $1
+
+  - !MergeFieldsets
+    from: DMA_TRIG_TX_(IMASK|ISET|MIS|RIS|ICLR)
+    to: DMA_TRIG_TX
+    check: NoCheck
+
+  - !RenameRegisters
+    block: .*
+    from: DMA_TRIG_TX_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: DMA_TRIG_TX_(.+)
+    to: $1
+
+  ## DGFSEL is an integer value, so the enum is useless
+
+  - !DeleteEnums
+    from: DGFSEL
+
+  ## EVT_MODE
+  # Merge INTx_CFG enums
+  - !MergeEnums
+    from: INT(\d+)_CFG
+    to: INT_CFG
+
+  # Rename fields to match interrupt names
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT0_CFG
+    to: CPU
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT1_CFG
+    to: DMA_TRIG_RX
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT2_CFG
+    to: DMA_TRIG_TX
+
+  ## Combine LINCx fields, these are the same
+  - !MergeFieldsets
+    from: LINC(\d+)
+    to: LINC
+
+  - !MakeRegisterArray
+    blocks: UNICOMMUART
+    from: LINC(\d+)
+    to: LINC
+
+  ### Set RXIFLSEL and TXIFLSEL to enum to IFLSSEL 
+  - !Add
+    ir:
+      enum/IFLSSEL:
+        bit_size: 3
+        variants:
+          - name: ONE_FOURTH_ULP
+            description: RX FIFO >= 1/4 full, for ULP domain
+            value: 0
+          - name: ONE_FOURTH
+            description: RX FIFO >= 1/4 full or TX FIFO <= 1/4 full
+            value: 1
+          - name: HALF
+            description: RX FIFO >= 1/2 full or TX FIFO <= 1/2 full
+            value: 2
+          - name: THREE_FOURTH
+            description: RX FIFO >= 3/4 full or TX FIFO <= 3/4 full
+            value: 3
+          - name: FULL_ULP
+            description: RX FIFO is full, for ULP domain
+            value: 4
+          - name: FULL
+            description: RX or TX FIFO is full
+            value: 5
+          - name: AT_LEAST_ONE
+            description: RX or TX FIFO >= 1 entry available/free
+            value: 7
+
+  - !ModifyFieldsEnum
+    fieldset: IFLS
+    field: (RX|TX)IFLSEL
+    enum: IFLSSEL
+
+  ## CLKDIV[2] is same enum and fieldset
+  - !MergeEnums
+    from: CLKDIV(.*)
+    to: CLKDIV
+
+  - !MergeFieldsets
+    from: CLKDIV(.*)
+    to: CLKDIV
+
+
+  # ICLR has the same layout as the other CPU_INT registers. The standalone uart_v1 and i2c_v1
+  # carry one fieldset for all five, and two identical fieldsets is the bloat the README warns of.
+  - !MergeFieldsets
+    from: (CPU_INT|ICLR)
+    to: CPU_INT
+    check: NoCheck
+
+  ## Cleanup
+  - !Sort

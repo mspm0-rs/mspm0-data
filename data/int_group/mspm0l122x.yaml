@@ -6,9 +6,9 @@ groups:
     iidx: 2
   - name: FLASHCTL # NVMNW
     iidx: 3
-  - name: EVENT_SUB_PORT0
+  - name: WUC_FSUB0
     iidx: 4
-  - name: EVENT_SUB_PORT1
+  - name: WUC_FSUB1
     iidx: 5
   - name: SYSCTL
     iidx: 6

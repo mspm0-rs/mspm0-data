@@ -1,0 +1,47 @@
+# What each OPA instance's input muxes select, per position.
+#
+# HAND-CURATED from the "OPAx Input Channel Mapping" tables of the MSPM0G3507 datasheet
+# (section 8.x OPA). Position 0 is Open everywhere and not listed; a position absent
+# here does not exist on this family and selects nothing.
+OPA0:
+  pmux:
+    1: !In 0
+    2: !In 1
+    3: Dac12
+    4: !Dac8 0
+    5: VrefPlus
+    6: !Rtop 1
+    7: Gpamp
+    8: Ground
+  nmux:
+    1: !In 0
+    2: !In 1
+    3: !Rbot 1
+    4: OwnRtap
+    5: OwnRtop
+  mmux:
+    1: !In 1
+    2: Ground
+    3: Dac12
+    4: !Rtop 1
+OPA1:
+  pmux:
+    1: !In 0
+    2: !In 1
+    3: Dac12
+    4: !Dac8 1
+    5: VrefPlus
+    6: !Rtop 0
+    7: Gpamp
+    8: Ground
+  nmux:
+    1: !In 0
+    2: !In 1
+    3: !Rbot 0
+    4: OwnRtap
+    5: OwnRtop
+  mmux:
+    1: !In 1
+    2: Ground
+    3: Dac12
+    4: !Rtop 0

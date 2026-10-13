@@ -385,6 +385,20 @@ transforms:
     from: C0CCP(\d+)
     to: C0CCP
 
+  # Channels 4 and 5 are compare only and sit above the CCU bits rather than next to CCD0-3, so
+  # these need the offset list rather than a stride. See data/registers/README.md.
+  - !MakeFieldArray
+    fieldsets: (IMASK|RIS|MIS|ISET|ICLR)
+    from: CCD(\d+)
+    to: CCD
+    mode: Cursed
+
+  - !MakeFieldArray
+    fieldsets: (IMASK|RIS|MIS|ISET|ICLR)
+    from: CCU(\d+)
+    to: CCU
+    mode: Cursed
+
   # Ratio is useless
   - !DeleteEnums
     from: RATIO

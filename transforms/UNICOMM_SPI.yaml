@@ -1,0 +1,151 @@
+# Transform for the UNICOMM UART register map, based on UC2_SPI on G120x, which has the
+# GFCTL glitch filter and LINCTL.EN_FRM_ERR that the G518x SVD leaves out and hw_unicommuart.h
+# confirms.
+#
+# The wrapper (GPRCM, IPMODE) is a peripheral of its own, so this map has neither, and no
+# EVT_MODE: the mode maps do not carry one.
+transforms:
+  - !DeleteUselessEnums
+
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
+  #
+  # TODO: Add this to chiptool
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  # BUSY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLEARED
+      1: SET
+
+  # FREE is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STOP
+      1: RUN
+
+  # RESETASSERT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  # RESETSTKY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  # RESETSTKYCLR is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  # TXD_OUT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: LOW
+      1: HIGH
+
+  # INTEVAL is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: DISABLE
+      1: EVAL
+
+  # TODO: Something better than a cursed rename as merge
+  - !MergeBlocks
+    from: UC2_SPI
+    main: UC2_SPI
+    to: UNICOMMSPI
+
+  # Remove prefixes
+  - !RenameRegisters
+    block: .*
+    from: UC2_SPI_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: UC2_SPI_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: UC2_SPI_(.+)
+    to: $1
+
+  ## Interrupts
+  # The three event blocks are already named here, unlike the standalone UART's INT_EVENTn.
+  - !MergeFieldsets
+    from: CPU_INT_(IMASK|ISET|MIS|RIS|ICLR)
+    to: CPU_INT
+    check: NoCheck
+
+  - !RenameRegisters
+    block: .*
+    from: CPU_INT_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: CPU_INT_(.+)
+    to: $1
+
+  - !MergeFieldsets
+    from: DMA_TRIG_RX_(IMASK|ISET|MIS|RIS|ICLR)
+    to: DMA_TRIG_RX
+    check: NoCheck
+
+  - !RenameRegisters
+    block: .*
+    from: DMA_TRIG_RX_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: DMA_TRIG_RX_(.+)
+    to: $1
+
+  - !MergeFieldsets
+    from: DMA_TRIG_TX_(IMASK|ISET|MIS|RIS|ICLR)
+    to: DMA_TRIG_TX
+    check: NoCheck
+
+  - !RenameRegisters
+    block: .*
+    from: DMA_TRIG_TX_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: DMA_TRIG_TX_(.+)
+    to: $1
+
+
+  # ICLR has the same layout as the other CPU_INT registers. The standalone uart_v1 and i2c_v1
+  # carry one fieldset for all five, and two identical fieldsets is the bloat the README warns of.
+  - !MergeFieldsets
+    from: (CPU_INT|ICLR)
+    to: CPU_INT
+    check: NoCheck
+
+  ## REPEATTX names only its disabled value, and BUSY is IDLE/ACTIVE on a status bit
+  - !DeleteEnums
+    from: (REPEATTX|BUSY)
+
+  ## CTL1 and STAT describe the command/data framing with the same two values
+  - !MergeEnums
+    from: (CTL1|STAT)_CDMODE
+    to: CDMODE
+
+  ## Cleanup
+  - !Sort

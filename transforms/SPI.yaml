@@ -1,0 +1,202 @@
+# Transform for the standalone SPI register map, based on SPI0 on G151x, whose three interrupt
+# groups are already named CPU_INT/DMA_TRIG_RX/DMA_TRIG_TX as hw_spi.h has them. The other twelve
+# SVDs call them INT_EVENT0-2, and the C110x/MSPS003FX pair describe only the first; the header is
+# one shared IP description, so the widest SVD is the block and the metadata says who has what.
+transforms:
+  - !DeleteUselessEnums
+
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
+  #
+  # TODO: Add this to chiptool
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  # BUSY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLEARED
+      1: SET
+
+  # FREE is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STOP
+      1: RUN
+
+  # RESETASSERT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  # RESETSTKY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  # RESETSTKYCLR is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  # INTEVAL is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: DISABLE
+      1: EVAL
+
+  # TODO: Something better than a cursed rename as merge
+  - !MergeBlocks
+    from: SPI0
+    main: SPI0
+    to: SPI
+
+  # Remove prefixes
+  - !RenameRegisters
+    block: .*
+    from: SPI0_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: SPI0_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: SPI0_(.+)
+    to: $1
+
+  ## Interrupts
+  # The three groups keep separate IIDX enums: their value sets differ, as in uart_v1.
+  - !MergeFieldsets
+    from: CPU_INT_(IMASK|ISET|MIS|RIS|ICLR)
+    to: CPU_INT
+    check: NoCheck
+
+  - !RenameRegisters
+    block: .*
+    from: CPU_INT_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: CPU_INT_(.+)
+    to: $1
+
+  - !MergeFieldsets
+    from: DMA_TRIG_RX_(IMASK|ISET|MIS|RIS|ICLR)
+    to: DMA_TRIG_RX
+    check: NoCheck
+
+  - !RenameRegisters
+    block: .*
+    from: DMA_TRIG_RX_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: DMA_TRIG_RX_(.+)
+    to: $1
+
+  - !MergeFieldsets
+    from: DMA_TRIG_TX_(IMASK|ISET|MIS|RIS|ICLR)
+    to: DMA_TRIG_TX
+    check: NoCheck
+
+  - !RenameRegisters
+    block: .*
+    from: DMA_TRIG_TX_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: DMA_TRIG_TX_(.+)
+    to: $1
+
+  ## Status flags and the polarity bit. unicommspi_v1 describes the same SPI function and gives
+  ## none of these an enum; TFE and RFE next to TNF/RNF in the same fieldset already have none,
+  ## and REPEATTX names only its disabled value.
+  - !DeleteEnums
+    from: (BUSY|RNF|TNF|REPEATTX|SPO)
+    soft: false
+
+  ## CTL1 and STAT describe the command/data framing with the same two values
+  - !MergeEnums
+    from: (CTL1|STAT)_CDMODE
+    to: CDMODE
+
+  ## Add missing keys
+  - !AddFields
+    fieldset: RSTCTL
+    fields:
+    - name: KEY
+      description: Unlock key B1h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: RESET_KEY
+
+  - !AddFields
+    fieldset: PWREN
+    fields:
+    - name: KEY
+      description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: PWREN_KEY
+
+  - !AddFields
+    fieldset: CLKCFG
+    fields:
+    - name: KEY
+      description: KEY to Allow State Change A9h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: CLKCFG_KEY
+
+  - !Add
+    ir:
+      enum/RESET_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 177
+      enum/PWREN_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 38
+      enum/CLKCFG_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 0xA9
+
+  ## EVT_MODE
+  - !MergeEnums
+    from: INT(\d+)_CFG
+    to: INT_CFG
+
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT0_CFG
+    to: CPU
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT1_CFG
+    to: DMA_TRIG_RX
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT2_CFG
+    to: DMA_TRIG_TX
+
+  ## Cleanup
+  - !Sort

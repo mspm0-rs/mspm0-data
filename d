@@ -15,6 +15,32 @@ case "$CMD" in
         cd ./sources/
         git checkout $REV
     ;;
+    download-docs)
+        # Fetch the PDFs the tools/ scripts read, into ./files/.
+        #
+        # Not part of `ci`: nothing in the build reads these. They are the source for the checked-in
+        # data/operating_modes, data/timers and data/errata, and are needed only to regenerate those.
+        #
+        # Named after the last segment of the URL, which is the document the data is traceable to.
+        mkdir -p ./files/
+        grep -oE '^  (datasheet|errata|reference_manual)_url: \S+' data/parts.yaml | sort -u |
+        while read -r kind url; do
+            case "$kind" in
+                datasheet_url:) suffix=datasheet ;;
+                errata_url:) suffix=errata ;;
+                *) suffix=trm ;;
+            esac
+
+            out="./files/${url##*/}_$suffix.pdf"
+            if [ -s "$out" ]; then
+                echo "have $out"
+                continue
+            fi
+
+            echo "fetching $out"
+            curl -fsSL -o "$out" "$url" || echo "FAILED $url"
+        done
+    ;;
     install-chiptool)
         cargo install --git https://github.com/embassy-rs/chiptool
     ;;

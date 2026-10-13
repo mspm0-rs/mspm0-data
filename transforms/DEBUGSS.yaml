@@ -1,0 +1,63 @@
+# Transform for the DEBUGSS register map, based on DEBUGSS on G518x, whose interrupt registers are
+# already grouped as CPU_INT the way SLAU893 Table 22-11 groups them.
+#
+# Not the C110x SVD, though it is the widest: that one adds a PINCM array holding SWCLK and SWDIO,
+# and a CPU_CONNECT_0 at 480h. hw_debugss.h has none of them, and SLAU893 Table 22-11 - the C-series
+# TRM, for the very family whose SVD carries them - lists exactly the fourteen registers here and
+# says every other offset is reserved.
+transforms:
+  - !DeleteUselessEnums
+
+  - !DeleteFieldsets
+    from: .*
+    useless: true
+
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
+  #
+  # TODO: Add this to chiptool
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  # TODO: Something better than a cursed rename as merge
+  - !MergeBlocks
+    from: DEBUGSS
+    main: DEBUGSS
+    to: DEBUGSS
+
+  # Remove prefixes
+  - !RenameRegisters
+    block: .*
+    from: DEBUGSS_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: DEBUGSS_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: DEBUGSS_(.+)
+    to: $1
+
+  # The five interrupt registers share one layout, as in uart_v1 and i2c_v1.
+  - !MergeFieldsets
+    from: (IMASK|ISET|MIS|RIS|ICLR)
+    to: INT
+    check: NoCheck
+
+  ## EVT_MODE has one event line here, so the enum needs no merge.
+  - !RenameFields
+    fieldset: EVT_MODE
+    from: INT0_CFG
+    to: CPU
+
+  - !Rename
+    type: Enum
+    from: INT0_CFG
+    to: INT_CFG
+
+  ## Cleanup
+  - !Sort

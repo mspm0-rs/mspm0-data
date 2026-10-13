@@ -43,16 +43,16 @@ block/CONTROLLER:
     description: I2C Controller FIFO Status Register.
     byte_offset: 44
     access: Read
-    fieldset: CFIFOSR
+    fieldset: FIFOSR
   - name: CONTROLLER_I2CPECCTL
     description: I2C Controller PEC control register.
     byte_offset: 48
-    fieldset: CONTROLLER_I2CPECCTL
+    fieldset: PECCTL
   - name: CONTROLLER_PECSR
     description: I2C Controller PEC status register.
     byte_offset: 52
     access: Read
-    fieldset: CONTROLLER_PECSR
+    fieldset: PECSR
 block/CPU_INT:
   items:
   - name: IIDX
@@ -252,16 +252,16 @@ block/TARGET:
     description: I2C Target FIFO Status Register.
     byte_offset: 32
     access: Read
-    fieldset: TFIFOSR
+    fieldset: FIFOSR
   - name: TARGET_PECCTL
     description: I2C Target PEC control register.
     byte_offset: 36
-    fieldset: TARGET_PECCTL
+    fieldset: PECCTL
   - name: TARGET_PECSR
     description: I2C Target PEC status register.
     byte_offset: 40
     access: Read
-    fieldset: TARGET_PECSR
+    fieldset: PECSR
 fieldset/CBMON:
   description: I2C Controller Bus Monitor.
   fields:
@@ -344,8 +344,8 @@ fieldset/CFIFOCTL:
     description: RX FIFO Flush Setting this bit will Flush the RX FIFO. Before clearing this bit to stop Flush the RXFIFOCNT should be checked to be 0 and indicating that the Flush has completed.
     bit_offset: 15
     bit_size: 1
-fieldset/CFIFOSR:
-  description: I2C Controller FIFO Status Register.
+fieldset/FIFOSR:
+  description: I2C FIFO Status Register.
   fields:
   - name: RXFIFOCNT
     description: Number of Bytes which could be read from the RX FIFO.
@@ -394,8 +394,8 @@ fieldset/CLKSEL:
     description: Selects BUSCLK as clock source if enabled.
     bit_offset: 3
     bit_size: 1
-fieldset/CONTROLLER_I2CPECCTL:
-  description: I2C Controller PEC control register.
+fieldset/PECCTL:
+  description: I2C PEC control register.
   fields:
   - name: PECCNT
     description: PEC Count When this field is non zero, the number of I2C bytes are counted (Note that although the PEC is calculated on the I2C address it is not counted at a byte). When the byte count = PECCNT and the state machine is transmitting, the contents of the LSFR is loaded into the shift register instead of the byte received from the Tx FIFO. When the state machine is receiving, after the last bit of this byte is received the LSFR is checked and if it is non-zero, a PEC RX Error interrupt is generated. The I2C packet must be padded to include the PEC byte for both transmit and receive. In transmit mode the FIFO must be loaded with a dummy PEC byte. In receive mode the PEC byte will be passed to the Rx FIFO. In the normal Controller use case, FW would set PECEN=1 and PECCNT=SMB packet length (Not including Target Address byte, but including the PEC byte). FW would then configure DMA to allow the packet to complete unassisted and write MCTR to initiate the transaction. Note that when the byte count = PEC CNT, the byte count is reset to 0 and multiple PEC calculation can automatically occur within a single I2C transaction. Note that any write to the Controller_I2CPECCTL Register will clear the current PEC Byte Count in the Controller State Machine.
@@ -405,8 +405,8 @@ fieldset/CONTROLLER_I2CPECCTL:
     description: PEC Enable This bit enables the SMB Packet Error Checking (PEC). When enabled the PEC is calculated on all bits except the Start, Stop, Ack and Nack. The PEC LSFR and the Byte Counter is set to 0 when the State Machine is in the IDLE state, which occur following a Stop or when a timeout occurs. The Counter is also set to 0 after the PEC byte is sent or received. Note that the NACK is automatically send following a PEC byte that results in a PEC error. The PEC Polynomial is x^8 + x^2 + x^1 + 1.
     bit_offset: 12
     bit_size: 1
-fieldset/CONTROLLER_PECSR:
-  description: I2C Controller PEC status register.
+fieldset/PECSR:
+  description: I2C PEC status register.
   fields:
   - name: PECBYTECNT
     description: PEC Byte Count. This is the current PEC Byte Count of the Controller State Machine.
@@ -794,32 +794,6 @@ fieldset/TACKCTL:
     description: When set this bit will automatically turn on the Target ACKOEN field following the ACK/NACK of the received PEC byte.
     bit_offset: 4
     bit_size: 1
-fieldset/TARGET_PECCTL:
-  description: I2C Target PEC control register.
-  fields:
-  - name: PECCNT
-    description: When this field is non zero, the number of I2C data bytes are counted. When the byte count = PECCNT and the state machine is transmitting, the contents of the LSFR is loaded into the shift register instead of the byte received from the Tx FIFO. When the state machine is receiving, after the last bit of this byte is received the LSFR is checked and if it is non-zero, a PEC RX Error interrupt is generated. The I2C packet must be padded to include the PEC byte for both transmit and receive. In transmit mode the FIFO must be loaded with a dummy PEC byte. In receive mode the PEC byte will be passed to the Rx FIFO. In the normal Target use case, FW would set PECEN=1 and PECCNT=0 and use the ACKOEN until the remaining SMB packet length is known. FW would then set the PECCNT to the remaining packet length (Including PEC bye). FW would then configure DMA to allow the packet to complete unassisted and exit NoAck mode. Note that when the byte count = PEC CNT, the byte count is reset to 0 and multiple PEC calculation can automatically occur within a single I2C transaction.
-    bit_offset: 0
-    bit_size: 9
-  - name: PECEN
-    description: PEC Enable This bit enables the SMB Packet Error Checking (PEC). When enabled the PEC is calculated on all bits except the Start, Stop, Ack and Nack. The PEC LSFR and the Byte Counter is set to 0 when the State Machine is in the IDLE state, which occur following a Stop or when a timeout occurs. The Counter is also set to 0 after the PEC byte is sent or received. Note that the NACK is automatically send following a PEC byte that results in a PEC error. The PEC Polynomial is x^8 + x^2 + x^1 + 1.
-    bit_offset: 12
-    bit_size: 1
-fieldset/TARGET_PECSR:
-  description: I2C Target PEC status register.
-  fields:
-  - name: PECBYTECNT
-    description: This is the current PEC Byte Count of the Target State Machine.
-    bit_offset: 0
-    bit_size: 9
-  - name: PECSTS_CHECK
-    description: This status bit indicates if the PEC was checked in the transaction that occurred before the last Stop. Latched on Stop.
-    bit_offset: 16
-    bit_size: 1
-  - name: PECSTS_ERROR
-    description: This status bit indicates if a PEC check error occurred in the transaction that occurred before the last Stop. Latched on Stop.
-    bit_offset: 17
-    bit_size: 1
 fieldset/TCTR:
   description: I2C Target Control Register.
   fields:
@@ -886,25 +860,6 @@ fieldset/TFIFOCTL:
     enum: TFIFOCTL_RXTRIG
   - name: RXFLUSH
     description: RX FIFO Flush Setting this bit will Flush the RX FIFO. Before clearing this bit to stop Flush the RXFIFOCNT should be checked to be 0 and indicating that the Flush has completed.
-    bit_offset: 15
-    bit_size: 1
-fieldset/TFIFOSR:
-  description: I2C Target FIFO Status Register.
-  fields:
-  - name: RXFIFOCNT
-    description: Number of Bytes which could be read from the RX FIFO.
-    bit_offset: 0
-    bit_size: 4
-  - name: RXFLUSH
-    description: RX FIFO Flush When this bit is set a Flush operation for the RX FIFO is active. Clear the RXFLUSH bit in the control register to stop.
-    bit_offset: 7
-    bit_size: 1
-  - name: TXFIFOCNT
-    description: Number of Bytes which could be put into the TX FIFO.
-    bit_offset: 8
-    bit_size: 4
-  - name: TXFLUSH
-    description: TX FIFO Flush When this bit is set a Flush operation for the TX FIFO is active. Clear the TXFLUSH bit in the control register to stop.
     bit_offset: 15
     bit_size: 1
 fieldset/TIMEOUT_CNT:

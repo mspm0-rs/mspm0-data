@@ -76,15 +76,22 @@ transforms:
 
   # RSTCAUSE.ID.SYSWWDT0 should actually be called BOOTWWDT0 and have a value of 14
   # RSTCAUSE.ID.SYSWWDT1 does not exist for L-series
+  #
+  # BOOTSW is at 10 in the SVD, which SLAU847's "Reset Causes" table contradicts. See
+  # data/registers/README.md.
   - !DeleteEnumVariants
     enum: ID
-    from: (SYSWWDT0|SYSWWDT1)
+    from: (SYSWWDT0|SYSWWDT1|BOOTSW)
 
   - !AddEnumVariants
     enum: ID
     variants:
     - name: BOOTWWDT0
+      description: WWDT0 violation.
       value: 14
+    - name: BOOTSW
+      description: Software triggered BOOTRST.
+      value: 13
 
   # RESETCMD: Add KEY
   - !Add

@@ -1,0 +1,31 @@
+# Corrections to what `tools/temp_sensor.py` reads out of a datasheet, applied last.
+#
+# Only for a contradiction a better source settles. Every entry states the evidence, as
+# `data/operating_mode_overrides.yaml` does: an override with no evidence is a guess wearing a
+# file name.
+
+mspm0l110x:
+  calibration_reference: internal_1v4
+  # The MSPM0L1105/L1106 datasheet states the calibration twice and contradicts itself: the 7.13
+  # electrical table's test conditions say `VRSEL=2h (internal VREF), BUFCONFIG=1h (1.4V VREF)`,
+  # the 8.13 peripheral section says `VRSEL=0h (VDD)`. Same measurement, same document.
+  #
+  # Settled on hardware for the L1306, which carries the identical pair of statements (2026-08-11,
+  # embassy-mspm0, R18): `TEMP_SENSE0` reads 1885, which is 644mV against a 1.4V reference and
+  # 1519mV against VDD. Only the first is a temperature sensor output. Converting a live reading
+  # taken against VDDA (code 806, stable) gives 26.8degC against the 1.4V trim and 527degC against
+  # the VDD trim. The other two combinations give 241degC and 211degC, so the answer does not rest
+  # on the reading's own reference having taken effect.
+  evidence: L1306 hardware, 2026-08-11
+
+mspm0l130x:
+  calibration_reference: internal_1v4
+  # The measurement above was taken on this family. See mspm0l110x for the arithmetic.
+  evidence: L1306 hardware, 2026-08-11
+
+mspm0l134x:
+  calibration_reference: internal_1v4
+  # The MSPM0L1343-L1346 datasheet is the L1303-L1306 datasheet's twin and carries the same
+  # contradiction in the same two places. Same silicon generation, same sensor rows (TSc -1.75
+  # mV/degC, TSTRIM 30degC), so the L1306 measurement covers it.
+  evidence: L1306 hardware, 2026-08-11
