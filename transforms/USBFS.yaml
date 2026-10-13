@@ -1,0 +1,227 @@
+# Transform for USBFS registers based on USBFS0 on G518x
+
+transforms:
+  - !DeleteUselessEnums
+
+  # However DeleteUselessEnums does not delete MIS and IMASK (due to CLR being 0 and SET being 1)
+  #
+  # TODO: Add this to chiptool
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLR
+      1: SET
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  # FREE is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: STOP
+      1: RUN
+
+  # RESETASSERT is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: ASSERT
+
+  # RESETSTKY is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NORES
+      1: RESET
+
+  # RESETSTKYCLR is useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NOP
+      1: CLR
+
+  # UNDRNERROR uses CLEAR and SET
+  - !DeleteEnumsWithVariants
+    variants:
+      0: CLEAR
+      1: SET
+
+  # USBIE_RESETBABBLE uses DSIABLE (typo) and ENABLE
+  - !DeleteEnumsWithVariants
+    variants:
+      0: DSIABLE
+      1: ENABLE
+
+  # Multiple enums here are useless
+  - !DeleteEnumsWithVariants
+    variants:
+      0: LOW
+      1: HIGH
+
+  - !DeleteEnumsWithVariants
+    variants:
+      0: NO_EFFECT
+      1: WAIT_SOF
+
+  # TODO: Something better than a cursed rename as merge
+  - !MergeBlocks
+    from: USBFS0
+    main: USBFS0
+    to: USBFS
+
+  # Remove prefixes
+  - !RenameRegisters
+    block: .*
+    from: USBFS0_(.+)
+    to: $1
+
+  - !RenameFields
+    fieldset: .*
+    from: USBFS0_(.+)
+    to: $1
+
+  - !Rename
+    type: All
+    from: USBFS0_(.+)
+    to: $1
+
+  ## Interrupts
+  # These fields are all the same layout.
+  - !MergeFieldsets
+    from: (IMASK|ISET|MIS|RIS|ICLR)
+    to: INT
+    check: NoCheck
+
+  ## Delete fieldsets which are actually integers
+  - !DeleteFieldsets
+    from: (FIFO|TXINTERVAL|RXINTERVAL|IDXFIFOSZ|IDXRXCOUNT|IDXRXCSRH|IDXRXCSRL|IDXRXINTERVAL|IDXRXMAXP|IDXRXTYPE|IDXTXCSRH|IDXTXCSRL|IDXTXINTERVAL|IDXTXMAXP|IDXTXTYPE|LSEOF)
+
+  # TX and RX size are the same enums.
+  - !MergeEnums
+    from: (TX|RX|IDXRXFIFOSZ_|IDXTXFIFOSZ_)SIZE
+    to: FIFOSIZE
+    main: TXSIZE
+
+  - !MergeEnums
+    from: IDX(TX|RX)FIFOADD_ADDR
+    to: IDX_FIFOADD_ADDR
+    main: IDXTXFIFOADD_ADDR
+
+  - !MergeEnums
+    from: (TX|RX)CSRH_DMAMOD
+    to: DMAMOD
+    main: TXCSRH_DMAMOD
+
+  - !MergeEnums
+    from: IDX(TX|RX)FIFOSZ_DPB
+    to: IDX_FIFOSZ_DPB
+    main: IDXTXFIFOSZ_DPB
+
+  - !RenameEnumVariants
+    enum: IDX_FIFOSZ_DPB
+    from: SIGLE
+    to: SINGLE
+
+  - !DeleteEnums
+    from: (CSR0L_TX|CSR0L_RX|TXCSRL_TX|RXCSRL_RX)RDY
+
+  - !DeleteEnums
+    from: (RXTYPE|TXTYPE|TYPE0)_SPEED
+    to: SPEED
+    main: TXTYPE
+
+  - !DeleteEnums
+    from: TRIGARX|TRIGATX|TRIGBRX|TRIGBTX|TRIGCRX|TRIGCTX|TRIGDRX|TRIGDTX
+
+  - !DeleteEnums
+    from: FIFONE
+
+  - !DeleteEnums
+    from: EPIDX
+
+  # Useless and both varaints have the same name
+  - !DeleteEnums
+    from: DATAEND_SETUP
+
+  - !DeleteEnums
+    from: AUTOSET
+
+  - !MergeFieldsets
+    from: TXIE|TXIS|RXIE|RXIS|RXDPKTBUFDIS|TXDPKTBUFDIS
+    to: EP
+    main: TXIS
+    # TXIS has all EPs (0-7), some enums only do 1-7.
+    # For all of these, 0 is 0, 1 is 1 and etc
+    check: NoCheck
+
+  - !MakeFieldArray
+    fieldsets: EP
+    from: EP\d+
+    to: EP
+
+  - !MergeFieldsets
+    from: USB(IS|IE)
+    to: USB_INT
+    main: USBIS
+
+  # CSR0 and RX/TXCSR should NOT be merged. These have different field layouts. This is confirmed across
+  # the SDK, SVDs and 432 RM (at time of writing the G-series RM does not describe USB).
+
+  ## EVT_MODE
+  - !MergeEnums
+    from: EVT(\d+)_CFG
+    to: EVT_CFG
+
+  ## Add missing keys
+  - !AddFields
+    fieldset: RSTCTL
+    fields:
+    - name: KEY
+      description: Unlock key B1h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: RESET_KEY
+
+  - !AddFields
+    fieldset: PWREN
+    fields:
+    - name: KEY
+      description: KEY to allow Power State Change 26h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: PWREN_KEY
+
+  - !AddFields
+    fieldset: CLKCFG
+    fields:
+    - name: KEY
+      description: KEY to Allow State Change A9h = KEY to allow write access to this register
+      bit_offset: 24
+      bit_size: 8
+      enum: CLKCFG_KEY
+
+  - !Add
+    ir:
+      enum/RESET_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 177
+      enum/PWREN_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 38
+      enum/CLKCFG_KEY:
+        bit_size: 8
+        variants:
+          - name: KEY
+            value: 0xA9
+
+  ## Cleanup
+  - !Sort
