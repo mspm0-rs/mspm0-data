@@ -2,10 +2,8 @@ mod util;
 
 use std::{
     borrow::Cow,
-    collections::BTreeMap,
     fs,
     path::{Path, PathBuf},
-    pin,
     sync::LazyLock,
 };
 
@@ -80,124 +78,54 @@ fn main() -> anyhow::Result<()> {
         bail!("Error reading sysconfig data (see above)");
     }
 
+    // Remove error type
+    let sysconfig_datas = sysconfig_datas
+        .into_iter()
+        .map(|(gpn, result)| (gpn, result.unwrap()))
+        .collect::<Vec<_>>();
+
     // Get the package data
     let packages: Vec<(&GpnDevice, anyhow::Result<Package>)> = sysconfig_datas
         .par_iter()
-        .map(|(gpn, sysconfig_data)| {
-            let sysconfig_data = sysconfig_data
-                .as_ref()
-                .expect("already proved this is not Err");
-            let name = &gpn.package;
-
-            let Some(packages_object) = sysconfig_data.get("packages").and_then(Value::as_object)
-            else {
-                return (*gpn, Err(anyhow::anyhow!("packages is not an object")));
-            };
-
-            let Some(device_pins_object) =
-                sysconfig_data.get("devicePins").and_then(Value::as_object)
-            else {
-                return (*gpn, Err(anyhow::anyhow!("devicePins is not an object")));
-            };
-
-            let Some(package_object) = packages_object.values().find(|object| {
-                let Some(object) = object.as_object() else {
-                    return false;
-                };
-
-                let Some(package_type) = object.get("name").and_then(Value::as_str) else {
-                    return false;
-                };
-
-                package_type.contains(name)
-            }) else {
-                return (*gpn, Err(anyhow::anyhow!("cannot find package \"{name}\"")));
-            };
-
-            let Some(package_type) = package_object.get("name").and_then(Value::as_str) else {
-                return (*gpn, Err(anyhow::anyhow!("package name is not a str")));
-            };
-
-            let package = if gpn.device_name.starts_with("MSPM") {
-                let with_trailing_brace = package_type.split_once('(').unwrap().1;
-                let package = with_trailing_brace.split_once(')').unwrap().0;
-                package.into()
-            } else {
-                package_type.into()
-            };
-
-            let Some(package_pins_objects) =
-                package_object.get("packagePin").and_then(Value::as_array)
-            else {
-                return (
-                    *gpn,
-                    Err(anyhow::anyhow!("package object has no packagePin array")),
-                );
-            };
-
-            let mut pins = Vec::with_capacity(package_pins_objects.len());
-
-            for package_pin_object in package_pins_objects {
-                let Some(position) = package_pin_object.get("ball").and_then(Value::as_str) else {
-                    return (
-                        *gpn,
-                        Err(anyhow::anyhow!("a package pin object has no ball value")),
-                    );
-                };
-
-                let Some(device_pin_id) = package_pin_object
-                    .get("devicePinID")
-                    .and_then(Value::as_str)
-                else {
-                    return (
-                        *gpn,
-                        Err(anyhow::anyhow!("a package pin object has no device pin id")),
-                    );
-                };
-
-                let Some(device_pin_object) = device_pins_object.get(device_pin_id) else {
-                    return (
-                        *gpn,
-                        Err(anyhow::anyhow!(
-                            "device does not have device pin id {device_pin_id}"
-                        )),
-                    );
-                };
-
-                let Some(pin_name) = device_pin_object.get("name").and_then(Value::as_str) else {
-                    return (
-                        *gpn,
-                        Err(anyhow::anyhow!(
-                            "device pin id {device_pin_id} has no name field"
-                        )),
-                    );
-                };
-
-                pins.push(PackagePin {
-                    position: position.into(),
-                    signals: pin_signals(pin_name),
-                });
-            }
-
-            (
-                *gpn,
-                Ok::<_, anyhow::Error>(Package {
-                    name: name.into(),
-                    package,
-                    pins,
-                }),
-            )
-        })
+        .map(|(gpn, sysconfig_data)| (*gpn, make_package(gpn, sysconfig_data)))
         .collect();
 
-    for (gpn, p) in packages.iter() {
-        println!("{} for {}: {:?}", gpn.device_name, gpn.package, p);
+    if packages.iter().any(|(_, result)| result.is_err()) {
+        println!("Error reading sysconfig package data");
+
+        for (gpn, result) in packages.into_iter() {
+            if let Err(err) = result {
+                println!("For {}: {}", gpn.device_name, err);
+            }
+        }
+
+        bail!("Error reading sysconfig package data (see above)");
     }
 
-    // let sysconfig_datas = sysconfig_datas
-    //     .into_iter()
-    //     .map(|(gpn, result)| (gpn, result.unwrap()))
-    //     .collect::<Vec<_>>();
+    // Remove error type
+    let packages = packages
+        .into_iter()
+        .map(|(gpn, result)| (gpn, result.unwrap()))
+        .collect::<Vec<_>>();
+
+    // TODO: Write at a better time
+    for (gpn, package) in packages.iter() {
+        let device_dir = output.join(gpn.device_name.to_lowercase());
+        let packages = device_dir.join("packages");
+        let package_file_path = packages
+            .join(package.package.to_lowercase())
+            .with_extension("json");
+
+        fs::create_dir_all(packages).context("create package dir")?;
+
+        fs::write(
+            package_file_path,
+            serde_json::to_string_pretty(&package).context("serializing package")?,
+        )
+        .context("write package")?;
+
+        println!("{}{}", gpn.device_name, package.package);
+    }
 
     Ok(())
 }
@@ -224,7 +152,7 @@ fn get_gpns(sysconfig_dir: &Path) -> anyhow::Result<Vec<GpnDevice>> {
     let json = {
         let gpns_path = sysconfig_dir.join("gpns.json");
 
-        if !fs::exists(&sysconfig_dir)? {
+        if !fs::exists(sysconfig_dir)? {
             bail!("gpns.json does not exist in sysconfig. help: reclone the git submodules?");
         }
 
@@ -239,7 +167,7 @@ fn get_gpns(sysconfig_dir: &Path) -> anyhow::Result<Vec<GpnDevice>> {
     };
 
     for (part_group, object) in json.iter() {
-        if !ALLOW_SYSCONFIG_GROUPS.is_match(&part_group) {
+        if !ALLOW_SYSCONFIG_GROUPS.is_match(part_group) {
             continue;
         }
 
@@ -366,75 +294,86 @@ fn load_sysconfig(sysconfig_dir: &Path, gpn: &GpnDevice) -> anyhow::Result<Value
     Ok(value)
 }
 
-fn make_packages(sysconfig: &Value) -> anyhow::Result<Vec<Package>> {
-    let packages_json = sysconfig
-        .get("packages")
-        .context("no packages entry")?
-        .as_object()
-        .context("packages is not an object")?;
+fn make_package(gpn: &GpnDevice, sysconfig_data: &Value) -> anyhow::Result<Package> {
+    let name = &gpn.package;
 
-    let device_pins = sysconfig
-        .get("devicePins")
-        .context("no devicePins entry")?
-        .as_object()
-        .context("devicePins is not an object")?;
+    let Some(packages_object) = sysconfig_data.get("packages").and_then(Value::as_object) else {
+        bail!("packages is not an object");
+    };
 
-    let mut packages = Vec::with_capacity(packages_json.len());
+    let Some(device_pins_object) = sysconfig_data.get("devicePins").and_then(Value::as_object)
+    else {
+        bail!("devicePins is not an object");
+    };
 
-    for package in packages_json.values() {
-        let name = package
-            .get("name")
-            .context("package has no name")?
-            .as_str()
-            .context("package name is not a string")?;
-
-        let package_pins = package
-            .get("packagePin")
-            .context("package has no packagePin")?
-            .as_array()
-            .context("packagePin is not an array")?;
-
-        let mut package = Package {
-            name: name.into(),
-            // TODO: Get a nice package name?
-            package: name.into(),
-            pins: Vec::with_capacity(package_pins.len()),
+    let Some(package_object) = packages_object.values().find(|object| {
+        let Some(object) = object.as_object() else {
+            return false;
         };
 
-        for pin in package_pins {
-            let ball = pin
-                .get("ball")
-                .context("package pin has no ball field")?
-                .as_str()
-                .context("ball is not a str")?;
+        let Some(package_type) = object.get("name").and_then(Value::as_str) else {
+            return false;
+        };
 
-            let pin_id = pin
-                .get("devicePinID")
-                .context("package pin has no devicePinID")?
-                .as_str()
-                .context("devicePinID is not a str")?;
+        package_type.contains(name)
+    }) else {
+        bail!("cannot find package \"{name}\"");
+    };
 
-            let device_pin = device_pins
-                .get(pin_id)
-                .with_context(|| format!("{pin_id} does not exist"))?;
+    let Some(package_type) = package_object.get("name").and_then(Value::as_str) else {
+        bail!("package name is not a str");
+    };
 
-            let pin_name = device_pin
-                .get("name")
-                .with_context(|| format!("{pin_id} has no name"))?
-                .as_str()
-                .with_context(|| format!("{pin_id} name is not a str"))?;
+    let is_msp = gpn.device_name.starts_with("MSPM")
+        || gpn.device_name.starts_with("MSPS")
+        || gpn.device_name.starts_with("MSP32");
 
-            package.pins.push(PackagePin {
-                position: ball.into(),
-                signals: pin_signals(pin_name),
-            });
-        }
+    let package = if is_msp {
+        let with_trailing_brace = package_type.split_once('(').unwrap().1;
+        let package = with_trailing_brace.split_once(')').unwrap().0;
+        package.into()
+    } else {
+        package_type.into()
+    };
 
-        package.pins.sort_by(|a, b| a.position.cmp(&b.position));
-        packages.push(package);
+    let Some(package_pins_objects) = package_object.get("packagePin").and_then(Value::as_array)
+    else {
+        bail!("package object has no packagePin array");
+    };
+
+    let mut pins = Vec::with_capacity(package_pins_objects.len());
+
+    for package_pin_object in package_pins_objects {
+        let Some(position) = package_pin_object.get("ball").and_then(Value::as_str) else {
+            bail!("a package pin object has no ball value");
+        };
+
+        let Some(device_pin_id) = package_pin_object
+            .get("devicePinID")
+            .and_then(Value::as_str)
+        else {
+            bail!("a package pin object has no device pin id");
+        };
+
+        let Some(device_pin_object) = device_pins_object.get(device_pin_id) else {
+            bail!("device does not have device pin id {device_pin_id}");
+        };
+
+        let Some(pin_name) = device_pin_object.get("name").and_then(Value::as_str) else {
+            bail!("device pin id {device_pin_id} has no name field");
+        };
+
+        pins.push(PackagePin {
+            position: position.into(),
+            signals: pin_signals(pin_name),
+        });
     }
 
-    Ok(packages)
+    Ok(Package {
+        name: name.into(),
+        package,
+        pins,
+    })
 }
 
 fn pin_signals(pin_name: &str) -> Vec<String> {
