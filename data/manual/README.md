@@ -3,7 +3,7 @@
 This data is manually entered or initially generated and then hand edited.
 
 Data may end up here because of one of the following:
-1. Only written in datasheet
+1. Only written in PDF format (datasheet, trm, errata)
 2. Not available in metadata
 3. Incorrect in metadata
 4. Otherwise too cumbersome to extract from metadata.
@@ -25,5 +25,7 @@ Data may end up here because of one of the following:
 | MSP peri operating modes  | Datasheet only               |
 | MSP VREF features         | Datasheet only               |
 | MSP sleep mode timings    | Datasheet only               |
-| Timers in SLEEP           | Datasheet only               |
-| ADC clock range           | Datasheet only               |
+| MSP Timers in SLEEP       | Datasheet only               |
+| MSP ADC clock range       | Datasheet only               |
+| MSP Ram sleep retention   | Datasheet only               |
+| MSP Full memory info      | Datasheet only               |
