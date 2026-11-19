@@ -5,7 +5,7 @@ members = [
     "mspm0-metapac-gen",
     # "mspm0-metapac",
     "mspm0-data-gen",
-    "sysconfig-data-gen",
+    "sysconfig-data-gen", "manual-data-gen",
 ]
 exclude = [
     "build"
