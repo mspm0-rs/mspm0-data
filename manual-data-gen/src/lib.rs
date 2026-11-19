@@ -50,6 +50,9 @@ impl FromStr for DocType {
 pub struct MspData {
     pub adc: MspAdcData,
 
+    /// Errata that apply to this chip.
+    pub errata: Vec<String>,
+
     /// ROM functions available on this chip and their address.
     #[serde(default)]
     pub rom_functions: BTreeMap<String, u32>,
