@@ -3,3 +3,7 @@ docs:
   reference_manual: https://www.ti.com/lit/pdf/SLAU847
   errata: https://www.ti.com/lit/pdf/SLAZ755
   safety_manual: https://www.ti.com/lit/pdf/SFFS948
+
+msp:
+  adc:
+    vrsel: vdd_intref_extref

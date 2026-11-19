@@ -2,3 +2,7 @@ docs:
   datasheet: https://www.ti.com/lit/gpn/MSPM0H3216
   reference_manual: https://www.ti.com/lit/pdf/SLAU923
   errata: https://www.ti.com/lit/pdf/SLAZ763
+
+msp:
+  adc:
+    vrsel: vdd_intref

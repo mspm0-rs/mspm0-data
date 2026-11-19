@@ -5,5 +5,8 @@ docs:
   safety_manual: https://www.ti.com/lit/pdf/SFFS983
 
 msp:
+  adc:
+    vrsel: vdd_intref_extref
+
   rom_functions:
     sha2sw: 0x01003BC1

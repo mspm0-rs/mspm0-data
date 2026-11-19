@@ -48,7 +48,34 @@ impl FromStr for DocType {
 /// MSPM0/33 specific data
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MspData {
+    pub adc: MspAdcData,
+
     /// ROM functions available on this chip and their address.
     #[serde(default)]
     pub rom_functions: BTreeMap<String, u32>,
+}
+
+/// MSPM0/33 specific ADC data
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct MspAdcData {
+    pub vrsel: AdcVrselOption,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum AdcVrselOption {
+    VddIntref,
+    VddIntrefExtref,
+}
+
+impl FromStr for AdcVrselOption {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "vdd_intref" => Ok(Self::VddIntref),
+            "vdd_intref_extref" => Ok(Self::VddIntrefExtref),
+            _ => Err("unknown adc vrsel option"),
+        }
+    }
 }
