@@ -7,6 +7,9 @@ use serde::{Deserialize, Serialize};
 pub struct ManualFile {
     /// Documentation for the chip.
     pub docs: BTreeMap<DocType, String>,
+
+    /// MSPM0/33 specific data.
+    pub msp: Option<MspData>,
 }
 
 /// The type of documentation
@@ -40,4 +43,12 @@ impl FromStr for DocType {
             _ => Err("unknown doc type"),
         }
     }
+}
+
+/// MSPM0/33 specific data
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct MspData {
+    /// ROM functions available on this chip and their address.
+    #[serde(default)]
+    pub rom_functions: BTreeMap<String, u32>,
 }

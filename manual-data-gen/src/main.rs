@@ -37,6 +37,8 @@ fn main() -> anyhow::Result<()> {
 
     println!("Writing docs");
     write_docs(&output, &files)?;
+    println!("Writing MSP rom functions");
+    write_msp_rom_functions(&output, &files)?;
 
     Ok(())
 }
@@ -135,18 +137,51 @@ fn warn_missing_important_docs_and_validate_urls(files: &Vec<(&PathBuf, ManualFi
     }
 }
 
-fn write_docs(data_dir: &Path, files: &Vec<(&PathBuf, ManualFile)>) -> anyhow::Result<()> {
+fn write_docs(output_dir: &Path, files: &Vec<(&PathBuf, ManualFile)>) -> anyhow::Result<()> {
     files.par_iter().try_for_each(|(path, manual_file)| {
         let path_no_ext = path.with_extension("");
         let name = path_no_ext.file_stem().unwrap();
-        let dest_dir = data_dir.join(name);
+        let dest_dir = output_dir.join(name);
 
         fs::create_dir_all(&dest_dir)
             .with_context(|| format!("try create dir {}", dest_dir.display()))?;
 
         let docs_file = dest_dir.join("docs.json");
-        let serialized = serde_json::to_string_pretty(&manual_file.docs).context("serializing data")?;
-        fs::write(&docs_file, serialized).with_context(|| format!("create file {}", docs_file.display()))?;
+        let serialized =
+            serde_json::to_string_pretty(&manual_file.docs).context("serializing data")?;
+        fs::write(&docs_file, serialized)
+            .with_context(|| format!("create file {}", docs_file.display()))?;
+
+        Ok(())
+    })
+}
+
+fn write_msp_rom_functions(
+    data_dir: &Path,
+    files: &Vec<(&PathBuf, ManualFile)>,
+) -> anyhow::Result<()> {
+    files.par_iter().try_for_each(|(path, manual_file)| {
+        let path_no_ext = path.with_extension("");
+        let name = path_no_ext.file_stem().unwrap();
+        let dest_dir = data_dir.join(name);
+
+        if !name.to_string_lossy().starts_with("msp") {
+            return Ok(());
+        }
+
+        fs::create_dir_all(&dest_dir)
+            .with_context(|| format!("try create dir {}", dest_dir.display()))?;
+
+        let docs_file = dest_dir.join("rom_functions.json");
+
+        if let Some(msp) = &manual_file.msp
+            && !msp.rom_functions.is_empty()
+        {
+            let serialized =
+                serde_json::to_string_pretty(&msp.rom_functions).context("serializing data")?;
+            fs::write(&docs_file, serialized)
+                .with_context(|| format!("create file {}", docs_file.display()))?;
+        }
 
         Ok(())
     })
