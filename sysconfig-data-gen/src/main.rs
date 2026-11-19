@@ -124,7 +124,7 @@ fn main() -> anyhow::Result<()> {
         )
         .context("write package")?;
 
-        println!("{}{}", gpn.device_name, package.package);
+        println!("pkg: {}{}", gpn.device_name, package.package);
     }
 
     Ok(())

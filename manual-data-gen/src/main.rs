@@ -1,4 +1,9 @@
-use std::{ffi::OsStr, fs, path::PathBuf, sync::LazyLock};
+use std::{
+    ffi::OsStr,
+    fs,
+    path::{Path, PathBuf},
+    sync::LazyLock,
+};
 
 use anyhow::{Context, bail};
 use manual_data_gen::{DocType, ManualFile};
@@ -8,10 +13,9 @@ use regex::Regex;
 fn main() -> anyhow::Result<()> {
     let output = PathBuf::from("build/data2");
     let data_dir = PathBuf::from("data");
-
     let data_manual_dir = data_dir.join("manual");
-    let read_dir = fs::read_dir(&data_manual_dir).context("read manual data directory")?;
 
+    let read_dir = fs::read_dir(&data_manual_dir).context("read manual data directory")?;
     let mut entries = Vec::new();
 
     for entry in read_dir {
@@ -27,6 +31,17 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
+    // Remove error type
+    let files = read_data(&entries)?;
+    warn_missing_important_docs_and_validate_urls(&files);
+
+    println!("Writing docs");
+    write_docs(&output, &files)?;
+
+    Ok(())
+}
+
+fn read_data(entries: &[PathBuf]) -> anyhow::Result<Vec<(&PathBuf, ManualFile)>> {
     let files = entries
         .par_iter()
         .map(|path| {
@@ -72,9 +87,7 @@ fn main() -> anyhow::Result<()> {
         .map(|(path, result)| (path, result.unwrap()))
         .collect::<Vec<_>>();
 
-    warn_missing_important_docs_and_validate_urls(&files);
-
-    Ok(())
+    Ok(files)
 }
 
 fn warn_missing_important_docs_and_validate_urls(files: &Vec<(&PathBuf, ManualFile)>) {
@@ -120,4 +133,21 @@ fn warn_missing_important_docs_and_validate_urls(files: &Vec<(&PathBuf, ManualFi
             println!("warn: {} safety_manual has malformed url", name);
         }
     }
+}
+
+fn write_docs(data_dir: &Path, files: &Vec<(&PathBuf, ManualFile)>) -> anyhow::Result<()> {
+    files.par_iter().try_for_each(|(path, manual_file)| {
+        let path_no_ext = path.with_extension("");
+        let name = path_no_ext.file_stem().unwrap();
+        let dest_dir = data_dir.join(name);
+
+        fs::create_dir_all(&dest_dir)
+            .with_context(|| format!("try create dir {}", dest_dir.display()))?;
+
+        let docs_file = dest_dir.join("docs.json");
+        let serialized = serde_json::to_string_pretty(&manual_file.docs).context("serializing data")?;
+        fs::write(&docs_file, serialized).with_context(|| format!("create file {}", docs_file.display()))?;
+
+        Ok(())
+    })
 }
