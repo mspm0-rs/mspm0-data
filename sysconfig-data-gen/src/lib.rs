@@ -45,3 +45,11 @@ pub struct PackagePin {
     /// - `NRST`
     pub signals: Vec<String>,
 }
+
+/// MSPM0/33 specific data
+pub mod msp {
+    use std::collections::BTreeMap;
+
+    /// Mapping from pin to PINCM index.
+    pub type PinCmIndices = BTreeMap<String, u8>;
+}

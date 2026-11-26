@@ -1,3 +1,4 @@
+mod msp;
 mod util;
 
 use std::{
@@ -11,9 +12,9 @@ use anyhow::{Context as _, bail};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use regex::Regex;
 use serde_json::Value;
-use sysconfig_data_gen::{Package, PackagePin};
+use sysconfig_data_gen::{Package, PackagePin, msp::PinCmIndices};
 
-use crate::util::RegexMap;
+use crate::{msp::make_pincm_indices, util::RegexMap};
 
 /// SysConfig chip groups that we intentionally ignore.
 const NOPE_SYSCONFIG_GROUPS: &[&str] = &[
@@ -123,8 +124,45 @@ fn main() -> anyhow::Result<()> {
             serde_json::to_string_pretty(&package).context("serializing package")?,
         )
         .context("write package")?;
+    }
 
-        println!("pkg: {}{}", gpn.device_name, package.package);
+    // MSPM0/33 PINCM indices
+    let pincm_indices: Vec<(&GpnDevice, anyhow::Result<PinCmIndices>)> = sysconfig_datas
+        .par_iter()
+        .filter(|(gpn, _)| gpn.family.starts_with("msp"))
+        .map(|(gpn, sysconfig_data)| (*gpn, make_pincm_indices(gpn, sysconfig_data)))
+        .collect();
+
+    if pincm_indices.iter().any(|(_, result)| result.is_err()) {
+        println!("Error reading sysconfig pincm index data");
+
+        for (gpn, result) in pincm_indices.into_iter() {
+            if let Err(err) = result {
+                println!("For {}: {}", gpn.device_name, err);
+            }
+        }
+
+        bail!("Error reading sysconfig pincm index data for msp (see above)");
+    }
+
+    // Remove error type
+    let pincm_indices = pincm_indices
+        .into_iter()
+        .map(|(gpn, result)| (gpn, result.unwrap()))
+        .collect::<Vec<_>>();
+
+    // TODO: Write at a better time
+    for (gpn, indices) in pincm_indices.iter() {
+        let device_dir = output.join(gpn.device_name.to_lowercase());
+        let pincm_file_path = device_dir.join("pincm.json");
+
+        fs::create_dir_all(device_dir).context("create device dir")?;
+
+        fs::write(
+            pincm_file_path,
+            serde_json::to_string_pretty(&indices).context("serializing pincm data")?,
+        )
+        .context("write package")?;
     }
 
     Ok(())
