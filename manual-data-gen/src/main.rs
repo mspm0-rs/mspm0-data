@@ -1,4 +1,5 @@
 use std::{
+    collections::BTreeMap,
     ffi::OsStr,
     fs,
     path::{Path, PathBuf},
@@ -9,11 +10,13 @@ use anyhow::{Context, bail};
 use manual_data_gen::{DocType, ManualFile};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use regex::Regex;
+use serde::{Deserialize, Serialize};
 
 fn main() -> anyhow::Result<()> {
     let output = PathBuf::from("build/data2");
     let data_dir = PathBuf::from("data");
     let data_manual_dir = data_dir.join("manual");
+    let errata_dir = data_manual_dir.join("errata");
 
     let read_dir = fs::read_dir(&data_manual_dir).context("read manual data directory")?;
     let mut entries = Vec::new();
@@ -31,14 +34,21 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
+    let errata = read_errata(&errata_dir).context("reading errata")?;
+
     // Remove error type
-    let files = read_data(&entries)?;
+    let files = read_data(&entries).context("reading manual data")?;
     warn_missing_important_docs_and_validate_urls(&files);
 
     println!("Writing docs");
     write_docs(&output, &files)?;
     println!("Writing MSP rom functions");
     write_msp_rom_functions(&output, &files)?;
+    println!("Writing MSP errata");
+    write_msp_errata(&output, &files, &errata)?;
+
+    println!("Writing all_errata.json");
+    write_all_errata(&output, &errata)?;
 
     Ok(())
 }
@@ -90,6 +100,40 @@ fn read_data(entries: &[PathBuf]) -> anyhow::Result<Vec<(&PathBuf, ManualFile)>>
         .collect::<Vec<_>>();
 
     Ok(files)
+}
+
+fn read_errata(errata_path: &Path) -> anyhow::Result<BTreeMap<String, Vec<String>>> {
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct ErrataFile {
+        errata: Vec<String>,
+    }
+
+    let read_dir = fs::read_dir(errata_path).context("read errata")?;
+    let mut errata = BTreeMap::new();
+
+    for entry in read_dir {
+        let entry = entry.context("get entry in manual data directory")?;
+        let path = entry.path();
+        let file_type = entry
+            .file_type()
+            .with_context(|| format!("check file type of {}", path.display()))?;
+        let is_yaml = path.extension() == Some(OsStr::new("yaml"));
+
+        if file_type.is_file() && is_yaml {
+            let file = fs::File::open(&path).with_context(|| format!("open {}", path.display()))?;
+            let file = serde_yaml::from_reader::<_, ErrataFile>(file)
+                .with_context(|| format!("deserialize {}", path.display()))?;
+            let name = path.with_extension("");
+            let name = name
+                .file_name()
+                .with_context(|| format!("{} has no name without extension", path.display()))?
+                .to_string_lossy();
+
+            errata.insert(name.into(), file.errata);
+        }
+    }
+
+    Ok(errata)
 }
 
 fn warn_missing_important_docs_and_validate_urls(files: &Vec<(&PathBuf, ManualFile)>) {
@@ -185,4 +229,54 @@ fn write_msp_rom_functions(
 
         Ok(())
     })
+}
+
+fn write_msp_errata(
+    data_dir: &Path,
+    files: &Vec<(&PathBuf, ManualFile)>,
+    errata: &BTreeMap<String, Vec<String>>,
+) -> anyhow::Result<()> {
+    files.par_iter().try_for_each(|(path, manual_file)| {
+        let path_no_ext = path.with_extension("");
+        let name = path_no_ext.file_stem().unwrap();
+        let dest_dir = data_dir.join(name);
+
+        if !name.to_string_lossy().starts_with("msp") {
+            return Ok(());
+        }
+
+        fs::create_dir_all(&dest_dir)
+            .with_context(|| format!("try create dir {}", dest_dir.display()))?;
+
+        let errata_file = dest_dir.join("errata.json");
+
+        if let Some(errata_url) = manual_file.docs.get(&DocType::Errata)
+            && let Some(document_id) = errata_url.strip_prefix("https://www.ti.com/lit/pdf/")
+        {
+            let document_id = document_id.to_lowercase();
+            let Some(errata) = errata.get(&document_id) else {
+                println!("errata with document id \"{document_id}\" in {name:?} does not exist");
+                return Ok(());
+            };
+
+            let serialized =
+                serde_json::to_string_pretty(errata).context("serializing data")?;
+            fs::write(&errata_file, serialized)
+                .with_context(|| format!("create file {}", errata_file.display()))?;
+        }
+
+        Ok(())
+    })
+}
+
+fn write_all_errata(
+    data_dir: &Path,
+    errata: &BTreeMap<String, Vec<String>>,
+) -> anyhow::Result<()> {
+    let all_errata_file = data_dir.join("all_errata.json");
+    let serialized = serde_json::to_string_pretty(&errata).context("serializing data")?;
+    fs::write(&all_errata_file, serialized)
+        .with_context(|| format!("create file {}", all_errata_file.display()))?;
+
+    Ok(())
 }
