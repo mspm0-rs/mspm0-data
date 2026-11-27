@@ -1,0 +1,52 @@
+# based on slaz771a
+errata:
+- aes_err_01
+- bsl_err_01
+- comp_err_06
+- cpu_err_02
+- cpu_err_03
+- fcc_err_01
+- flash_err_03
+- flash_err_04
+- flash_err_05
+- flash_err_08
+- gpio_err_05 # Rev A only
+- gpio_err_06 # Rev A only
+- keystore_err_01
+- mathacl_err_01
+- pmcu_err_13 # Rev A only
+- rst_err_01
+- rst_err_03
+- spi_err_10
+- sysctl_err_01 # Rev A only
+- sysctl_err_02
+- sysctl_err_03
+- sysctl_err_04
+- sysctl_err_05 # Rev A only
+- sysctl_err_06 # Rev A only
+- sysctl_err_11
+- sysctl_err_12
+- sysosc_err_01
+- sysosc_err_02
+- sysosc_err_04
+- sysosc_err_05
+- sysosc_err_06
+- syspll_err_01 # Rev A only
+- timer_err_04
+- timer_err_06
+- timer_err_07
+- unicommi2cc_err_01
+- unicommi2cc_err_02
+- unicommi2cc_err_03
+- unicommspi_err_02
+- unicommspi_err_03
+- unicommspi_err_04
+- unicommuart_err_06
+- unicommuart_err_07
+- unicommuart_err_09
+- unicommuart_err_10
+- unicommuart_err_12
+- unicommuart_err_13
+- unicommuart_err_14
+- unicommuart_err_15
+- vref_err_05

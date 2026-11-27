@@ -1,0 +1,8 @@
+docs:
+  datasheet: https://www.ti.com/lit/gpn/MSPM0L1116
+  reference_manual: https://www.ti.com/lit/pdf/SLAU847
+  errata: https://www.ti.com/lit/pdf/SLAZ759
+
+msp:
+  adc:
+    vrsel: vdd_intref_extref

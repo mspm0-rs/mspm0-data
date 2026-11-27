@@ -1,0 +1,37 @@
+# based on slaz769c
+errata:
+- aes_err_01
+- cpu_err_05
+- flash_err_02
+- gpio_err_05
+- gsc_err_01
+- iomux_err_01
+- i2s_err_01
+- keystore_err_01
+- pmcu_err_15
+- rst_err_01
+- rst_err_02
+- sysctl_err_01
+- syspll_err_01
+- timer_err_04
+- timer_err_06
+- timer_err_07
+- timer_err_08
+- unicommi2cc_err_01
+- unicommi2cc_err_02
+- unicommi2cc_err_03
+- unicommspi_err_02
+- unicommspi_err_03
+- unicommspi_err_04
+- unicommuart_err_01
+- unicommuart_err_02
+- unicommuart_err_03
+- unicommuart_err_04
+- unicommuart_err_05
+- unicommuart_err_06
+- unicommuart_err_07
+- unicommuart_err_10
+- unicommuart_err_12
+- unicommuart_err_13
+- unicommuart_err_14
+- unicommuart_err_15
