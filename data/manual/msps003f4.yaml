@@ -3,6 +3,21 @@ docs:
   reference_manual: https://www.ti.com/lit/pdf/SLAU893
   errata: https://www.ti.com/lit/pdf/SLAZ753
 
+# Table 8-4 Memory Organization
+flash:
+  BANK0:
+    default: { start: 0x00000000, length: 16384 }
+  NONMAIN:
+    default: { start: 0x41C00000, length: 512 }
+  BCR_CONFIG:
+    default: { start: 0x41C00000, length: 256 }
+  FACTORY:
+    default: { start: 0x41C40000, length: 128 }
+
+ram:
+  BANK0:
+    default: { start: 0x20000000, length: 1024 }
+
 msp:
   adc:
     vrsel: vdd_intref

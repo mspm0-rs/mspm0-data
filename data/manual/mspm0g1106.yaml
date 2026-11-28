@@ -3,6 +3,27 @@ docs:
   reference_manual: https://www.ti.com/lit/pdf/SLAU846
   errata: https://www.ti.com/lit/pdf/SLAZ742
 
+flash:
+  BANK0:
+    # The datasheet says 64KB-8B
+    ecc_corrected: { start: 0x00000000, length: 65528 }
+    ecc_uncorrected: { start: 0x00400000, length: 65528 }
+    ecc_code: { start: 0x41800000, length: 65528 }
+  NONMAIN:
+    ecc_corrected: { start: 0x41C00000, length: 512 }
+    ecc_uncorrected: { start: 0x41C1000, length: 512 }
+    ecc_code: { start: 0x41C20000, length: 512 }
+  FACTORY:
+    ecc_corrected: { start: 0x41C40000, length: 128 }
+    ecc_uncorrected: { start: 0x41C50000, length: 128 }
+    ecc_code: { start: 0x41C60000, length: 128 }
+
+ram:
+  BANK0:
+    parity_checked: { start: 0x20100000, length: 32768 }
+    parity_unchecked: { start: 0x20200000, length: 32768 }
+    parity_code: { start: 0x20300000, length: 32768 }
+
 msp:
   adc:
     vrsel: vdd_intref_extref

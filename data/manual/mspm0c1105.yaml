@@ -3,6 +3,20 @@ docs:
   reference_manual: https://www.ti.com/lit/pdf/SLAU893
   errata: https://www.ti.com/lit/pdf/SLAZ761
 
+flash:
+  BANK0:
+    unchecked: { start: 0x00000000, length: 16384 }
+  NONMAIN:
+    unchecked: { start: 0x41C00000, length: 512 }
+  BCR_CONFIG:
+    unchecked: { start: 0x41C00000, length: 256 }
+  FACTORY:
+    unchecked: { start: 0x41C40000, length: 128 }
+
+ram:
+  BANK0:
+    unchecked: { start: 0x20000000, length: 8192 }
+
 msp:
   adc:
     vrsel: vdd_intref

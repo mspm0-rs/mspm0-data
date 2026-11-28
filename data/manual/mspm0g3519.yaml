@@ -4,6 +4,37 @@ docs:
   errata: https://www.ti.com/lit/pdf/SLAZ758
   safety_manual: https://www.ti.com/lit/pdf/SFFS983
 
+flash:
+  BANK0:
+    ecc_corrected: { start: 0x00000000, length: 262144 }
+    ecc_uncorrected: { start: 0x00400000, length: 262144 }
+    ecc_code: { start: 0x00800000, length: 262144 }
+  BANK1:
+    ecc_corrected: { start: 0x00040000, length: 262144 }
+    ecc_uncorrected: { start: 0x00440000, length: 262144 }
+    ecc_code: { start: 0x00840000, length: 262144 }
+  DATA:
+    ecc_corrected: { start: 0x41D00000, length: 16384 }
+    ecc_uncorrected: { start: 0x41E00000, length: 16384 }
+    ecc_code: { start: 0x41F00000, length: 16384 }
+  NONMAIN:
+    ecc_corrected: { start: 0x41C00000, length: 2048 }
+    ecc_uncorrected: { start: 0x41C1000, length: 2048 }
+    ecc_code: { start: 0x41C20000, length: 2048 }
+  FACTORY:
+    ecc_corrected: { start: 0x41C40000, length: 512 }
+    ecc_uncorrected: { start: 0x41C50000, length: 512 }
+    ecc_code: { start: 0x41C60000, length: 512 }
+
+ram:
+  BANK0:
+    ecc_corrected: { start: 0x20000000, length: 65536 }
+    parity_checked: { start: 0x20010000, length: 65536 }
+    unchecked: { start: 0x20020000, length: 65536 }
+    ecc_code: { start: 0x20030000, length: 65536 }
+  BANK1:
+    ecc_uncorrected: { start: 0x20210000, length: 65536 }
+
 msp:
   adc:
     vrsel: vdd_intref_extref
